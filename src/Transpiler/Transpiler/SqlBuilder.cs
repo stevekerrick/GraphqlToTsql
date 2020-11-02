@@ -30,8 +30,6 @@ namespace GraphqlToSql.Transpiler.Transpiler
 
         public void BeginQuery()
         {
-            //Console.WriteLine("BeginQuery");
-
             if (_parent == null)
             {
                 _parent = Term.TopLevel();
@@ -47,8 +45,6 @@ namespace GraphqlToSql.Transpiler.Transpiler
 
         public void EndQuery()
         {
-            //Console.WriteLine("EndQuery");
-
             if (_parent.TermType == TermType.TopLevel)
             {
                 EmitTopLevelQuery();
@@ -63,8 +59,6 @@ namespace GraphqlToSql.Transpiler.Transpiler
 
         public void Field(string name)
         {
-            //Console.WriteLine($"Field: {name}");
-
             Field field;
 
             if (_parent.TermType == TermType.TopLevel)
@@ -114,7 +108,7 @@ namespace GraphqlToSql.Transpiler.Transpiler
             var tab = TAB;
             foreach (var term in _parent.Children)
             {
-                Emit(tab + TAB, $"{term.Field.DbColumnName} AS {term.Name}");
+                Emit(TAB + tab, $"{term.Field.DbColumnName} AS {term.Name}");
                 tab = COMMA_TAB;
             }
             Emit(TAB, $"FROM {_parent.Field.Entity.DbTableName}");
