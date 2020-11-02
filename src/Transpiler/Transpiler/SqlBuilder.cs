@@ -1,6 +1,5 @@
 ﻿using GraphqlToSql.Transpiler.Entities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -9,14 +8,12 @@ namespace GraphqlToSql.Transpiler.Transpiler
     public class SqlBuilder
     {
         private readonly StringBuilder _sb;
-        private readonly Stack<Term> _stack;
         private Term _term;
         private Term _parent;
 
         public SqlBuilder()
         {
             _sb = new StringBuilder(2048);
-            _stack = new Stack<Term>();
         }
 
         public Query GetResult()
@@ -36,7 +33,6 @@ namespace GraphqlToSql.Transpiler.Transpiler
             }
             else
             {
-                _stack.Push(_parent);
                 _parent = _term;
             }
 
@@ -53,7 +49,7 @@ namespace GraphqlToSql.Transpiler.Transpiler
             {
                 EmitQuery();
                 _term = _parent;
-                _parent = _stack.Pop();
+                _parent = _term.ParentTerm;
             }
         }
 
