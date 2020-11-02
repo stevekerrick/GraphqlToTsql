@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>GraphqlToSql.Transpiler</AssemblyName>
     <RootNamespace>GraphqlToSql.Transpiler</RootNamespace>
+    <NoWarn>3021</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

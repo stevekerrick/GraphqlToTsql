@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 
-namespace GraphqlToSql.Transpiler.Models
+namespace GraphqlToSql.Transpiler.Entities
 {
     public abstract class EntityBase
     {
         public abstract string Name { get; }
         public virtual string DbTableName { get; }
         public virtual string PluralName => $"{Name}s";
-        public List<FieldDef> Fields { get; protected set; }
+        public List<Field> Fields { get; protected set; }
 
         // public string SortField => Fields[0].Name; //TODO
     }

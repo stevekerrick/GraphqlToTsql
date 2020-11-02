@@ -17,8 +17,8 @@ namespace GraphqlToSql.TranspilerTests
         {
             const string graphQl = @"
 {
-  hero {
-    name {}
+  codes {
+    id {}
   }
 }
 ";

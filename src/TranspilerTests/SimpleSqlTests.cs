@@ -10,7 +10,7 @@ namespace GraphqlToSql.TranspilerTests
         [Test]
         public void QuerySimpleFieldsTest()
         {
-            const string graphQl = "{ codes { codeId parentCodeId codeStatusId secureCode } }";
+            const string graphQl = "{ codes { id parentCodeId codeStatusId secureCode } }";
             Check(graphQl);
         }
 

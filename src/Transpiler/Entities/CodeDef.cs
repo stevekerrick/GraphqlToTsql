@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GraphqlToSql.Transpiler.Models
+namespace GraphqlToSql.Transpiler.Entities
 {
     public class CodeDef : EntityBase
     {
@@ -11,12 +11,12 @@ namespace GraphqlToSql.Transpiler.Models
 
         private CodeDef()
         {
-            Fields = new List<FieldDef>
+            Fields = new List<Field>
             {
-                new FieldDef(this, "codeId", "CodeID"),
-                new FieldDef(this, "parentCodeId", "ParentCodeID"),
-                new FieldDef(this, "codeStatusId", "CodeStatusID"),
-                new FieldDef(this, "secureCode", "SecureCode")
+                Field.Scalar(this, "id", "CodeID"),
+                Field.Scalar(this, "parentCodeId", "ParentCodeID"),
+                Field.Scalar(this, "codeStatusId", "CodeStatusID"),
+                Field.Scalar(this, "secureCode", "SecureCode")
             };
         }
     }

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from C:\git\GraphqlToSql\Transpiler\GraphqlParser\Gql.g4 by ANTLR 4.8
+// Generated from c:\git\GraphqlToSql\src\Transpiler\GraphqlParser\Gql.g4 by ANTLR 4.8
 
 // Unreachable code detected
 #pragma warning disable 0162
