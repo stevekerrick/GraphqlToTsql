@@ -22,7 +22,7 @@ namespace GraphqlToSql.TranspilerTests
             Console.WriteLine("------------------------------------");
 
             Assert.IsTrue(result.IsSuccessful, $"The parse failed: {result.ParseError}");
-            Console.WriteLine(result.Query.Command);
+            Console.WriteLine(result.Query.Command); 
         }
     }
 }
