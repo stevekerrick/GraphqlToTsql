@@ -1,6 +1,5 @@
 ﻿using GraphqlToSql.Transpiler.Entities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -9,14 +8,12 @@ namespace GraphqlToSql.Transpiler.Transpiler
     public class SqlBuilder
     {
         private readonly StringBuilder _sb;
-        private readonly Stack<Term> _stack;
         private Term _term;
         private Term _parent;
 
         public SqlBuilder()
         {
             _sb = new StringBuilder(2048);
-            _stack = new Stack<Term>();
         }
 
         public Query GetResult()
@@ -30,15 +27,12 @@ namespace GraphqlToSql.Transpiler.Transpiler
 
         public void BeginQuery()
         {
-            //Console.WriteLine("BeginQuery");
-
             if (_parent == null)
             {
                 _parent = Term.TopLevel();
             }
             else
             {
-                _stack.Push(_parent);
                 _parent = _term;
             }
 
@@ -47,8 +41,6 @@ namespace GraphqlToSql.Transpiler.Transpiler
 
         public void EndQuery()
         {
-            //Console.WriteLine("EndQuery");
-
             if (_parent.TermType == TermType.TopLevel)
             {
                 EmitTopLevelQuery();
@@ -57,14 +49,12 @@ namespace GraphqlToSql.Transpiler.Transpiler
             {
                 EmitQuery();
                 _term = _parent;
-                _parent = _stack.Pop();
+                _parent = _term.ParentTerm;
             }
         }
 
-        public void Field(string name)
+        public void Field(string alias, string name)
         {
-            //Console.WriteLine($"Field: {name}");
-
             Field field;
 
             if (_parent.TermType == TermType.TopLevel)
@@ -84,7 +74,7 @@ namespace GraphqlToSql.Transpiler.Transpiler
                 }
             }
 
-            _term = new Term(_parent, field, name);
+            _term = new Term(_parent, field, alias ?? name);
             _parent.Children.Add(_term);
         }
 
@@ -114,7 +104,7 @@ namespace GraphqlToSql.Transpiler.Transpiler
             var tab = TAB;
             foreach (var term in _parent.Children)
             {
-                Emit(tab + TAB, $"{term.Field.DbColumnName} AS {term.Name}");
+                Emit(TAB + tab, $"{term.Field.DbColumnName} AS {term.Name}");
                 tab = COMMA_TAB;
             }
             Emit(TAB, $"FROM {_parent.Field.Entity.DbTableName}");
