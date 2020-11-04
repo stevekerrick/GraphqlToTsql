@@ -53,7 +53,7 @@ namespace GraphqlToSql.Transpiler.Transpiler
             }
         }
 
-        public void Field(string name)
+        public void Field(string alias, string name)
         {
             Field field;
 
@@ -74,7 +74,7 @@ namespace GraphqlToSql.Transpiler.Transpiler
                 }
             }
 
-            _term = new Term(_parent, field, name);
+            _term = new Term(_parent, field, alias ?? name);
             _parent.Children.Add(_term);
         }
 

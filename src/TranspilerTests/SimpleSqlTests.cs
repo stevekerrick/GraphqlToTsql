@@ -8,21 +8,39 @@ namespace GraphqlToSql.TranspilerTests
     public class SimpleSqlTests
     {
         [Test]
-        public void QuerySimpleFieldsTest()
+        public void SimpleQueryTest()
         {
-            const string graphQl = "{ codes { id parentCodeId codeStatusId secureCode } }";
+            const string graphQl = "{ codes { id secureCode } }";
             var expectedSql = @"
 WITH cte1(cte1Json) AS (
   SELECT
     CodeID AS id
-  , ParentCodeID AS parentCodeId
-  , CodeStatusID AS codeStatusId
-  , SecureCode AS mysecureCode
+  , SecureCode AS secureCode
   FROM Code
-  FOR JSON AUTO, myINCLUDE_NULL_VALUES
+  FOR JSON AUTO, INCLUDE_NULL_VALUES
 )
 SELECT
   cte1Json AS codes
+FROM cte1
+FOR JSON AUTO, INCLUDE_NULL_VALUES
+".Trim();
+            Check(graphQl, expectedSql);
+        }
+
+        [Test]
+        public void AliasTest()
+        {
+            const string graphQl = "{ myCodes: codes { id foo: secureCode } }";
+            var expectedSql = @"
+WITH cte1(cte1Json) AS (
+  SELECT
+    CodeID AS id
+  , SecureCode AS foo
+  FROM Code
+  FOR JSON AUTO, INCLUDE_NULL_VALUES
+)
+SELECT
+  cte1Json AS myCodes
 FROM cte1
 FOR JSON AUTO, INCLUDE_NULL_VALUES
 ".Trim();
@@ -57,7 +75,8 @@ FOR JSON AUTO, INCLUDE_NULL_VALUES
                         {
                             diff++;
                         }
-                        Console.WriteLine("".PadRight(diff + 1, '^').PadRight(40) + " : " + "".PadRight(diff + 1, '^'));
+                        var arrow = "".PadRight(diff, '=') + '^';
+                        Console.WriteLine(arrow.PadRight(40) + " : " + arrow);
                         errorShown = true;
                     }
                 }
