@@ -1,0 +1,13 @@
+{
+  "CodeID": 606843,
+  "ProductID": 6336,
+  "PureIdentity": "urn:verifybrand:epcis:uid:obj:Foo",
+  "product": {
+    "ProductName": "Sven Product Name",
+    "productReferences": [
+      {
+        "Uri": "urn:otterbox:epcis:productid:REFERENCE VALUE"
+      }
+    ]
+  }
+}
