@@ -5,14 +5,13 @@ namespace GraphqlToSql.Transpiler.Transpiler
 {
     public class Term
     {
-        public Term ParentTerm { get; private set; }
+        public Term Parent { get; private set; }
         public List<Term> Children { get; private set; }
         public Field Field { get; private set; }
         public string Name { get; private set; }
         public TermType TermType { get; private set; }
-        private string _cteName;
-
-        private static int _cteSeq;
+        private static int _tableAliasSeq;
+        private string _tableAlias;
 
         private Term()
         {
@@ -27,9 +26,9 @@ namespace GraphqlToSql.Transpiler.Transpiler
             };
         }
 
-        public Term(Term parentTerm, Field field, string name)
+        public Term(Term parent, Field field, string name)
         {
-            ParentTerm = parentTerm;
+            Parent = parent;
             Field = field;
             Name = name;
             Children = new List<Term>();
@@ -40,13 +39,25 @@ namespace GraphqlToSql.Transpiler.Transpiler
                 : TermType.List;
         }
 
-        public string CteName()
+        public string TableAlias()
         {
-            if (_cteName == null)
+            if (_tableAlias == null)
             {
-                _cteName = $"cte{++_cteSeq}";
+                _tableAlias = $"t{++_tableAliasSeq}";
             }
-            return _cteName;
+            return _tableAlias;
+        }
+
+        public string FullPath()
+        {
+            var path = Name;
+            var parent = Parent;
+            while (parent.TermType != TermType.TopLevel)
+            {
+                path = parent.Name + "." + path;
+                parent = parent.Parent;
+            }
+            return path;
         }
     }
 

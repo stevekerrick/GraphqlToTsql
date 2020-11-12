@@ -10,6 +10,7 @@ namespace GraphqlToSql.Transpiler.Transpiler
         private readonly StringBuilder _sb;
         private Term _term;
         private Term _parent;
+        private int _indent;
 
         public SqlBuilder()
         {
@@ -30,6 +31,8 @@ namespace GraphqlToSql.Transpiler.Transpiler
             if (_parent == null)
             {
                 _parent = Term.TopLevel();
+                Emit("SELECT");
+                Indent();
             }
             else
             {
@@ -43,13 +46,19 @@ namespace GraphqlToSql.Transpiler.Transpiler
         {
             if (_parent.TermType == TermType.TopLevel)
             {
-                EmitTopLevelQuery();
+                //EmitTopLevelQuery();
+                Emit("");
+                Emit(FOR_JSON);
             }
             else
             {
-                EmitQuery();
+                //EmitQuery();
+                Emit($"FROM {_parent.Field.Entity.DbTableName} {_parent.TableAlias()}");
+                Emit($"{FOR_JSON})) AS {_parent.Name}");
+                Outdent();
+                Outdent();
                 _term = _parent;
-                _parent = _term.ParentTerm;
+                _parent = _term.Parent;
             }
         }
 
@@ -76,42 +85,27 @@ namespace GraphqlToSql.Transpiler.Transpiler
 
             _term = new Term(_parent, field, alias ?? name);
             _parent.Children.Add(_term);
+
+            // Emit
+            if (field.FieldType == FieldType.Scalar)
+            {
+                Emit(TAB, $"{_term.Parent.TableAlias()}.{field.DbColumnName} AS {_term.Name}");
+            }
+            else
+            {
+                Emit("");
+                Emit($"-- {_term.FullPath()}");
+                Emit("JSON_QUERY ((");
+                Indent();
+                Emit("SELECT");
+            }
         }
 
         #region SQL generation logic
 
         private const string TAB = "  ";
         private const string COMMA_TAB = ", ";
-
-        private void EmitTopLevelQuery()
-        {
-            Emit("SELECT");
-            var tab = TAB;
-            foreach (var term in _parent.Children)
-            {
-                Emit(tab, $"{term.CteName()}Json AS {term.Name}");
-                tab = COMMA_TAB;
-            }
-            Emit($"FROM {string.Join(", ", _parent.Children.Select(_ => _.CteName()))}");
-            Emit("FOR JSON AUTO, INCLUDE_NULL_VALUES");
-        }
-
-        private void EmitQuery()
-        {
-            Emit($"WITH {_parent.CteName()}({_parent.CteName()}Json) AS (");
-
-            Emit(TAB, "SELECT");
-            var tab = TAB;
-            foreach (var term in _parent.Children)
-            {
-                Emit(TAB + tab, $"{term.Field.DbColumnName} AS {term.Name}");
-                tab = COMMA_TAB;
-            }
-            Emit(TAB, $"FROM {_parent.Field.Entity.DbTableName}");
-            Emit(TAB, "FOR JSON AUTO, INCLUDE_NULL_VALUES");
-
-            Emit(")");
-        }
+        private const string FOR_JSON = "FOR JSON PATH, INCLUDE_NULL_VALUES";
 
         private void Emit(string line)
         {
@@ -120,7 +114,17 @@ namespace GraphqlToSql.Transpiler.Transpiler
 
         private void Emit(string tab, string line)
         {
-            _sb.AppendLine($"{tab}{line}");
+            var indent = new String(' ', _indent);
+            _sb.AppendLine($"{indent}{tab}{line}".TrimEnd());
+        }
+
+        private void Indent()
+        {
+            _indent = _indent + 2;
+        }
+        private void Outdent()
+        {
+            _indent = _indent - 2;
         }
 
         #endregion

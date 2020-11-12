@@ -28,8 +28,6 @@ namespace GraphqlToSql.Transpiler.Transpiler
             _sql.EndQuery();
         }
 
-
-
         public override void ExitFieldName(GqlParser.FieldNameContext context)
         {
             string name, alias;
@@ -47,11 +45,6 @@ namespace GraphqlToSql.Transpiler.Transpiler
             }
 
             _sql.Field(alias, name);
-        }
-
-        public override void ExitField(GqlParser.FieldContext context)
-        {
-            var foo = context.fieldName().GetText();
         }
 
         #region Unsupported GraphQL features

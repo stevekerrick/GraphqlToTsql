@@ -1,3 +1,30 @@
+SELECT
+  --code
+  JSON_QUERY ((
+    SELECT
+      c1.PureIdentity
+      --code.product
+    , JSON_QUERY ((
+      SELECT
+        p.ProductName
+      from Product p
+      where p.ProductID = c1.ProductID
+      for json path, include_null_values, WITHOUT_ARRAY_WRAPPER)) AS product
+    FROM Code c1
+    where c1.CodeID = 617275
+    FOR JSON path, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS code
+
+--  --codes
+--, JSON_QUERY ((
+--    SELECT TOP 10
+--      c2.PureIdentity
+--    FROM Code c2
+--    FOR JSON path, INCLUDE_NULL_VALUES)) AS codes
+       
+FOR JSON path, INCLUDE_NULL_VALUES
+
+
+
 
 declare @codeSet table (
     CodeID int not null
