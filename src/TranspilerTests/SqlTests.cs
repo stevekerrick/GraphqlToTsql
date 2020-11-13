@@ -10,41 +10,40 @@ namespace GraphqlToSql.TranspilerTests
         [Test]
         public void SimpleQueryTest()
         {
-            const string graphQl = "{ codes { secureCode } }";
+            const string graphQl = "{ epcs { urn } }";
             var expectedSql = @"
 SELECT
 
-  -- codes
+  -- epcs
   JSON_QUERY ((
     SELECT
-      t1.SecureCode AS secureCode
-    FROM Code t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS codes
+      t1.Urn AS urn
+    FROM Epc t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS epcs
 
 FOR JSON PATH, INCLUDE_NULL_VALUES
 ".Trim();
             Check(graphQl, expectedSql);
         }
 
-//         [Test]
-//         public void AliasTest()
-//         {
-//             const string graphQl = "{ myCodes: codes { id foo: secureCode } }";
-//             var expectedSql = @"
-// WITH cte1(cte1Json) AS (
-//   SELECT
-//     CodeID AS id
-//   , SecureCode AS foo
-//   FROM Code
-//   FOR JSON AUTO, INCLUDE_NULL_VALUES
-// )
-// SELECT
-//   cte1Json AS myCodes
-// FROM cte1
-// FOR JSON AUTO, INCLUDE_NULL_VALUES
-// ".Trim();
-//             Check(graphQl, expectedSql);
-//         }
+        [Test]
+        public void AliasTest()
+        {
+            const string graphQl = "{ codes: epcs { MyUrl: urn } }";
+            var expectedSql = @"
+SELECT
+
+  -- codes
+  JSON_QUERY ((
+    SELECT
+      t1.Urn AS MyUrl
+    FROM Epc t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS codes
+
+FOR JSON PATH, INCLUDE_NULL_VALUES
+".Trim();
+            Check(graphQl, expectedSql);
+        }
 
         private static void Check(string graphQl, string expectedSql)
         {
