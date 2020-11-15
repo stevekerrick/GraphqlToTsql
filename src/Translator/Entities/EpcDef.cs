@@ -21,8 +21,14 @@ namespace GraphqlToTsql.Translator.Entities
                 Field.Scalar(this, "readPointId", "ReadPointId"),
                 Field.Scalar(this, "productId", "ProductId"),
                 Field.Scalar(this, "lotId", "LotId"),
-                Field.Scalar(this, "lastUpdate", "LastUpdate")
+                Field.Scalar(this, "lastUpdate", "LastUpdate"),
+                Field.Row(ProductDef.Instance, "product", new Join(
+                    ()=>this.GetField("productId"),
+                    ()=>ProductDef.Instance.GetField("id"))
+                )
             };
         }
     }
 }
+
+

@@ -6,11 +6,11 @@ namespace GraphqlToTsql.Translator.Translator
 {
     public class Listener : GqlBaseListener
     {
-        private readonly SqlBuilder _sql;
+        private readonly TsqlBuilder _sql;
 
         public Listener()
         {
-            _sql = new SqlBuilder();
+            _sql = new TsqlBuilder();
         }
 
         public Query GetResult()

@@ -6,7 +6,7 @@
         public string Name { get; private set; }
         public FieldType FieldType { get; private set; }
         public string DbColumnName { get; private set; }
-        //public Func<string> JoinFunc { get; }
+        public Join Join { get; private set; }
 
         private Field() { }
 
@@ -18,11 +18,12 @@
             DbColumnName = dbColumnName
         };
 
-        public static Field Row(EntityBase entity, string name) => new Field
+        public static Field Row(EntityBase entity, string name, Join join) => new Field
         {
             FieldType = FieldType.Row,
             Entity = entity,
-            Name = name
+            Name = name,
+            Join = join
         };
 
         public static Field Set(EntityBase entity, string name) => new Field

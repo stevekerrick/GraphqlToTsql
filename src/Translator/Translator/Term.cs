@@ -11,7 +11,6 @@ namespace GraphqlToTsql.Translator.Translator
         public string Name { get; private set; }
         public TermType TermType { get; private set; }
         public Arguments Arguments { get; }
-        private static int _tableAliasSeq;
         private string _tableAlias;
 
         private Term()
@@ -40,11 +39,11 @@ namespace GraphqlToTsql.Translator.Translator
                 : TermType.List;
         }
 
-        public string TableAlias()
+        public string TableAlias(Sequence aliasSequence)
         {
             if (_tableAlias == null)
             {
-                _tableAlias = $"t{++_tableAliasSeq}";
+                _tableAlias = $"t{aliasSequence.Next()}";
             }
             return _tableAlias;
         }

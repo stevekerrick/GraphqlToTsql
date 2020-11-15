@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using GraphqlToTsql.Translator.Entities;
 
 namespace GraphqlToTsql.Translator.Translator
@@ -9,10 +8,11 @@ namespace GraphqlToTsql.Translator.Translator
     {
         public long? Offset { get; set; }
         public long? Limit { get; set; }
-        public List<JoinColumn> JoinColumns { get; set; }
+        public List<Filter> Filters { get; set; }
 
-        public Arguments() { 
-            JoinColumns = new List<JoinColumn>();
+        public Arguments()
+        {
+            Filters = new List<Filter>();
         }
 
         public void Add(Field field, string name, Value value)
@@ -27,12 +27,8 @@ namespace GraphqlToTsql.Translator.Translator
             }
             else
             {
-                var argumentField = field.Entity.Fields.FirstOrDefault(_ => _.Name == name);
-                if (argumentField == null)
-                {
-                    throw new Exception($"Unknown field: {name}");
-                }
-                JoinColumns.Add(new JoinColumn(argumentField, value));
+                var argumentField = field.Entity.GetField(name);
+                Filters.Add(new Filter(argumentField, value));
             }
         }
 
@@ -47,17 +43,16 @@ namespace GraphqlToTsql.Translator.Translator
             return (long)doubleValue;
         }
 
-    }
-
-    public class JoinColumn
-    {
-        public Field Field { get; }
-        public Value Value { get; }
-
-        public JoinColumn(Field field, Value value)
+        public class Filter
         {
-            Field = field;
-            Value = value;
+            public Field Field { get; }
+            public Value Value { get; }
+
+            public Filter(Field field, Value value)
+            {
+                Field = field;
+                Value = value;
+            }
         }
     }
 }

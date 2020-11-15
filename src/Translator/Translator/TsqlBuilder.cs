@@ -1,20 +1,23 @@
 ﻿using GraphqlToTsql.Translator.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace GraphqlToTsql.Translator.Translator
 {
-    public class SqlBuilder
+    public class TsqlBuilder
     {
         private readonly StringBuilder _sb;
         private Term _term;
         private Term _parent;
         private int _indent;
+        private Sequence _aliasSequence;
 
-        public SqlBuilder()
+        public TsqlBuilder()
         {
             _sb = new StringBuilder(2048);
+            _aliasSequence = new Sequence();
         }
 
         public Query GetResult()
@@ -32,7 +35,6 @@ namespace GraphqlToTsql.Translator.Translator
             {
                 _parent = Term.TopLevel();
                 Emit("SELECT");
-                Indent();
             }
             else
             {
@@ -51,9 +53,9 @@ namespace GraphqlToTsql.Translator.Translator
             }
             else
             {
-                Emit($"FROM {_parent.Field.Entity.DbTableName} {_parent.TableAlias()}");
+                Emit($"FROM {_parent.Field.Entity.DbTableName} {_parent.TableAlias(_aliasSequence)}");
                 EmitWhere();
-                Emit($"{FOR_JSON})) AS {_parent.Name}");
+                Emit($"{FOR_JSON}{(_parent.TermType==TermType.Item?UNWRAP_ITEM:"")})) AS {_parent.Name}");
                 Outdent();
                 Outdent();
                 _term = _parent;
@@ -88,13 +90,15 @@ namespace GraphqlToTsql.Translator.Translator
             // Emit
             if (field.FieldType == FieldType.Scalar)
             {
-                Emit(TAB, $"{_term.Parent.TableAlias()}.{field.DbColumnName} AS {_term.Name}");
+                Emit(TAB, $"{_term.Parent.TableAlias(_aliasSequence)}.{field.DbColumnName} AS {_term.Name}");
             }
             else
             {
+                var separator = _parent.Children.Count == 1 ? TAB : COMMA_TAB;
                 Emit("");
-                Emit($"-- {_term.FullPath()}");
-                Emit("JSON_QUERY ((");
+                Emit(TAB, $"-- {_term.FullPath()}");
+                Emit(separator, "JSON_QUERY ((");
+                Indent();
                 Indent();
                 Emit("SELECT");
             }
@@ -105,11 +109,12 @@ namespace GraphqlToTsql.Translator.Translator
             _term.AddArgument(name, value);
         }
 
-        #region SQL generation logic
+        #region SQL helpers
 
         private const string TAB = "  ";
         private const string COMMA_TAB = ", ";
         private const string FOR_JSON = "FOR JSON PATH, INCLUDE_NULL_VALUES";
+        private const string UNWRAP_ITEM = ", WITHOUT_ARRAY_WRAPPER";
 
         private void Emit(string line)
         {
@@ -118,16 +123,35 @@ namespace GraphqlToTsql.Translator.Translator
 
         private void Emit(string tab, string line)
         {
-            var indent = new String(' ', _indent);
+            var indent = new String(' ', Math.Max(_indent, 0));
             _sb.AppendLine($"{indent}{tab}{line}".TrimEnd());
         }
 
         private void EmitWhere()
         {
-            var joinColumns = _parent.Arguments.JoinColumns;
-            if (joinColumns.Count == 0) return;
-            var joinSnips = joinColumns.Select(_ => $"{_.Field.DbColumnName} = {_.Value.ValueString}");
-            Emit($"WHERE {string.Join(" AND ", joinSnips)}");
+            // Collect the join criteria for Row/List fields
+            var joinSnips = new List<string>();
+            if (_parent.Field.Join != null)
+            {
+                var parentField = _parent.Field.Join.ParentFieldFunc();
+                var parentTableAlias = _parent.Parent.TableAlias(_aliasSequence);
+                var childField = _parent.Field.Join.ChildFieldFunc();
+                var childTableAlias = _parent.TableAlias(_aliasSequence);
+                joinSnips.Add($"{parentTableAlias}.{parentField.DbColumnName} = {childTableAlias}.{childField.DbColumnName}");
+            }
+
+            // Collect the join criteria in the argument filters
+            var filters = _parent.Arguments.Filters;
+            if (filters.Count > 0)
+            {
+                joinSnips.AddRange(filters.Select(_ => $"{_.Field.DbColumnName} = {_.Value.ValueString}"));
+            }
+
+            // Emit the complete WHERE clause
+            if (joinSnips.Count > 0)
+            {
+                Emit($"WHERE {string.Join(" AND ", joinSnips)}");
+            }
         }
 
         private void Indent()

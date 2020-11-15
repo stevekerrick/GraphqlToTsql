@@ -5,7 +5,7 @@ using System;
 namespace GraphqlToTsql.TranslatorTests
 {
     [TestFixture]
-    public class SqlTests
+    public class TsqlTests
     {
         [Test]
         public void SimpleQueryTest()
@@ -64,6 +64,35 @@ FOR JSON PATH, INCLUDE_NULL_VALUES
 ".Trim();
             Check(graphQl, expectedSql);
         }
+
+        [Test]
+        public void JoinTest()
+        {
+            const string graphQl = "{ epcs { urn product { name } } }";
+            var expectedSql = @"
+SELECT
+
+  -- epcs
+  JSON_QUERY ((
+    SELECT
+      t1.Urn AS urn
+
+      -- epcs.product
+    , JSON_QUERY ((
+        SELECT
+          t2.Name AS name
+        FROM Product t2
+        WHERE t1.ProductId = t2.Id
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS product
+    FROM Epc t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS epcs
+
+FOR JSON PATH, INCLUDE_NULL_VALUES
+".Trim();
+            Check(graphQl, expectedSql);
+        }
+
+
 
         private static void Check(string graphQl, string expectedSql)
         {
