@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>GraphqlToTsql.GraphqlParser</RootNamespace>
+    <AssemblyName>GraphqlToTsql.GraphqlParser</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>3021</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="CodeGen\" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="java -jar $(ProjectDir)antlr-4.8-complete.jar -Dlanguage=CSharp -o $(ProjectDir)CodeGen $(ProjectDir)Gql.g4 -package GraphqlToTsql.GraphqlParser.CodeGen" />
+  </Target>
+
+</Project>
