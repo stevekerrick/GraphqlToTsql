@@ -31,12 +31,12 @@ namespace GraphqlToSql.Transpiler.Transpiler
         public override void ExitFieldName(GqlParser.FieldNameContext context)
         {
             string name, alias;
-            var aliasToken = context.alias();
+            var aliasContext = context.alias();
 
-            if (aliasToken != null)
+            if (aliasContext != null)
             {
-                alias = aliasToken.NAME()[0].GetText();
-                name = aliasToken.NAME()[1].GetText();
+                alias = aliasContext.NAME()[0].GetText();
+                name = aliasContext.NAME()[1].GetText();
             }
             else
             {
@@ -45,6 +45,20 @@ namespace GraphqlToSql.Transpiler.Transpiler
             }
 
             _sql.Field(alias, name);
+        }
+
+        public override void ExitArgument(GqlParser.ArgumentContext context)
+        {
+            var name = context.NAME().GetText();
+
+            var valueOrVariableContext = context.valueOrVariable();
+            if (valueOrVariableContext.variable() != null)
+            {
+                Unsupported(valueOrVariableContext.variable().Start);
+            }
+
+            var value = new Value(valueOrVariableContext.value());
+            _sql.Argument(name, value);
         }
 
         #region Unsupported GraphQL features

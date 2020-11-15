@@ -10,11 +10,14 @@ namespace GraphqlToSql.Transpiler.Transpiler
         public Field Field { get; private set; }
         public string Name { get; private set; }
         public TermType TermType { get; private set; }
+        public Arguments Arguments { get; }
         private static int _tableAliasSeq;
         private string _tableAlias;
 
         private Term()
         {
+            Children = new List<Term>();
+            Arguments = new Arguments();
         }
 
         public static Term TopLevel()
@@ -22,16 +25,14 @@ namespace GraphqlToSql.Transpiler.Transpiler
             return new Term
             {
                 TermType = TermType.TopLevel,
-                Children = new List<Term>()
             };
         }
 
-        public Term(Term parent, Field field, string name)
+        public Term(Term parent, Field field, string name) : this()
         {
             Parent = parent;
             Field = field;
             Name = name;
-            Children = new List<Term>();
 
             TermType = field.FieldType ==
                 FieldType.Scalar ? TermType.Scalar
@@ -58,6 +59,11 @@ namespace GraphqlToSql.Transpiler.Transpiler
                 parent = parent.Parent;
             }
             return path;
+        }
+
+        public void AddArgument(string name, Value value)
+        {
+            Arguments.Add(Field, name, value);
         }
     }
 

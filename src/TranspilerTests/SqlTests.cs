@@ -45,6 +45,26 @@ FOR JSON PATH, INCLUDE_NULL_VALUES
             Check(graphQl, expectedSql);
         }
 
+        [Test]
+        public void ArgumentTest()
+        {
+            const string graphQl = "{ epcs (id: 1) { urn } }";
+            var expectedSql = @"
+SELECT
+
+  -- epcs
+  JSON_QUERY ((
+    SELECT
+      t1.Urn AS urn
+    FROM Epc t1
+    WHERE Id = 1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS epcs
+
+FOR JSON PATH, INCLUDE_NULL_VALUES
+".Trim();
+            Check(graphQl, expectedSql);
+        }
+
         private static void Check(string graphQl, string expectedSql)
         {
             var translator = new Translator();

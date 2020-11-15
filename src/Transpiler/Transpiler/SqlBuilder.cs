@@ -46,14 +46,13 @@ namespace GraphqlToSql.Transpiler.Transpiler
         {
             if (_parent.TermType == TermType.TopLevel)
             {
-                //EmitTopLevelQuery();
                 Emit("");
                 Emit(FOR_JSON);
             }
             else
             {
-                //EmitQuery();
                 Emit($"FROM {_parent.Field.Entity.DbTableName} {_parent.TableAlias()}");
+                EmitWhere();
                 Emit($"{FOR_JSON})) AS {_parent.Name}");
                 Outdent();
                 Outdent();
@@ -101,6 +100,11 @@ namespace GraphqlToSql.Transpiler.Transpiler
             }
         }
 
+        public void Argument(string name, Value value)
+        {
+            _term.AddArgument(name, value);
+        }
+
         #region SQL generation logic
 
         private const string TAB = "  ";
@@ -116,6 +120,14 @@ namespace GraphqlToSql.Transpiler.Transpiler
         {
             var indent = new String(' ', _indent);
             _sb.AppendLine($"{indent}{tab}{line}".TrimEnd());
+        }
+
+        private void EmitWhere()
+        {
+            var joinColumns = _parent.Arguments.JoinColumns;
+            if (joinColumns.Count == 0) return;
+            var joinSnips = joinColumns.Select(_ => $"{_.Field.DbColumnName} = {_.Value.ValueString}");
+            Emit($"WHERE {string.Join(" AND ", joinSnips)}");
         }
 
         private void Indent()
