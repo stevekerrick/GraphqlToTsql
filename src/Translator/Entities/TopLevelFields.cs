@@ -6,7 +6,7 @@ namespace GraphqlToTsql.Translator.Entities
     {
         public static List<Field> All = new List<Field>
         {
-            Field.Set(EpcDef.Instance, "epcs")
+            Field.Set(EpcDef.Instance, "epcs", null)
         };
     }
 }

@@ -22,13 +22,37 @@ namespace GraphqlToTsql.Translator.Entities
                 Field.Scalar(this, "productId", "ProductId"),
                 Field.Scalar(this, "lotId", "LotId"),
                 Field.Scalar(this, "lastUpdate", "LastUpdate"),
+
+                Field.Row(this, "parent", new Join(
+                    ()=>this.GetField("parentId"),
+                    ()=>this.GetField("id"))
+                ),
+                Field.Row(DispositionDef.Instance, "disposition", new Join(
+                    ()=>this.GetField("dispositionId"),
+                    ()=>DispositionDef.Instance.GetField("id"))
+                ),
+                Field.Row(LocationDef.Instance, "bizLocation", new Join(
+                    ()=>this.GetField("bizLocationId"),
+                    ()=>LocationDef.Instance.GetField("id"))
+                ),
+                Field.Row(LocationDef.Instance, "readPoint", new Join(
+                    ()=>this.GetField("readPointId"),
+                    ()=>LocationDef.Instance.GetField("id"))
+                ),
                 Field.Row(ProductDef.Instance, "product", new Join(
                     ()=>this.GetField("productId"),
                     ()=>ProductDef.Instance.GetField("id"))
+                ),
+                Field.Row(LotDef.Instance, "lot", new Join(
+                    ()=>this.GetField("lotId"),
+                    ()=>LotDef.Instance.GetField("id"))
+                ),
+
+                Field.Set(this, "children", new Join(
+                    ()=>this.GetField("id"),
+                    ()=>this.GetField("parentId"))
                 )
             };
         }
     }
 }
-
-

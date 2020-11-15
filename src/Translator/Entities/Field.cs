@@ -26,11 +26,12 @@
             Join = join
         };
 
-        public static Field Set(EntityBase entity, string name) => new Field
+        public static Field Set(EntityBase entity, string name, Join join) => new Field
         {
             FieldType = FieldType.Set,
             Entity = entity,
-            Name = name
+            Name = name,
+            Join = join
         };
     }
 
