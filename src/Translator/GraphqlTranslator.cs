@@ -29,11 +29,14 @@ namespace GraphqlToTsql.Translator
             parser.AddParseListener(listener);
             parser.document();
 
+            var builder = new TsqlBuilder();
+            var query = builder.Build(listener.GetQueryTree());
+
             var result = new TranslateResult
             {
                 //ParseOutput = outputSb.ToString(),
                 ParseError = errorSb.ToString(),
-                Query = listener.GetResult()
+                Query = query
             };
 
             // Temp: we don't know how ParseOutput is used

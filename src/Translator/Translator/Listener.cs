@@ -6,26 +6,26 @@ namespace GraphqlToTsql.Translator.Translator
 {
     public class Listener : GqlBaseListener
     {
-        private readonly TsqlBuilder _sql;
+        private readonly QueryTree _qt;
 
         public Listener()
         {
-            _sql = new TsqlBuilder();
+            _qt = new QueryTree();
         }
 
-        public Query GetResult()
+        public QueryTree GetQueryTree()
         {
-            return _sql.GetResult();
+            return _qt;
         }
 
         public override void EnterSelectionSet(GqlParser.SelectionSetContext context)
         {
-            _sql.BeginQuery();
+            _qt.BeginQuery();
         }
 
         public override void ExitSelectionSet(GqlParser.SelectionSetContext context)
         {
-            _sql.EndQuery();
+            _qt.EndQuery();
         }
 
         public override void ExitFieldName(GqlParser.FieldNameContext context)
@@ -44,7 +44,7 @@ namespace GraphqlToTsql.Translator.Translator
                 name = context.NAME().GetText();
             }
 
-            _sql.Field(alias, name);
+            _qt.Field(alias, name);
         }
 
         public override void ExitArgument(GqlParser.ArgumentContext context)
@@ -58,7 +58,7 @@ namespace GraphqlToTsql.Translator.Translator
             }
 
             var value = new Value(valueOrVariableContext.value());
-            _sql.Argument(name, value);
+            _qt.Argument(name, value);
         }
 
         #region Unsupported GraphQL features

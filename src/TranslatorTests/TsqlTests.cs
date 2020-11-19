@@ -92,8 +92,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES
             Check(graphQl, expectedSql);
         }
 
-
-
         private static void Check(string graphQl, string expectedSql)
         {
             var translator = new GraphqlTranslator();
@@ -102,7 +100,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES
 
             // Show the difference between Expected and Actual
             expectedSql = expectedSql.TrimEnd();
-            var actualSql = result.Query.Command.TrimEnd();
+            var actualSql = result.Query.TrimEnd();
             if (expectedSql != actualSql)
             {
                 var expectedLines = expectedSql.Split('\n');

@@ -1,4 +1,4 @@
-﻿using GraphqlToTsql.Translator.Entities;
+using GraphqlToTsql.Translator.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +9,6 @@ namespace GraphqlToTsql.Translator.Translator
     public class TsqlBuilder
     {
         private readonly StringBuilder _sb;
-        private Term _term;
-        private Term _parent;
         private int _indent;
         private Sequence _aliasSequence;
 
@@ -20,93 +18,96 @@ namespace GraphqlToTsql.Translator.Translator
             _aliasSequence = new Sequence();
         }
 
-        public Query GetResult()
+        public string Build(QueryTree tree)
         {
-            return new Query
-            {
-                Command = _sb.ToString(),
-                Parameters = new Query.QueryParameters() //TODO: Collect parameters
-            };
+            ProcessTree(tree.TopTerm);
+            return _sb.ToString();
         }
 
-        public void BeginQuery()
+        private void ProcessTree(Term topTerm)
         {
-            if (_parent == null)
+            Emit("SELECT");
+
+            foreach (var child in topTerm.Children)
             {
-                _parent = Term.TopLevel();
-                Emit("SELECT");
+                ProcessField(topTerm, child);
+            }
+
+            Emit("");
+            Emit(FOR_JSON);
+        }
+
+        private void ProcessField(Term parent, Term term)
+        {
+            if (term.Field.FieldType == FieldType.Scalar)
+            {
+                ProcessScalarField(term);
             }
             else
             {
-                _parent = _term;
-            }
-
-            _term = null;
-        }
-
-        public void EndQuery()
-        {
-            if (_parent.TermType == TermType.TopLevel)
-            {
-                Emit("");
-                Emit(FOR_JSON);
-            }
-            else
-            {
-                Emit($"FROM {_parent.Field.Entity.DbTableName} {_parent.TableAlias(_aliasSequence)}");
-                EmitWhere();
-                Emit($"{FOR_JSON}{(_parent.TermType==TermType.Item?UNWRAP_ITEM:"")})) AS {_parent.Name}");
-                Outdent();
-                Outdent();
-                _term = _parent;
-                _parent = _term.Parent;
+                ProcessFooField(parent, term);
             }
         }
 
-        public void Field(string alias, string name)
+        private void ProcessScalarField(Term term)
         {
-            Field field;
-
-            if (_parent.TermType == TermType.TopLevel)
-            {
-                field = TopLevelFields.All.FirstOrDefault(_ => _.Name == name);
-                if (field == null)
-                {
-                    throw new Exception($"Query not defined for {name}");
-                }
-            }
-            else
-            {
-                field = _parent.Field.Entity.Fields.FirstOrDefault(_ => _.Name == name);
-                if (field == null)
-                {
-                    throw new Exception($"{_parent.Field.Entity.Name} does not have a field named {name}");
-                }
-            }
-
-            _term = new Term(_parent, field, alias ?? name);
-            _parent.Children.Add(_term);
-
-            // Emit
-            if (field.FieldType == FieldType.Scalar)
-            {
-                Emit(TAB, $"{_term.Parent.TableAlias(_aliasSequence)}.{field.DbColumnName} AS {_term.Name}");
-            }
-            else
-            {
-                var separator = _parent.Children.Count == 1 ? TAB : COMMA_TAB;
-                Emit("");
-                Emit(TAB, $"-- {_term.FullPath()}");
-                Emit(separator, "JSON_QUERY ((");
-                Indent();
-                Indent();
-                Emit("SELECT");
-            }
+            var alias = term.Parent.TableAlias(_aliasSequence);
+            Emit(TAB, $"{alias}.{term.Field.DbColumnName} AS {term.Name}");
         }
 
-        public void Argument(string name, Value value)
+        private void ProcessFooField(Term parent, Term term)
         {
-            _term.AddArgument(name, value);
+            var separator = parent.Children.Count == 1 ? TAB : COMMA_TAB;
+            Emit("");
+            Emit(TAB, $"-- {term.FullPath()}");
+            Emit(separator, "JSON_QUERY ((");
+            Indent();
+            Indent();
+            Emit("SELECT");
+
+            ProcessQuery(term);
+        }
+
+
+        private void ProcessQuery(Term parent)
+        {
+            foreach (var term in parent.Children)
+            {
+                ProcessField(parent, term);
+            }
+
+            Emit($"FROM {parent.Field.Entity.DbTableName} {parent.TableAlias(_aliasSequence)}");
+            EmitWhere(parent);
+            Emit($"{FOR_JSON}{(parent.TermType == TermType.Item ? UNWRAP_ITEM : "")})) AS {parent.Name}");
+            Outdent();
+            Outdent();
+        }
+
+        private void EmitWhere(Term parent)
+        {
+            // Collect the join criteria for Row/List fields
+            var joinSnips = new List<string>();
+            if (parent.Field.Join != null)
+            {
+                var parentField = parent.Field.Join.ParentFieldFunc();
+                var parentTableAlias = parent.Parent.TableAlias(_aliasSequence);
+                var childField = parent.Field.Join.ChildFieldFunc();
+                var childTableAlias = parent.TableAlias(_aliasSequence);
+                joinSnips.Add($"{parentTableAlias}.{parentField.DbColumnName} = {childTableAlias}.{childField.DbColumnName}");
+            }
+
+            // Collect the join criteria in the argument filters
+            var filters = parent.Arguments.Filters;
+            if (filters.Count > 0)
+            {
+                joinSnips.AddRange(filters.Select(_ => $"{_.Field.DbColumnName} = {_.Value.ValueString}"));
+            }
+
+            // Emit the complete WHERE clause
+            if (joinSnips.Count > 0)
+            {
+                Emit($"WHERE {string.Join(" AND ", joinSnips)}");
+            }
         }
 
         #region SQL helpers
@@ -125,33 +126,6 @@ namespace GraphqlToTsql.Translator.Translator
         {
             var indent = new String(' ', Math.Max(_indent, 0));
             _sb.AppendLine($"{indent}{tab}{line}".TrimEnd());
-        }
-
-        private void EmitWhere()
-        {
-            // Collect the join criteria for Row/List fields
-            var joinSnips = new List<string>();
-            if (_parent.Field.Join != null)
-            {
-                var parentField = _parent.Field.Join.ParentFieldFunc();
-                var parentTableAlias = _parent.Parent.TableAlias(_aliasSequence);
-                var childField = _parent.Field.Join.ChildFieldFunc();
-                var childTableAlias = _parent.TableAlias(_aliasSequence);
-                joinSnips.Add($"{parentTableAlias}.{parentField.DbColumnName} = {childTableAlias}.{childField.DbColumnName}");
-            }
-
-            // Collect the join criteria in the argument filters
-            var filters = _parent.Arguments.Filters;
-            if (filters.Count > 0)
-            {
-                joinSnips.AddRange(filters.Select(_ => $"{_.Field.DbColumnName} = {_.Value.ValueString}"));
-            }
-
-            // Emit the complete WHERE clause
-            if (joinSnips.Count > 0)
-            {
-                Emit($"WHERE {string.Join(" AND ", joinSnips)}");
-            }
         }
 
         private void Indent()
