@@ -20,21 +20,47 @@ namespace GraphqlToTsql.Translator.Translator
 
         public string Build(QueryTree tree)
         {
-            ProcessTree(tree.TopTerm);
+            ProcessSubquery(null, tree.TopTerm);
             return _sb.ToString();
         }
 
-        private void ProcessTree(Term topTerm)
+        private void ProcessSubquery(Term parent, Term subquery)
         {
-            Emit("SELECT");
-
-            foreach (var child in topTerm.Children)
+            // If the subquery isn't at the top level, wrap it
+            if (parent != null)
             {
-                ProcessField(topTerm, child);
+                var separator = parent.Children.Count == 1 ? TAB : COMMA_TAB;
+                Emit("");
+                Emit(TAB, $"-- {subquery.FullPath()}");
+                Emit(separator, "JSON_QUERY ((");
+                Indent();
             }
 
-            Emit("");
-            Emit(FOR_JSON);
+            // Build the SQL for the subquery
+            Emit("SELECT");
+            foreach (var term in subquery.Children)
+            {
+                ProcessField(subquery, term);
+            }
+
+            // If the subquery isn't at the top level, render FROM and WHERE clauses
+            if (parent != null)
+            {
+                Emit($"FROM {subquery.Field.Entity.DbTableName} {subquery.TableAlias(_aliasSequence)}");
+                EmitWhere(subquery);
+            }
+
+            // If the subquery isn't at the top level, unwrap it
+            if (parent != null)
+            {
+                Emit($"{FOR_JSON}{(subquery.TermType == TermType.Item ? UNWRAP_ITEM : "")})) AS {subquery.Name}");
+                Outdent();
+            }
+            else
+            {
+                Emit("");
+                Emit(FOR_JSON);
+            }
         }
 
         private void ProcessField(Term parent, Term term)
@@ -45,7 +71,7 @@ namespace GraphqlToTsql.Translator.Translator
             }
             else
             {
-                ProcessFooField(parent, term);
+                ProcessSubquery(parent, term);
             }
         }
 
@@ -53,34 +79,6 @@ namespace GraphqlToTsql.Translator.Translator
         {
             var alias = term.Parent.TableAlias(_aliasSequence);
             Emit(TAB, $"{alias}.{term.Field.DbColumnName} AS {term.Name}");
-        }
-
-        private void ProcessFooField(Term parent, Term term)
-        {
-            var separator = parent.Children.Count == 1 ? TAB : COMMA_TAB;
-            Emit("");
-            Emit(TAB, $"-- {term.FullPath()}");
-            Emit(separator, "JSON_QUERY ((");
-            Indent();
-            Indent();
-            Emit("SELECT");
-
-            ProcessQuery(term);
-        }
-
-
-        private void ProcessQuery(Term parent)
-        {
-            foreach (var term in parent.Children)
-            {
-                ProcessField(parent, term);
-            }
-
-            Emit($"FROM {parent.Field.Entity.DbTableName} {parent.TableAlias(_aliasSequence)}");
-            EmitWhere(parent);
-            Emit($"{FOR_JSON}{(parent.TermType == TermType.Item ? UNWRAP_ITEM : "")})) AS {parent.Name}");
-            Outdent();
-            Outdent();
         }
 
         private void EmitWhere(Term parent)
@@ -130,11 +128,11 @@ namespace GraphqlToTsql.Translator.Translator
 
         private void Indent()
         {
-            _indent += 2;
+            _indent += 4;
         }
         private void Outdent()
         {
-            _indent -= 2;
+            _indent -= 4;
         }
 
         #endregion
