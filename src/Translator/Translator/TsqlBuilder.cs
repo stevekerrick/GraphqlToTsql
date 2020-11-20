@@ -20,46 +20,39 @@ namespace GraphqlToTsql.Translator.Translator
 
         public string Build(QueryTree tree)
         {
-            ProcessSubquery(null, tree.TopTerm);
+            BuildSelectClause(tree.TopTerm);
+
+            Emit("");
+            Emit(FOR_JSON);
+
             return _sb.ToString();
         }
 
-        private void ProcessSubquery(Term parent, Term subquery)
+        private void BuildSubquery(Term parent, Term subquery)
         {
-            // If the subquery isn't at the top level, wrap it
-            if (parent != null)
-            {
-                var separator = parent.Children.Count == 1 ? TAB : COMMA_TAB;
-                Emit("");
-                Emit(TAB, $"-- {subquery.FullPath()}");
-                Emit(separator, "JSON_QUERY ((");
-                Indent();
-            }
+            // Wrap the subquery in a JSON_QUERY
+            var separator = parent.Children.Count == 1 ? TAB : COMMA_TAB;
+            Emit("");
+            Emit(TAB, $"-- {subquery.FullPath()}");
+            Emit(separator, "JSON_QUERY ((");
+            Indent();
 
             // Build the SQL for the subquery
+            BuildSelectClause(subquery);
+            BuildFromClause(subquery);
+            BuildWhereClause(subquery);
+
+            // Unwrap the JSON_QUERY
+            Emit($"{FOR_JSON}{(subquery.TermType == TermType.Item ? UNWRAP_ITEM : "")})) AS {subquery.Name}");
+            Outdent();
+        }
+
+        private void BuildSelectClause(Term query)
+        {
             Emit("SELECT");
-            foreach (var term in subquery.Children)
+            foreach (var term in query.Children)
             {
-                ProcessField(subquery, term);
-            }
-
-            // If the subquery isn't at the top level, render FROM and WHERE clauses
-            if (parent != null)
-            {
-                Emit($"FROM {subquery.Field.Entity.DbTableName} {subquery.TableAlias(_aliasSequence)}");
-                EmitWhere(subquery);
-            }
-
-            // If the subquery isn't at the top level, unwrap it
-            if (parent != null)
-            {
-                Emit($"{FOR_JSON}{(subquery.TermType == TermType.Item ? UNWRAP_ITEM : "")})) AS {subquery.Name}");
-                Outdent();
-            }
-            else
-            {
-                Emit("");
-                Emit(FOR_JSON);
+                ProcessField(query, term);
             }
         }
 
@@ -71,7 +64,7 @@ namespace GraphqlToTsql.Translator.Translator
             }
             else
             {
-                ProcessSubquery(parent, term);
+                BuildSubquery(parent, term);
             }
         }
 
@@ -81,7 +74,12 @@ namespace GraphqlToTsql.Translator.Translator
             Emit(TAB, $"{alias}.{term.Field.DbColumnName} AS {term.Name}");
         }
 
-        private void EmitWhere(Term parent)
+        private void BuildFromClause(Term subquery)
+        {
+            Emit($"FROM {subquery.Field.Entity.DbTableName} {subquery.TableAlias(_aliasSequence)}");
+        }
+
+        private void BuildWhereClause(Term parent)
         {
             // Collect the join criteria for Row/List fields
             var joinSnips = new List<string>();
