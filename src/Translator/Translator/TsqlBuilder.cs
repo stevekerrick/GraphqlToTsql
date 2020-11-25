@@ -96,7 +96,8 @@ namespace GraphqlToTsql.Translator.Translator
             var filters = parent.Arguments.Filters;
             if (filters.Count > 0)
             {
-                joinSnips.AddRange(filters.Select(_ => $"{_.Field.DbColumnName} = {_.Value.ValueString}"));
+                var tableAlias = parent.TableAlias(_aliasSequence);
+                joinSnips.AddRange(filters.Select(_ => $"{tableAlias}.{_.Field.DbColumnName} = {_.Value.ValueString}"));
             }
 
             // Emit the complete WHERE clause

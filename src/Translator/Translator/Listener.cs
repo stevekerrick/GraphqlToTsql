@@ -8,14 +8,28 @@ namespace GraphqlToTsql.Translator.Translator
     {
         private readonly QueryTree _qt;
 
-        public Listener()
+        public Listener(object variableValues)
         {
-            _qt = new QueryTree();
+            _qt = new QueryTree(variableValues);
         }
 
         public QueryTree GetQueryTree()
         {
             return _qt;
+        }
+
+        public override void ExitVariableDefinition(GqlParser.VariableDefinitionContext context)
+        {
+            var name = context.variable().children[1].GetText();
+            var type = context.type().GetText();
+            Value defaultValue = null;
+            if (context.defaultValue() != null)
+            {
+                var defaultValueContext = context.defaultValue().value();
+                defaultValue = new Value(defaultValueContext);
+            }
+
+            _qt.Variable(name, type, defaultValue);
         }
 
         public override void EnterSelectionSet(GqlParser.SelectionSetContext context)
@@ -54,23 +68,27 @@ namespace GraphqlToTsql.Translator.Translator
             var valueOrVariableContext = context.valueOrVariable();
             if (valueOrVariableContext.variable() != null)
             {
-                Unsupported(valueOrVariableContext.variable().Start);
+                var variableName = valueOrVariableContext.variable().children[1].GetText();
+                _qt.Argument(name, variableName);
             }
-
-            var value = new Value(valueOrVariableContext.value());
-            _qt.Argument(name, value);
+            else
+            {
+                var value = new Value(valueOrVariableContext.value());
+                _qt.Argument(name, value);
+            }
         }
 
         #region Unsupported GraphQL features
 
         public override void EnterFragmentDefinition(GqlParser.FragmentDefinitionContext context)
         {
-            Unsupported(context.Start);
+            Unsupported("Fragments", context);
         }
 
-        private static void Unsupported(IToken token)
+        private void Unsupported(string unsupportedFeature, ParserRuleContext context)
         {
-            throw new Exception($"Not supported: [{token.Text}], at {token.Line}:{token.Column}");
+            var token = context.Start;
+            throw new Exception($"{unsupportedFeature} are not supported: [{token.Text}], line {token.Line}, column {token.Column}");
         }
 
         #endregion

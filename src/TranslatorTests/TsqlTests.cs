@@ -23,7 +23,7 @@ SELECT
 
 FOR JSON PATH, INCLUDE_NULL_VALUES
 ".Trim();
-            Check(graphQl, expectedSql);
+            Check(graphQl, null, expectedSql);
         }
 
         [Test]
@@ -42,7 +42,7 @@ SELECT
 
 FOR JSON PATH, INCLUDE_NULL_VALUES
 ".Trim();
-            Check(graphQl, expectedSql);
+            Check(graphQl, null, expectedSql);
         }
 
         [Test]
@@ -57,12 +57,12 @@ SELECT
     SELECT
       t1.Urn AS urn
     FROM Epc t1
-    WHERE Id = 1
+    WHERE t1.Id = 1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS epcs
 
 FOR JSON PATH, INCLUDE_NULL_VALUES
 ".Trim();
-            Check(graphQl, expectedSql);
+            Check(graphQl, null, expectedSql);
         }
 
         [Test]
@@ -89,13 +89,34 @@ SELECT
 
 FOR JSON PATH, INCLUDE_NULL_VALUES
 ".Trim();
-            Check(graphQl, expectedSql);
+            Check(graphQl, null, expectedSql);
         }
 
-        private static void Check(string graphQl, string expectedSql)
+        [Test]
+        public void VariableTest()
+        {
+            const string graphQl = "query VariableTest($idVar: ID, $urnVar: String = \"bill\") { epcs (id: $idVar, urn: $urnVar) { urn } }";
+            var variables = new { idVar = 2 };
+            var expectedSql = @"
+SELECT
+
+  -- epcs
+  JSON_QUERY ((
+    SELECT
+      t1.Urn AS urn
+    FROM Epc t1
+    WHERE t1.Id = 2 AND t1.Urn = 'bill'
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS epcs
+
+FOR JSON PATH, INCLUDE_NULL_VALUES
+".Trim();
+            Check(graphQl, variables, expectedSql);
+        }
+
+        private static void Check(string graphQl, object variables, string expectedSql)
         {
             var translator = new GraphqlTranslator();
-            var result = translator.Translate(graphQl);
+            var result = translator.Translate(graphQl, variables);
             Assert.IsTrue(result.IsSuccessful, $"The parse failed: {result.ParseError}");
 
             // Show the difference between Expected and Actual

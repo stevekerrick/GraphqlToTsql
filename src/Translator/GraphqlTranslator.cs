@@ -9,7 +9,7 @@ namespace GraphqlToTsql.Translator
 {
     public class GraphqlTranslator
     {
-        public TranslateResult Translate(string graphQl)
+        public TranslateResult Translate(string graphQl, object values)
         {
             // Construct the parser
             var stream = new AntlrInputStream(graphQl);
@@ -25,7 +25,7 @@ namespace GraphqlToTsql.Translator
             var parser = new GqlParser(tokenStream, outputStringWriter, errorStringWriter);
 
             // Perform the parse/translation
-            var listener = new Listener();
+            var listener = new Listener(values);
             parser.AddParseListener(listener);
             parser.document();
 
@@ -34,7 +34,6 @@ namespace GraphqlToTsql.Translator
 
             var result = new TranslateResult
             {
-                //ParseOutput = outputSb.ToString(),
                 ParseError = errorSb.ToString(),
                 Query = query
             };

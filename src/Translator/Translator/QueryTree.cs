@@ -1,5 +1,6 @@
 using GraphqlToTsql.Translator.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GraphqlToTsql.Translator.Translator
@@ -9,9 +10,34 @@ namespace GraphqlToTsql.Translator.Translator
         public Term TopTerm { get; private set; }
         private Term _term;
         private Term _parent;
+        private object _variableValues;
+        private Dictionary<string, Value> _variables;
 
-        public QueryTree()
+        public QueryTree(object variableValues)
         {
+            _variableValues = variableValues;
+            _variables = new Dictionary<string, Value>();
+        }
+
+        public void Variable(string name, string type, Value value)
+        {
+            // See if there's a matching VariableValue
+            if (_variableValues != null)
+            {
+                var propertyInfo = _variableValues.GetType().GetProperty(name);
+                if (propertyInfo != null)
+                {
+                    var rawVariableValue = propertyInfo.GetValue(_variableValues, null);
+                    value = new Value(rawVariableValue);
+                }
+            }
+
+            if (value == null)
+            {
+                throw new Exception($"Variable [${name}] is used in the query, but doesn't have a value");
+            }
+
+            _variables[name] = value;
         }
 
         public void BeginQuery()
@@ -66,6 +92,16 @@ namespace GraphqlToTsql.Translator.Translator
         public void Argument(string name, Value value)
         {
             _term.AddArgument(name, value);
+        }
+
+        public void Argument(string name, string variableName)
+        {
+            if (!_variables.ContainsKey(variableName))
+            {
+                throw new Exception($"Variable [${variableName}] is not declared");
+            }
+
+            _term.AddArgument(name, _variables[variableName]);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace GraphqlToTsql.Translator.Translator
     public class Value
     {
         public ValueType ValueType { get; }
-        public string ValueString { get; }
+        public string ValueString { get; } // Includes '' around string values
 
         public Value(GqlParser.ValueContext valueContext)
         {
@@ -18,6 +18,7 @@ namespace GraphqlToTsql.Translator.Translator
                     break;
                 case GqlParser.StringValueContext stringValueContext:
                     ValueType = ValueType.String;
+                    //TODO: Fix SQL Injection problem here
                     ValueString = stringValueContext.GetText().Replace('"', '\'');
                     break;
                 case GqlParser.BooleanValueContext booleanValueContext:
@@ -27,16 +28,47 @@ namespace GraphqlToTsql.Translator.Translator
                     break;
                 case GqlParser.ArrayValueContext arrayValueContext:
                     var token = arrayValueContext.Start;
-                    throw new Exception($"Arrays Not supported: [{token.Text}], at {token.Line}:{token.Column}");
+                    throw new Exception($"Arrays Not supported: [{token.Text}], line {token.Line}, column {token.Column}");
+            }
+        }
+
+        //TODO: Detect and reject complex rawValues
+        public Value(object rawValue)
+        {
+            if (rawValue == null)
+            {
+                ValueType = ValueType.Unknown;
+                ValueString = null;
+                return;
+            }
+
+            var rawValueString = rawValue.ToString();
+
+            if (decimal.TryParse(rawValueString, out _))
+            {
+                ValueType = ValueType.Number;
+                ValueString = rawValueString;
+            }
+            else if (bool.TryParse(rawValueString, out var boolValue))
+            {
+                ValueType = ValueType.Boolean;
+                ValueString = boolValue ? "1" : "0";
+            }
+            else
+            {
+                ValueType = ValueType.String;
+                //TODO: Fix SQL Injection problem here
+                ValueString = $"'{ValueString}'";
             }
         }
     }
 
     public enum ValueType
     {
+        Unknown,
+        ID,
         Number,
         String,
-        Boolean,
-        //Array
+        Boolean
     }
 }
