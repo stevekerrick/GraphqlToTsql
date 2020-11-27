@@ -31,7 +31,6 @@ namespace GraphqlToTsql.Translator.Translator
         private void BuildSubquery(Term parent, Term subquery)
         {
             // Wrap the subquery in a JSON_QUERY
-            //var separator = parent.Children.Count == 1 ? TAB : COMMA_TAB;
             var separator = subquery.IsFirstChild ? TAB : COMMA_TAB;
             Emit("");
             Emit(TAB, $"-- {subquery.FullPath()}");
@@ -51,6 +50,7 @@ namespace GraphqlToTsql.Translator.Translator
         private void BuildSelectClause(Term query)
         {
             Emit("SELECT");
+            
             foreach (var term in query.Children)
             {
                 ProcessField(query, term);

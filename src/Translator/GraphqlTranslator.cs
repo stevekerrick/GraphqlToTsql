@@ -29,19 +29,24 @@ namespace GraphqlToTsql.Translator
             parser.AddParseListener(listener);
             parser.document();
 
-            var builder = new TsqlBuilder();
-            var query = builder.Build(listener.GetQueryTree());
-
-            var result = new TranslateResult
+            // Exit if the parse was unsuccessful
+            var errorMessage = errorSb.ToString();
+            if (!string.IsNullOrEmpty(errorMessage))
             {
-                ParseError = errorSb.ToString(),
-                Query = query
-            };
+                return new TranslateResult { ParseError = errorMessage };
+            }
 
-            // Temp: we don't know how ParseOutput is used
+            // We don't know how ParseOutput is used, so bail out if we see some
             var parseOutput = outputSb.ToString();
             if (!string.IsNullOrWhiteSpace(parseOutput))
+            {
                 throw new Exception($"Uh-oh - parser returned some Output: {parseOutput}");
+            }
+
+            // Parse was successful. Now perform the translation.
+            var builder = new TsqlBuilder();
+            var query = builder.Build(listener.GetQueryTree());
+            var result = new TranslateResult { Query = query };
 
             return result;
         }
