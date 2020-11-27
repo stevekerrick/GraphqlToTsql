@@ -1,8 +1,10 @@
 using GraphqlToTsql.Translator.Entities;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace GraphqlToTsql.Translator.Translator
 {
+    [DebuggerDisplay("{Name,nq}")]
     public class Term
     {
         public Term Parent { get; private set; }
@@ -64,6 +66,8 @@ namespace GraphqlToTsql.Translator.Translator
         {
             Arguments.Add(Field, name, value);
         }
+
+        public bool IsFirstChild => Parent.Children.IndexOf(this) < 1;
     }
 
     public enum TermType

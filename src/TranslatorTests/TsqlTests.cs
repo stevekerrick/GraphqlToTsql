@@ -17,9 +17,9 @@ SELECT
   -- epcs
   JSON_QUERY ((
     SELECT
-      t1.Urn AS urn
-    FROM Epc t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS epcs
+      t1.[Urn] AS [urn]
+    FROM [Epc] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES
 ".Trim();
@@ -36,9 +36,9 @@ SELECT
   -- codes
   JSON_QUERY ((
     SELECT
-      t1.Urn AS MyUrl
-    FROM Epc t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS codes
+      t1.[Urn] AS [MyUrl]
+    FROM [Epc] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [codes]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES
 ".Trim();
@@ -55,10 +55,10 @@ SELECT
   -- epcs
   JSON_QUERY ((
     SELECT
-      t1.Urn AS urn
-    FROM Epc t1
-    WHERE t1.Id = 1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS epcs
+      t1.[Urn] AS [urn]
+    FROM [Epc] t1
+    WHERE t1.[Id] = 1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES
 ".Trim();
@@ -75,17 +75,17 @@ SELECT
   -- epcs
   JSON_QUERY ((
     SELECT
-      t1.Urn AS urn
+      t1.[Urn] AS [urn]
 
       -- epcs.product
     , JSON_QUERY ((
         SELECT
-          t2.Name AS name
-        FROM Product t2
-        WHERE t1.ProductId = t2.Id
-        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS product
-    FROM Epc t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS epcs
+          t2.[Name] AS [name]
+        FROM [Product] t2
+        WHERE t1.[ProductId] = t2.[Id]
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [product]
+    FROM [Epc] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES
 ".Trim();
@@ -103,14 +103,34 @@ SELECT
   -- epcs
   JSON_QUERY ((
     SELECT
-      t1.Urn AS urn
-    FROM Epc t1
-    WHERE t1.Id = 2 AND t1.Urn = 'bill'
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS epcs
+      t1.[Urn] AS [urn]
+    FROM [Epc] t1
+    WHERE t1.[Id] = 2 AND t1.[Urn] = 'bill'
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES
 ".Trim();
             Check(graphQl, variables, expectedSql);
+        }
+
+        [Test]
+        public void CalculatedFieldTest()
+        {
+            const string graphQl = "{ epcs { urn dispositionName } }";
+            var expectedSql = @"
+SELECT
+
+  -- epcs
+  JSON_QUERY ((
+    SELECT
+      t1.[Urn] AS [urn]
+    , (SELECT d.DispositionName FROM Disposition d WHERE d.Id = t1.DispositionId) AS [dispositionName]
+    FROM [Epc] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES
+".Trim();
+            Check(graphQl, null, expectedSql);
         }
 
         private static void Check(string graphQl, object variables, string expectedSql)

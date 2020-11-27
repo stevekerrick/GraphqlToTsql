@@ -1,5 +1,9 @@
-﻿namespace GraphqlToTsql.Translator.Entities
+﻿using System;
+using System.Diagnostics;
+
+namespace GraphqlToTsql.Translator.Entities
 {
+    [DebuggerDisplay("{Name,nq}")]
     public class Field
     {
         public EntityBase Entity { get; private set; }
@@ -7,6 +11,7 @@
         public FieldType FieldType { get; private set; }
         public string DbColumnName { get; private set; }
         public Join Join { get; private set; }
+        public Func<string, string> TemplateFunc { get; private set; }
 
         private Field() { }
 
@@ -17,6 +22,15 @@
             Name = name,
             DbColumnName = dbColumnName
         };
+
+        public static Field CalculatedField(EntityBase entity, string name,
+            Func<string, string> templateFunc) => new Field
+            {
+                FieldType = FieldType.Scalar,
+                Entity = entity,
+                Name = name,
+                TemplateFunc = templateFunc
+            };
 
         public static Field Row(EntityBase entity, string name, Join join) => new Field
         {

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace GraphqlToTsql.Translator.Entities
 {
+    [DebuggerDisplay("{Name,nq}")]
     public abstract class EntityBase
     {
         public abstract string Name { get; }

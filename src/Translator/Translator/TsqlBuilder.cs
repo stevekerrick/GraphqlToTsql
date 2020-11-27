@@ -31,7 +31,8 @@ namespace GraphqlToTsql.Translator.Translator
         private void BuildSubquery(Term parent, Term subquery)
         {
             // Wrap the subquery in a JSON_QUERY
-            var separator = parent.Children.Count == 1 ? TAB : COMMA_TAB;
+            //var separator = parent.Children.Count == 1 ? TAB : COMMA_TAB;
+            var separator = subquery.IsFirstChild ? TAB : COMMA_TAB;
             Emit("");
             Emit(TAB, $"-- {subquery.FullPath()}");
             Emit(separator, "JSON_QUERY ((");
@@ -43,7 +44,7 @@ namespace GraphqlToTsql.Translator.Translator
             BuildWhereClause(subquery);
 
             // Unwrap the JSON_QUERY
-            Emit($"{FOR_JSON}{(subquery.TermType == TermType.Item ? UNWRAP_ITEM : "")})) AS {subquery.Name}");
+            Emit($"{FOR_JSON}{(subquery.TermType == TermType.Item ? UNWRAP_ITEM : "")})) AS [{subquery.Name}]");
             Outdent();
         }
 
@@ -71,12 +72,21 @@ namespace GraphqlToTsql.Translator.Translator
         private void ProcessScalarField(Term term)
         {
             var alias = term.Parent.TableAlias(_aliasSequence);
-            Emit(TAB, $"{alias}.{term.Field.DbColumnName} AS {term.Name}");
+            var separator = term.IsFirstChild ? TAB : COMMA_TAB;
+
+            if (term.Field.TemplateFunc != null)
+            {
+                Emit(separator, $"({term.Field.TemplateFunc(alias)}) AS [{term.Name}]");
+            }
+            else
+            {
+                Emit(separator, $"{alias}.[{term.Field.DbColumnName}] AS [{term.Name}]");
+            }
         }
 
         private void BuildFromClause(Term subquery)
         {
-            Emit($"FROM {subquery.Field.Entity.DbTableName} {subquery.TableAlias(_aliasSequence)}");
+            Emit($"FROM [{subquery.Field.Entity.DbTableName}] {subquery.TableAlias(_aliasSequence)}");
         }
 
         private void BuildWhereClause(Term parent)
@@ -89,7 +99,7 @@ namespace GraphqlToTsql.Translator.Translator
                 var parentTableAlias = parent.Parent.TableAlias(_aliasSequence);
                 var childField = parent.Field.Join.ChildFieldFunc();
                 var childTableAlias = parent.TableAlias(_aliasSequence);
-                joinSnips.Add($"{parentTableAlias}.{parentField.DbColumnName} = {childTableAlias}.{childField.DbColumnName}");
+                joinSnips.Add($"{parentTableAlias}.[{parentField.DbColumnName}] = {childTableAlias}.[{childField.DbColumnName}]");
             }
 
             // Collect the join criteria in the argument filters
@@ -97,7 +107,7 @@ namespace GraphqlToTsql.Translator.Translator
             if (filters.Count > 0)
             {
                 var tableAlias = parent.TableAlias(_aliasSequence);
-                joinSnips.AddRange(filters.Select(_ => $"{tableAlias}.{_.Field.DbColumnName} = {_.Value.ValueString}"));
+                joinSnips.AddRange(filters.Select(_ => $"{tableAlias}.[{_.Field.DbColumnName}] = {_.Value.ValueString}"));
             }
 
             // Emit the complete WHERE clause
