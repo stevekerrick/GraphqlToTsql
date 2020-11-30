@@ -23,6 +23,14 @@ namespace GraphqlToTsql.Translator.Translator
         {
             _fragments = tree.Fragments;
 
+            if (!string.IsNullOrEmpty(tree.OperationName))
+            {
+                Emit("-------------------------------");
+                Emit($"-- Operation: {tree.OperationName}");
+                Emit("-------------------------------");
+                Emit("");
+            }
+
             BuildSelectClause(tree.TopTerm);
 
             Emit("");
@@ -63,11 +71,6 @@ namespace GraphqlToTsql.Translator.Translator
                 ProcessField(query, term);
                 i++;
             }
-
-            // foreach (var term in query.Children)
-            // {
-            //     ProcessField(query, term);
-            // }
         }
 
         private void ProcessField(Term parent, Term term)
@@ -117,7 +120,7 @@ namespace GraphqlToTsql.Translator.Translator
                 throw new Exception($"Fragment is not defined: {fragmentName}");
             }
 
-            // Copy the fragment subquery
+            // Copy the fragment subquery because Terms have state
             foreach (var child in fragment.Children)
             {
                 parent.Children.Add(child.Clone(parent));

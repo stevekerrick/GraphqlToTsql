@@ -9,6 +9,7 @@ namespace GraphqlToTsql.Translator.Translator
     {
         public Term TopTerm { get; private set; }
         public Dictionary<string, Term> Fragments;
+        public string OperationName { get; set; }
         private Term _term;
         private Term _parent;
         private object _variableValues;
@@ -19,6 +20,11 @@ namespace GraphqlToTsql.Translator.Translator
             _variableValues = variableValues;
             _variables = new Dictionary<string, Value>();
             Fragments = new Dictionary<string, Term>();
+        }
+
+        public void SetOperationName(string name)
+        {
+            OperationName = name;
         }
 
         public void Variable(string name, string type, Value value)

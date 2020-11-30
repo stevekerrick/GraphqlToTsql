@@ -97,6 +97,15 @@ namespace GraphqlToTsql.Translator.Translator
             }
         }
 
+        public override void ExitOperationDefinition(GqlParser.OperationDefinitionContext context)
+        {
+            var name = context.NAME();
+            if (name != null)
+            {
+                _qt.SetOperationName(name.GetText());
+            }
+        }
+
         #region Unsupported GraphQL features
 
         public override void EnterInlineFragment(GqlParser.InlineFragmentContext context)

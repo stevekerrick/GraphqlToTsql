@@ -98,6 +98,10 @@ FOR JSON PATH, INCLUDE_NULL_VALUES
             const string graphQl = "query VariableTest($idVar: ID, $urnVar: String = \"bill\") { epcs (id: $idVar, urn: $urnVar) { urn } }";
             var variables = new { idVar = 2 };
             var expectedSql = @"
+-------------------------------
+-- Operation: VariableTest
+-------------------------------
+
 SELECT
 
   -- epcs
