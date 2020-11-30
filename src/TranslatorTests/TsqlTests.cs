@@ -133,6 +133,29 @@ FOR JSON PATH, INCLUDE_NULL_VALUES
             Check(graphQl, null, expectedSql);
         }
 
+        [Test]
+        public void FragmentTest()
+        {
+          //TODO: Implement enough of a type system so that the fragment can be defined for the type "Epc" (not "epc")
+            var graphQl = @"
+{ epcs { ... frag} }
+fragment frag on epc { urn }
+".Trim();
+            var expectedSql = @"
+SELECT
+
+  -- epcs
+  JSON_QUERY ((
+    SELECT
+      t1.[Urn] AS [urn]
+    FROM [Epc] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES
+".Trim();
+            Check(graphQl, null, expectedSql);
+        }
+
         private static void Check(string graphQl, object variables, string expectedSql)
         {
             var translator = new GraphqlTranslator();

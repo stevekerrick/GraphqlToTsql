@@ -1,6 +1,7 @@
 using GraphqlToTsql.Translator.Entities;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace GraphqlToTsql.Translator.Translator
 {
@@ -12,7 +13,7 @@ namespace GraphqlToTsql.Translator.Translator
         public Field Field { get; private set; }
         public string Name { get; private set; }
         public TermType TermType { get; private set; }
-        public Arguments Arguments { get; }
+        public Arguments Arguments { get; private set; }
         private string _tableAlias;
 
         private Term()
@@ -25,6 +26,7 @@ namespace GraphqlToTsql.Translator.Translator
         {
             return new Term
             {
+                Name = "query",
                 TermType = TermType.TopLevel,
             };
         }
@@ -39,6 +41,16 @@ namespace GraphqlToTsql.Translator.Translator
                 FieldType.Scalar ? TermType.Scalar
                 : field.FieldType == FieldType.Row ? TermType.Item
                 : TermType.List;
+        }
+
+        public static Term Fragment(Term parent, string name)
+        {
+            return new Term
+            {
+                Parent = parent,
+                Name = name,
+                TermType = TermType.Fragment
+            };
         }
 
         public string TableAlias(Sequence aliasSequence)
@@ -67,7 +79,36 @@ namespace GraphqlToTsql.Translator.Translator
             Arguments.Add(Field, name, value);
         }
 
-        public bool IsFirstChild => Parent.Children.IndexOf(this) < 1;
+        public bool IsFirstChild
+        {
+            get
+            {
+                var i = 0;
+                while (i < Parent.Children.Count)
+                {
+                    var child = Parent.Children[i];
+                    if (child == this) return true;
+                    if (child.TermType != TermType.Fragment) return false;
+                    i++;
+                }
+                return false;
+            }
+        }
+
+        public Term Clone(Term newParent)
+        {
+            var term = new Term
+            {
+                Parent = newParent,
+                Field = Field,
+                Name = Name,
+                TermType = TermType
+            };
+
+            term.Arguments = this.Arguments;
+            term.Children.AddRange(Children.Select(_ => _.Clone(term)));
+            return term;
+        }
     }
 
     public enum TermType
@@ -75,6 +116,7 @@ namespace GraphqlToTsql.Translator.Translator
         TopLevel,
         Scalar,
         Item,
-        List
+        List,
+        Fragment
     }
 }

@@ -9,8 +9,8 @@ namespace GraphqlToTsql.Translator.Entities
     public abstract class EntityBase
     {
         public abstract string Name { get; }
-        public virtual string DbTableName { get; }
         //public virtual string PluralName => $"{Name}s";
+        public virtual string DbTableName { get; }
         public List<Field> Fields { get; protected set; }
 
         public Field GetField(string name)

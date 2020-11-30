@@ -8,6 +8,7 @@ namespace GraphqlToTsql.Translator.Translator
     public class QueryTree
     {
         public Term TopTerm { get; private set; }
+        public Dictionary<string, Term> Fragments;
         private Term _term;
         private Term _parent;
         private object _variableValues;
@@ -17,6 +18,7 @@ namespace GraphqlToTsql.Translator.Translator
         {
             _variableValues = variableValues;
             _variables = new Dictionary<string, Value>();
+            Fragments = new Dictionary<string, Term>();
         }
 
         public void Variable(string name, string type, Value value)
@@ -64,6 +66,17 @@ namespace GraphqlToTsql.Translator.Translator
             }
         }
 
+        public void BeginFragment(string name, string type)
+        {
+            var field = AllEntities.Find(type);
+
+            _parent = Term.TopLevel();
+            _term = new Term(_parent, field, type);
+            _parent.Children.Add(_term);
+
+            Fragments[name] = _term;
+        }
+
         public void Field(string alias, string name)
         {
             Field field;
@@ -86,6 +99,12 @@ namespace GraphqlToTsql.Translator.Translator
             }
 
             _term = new Term(_parent, field, alias ?? name);
+            _parent.Children.Add(_term);
+        }
+
+        public void UseFragment(string name)
+        {
+            _term = Term.Fragment(_parent, name);
             _parent.Children.Add(_term);
         }
 

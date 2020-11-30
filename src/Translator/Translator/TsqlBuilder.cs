@@ -11,6 +11,7 @@ namespace GraphqlToTsql.Translator.Translator
         private readonly StringBuilder _sb;
         private int _indent;
         private Sequence _aliasSequence;
+        private Dictionary<string, Term> _fragments;
 
         public TsqlBuilder()
         {
@@ -20,6 +21,8 @@ namespace GraphqlToTsql.Translator.Translator
 
         public string Build(QueryTree tree)
         {
+            _fragments = tree.Fragments;
+
             BuildSelectClause(tree.TopTerm);
 
             Emit("");
@@ -50,16 +53,30 @@ namespace GraphqlToTsql.Translator.Translator
         private void BuildSelectClause(Term query)
         {
             Emit("SELECT");
-            
-            foreach (var term in query.Children)
+
+            // Turn each Term to SQL. The list of Children can grow when Fragments are used,
+            // so we can't use a foreach.
+            var i = 0;
+            while (i < query.Children.Count)
             {
+                var term = query.Children[i];
                 ProcessField(query, term);
+                i++;
             }
+
+            // foreach (var term in query.Children)
+            // {
+            //     ProcessField(query, term);
+            // }
         }
 
         private void ProcessField(Term parent, Term term)
         {
-            if (term.Field.FieldType == FieldType.Scalar)
+            if (term.TermType == TermType.Fragment)
+            {
+                ProcessFragmentField(parent, term);
+            }
+            else if (term.Field.FieldType == FieldType.Scalar)
             {
                 ProcessScalarField(term);
             }
@@ -81,6 +98,29 @@ namespace GraphqlToTsql.Translator.Translator
             else
             {
                 Emit(separator, $"{alias}.[{term.Field.DbColumnName}] AS [{term.Name}]");
+            }
+        }
+
+        private void ProcessFragmentField(Term parent, Term term)
+        {
+            // Look up the Fragment Definition
+            var fragmentName = term.Name;
+            if (!_fragments.ContainsKey(fragmentName))
+            {
+                throw new Exception($"Fragment is not defined: {fragmentName}");
+            }
+            var fragment = _fragments[fragmentName];
+
+            // Type check
+            if (fragment.Field.Entity != parent.Field.Entity)
+            {
+                throw new Exception($"Fragment is not defined: {fragmentName}");
+            }
+
+            // Copy the fragment subquery
+            foreach (var child in fragment.Children)
+            {
+                parent.Children.Add(child.Clone(parent));
             }
         }
 

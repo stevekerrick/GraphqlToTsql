@@ -7,6 +7,7 @@ namespace GraphqlToTsql.Translator.Translator
     public class Listener : GqlBaseListener
     {
         private readonly QueryTree _qt;
+        private string _fragmentName;
 
         public Listener(object variableValues)
         {
@@ -30,6 +31,18 @@ namespace GraphqlToTsql.Translator.Translator
             }
 
             _qt.Variable(name, type, defaultValue);
+        }
+
+        public override void ExitFragmentName(GqlParser.FragmentNameContext context)
+        {
+            _fragmentName = context.NAME().GetText();
+        }
+
+        // This is the best place to initialize a new Fragment definition
+        public override void ExitTypeCondition(GqlParser.TypeConditionContext context)
+        {
+            var type = context.typeName().NAME().GetText();
+            _qt.BeginFragment(_fragmentName, type);
         }
 
         public override void EnterSelectionSet(GqlParser.SelectionSetContext context)
@@ -61,6 +74,12 @@ namespace GraphqlToTsql.Translator.Translator
             _qt.Field(alias, name);
         }
 
+        public override void ExitFragmentSpread(GqlParser.FragmentSpreadContext context)
+        {
+            var name = context.fragmentName().NAME().GetText();
+            _qt.UseFragment(name);
+        }
+
         public override void ExitArgument(GqlParser.ArgumentContext context)
         {
             var name = context.NAME().GetText();
@@ -80,9 +99,14 @@ namespace GraphqlToTsql.Translator.Translator
 
         #region Unsupported GraphQL features
 
-        public override void EnterFragmentDefinition(GqlParser.FragmentDefinitionContext context)
+        public override void EnterInlineFragment(GqlParser.InlineFragmentContext context)
         {
-            Unsupported("Fragments", context);
+            Unsupported("Inline Fragments", context);
+        }
+
+        public override void EnterDirective(GqlParser.DirectiveContext context)
+        {
+            Unsupported("Directives", context);
         }
 
         private void Unsupported(string unsupportedFeature, ParserRuleContext context)
