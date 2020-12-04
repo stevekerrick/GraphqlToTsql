@@ -14,8 +14,8 @@ namespace GraphqlToTsql.Translator.Entities
             {
                 Field.Scalar(this, "id", "Id"),
                 Field.Scalar(this, "urn", "Urn"),
-                Field.Scalar(this, "parentId", "ParentId"),
                 Field.Scalar(this, "dispositionId", "DispositionId"),
+                Field.Scalar(this, "parentId", "ParentId"),
                 Field.Scalar(this, "bizLocationId", "BizLocationId"),
                 Field.Scalar(this, "readPointId", "ReadPointId"),
                 Field.Scalar(this, "productId", "ProductId"),

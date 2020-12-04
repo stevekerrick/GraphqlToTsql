@@ -14,18 +14,13 @@ namespace GraphqlToTsql.Translator.Entities
             Fields = new List<Field>
             {
                 Field.Scalar(this, "id", "Id"),
-                Field.Scalar(this, "productId", "ProductId"),
-                Field.Scalar(this, "locationId", "LocationId"),
                 Field.Scalar(this, "lotNumber", "LotNumber"),
                 Field.Scalar(this, "expirationDate", "ExpirationDt"),
+                Field.Scalar(this, "productId", "ProductId"),
 
                 Field.Row(ProductDef.Instance, "product", new Join(
                     ()=>this.GetField("productId"),
                     ()=>ProductDef.Instance.GetField("id"))
-                ),
-                Field.Row(LocationDef.Instance, "location", new Join(
-                    ()=>this.GetField("locationId"),
-                    ()=>LocationDef.Instance.GetField("id"))
                 ),
 
                 Field.Set(EpcDef.Instance, "epcs", new Join(
