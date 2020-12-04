@@ -11,6 +11,8 @@ namespace GraphqlToTsql.TranslatorTests
     public class DbTests
     {
         private const string _connectionString = "Data Source=MIN-DT180101;Initial Catalog=GraphqlToTsqlTests;User Id=steve;Password=steve";
+        //private const string _connectionString = "Data Source=localhost;Initial Catalog=GraphqlToTsqlTests;Integrated Security=true";
+        //private const string _connectionString = "Data Source=localhost;Initial Catalog=GraphqlToTsqlTests;User Id=steve;Password=steve";
 
         [Test]
         public async Task SimpleQueryTest()
