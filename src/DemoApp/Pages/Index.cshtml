@@ -4,7 +4,142 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div id="app" class="container-fluid h-100" v-cloak>
+    @Html.AntiForgeryToken()
+
+    <div class="row input-label-row">
+        <div class="col-6">
+            <span>GraphQL</span>
+        </div>
+        <div class="col-6">
+            <span>Parameters</span>
+        </div>
+    </div>
+
+    <div class="row input-row">
+        <div class="col-6 h-100">
+            <textarea v-model="query"></textarea>
+        </div>
+        <div class="col-6 h-100">
+            <textarea v-model="query"></textarea>
+        </div>
+    </div>
+
+    <div class="row input-button-row">
+        <div class="col-6 mt-2">
+            <a v-on:click="run" href="#" class="command-link">Run Query</a>
+        </div>
+    </div>
+
+    <div class="row mt-3 results-row">
+        <div class="col-6 h-100">
+            execution lists go here...
+        </div>
+        <div class="col-6 h-100">
+            <ul class="nav nav-tabs results-tabs">
+                <li v-for="(tab, index) in tabs" :key="tab" class="nav-item">
+                    <a class="nav-link" :class="{ active: index === selectedTab }" href="#" v-on:click="selectTab(index)">{{ tab }}</a>
+                </li>
+            </ul>
+            <div class="result-text-container">
+                <textarea readonly v-model="resultText"></textarea>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<script>
+
+    var app = new Vue({
+        el: "#app",
+        data: {
+            query: "{ epcs { id }}",
+            executions: [],
+            execution: { graphQL: "my graphql", params: "my params", sql: "my sql", data: "my data", error: "my error", isSuccess: false },
+            tabs: ["GraphQL", "Params", "SQL", "Data", "Error"],
+            selectedTab: 0
+        },
+        methods: {
+            run: function () {
+                var antiForgeryToken = $('input:hidden[name="__RequestVerificationToken"]').val();
+
+                fetch("/?handler=RunQuery", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "RequestVerificationToken": antiForgeryToken
+                    },
+                    body: JSON.stringify({ Query: this.query }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Success:", data);
+                    this.execution = data;
+                    this.executions.unshift(data);
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    var execution = {isSuccessful:false, error: error};
+                    this.execution = execution;
+                    this.executions.unshift(execution);
+                });
+            },
+            selectTab: function (index) {
+                this.selectedTab = index;
+            }
+        },
+        computed: {
+            resultText: function () {
+                var text = "";
+                if (this.execution) {
+                    if (this.selectedTab === 0)
+                        text = this.execution.graphQL;
+                    else if (this.selectedTab === 1)
+                        text = this.execution.params;
+                    else if (this.selectedTab === 2)
+                        text = this.execution.sql;
+                    else if (this.selectedTab === 3)
+                        text = this.execution.data;
+                    else if (this.selectedTab === 4)
+                        text = this.execution.error;
+                }
+                return text;
+            }
+        }
+    });
+
+</script>
+}
+
+@section Styles {
+<style>
+    [v-cloak] {
+        display: none
+    }
+    body { background-color: whitesmoke; }
+    textarea {
+        min-height: 100%;
+        width: 100%;
+        resize: none;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        padding: .5em;
+        border-color: lightgray;
+    }
+    .input-label-row { height: 2em; padding-top: 5px; }
+    .input-row { height: 30%; }
+    .input-button-row { height: 2em; }
+    .results-tabs { height: 37px; overflow: hidden; }
+    .results-row { height: 50%; }
+    .result-text-container { height: calc(100% - 37px); }
+
+    a.command-link:hover {
+        text-decoration: none;
+    }
+
+    .scroll-panel { width: 100%; height: 100%; overflow-y: scroll; }
+</style>
+}

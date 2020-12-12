@@ -1,9 +1,9 @@
+using Dapper;
 using GraphqlToTsql.Translator;
 using NUnit.Framework;
 using System;
-using System.Threading.Tasks;
-using Dapper;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace GraphqlToTsql.TranslatorTests
 {
@@ -21,7 +21,6 @@ namespace GraphqlToTsql.TranslatorTests
             var expectedResult = new { epcs = new[] { new { id = 1 } } };
             await CheckAsync(graphQl, null, expectedResult);
         }
-
 
         private static async Task CheckAsync(string graphQl, object variables, object expectedJson)
         {
