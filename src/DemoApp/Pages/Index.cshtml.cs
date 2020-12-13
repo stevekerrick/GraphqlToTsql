@@ -28,7 +28,16 @@ namespace DemoApp.Pages
 
         public async Task<JsonResult> OnPostRunQuery([FromBody] QueryModel query)
         {
-            var result = await RunQuery(query);
+            //var result = await RunQuery(query);
+
+            var result = new QueryResult
+            {
+                GraphQL = query.Query,
+                Params = "todo",
+                Sql = "todo",
+                Data = "todo"
+            };
+
             return new JsonResult(result);
         }
 

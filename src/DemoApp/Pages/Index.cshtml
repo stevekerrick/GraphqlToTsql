@@ -7,38 +7,43 @@
 <div id="app" class="container-fluid h-100" v-cloak>
     @Html.AntiForgeryToken()
 
-    <div class="row input-label-row">
-        <div class="col-6">
-            <span>GraphQL</span>
-        </div>
-        <div class="col-6">
-            <span>Parameters</span>
-        </div>
-    </div>
-
     <div class="row input-row">
-        <div class="col-6 h-100">
-            <textarea v-model="query"></textarea>
+        <div class="col-3"></div>
+        <div class="col-6">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link" :class="{ active: inputTab === 0 }" href="#" v-on:click="selectInputTab(0)">GraphQL</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" :class="{ active: inputTab === 1 }" href="#" v-on:click="selectInputTab(1)">Params</a>
+                </li>
+            </ul>
+            <div class="input-controls">
+                <textarea v-model="query" v-show="inputTab === 0"></textarea>
+                <textarea v-model="params" v-show="inputTab === 1"></textarea>
+            </div>
         </div>
-        <div class="col-6 h-100">
-            <textarea v-model="query"></textarea>
-        </div>
+        <div class="col-3"></div>
     </div>
 
     <div class="row input-button-row">
-        <div class="col-6 mt-2">
+        <div class="col-3"></div>
+        <div class="col-6 mt-1">
             <a v-on:click="run" href="#" class="command-link">Run Query</a>
         </div>
+        <div class="col-3"></div>
     </div>
 
-    <div class="row mt-3 results-row">
-        <div class="col-6 h-100">
-            execution lists go here...
+    <div class="row mt-3 pt-3 results-row" v-if="results.length > 0">
+        <div class="col-6 scroll-panel">
+            <div v-for="r in results" :key="r.key" class="result-card p-2 mt-2" :class="{selected: r === result, error: r.error}" v-on:click="selectResult(r)">
+                {{r.error || r.graphQL}}
+            </div>
         </div>
         <div class="col-6 h-100">
-            <ul class="nav nav-tabs results-tabs">
-                <li v-for="(tab, index) in tabs" :key="tab" class="nav-item">
-                    <a class="nav-link" :class="{ active: index === selectedTab }" href="#" v-on:click="selectTab(index)">{{ tab }}</a>
+            <ul class="nav nav-tabs">
+                <li v-for="(tab, index) in resultTabs" :key="tab" class="nav-item">
+                    <a class="nav-link" :class="{ active: index === resultTab, disabled: index === 4 && result && result.error }" href="#" v-on:click="selectResultTab(index)">{{ tab }}</a>
                 </li>
             </ul>
             <div class="result-text-container">
@@ -57,10 +62,15 @@
         el: "#app",
         data: {
             query: "{ epcs { id }}",
-            executions: [],
-            execution: { graphQL: "my graphql", params: "my params", sql: "my sql", data: "my data", error: "my error", isSuccess: false },
-            tabs: ["GraphQL", "Params", "SQL", "Data", "Error"],
-            selectedTab: 0
+            params: "{ }",
+            results: [
+                { graphQL: "my graphql 1", params: "my params 1", sql: "my sql 1", data: "my data 1", error: "my error 1", isSuccess: false, key: 1 },
+                { graphQL: "my graphql 2", params: "my params 2", sql: "my sql 2", data: "my data 2", error: null, isSuccess: true, key: 2 }
+            ],
+            result: null,
+            inputTab: 0,
+            resultTabs: ["GraphQL", "Params", "SQL", "Data", "Error"],
+            resultTab: 0
         },
         methods: {
             run: function () {
@@ -76,35 +86,42 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Success:", data);
-                    this.execution = data;
-                    this.executions.unshift(data);
+                    data.key = Date.now();
+                    this.result = data;
+                    this.results.unshift(data);
+                    this.resultTab = 3;
                 })
                 .catch((error) => {
-                    console.error("Error:", error);
-                    var execution = {isSuccessful:false, error: error};
-                    this.execution = execution;
-                    this.executions.unshift(execution);
+                    var result = {isSuccessful:false, error: error, key: Date.now()};
+                    this.result = result;
+                    this.results.unshift(result);
+                    this.resultTab = 4;
                 });
             },
-            selectTab: function (index) {
-                this.selectedTab = index;
+            selectInputTab: function (index) {
+                this.inputTab = index;
+            },
+            selectResultTab: function (index) {
+                this.resultTab = index;
+            },
+            selectResult: function (r) {
+                this.result = r;
             }
         },
         computed: {
             resultText: function () {
                 var text = "";
-                if (this.execution) {
-                    if (this.selectedTab === 0)
-                        text = this.execution.graphQL;
-                    else if (this.selectedTab === 1)
-                        text = this.execution.params;
-                    else if (this.selectedTab === 2)
-                        text = this.execution.sql;
-                    else if (this.selectedTab === 3)
-                        text = this.execution.data;
-                    else if (this.selectedTab === 4)
-                        text = this.execution.error;
+                if (this.result) {
+                    if (this.resultTab === 0)
+                        text = this.result.graphQL;
+                    else if (this.resultTab === 1)
+                        text = this.result.params;
+                    else if (this.resultTab === 2)
+                        text = this.result.sql;
+                    else if (this.resultTab === 3)
+                        text = this.result.data;
+                    else if (this.resultTab === 4)
+                        text = this.result.error;
                 }
                 return text;
             }
@@ -129,11 +146,11 @@
         padding: .5em;
         border-color: lightgray;
     }
-    .input-label-row { height: 2em; padding-top: 5px; }
-    .input-row { height: 30%; }
+    .input-row { height: calc(48% - 1em); }
+    .input-controls { height: calc(100% - 37px); }
     .input-button-row { height: 2em; }
-    .results-tabs { height: 37px; overflow: hidden; }
-    .results-row { height: 50%; }
+    .nav-tabs { height: 37px; overflow: hidden; }
+    .results-row { height: calc(48% - 1em); background-color: lightgray; }
     .result-text-container { height: calc(100% - 37px); }
 
     a.command-link:hover {
@@ -141,5 +158,19 @@
     }
 
     .scroll-panel { width: 100%; height: 100%; overflow-y: scroll; }
+    .result-card {
+        border: 1px solid green;
+        border-radius: .5em;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .result-card.selected {
+        background-color: whitesmoke;
+    }
+    .result-card.error {
+        border-color: red;
+    }
 </style>
 }
