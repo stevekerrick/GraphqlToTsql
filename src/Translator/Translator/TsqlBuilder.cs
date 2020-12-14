@@ -34,7 +34,7 @@ namespace GraphqlToTsql.Translator.Translator
             BuildSelectClause(tree.TopTerm);
 
             Emit("");
-            Emit(FOR_JSON);
+            Emit($"{FOR_JSON}{UNWRAP_ITEM}");
 
             return _sb.ToString();
         }

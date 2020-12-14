@@ -43,7 +43,7 @@
         <div class="col-6 h-100">
             <ul class="nav nav-tabs">
                 <li v-for="(tab, index) in resultTabs" :key="tab" class="nav-item">
-                    <a class="nav-link" :class="{ active: index === resultTab, disabled: index === 4 && result && result.error }" href="#" v-on:click="selectResultTab(index)">{{ tab }}</a>
+                    <a class="nav-link" :class="{ active: index === resultTab, disabled: index === 4 && result && !result.error }" href="#" v-on:click="selectResultTab(index)">{{ tab }}</a>
                 </li>
             </ul>
             <div class="result-text-container">

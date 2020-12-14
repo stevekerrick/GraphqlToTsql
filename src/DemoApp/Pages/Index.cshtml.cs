@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Text.Json;
+//using System.Text.Json;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -61,21 +61,21 @@ namespace DemoApp.Pages
             }
 
             // Execute the SQL
-            //try
-            //{
-            //    var conn = _configuration["ConnectionString"];
-            //    using (var connection = new SqlConnection(conn))
-            //    {
-            //        var json = await connection.QuerySingleOrDefaultAsync<string>(result.Sql);
-            //        var obj = JsonSerializer.Deserialize<dynamic>(json);
-            //        result.Data = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
-            //    }
-            //}
-            //catch (Exception e)
-            //{
-            //    result.Error = $"Database error: {e.Message}";
-            //    return result;
-            //}
+            try
+            {
+                var conn = _configuration["ConnectionString"];
+                using (var connection = new SqlConnection(conn))
+                {
+                    var json = await connection.QuerySingleOrDefaultAsync<string>(result.Sql);
+                    var obj = JsonConvert.DeserializeObject(json);
+                    result.Data = JsonConvert.SerializeObject(obj, Formatting.Indented);
+                }
+            }
+            catch (Exception e)
+            {
+                result.Error = $"Database error: {e.Message}";
+                return result;
+            }
 
             return result;
         }

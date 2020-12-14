@@ -22,7 +22,7 @@ SELECT
     FROM [Epc] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             Check(graphQl, null, expectedSql);
         }
@@ -41,7 +41,7 @@ SELECT
     FROM [Epc] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [codes]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             Check(graphQl, null, expectedSql);
         }
@@ -61,7 +61,7 @@ SELECT
     WHERE t1.[Id] = 1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             Check(graphQl, null, expectedSql);
         }
@@ -88,7 +88,7 @@ SELECT
     FROM [Epc] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             Check(graphQl, null, expectedSql);
         }
@@ -113,7 +113,7 @@ SELECT
     WHERE t1.[Id] = 2 AND t1.[Urn] = 'bill'
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             Check(graphQl, variables, expectedSql);
         }
@@ -133,7 +133,7 @@ SELECT
     FROM [Epc] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             Check(graphQl, null, expectedSql);
         }
@@ -156,7 +156,7 @@ SELECT
     FROM [Epc] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             Check(graphQl, null, expectedSql);
         }
