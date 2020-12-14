@@ -43,6 +43,12 @@ namespace GraphqlToTsql.Translator.Translator
             }
 
             var rawValueString = rawValue.ToString();
+            if (string.IsNullOrEmpty(rawValueString))
+            {
+                ValueType = ValueType.Unknown;
+                ValueString = null;
+                return;
+            }
 
             if (decimal.TryParse(rawValueString, out _))
             {
@@ -58,7 +64,7 @@ namespace GraphqlToTsql.Translator.Translator
             {
                 ValueType = ValueType.String;
                 //TODO: Fix SQL Injection problem here
-                ValueString = $"'{ValueString}'";
+                ValueString = $"'{rawValueString}'";
             }
         }
     }

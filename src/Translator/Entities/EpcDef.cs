@@ -22,7 +22,7 @@ namespace GraphqlToTsql.Translator.Entities
                 Field.Scalar(this, "lotId", "LotId"),
                 Field.Scalar(this, "lastUpdate", "LastUpdate"),
 
-                Field.CalculatedField(this, "dispositionName", (tableAlias) => $"SELECT d.DispositionName FROM Disposition d WHERE d.Id = {tableAlias}.DispositionId"),
+                Field.CalculatedField(this, "dispositionName", (tableAlias) => $"SELECT d.Name FROM Disposition d WHERE d.Id = {tableAlias}.DispositionId"),
 
                 Field.Row(this, "parent", new Join(
                     ()=>this.GetField("parentId"),
