@@ -1,6 +1,7 @@
 ﻿using GraphqlToTsql.Translator;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 
 namespace GraphqlToTsql.TranslatorTests
 {
@@ -96,7 +97,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES
         public void VariableTest()
         {
             const string graphQl = "query VariableTest($idVar: ID, $urnVar: String = \"bill\") { epcs (id: $idVar, urn: $urnVar) { urn } }";
-            var variables = new { idVar = 2 };
+            var variables = new Dictionary<string, object> { { "idVar", 2 } };
             var expectedSql = @"
 -------------------------------
 -- Operation: VariableTest
@@ -160,7 +161,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES
             Check(graphQl, null, expectedSql);
         }
 
-        private static void Check(string graphQl, object variables, string expectedSql)
+        private static void Check(string graphQl, Dictionary<string, object> variables, string expectedSql)
         {
             var translator = new GraphqlTranslator();
             var result = translator.Translate(graphQl, variables);

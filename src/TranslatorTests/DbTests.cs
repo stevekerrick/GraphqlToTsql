@@ -2,6 +2,7 @@ using Dapper;
 using GraphqlToTsql.Translator;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 
@@ -11,8 +12,6 @@ namespace GraphqlToTsql.TranslatorTests
     public class DbTests
     {
         private const string _connectionString = "Data Source=MIN-DT180101;Initial Catalog=GraphqlToTsqlTests;User Id=steve;Password=steve";
-        //private const string _connectionString = "Data Source=localhost;Initial Catalog=GraphqlToTsqlTests;Integrated Security=true";
-        //private const string _connectionString = "Data Source=localhost;Initial Catalog=GraphqlToTsqlTests;User Id=steve;Password=steve";
 
         [Test]
         public async Task SimpleQueryTest()
@@ -22,10 +21,10 @@ namespace GraphqlToTsql.TranslatorTests
             await CheckAsync(graphQl, null, expectedResult);
         }
 
-        private static async Task CheckAsync(string graphQl, object variables, object expectedJson)
+        private static async Task CheckAsync(string graphQl, Dictionary<string, object> variableValues, object expectedJson)
         {
             var translator = new GraphqlTranslator();
-            var result = translator.Translate(graphQl, variables);
+            var result = translator.Translate(graphQl, variableValues);
             Assert.IsTrue(result.IsSuccessful, $"The parse failed: {result.ParseError}");
 
             // Query the database

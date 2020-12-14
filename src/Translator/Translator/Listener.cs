@@ -1,6 +1,7 @@
 ﻿using Antlr4.Runtime;
 using GraphqlToTsql.GraphqlParser.CodeGen;
 using System;
+using System.Collections.Generic;
 
 namespace GraphqlToTsql.Translator.Translator
 {
@@ -9,7 +10,7 @@ namespace GraphqlToTsql.Translator.Translator
         private readonly QueryTree _qt;
         private string _fragmentName;
 
-        public Listener(object variableValues)
+        public Listener(Dictionary<string, object> variableValues)
         {
             _qt = new QueryTree(variableValues);
         }

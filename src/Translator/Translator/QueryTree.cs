@@ -12,10 +12,10 @@ namespace GraphqlToTsql.Translator.Translator
         public string OperationName { get; set; }
         private Term _term;
         private Term _parent;
-        private object _variableValues;
+        private Dictionary<string, object> _variableValues;
         private Dictionary<string, Value> _variables;
 
-        public QueryTree(object variableValues)
+        public QueryTree(Dictionary<string, object> variableValues)
         {
             _variableValues = variableValues;
             _variables = new Dictionary<string, Value>();
@@ -30,14 +30,9 @@ namespace GraphqlToTsql.Translator.Translator
         public void Variable(string name, string type, Value value)
         {
             // See if there's a matching VariableValue
-            if (_variableValues != null)
+            if (_variableValues != null && _variableValues.ContainsKey(name))
             {
-                var propertyInfo = _variableValues.GetType().GetProperty(name);
-                if (propertyInfo != null)
-                {
-                    var rawVariableValue = propertyInfo.GetValue(_variableValues, null);
-                    value = new Value(rawVariableValue);
-                }
+                value = new Value(_variableValues[name]);
             }
 
             if (value == null)

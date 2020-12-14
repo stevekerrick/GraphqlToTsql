@@ -37,7 +37,7 @@
     <div class="row mt-3 pt-3 results-row" v-if="results.length > 0">
         <div class="col-6 scroll-panel">
             <div v-for="r in results" :key="r.key" class="result-card p-2 mt-2" :class="{selected: r === result, error: r.error}" v-on:click="selectResult(r)">
-                {{r.error || r.graphQL}}
+                {{r.error || r.oneLineQuery}}
             </div>
         </div>
         <div class="col-6 h-100">
@@ -58,15 +58,22 @@
 
 <script>
 
+    function stringToObject(objectString) {
+        if (!objectString) return objectString;
+        var jsObject = Function('return ' + objectString)();
+        return jsObject;
+    }
+
+    function removeWhitespace(str) {
+        return (str || "").replace(/\s+/g, " ");
+    }
+
     var app = new Vue({
         el: "#app",
         data: {
             query: "{ epcs { id }}",
             params: "{ }",
-            results: [
-                { graphQL: "my graphql 1", params: "my params 1", sql: "my sql 1", data: "my data 1", error: "my error 1", isSuccess: false, key: 1 },
-                { graphQL: "my graphql 2", params: "my params 2", sql: "my sql 2", data: "my data 2", error: null, isSuccess: true, key: 2 }
-            ],
+            results: [],
             result: null,
             inputTab: 0,
             resultTabs: ["GraphQL", "Params", "SQL", "Data", "Error"],
@@ -74,6 +81,33 @@
         },
         methods: {
             run: function () {
+                var vm = this;
+
+                function formatObject(objectString) {
+                    if (!objectString) return objectString;
+                    var jsObject = Function('return ' + objectString)();
+                    if (!jsObject) return objectString;
+                    var json = JSON.stringify(jsObject, null, 2);
+                    return json;
+                }
+
+                function regularResult(data) {
+                    data.query = vm.query;
+                    data.oneLineQuery = removeWhitespace(data.query);
+                    data.params = formatObject(vm.params);
+                    data.key = Date.now();
+                    vm.result = data;
+                    vm.results.unshift(data);
+                    vm.resultTab = 3;
+                }
+
+                function errorResult(error) {
+                    var result = { query: vm.query, params: formatObject(vm.params), isSuccessful: false, error: error, key: Date.now() };
+                    vm.result = result;
+                    vm.results.unshift(result);
+                    vm.resultTab = 4;
+                }
+
                 var antiForgeryToken = $('input:hidden[name="__RequestVerificationToken"]').val();
 
                 fetch("/?handler=RunQuery", {
@@ -82,20 +116,14 @@
                         "Content-Type": "application/json",
                         "RequestVerificationToken": antiForgeryToken
                     },
-                    body: JSON.stringify({ Query: this.query }),
+                    body: JSON.stringify({ Query: this.query, ParamsJson: formatObject(this.params) }),
                 })
                 .then(response => response.json())
                 .then(data => {
-                    data.key = Date.now();
-                    this.result = data;
-                    this.results.unshift(data);
-                    this.resultTab = 3;
+                    regularResult(data);
                 })
                 .catch((error) => {
-                    var result = {isSuccessful:false, error: error, key: Date.now()};
-                    this.result = result;
-                    this.results.unshift(result);
-                    this.resultTab = 4;
+                    errorResult(error);
                 });
             },
             selectInputTab: function (index) {
@@ -113,7 +141,7 @@
                 var text = "";
                 if (this.result) {
                     if (this.resultTab === 0)
-                        text = this.result.graphQL;
+                        text = this.result.query;
                     else if (this.resultTab === 1)
                         text = this.result.params;
                     else if (this.resultTab === 2)

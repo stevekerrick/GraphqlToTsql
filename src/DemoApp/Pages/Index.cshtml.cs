@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace DemoApp.Pages
 {
@@ -28,31 +30,23 @@ namespace DemoApp.Pages
 
         public async Task<JsonResult> OnPostRunQuery([FromBody] QueryModel query)
         {
-            //var result = await RunQuery(query);
-
-            var result = new QueryResult
-            {
-                GraphQL = query.Query,
-                Params = "todo",
-                Sql = "todo",
-                Data = "todo"
-            };
-
+            var result = await RunQuery(query);
             return new JsonResult(result);
         }
 
         private async Task<QueryResult> RunQuery(QueryModel query)
         {
-            var result = new QueryResult { 
-                GraphQL = query.Query,
-                Params = "strange params"
-            };
+            var queryParams = string.IsNullOrEmpty(query.ParamsJson)
+                ? null
+                : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.ParamsJson);
+
+            var result = new QueryResult();
 
             // Build SQL command
             try
             {
                 var translator = new GraphqlTranslator();
-                var translateResult = translator.Translate(query.Query, null);
+                var translateResult = translator.Translate(query.Query, queryParams);
                 if (!translateResult.IsSuccessful)
                 {
                     result.Error = translateResult.ParseError;
@@ -67,29 +61,27 @@ namespace DemoApp.Pages
             }
 
             // Execute the SQL
-            try
-            {
-                var conn = _configuration["ConnectionString"];
-                using (var connection = new SqlConnection(conn))
-                {
-                    var json = await connection.QuerySingleOrDefaultAsync<string>(result.Sql);
-                    var obj = JsonSerializer.Deserialize<dynamic>(json);
-                    result.Data = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
-                }
-            }
-            catch (Exception e)
-            {
-                result.Error = $"Database error: {e.Message}";
-                return result;
-            }
+            //try
+            //{
+            //    var conn = _configuration["ConnectionString"];
+            //    using (var connection = new SqlConnection(conn))
+            //    {
+            //        var json = await connection.QuerySingleOrDefaultAsync<string>(result.Sql);
+            //        var obj = JsonSerializer.Deserialize<dynamic>(json);
+            //        result.Data = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    result.Error = $"Database error: {e.Message}";
+            //    return result;
+            //}
 
             return result;
         }
 
         private class QueryResult
         {
-            public string GraphQL { get; set; }
-            public string Params { get; set; }
             public string Sql { get; set; }
             public string Data { get; set; }
             public string Error { get; set; }
@@ -100,5 +92,6 @@ namespace DemoApp.Pages
     public class QueryModel
     {
         public string Query { get; set; }
+        public string ParamsJson { get; set; }
     }
 }
