@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30128.36
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Translator", "Translator\Translator.csproj", "{BAC8CD8C-C387-468A-94B5-A85EACF75EB8}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TranslatorTests", "TranslatorTests\TranslatorTests.csproj", "{281364C3-9474-45AC-BE21-B346E3A003BF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphqlParser", "GraphqlParser\GraphqlParser.csproj", "{AF26E231-995A-48DA-A519-B31DC75DE535}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoApp", "DemoApp\DemoApp.csproj", "{7AD4F69D-D948-4455-BBB4-E49CA7CFF39D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoApp", "DemoApp\DemoApp.csproj", "{7AD4F69D-D948-4455-BBB4-E49CA7CFF39D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoEntities", "DemoEntities\DemoEntities.csproj", "{C9C21F10-3F24-4D71-9869-3D5FC47D9ADD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphqlToTsql", "GraphqlToTsql\GraphqlToTsql.csproj", "{0FFAB7C6-7105-4D04-8892-EF7D71AB783C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,22 +17,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BAC8CD8C-C387-468A-94B5-A85EACF75EB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BAC8CD8C-C387-468A-94B5-A85EACF75EB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BAC8CD8C-C387-468A-94B5-A85EACF75EB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BAC8CD8C-C387-468A-94B5-A85EACF75EB8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{281364C3-9474-45AC-BE21-B346E3A003BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{281364C3-9474-45AC-BE21-B346E3A003BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{281364C3-9474-45AC-BE21-B346E3A003BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{281364C3-9474-45AC-BE21-B346E3A003BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AF26E231-995A-48DA-A519-B31DC75DE535}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AF26E231-995A-48DA-A519-B31DC75DE535}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AF26E231-995A-48DA-A519-B31DC75DE535}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AF26E231-995A-48DA-A519-B31DC75DE535}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7AD4F69D-D948-4455-BBB4-E49CA7CFF39D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7AD4F69D-D948-4455-BBB4-E49CA7CFF39D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7AD4F69D-D948-4455-BBB4-E49CA7CFF39D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7AD4F69D-D948-4455-BBB4-E49CA7CFF39D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9C21F10-3F24-4D71-9869-3D5FC47D9ADD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C21F10-3F24-4D71-9869-3D5FC47D9ADD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9C21F10-3F24-4D71-9869-3D5FC47D9ADD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C21F10-3F24-4D71-9869-3D5FC47D9ADD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FFAB7C6-7105-4D04-8892-EF7D71AB783C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FFAB7C6-7105-4D04-8892-EF7D71AB783C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FFAB7C6-7105-4D04-8892-EF7D71AB783C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FFAB7C6-7105-4D04-8892-EF7D71AB783C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
