@@ -45,9 +45,10 @@ namespace GraphqlToTsql.Translator
             }
 
             // Parse was successful. Now perform the translation.
+            var queryTree = listener.GetQueryTree();
             var builder = new TsqlBuilder();
-            var query = builder.Build(listener.GetQueryTree());
-            var result = new TranslateResult { Query = query };
+            var query = builder.Build(queryTree);
+            var result = new TranslateResult { Tsql = query };
 
             return result;
         }

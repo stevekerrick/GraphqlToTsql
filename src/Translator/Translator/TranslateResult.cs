@@ -4,6 +4,6 @@
     {
         public bool IsSuccessful => string.IsNullOrWhiteSpace(ParseError);
         public string ParseError { get; set; }
-        public string Query { get; set; }
+        public string Tsql { get; set; }
     }
 }

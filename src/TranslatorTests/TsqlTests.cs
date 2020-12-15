@@ -1,4 +1,5 @@
 ﻿using GraphqlToTsql.Translator;
+using GraphqlToTsql.Translator.Translator;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -97,7 +98,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
         public void VariableTest()
         {
             const string graphQl = "query VariableTest($idVar: ID, $urnVar: String = \"bill\") { epcs (id: $idVar, urn: $urnVar) { urn } }";
-            var variables = new Dictionary<string, object> { { "idVar", 2 } };
+            var variableValues = new Dictionary<string, object> { { "idVar", 2 } };
             var expectedSql = @"
 -------------------------------
 -- Operation: VariableTest
@@ -115,7 +116,7 @@ SELECT
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
-            Check(graphQl, variables, expectedSql);
+            Check(graphQl, variableValues, expectedSql);
         }
 
         [Test]
@@ -161,15 +162,55 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
             Check(graphQl, null, expectedSql);
         }
 
-        private static void Check(string graphQl, Dictionary<string, object> variables, string expectedSql)
+        [Test]
+        public void ComplicatedQueryTest()
+        {
+            var graphQl = @"
+query jojaCola ($urn: string) {
+  product1: product (urn: $urn) {
+    name urn
+    lots {
+      lotNumber expirationDate
+      epcs {
+        urn disposition { name }
+        bizLocation { urn name }
+        readPoint { urn name }
+        lastUpdate
+        children { urn disposition { name } }
+      }
+    }
+  }
+}
+".Trim();
+            var variableValues = new Dictionary<string, object> { { "urn", "urn:epc:idpat:sgtin:258643.3704146.*" } };
+
+            var result = Translate(graphQl, variableValues);
+            var tsql = result.Tsql;
+            Assert.IsTrue(tsql.Contains("jojaCola"));
+            Assert.IsTrue(tsql.Contains("Product"));
+            Assert.IsTrue(tsql.Contains("Lot"));
+            Assert.IsTrue(tsql.Contains("Epc"));
+            Assert.IsTrue(tsql.Contains("Disposition"));
+            Assert.IsTrue(tsql.Contains("Location"));
+        }
+
+
+        private static TranslateResult Translate(string graphQl, Dictionary<string, object> variableValues)
         {
             var translator = new GraphqlTranslator();
-            var result = translator.Translate(graphQl, variables);
+            var result = translator.Translate(graphQl, variableValues);
             Assert.IsTrue(result.IsSuccessful, $"The parse failed: {result.ParseError}");
+
+            return result;
+        }
+
+        private static void Check(string graphQl, Dictionary<string, object> variables, string expectedSql)
+        {
+            var result = Translate(graphQl, variables);
 
             // Show the difference between Expected and Actual
             expectedSql = expectedSql.TrimEnd();
-            var actualSql = result.Query.TrimEnd();
+            var actualSql = result.Tsql.TrimEnd();
             if (expectedSql != actualSql)
             {
                 var expectedLines = expectedSql.Split('\n');

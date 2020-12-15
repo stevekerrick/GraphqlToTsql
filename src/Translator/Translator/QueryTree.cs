@@ -87,7 +87,7 @@ namespace GraphqlToTsql.Translator.Translator
                 field = TopLevelFields.All.FirstOrDefault(_ => _.Name == name);
                 if (field == null)
                 {
-                    throw new Exception($"Query not defined for {name}");
+                    throw new Exception($"Tsql not defined for {name}");
                 }
             }
             else

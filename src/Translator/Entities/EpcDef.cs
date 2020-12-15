@@ -8,9 +8,9 @@ namespace GraphqlToTsql.Translator.Entities
         public override string Name => "epc";
         public override string DbTableName => "Epc";
 
-        private EpcDef()
+        protected override List<Field> BuildFieldList()
         {
-            Fields = new List<Field>
+            return new List<Field>
             {
                 Field.Scalar(this, "id", "Id"),
                 Field.Scalar(this, "urn", "Urn"),

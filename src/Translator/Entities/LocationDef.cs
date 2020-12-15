@@ -9,9 +9,9 @@ namespace GraphqlToTsql.Translator.Entities
         public override string Name => "location";
         public override string DbTableName => "Location";
 
-        private LocationDef()
+        protected override List<Field> BuildFieldList()
         {
-            Fields = new List<Field>
+            return new List<Field>
             {
                 Field.Scalar(this, "id", "Id"),
                 Field.Scalar(this, "urn", "Urn"),

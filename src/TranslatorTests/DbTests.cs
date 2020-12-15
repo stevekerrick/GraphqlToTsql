@@ -27,8 +27,8 @@ namespace GraphqlToTsql.TranslatorTests
             var result = translator.Translate(graphQl, variableValues);
             Assert.IsTrue(result.IsSuccessful, $"The parse failed: {result.ParseError}");
 
-            // Query the database
-            var sql = result.Query;
+            // Tsql the database
+            var sql = result.Tsql;
             Console.WriteLine(sql);
             var json = await QueryAsync(sql);
             Console.WriteLine(json);
@@ -36,7 +36,7 @@ namespace GraphqlToTsql.TranslatorTests
 
             // Show the difference between Expected and Actual
             //expectedSql = expectedSql.TrimEnd();
-            //var actualSql = result.Query.TrimEnd();
+            //var actualSql = result.Tsql.TrimEnd();
             //if (expectedSql != actualSql)
             //{
             //    var expectedLines = expectedSql.Split('\n');

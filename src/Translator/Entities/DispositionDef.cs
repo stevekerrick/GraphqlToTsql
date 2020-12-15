@@ -9,9 +9,9 @@ namespace GraphqlToTsql.Translator.Entities
         public override string Name => "disposition";
         public override string DbTableName => "Disposition";
 
-        private DispositionDef()
+        protected override List<Field> BuildFieldList()
         {
-            Fields = new List<Field>
+            return new List<Field>
             {
                 Field.Scalar(this, "id", "Id"),
                 Field.Scalar(this, "urn", "Urn"),

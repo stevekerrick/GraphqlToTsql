@@ -52,7 +52,7 @@ namespace DemoApp.Pages
                     result.Error = translateResult.ParseError;
                     return result;
                 }
-                result.Sql = translateResult.Query;
+                result.Sql = translateResult.Tsql;
             }
             catch (Exception e)
             {
