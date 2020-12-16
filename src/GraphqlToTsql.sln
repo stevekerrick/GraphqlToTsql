@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30128.36
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TranslatorTests", "TranslatorTests\TranslatorTests.csproj", "{281364C3-9474-45AC-BE21-B346E3A003BF}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoApp", "DemoApp\DemoApp.csproj", "{7AD4F69D-D948-4455-BBB4-E49CA7CFF39D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoEntities", "DemoEntities\DemoEntities.csproj", "{C9C21F10-3F24-4D71-9869-3D5FC47D9ADD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphqlToTsql", "GraphqlToTsql\GraphqlToTsql.csproj", "{0FFAB7C6-7105-4D04-8892-EF7D71AB783C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphqlToTsqlTests", "GraphqlToTsqlTests\GraphqlToTsqlTests.csproj", "{1887863F-79EB-4579-BE77-A3F8DE96BE98}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{281364C3-9474-45AC-BE21-B346E3A003BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{281364C3-9474-45AC-BE21-B346E3A003BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{281364C3-9474-45AC-BE21-B346E3A003BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{281364C3-9474-45AC-BE21-B346E3A003BF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7AD4F69D-D948-4455-BBB4-E49CA7CFF39D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7AD4F69D-D948-4455-BBB4-E49CA7CFF39D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7AD4F69D-D948-4455-BBB4-E49CA7CFF39D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -33,6 +29,10 @@ Global
 		{0FFAB7C6-7105-4D04-8892-EF7D71AB783C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FFAB7C6-7105-4D04-8892-EF7D71AB783C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FFAB7C6-7105-4D04-8892-EF7D71AB783C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1887863F-79EB-4579-BE77-A3F8DE96BE98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1887863F-79EB-4579-BE77-A3F8DE96BE98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1887863F-79EB-4579-BE77-A3F8DE96BE98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1887863F-79EB-4579-BE77-A3F8DE96BE98}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
