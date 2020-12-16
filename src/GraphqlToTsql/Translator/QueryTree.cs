@@ -7,6 +7,8 @@ namespace GraphqlToTsql.Translator
 {
     public class QueryTree
     {
+        private readonly IEntityList _entityList;
+
         public Term TopTerm { get; private set; }
         public Dictionary<string, Term> Fragments;
         public string OperationName { get; set; }
@@ -15,8 +17,12 @@ namespace GraphqlToTsql.Translator
         private Dictionary<string, object> _variableValues;
         private Dictionary<string, Value> _variables;
 
-        public QueryTree(Dictionary<string, object> variableValues)
+        public QueryTree(
+            IEntityList entityList,
+            Dictionary<string, object> variableValues)
         {
+            _entityList = entityList;
+
             _variableValues = variableValues;
             _variables = new Dictionary<string, Value>();
             Fragments = new Dictionary<string, Term>();
@@ -69,7 +75,7 @@ namespace GraphqlToTsql.Translator
 
         public void BeginFragment(string name, string type)
         {
-            var field = AllEntities.Find(type);
+            var field = _entityList.Find(type);
 
             _parent = Term.TopLevel();
             _term = new Term(_parent, field, type);
@@ -84,11 +90,7 @@ namespace GraphqlToTsql.Translator
 
             if (_parent.TermType == TermType.TopLevel)
             {
-                field = TopLevelFields.All.FirstOrDefault(_ => _.Name == name);
-                if (field == null)
-                {
-                    throw new Exception($"Tsql not defined for {name}");
-                }
+                field = _entityList.Find(name);
             }
             else
             {

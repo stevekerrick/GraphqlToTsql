@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GraphqlParser\GraphqlToTsql.csproj" />
+    <ProjectReference Include="..\GraphqlToTsql\GraphqlToTsql.csproj" />
   </ItemGroup>
 
 </Project>

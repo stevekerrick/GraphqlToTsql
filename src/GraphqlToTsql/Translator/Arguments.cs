@@ -1,6 +1,6 @@
+using GraphqlToTsql.Entities;
 using System;
 using System.Collections.Generic;
-using GraphqlToTsql.Entities;
 
 namespace GraphqlToTsql.Translator
 {

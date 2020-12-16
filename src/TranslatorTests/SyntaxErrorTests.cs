@@ -1,4 +1,5 @@
-﻿using GraphqlToTsql.Translator;
+﻿using DemoEntities;
+using GraphqlToTsql.Translator;
 using NUnit.Framework;
 
 namespace GraphqlToTsql.TranslatorTests
@@ -22,7 +23,8 @@ namespace GraphqlToTsql.TranslatorTests
 
         private static void Check(string graphQl, string expectedError)
         {
-            var translator = new GraphqlTranslator();
+            var entityList = new DemoEntityList();
+            var translator = new GraphqlTranslator(entityList);
             var result = translator.Translate(graphQl, null);
 
             Assert.IsFalse(result.IsSuccessful, "The parse was successful, but was expected to fail");

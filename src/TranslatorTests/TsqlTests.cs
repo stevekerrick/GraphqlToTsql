@@ -1,5 +1,5 @@
-﻿using GraphqlToTsql.Translator;
-using GraphqlToTsql.Translator.Translator;
+﻿using DemoEntities;
+using GraphqlToTsql.Translator;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -130,7 +130,7 @@ SELECT
   JSON_QUERY ((
     SELECT
       t1.[Urn] AS [urn]
-    , (SELECT d.DispositionName FROM Disposition d WHERE d.Id = t1.DispositionId) AS [dispositionName]
+    , (SELECT d.Name FROM Disposition d WHERE d.Id = t1.DispositionId) AS [dispositionName]
     FROM [Epc] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
@@ -194,10 +194,10 @@ query jojaCola ($urn: string) {
             Assert.IsTrue(tsql.Contains("Location"));
         }
 
-
         private static TranslateResult Translate(string graphQl, Dictionary<string, object> variableValues)
         {
-            var translator = new GraphqlTranslator();
+            var entityList = new DemoEntityList();
+            var translator = new GraphqlTranslator(entityList);
             var result = translator.Translate(graphQl, variableValues);
             Assert.IsTrue(result.IsSuccessful, $"The parse failed: {result.ParseError}");
 

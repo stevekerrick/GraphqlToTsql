@@ -1,15 +1,15 @@
 ﻿using Dapper;
+using DemoEntities;
 using GraphqlToTsql.Translator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-//using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace DemoApp.Pages
 {
@@ -45,7 +45,8 @@ namespace DemoApp.Pages
             // Build SQL command
             try
             {
-                var translator = new GraphqlTranslator();
+                var entityList = new DemoEntityList();
+                var translator = new GraphqlTranslator(entityList);
                 var translateResult = translator.Translate(query.Query, queryParams);
                 if (!translateResult.IsSuccessful)
                 {

@@ -1,4 +1,5 @@
 using Dapper;
+using DemoEntities;
 using GraphqlToTsql.Translator;
 using NUnit.Framework;
 using System;
@@ -23,7 +24,8 @@ namespace GraphqlToTsql.TranslatorTests
 
         private static async Task CheckAsync(string graphQl, Dictionary<string, object> variableValues, object expectedJson)
         {
-            var translator = new GraphqlTranslator();
+            var entityList = new DemoEntityList();
+            var translator = new GraphqlTranslator(entityList);
             var result = translator.Translate(graphQl, variableValues);
             Assert.IsTrue(result.IsSuccessful, $"The parse failed: {result.ParseError}");
 
