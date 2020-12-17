@@ -36,11 +36,10 @@ namespace GraphqlToTsql.Translator
         {
             if (value.ValueType != ValueType.Number)
             {
-                throw new Exception($"{name} must be an integer: {value.ValueString}");
+                throw new Exception($"{name} must be an integer: {value.RawValue}");
             }
 
-            var doubleValue = Double.Parse(value.ValueString);
-            return (long)doubleValue;
+            return (long)(decimal)value.RawValue;
         }
 
         public class Filter

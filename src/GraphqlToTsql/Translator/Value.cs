@@ -6,7 +6,9 @@ namespace GraphqlToTsql.Translator
     public class Value
     {
         public ValueType ValueType { get; }
-        public string ValueString { get; } // Includes '' around string values
+        public object RawValue { get; }
+
+        //public string ValueString { get; } // Includes '' around string values
 
         public Value(GqlParser.ValueContext valueContext)
         {
@@ -14,17 +16,15 @@ namespace GraphqlToTsql.Translator
             {
                 case GqlParser.NumberValueContext numberValueContext:
                     ValueType = ValueType.Number;
-                    ValueString = numberValueContext.GetText();
+                    RawValue = decimal.Parse(numberValueContext.GetText());
                     break;
                 case GqlParser.StringValueContext stringValueContext:
                     ValueType = ValueType.String;
-                    //TODO: Fix SQL Injection problem here
-                    ValueString = stringValueContext.GetText().Replace('"', '\'');
+                    RawValue = stringValueContext.GetText();
                     break;
                 case GqlParser.BooleanValueContext booleanValueContext:
                     ValueType = ValueType.Boolean;
-                    var boolString = booleanValueContext.GetText().ToUpper();
-                    ValueString = boolString == "TRUE" ? "1" : "0";
+                    RawValue = bool.Parse(booleanValueContext.GetText().ToLower());
                     break;
                 case GqlParser.ArrayValueContext arrayValueContext:
                     var token = arrayValueContext.Start;
@@ -37,42 +37,40 @@ namespace GraphqlToTsql.Translator
         {
             if (rawValue == null)
             {
-                ValueType = ValueType.Unknown;
-                ValueString = null;
+                ValueType = ValueType.None;
+                RawValue = null;
                 return;
             }
 
             var rawValueString = rawValue.ToString();
             if (string.IsNullOrEmpty(rawValueString))
             {
-                ValueType = ValueType.Unknown;
-                ValueString = null;
+                ValueType = ValueType.None;
+                RawValue = null;
                 return;
             }
 
-            if (decimal.TryParse(rawValueString, out _))
+            if (decimal.TryParse(rawValueString, out var numberValue))
             {
                 ValueType = ValueType.Number;
-                ValueString = rawValueString;
+                RawValue = numberValue;
             }
             else if (bool.TryParse(rawValueString, out var boolValue))
             {
                 ValueType = ValueType.Boolean;
-                ValueString = boolValue ? "1" : "0";
+                RawValue = boolValue;
             }
             else
             {
                 ValueType = ValueType.String;
-                //TODO: Fix SQL Injection problem here
-                ValueString = $"'{rawValueString}'";
+                RawValue = rawValueString;
             }
         }
     }
 
     public enum ValueType
     {
-        Unknown,
-        ID,
+        None,
         Number,
         String,
         Boolean
