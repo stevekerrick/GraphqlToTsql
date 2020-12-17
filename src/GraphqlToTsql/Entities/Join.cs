@@ -12,6 +12,5 @@ namespace GraphqlToTsql.Entities
             ParentFieldFunc = parentFieldFunc;
             ChildFieldFunc = childFieldFunc;
         }
-
     }
 }

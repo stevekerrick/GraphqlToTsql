@@ -5,9 +5,9 @@
 
     <IsPackable>false</IsPackable>
 
-    <AssemblyName>GraphqlToTsql.TranslatorTests</AssemblyName>
+    <AssemblyName>GraphqlToTsqlTests</AssemblyName>
 
-    <RootNamespace>GraphqlToTsql.TranslatorTests</RootNamespace>
+    <RootNamespace>GraphqlToTsqlTests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

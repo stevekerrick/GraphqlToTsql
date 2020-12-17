@@ -1,12 +1,13 @@
 ﻿using Antlr4.Runtime;
 using GraphqlToTsql.CodeGen;
 using GraphqlToTsql.Entities;
+using GraphqlToTsql.Translator;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace GraphqlToTsql.Translator
+namespace GraphqlToTsql
 {
     public class GraphqlTranslator
     {

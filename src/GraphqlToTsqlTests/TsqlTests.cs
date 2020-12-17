@@ -1,10 +1,11 @@
 ﻿using DemoEntities;
+using GraphqlToTsql;
 using GraphqlToTsql.Translator;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace GraphqlToTsql.TranslatorTests
+namespace GraphqlToTsqlTests
 {
     [TestFixture]
     public class TsqlTests

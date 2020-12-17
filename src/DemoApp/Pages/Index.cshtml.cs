@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using DemoEntities;
-using GraphqlToTsql.Translator;
+using GraphqlToTsql;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;

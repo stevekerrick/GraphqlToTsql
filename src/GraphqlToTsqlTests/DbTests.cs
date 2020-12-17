@@ -1,13 +1,13 @@
 using Dapper;
 using DemoEntities;
-using GraphqlToTsql.Translator;
+using GraphqlToTsql;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 
-namespace GraphqlToTsql.TranslatorTests
+namespace GraphqlToTsqlTests
 {
     [TestFixture]
     public class DbTests
@@ -29,43 +29,11 @@ namespace GraphqlToTsql.TranslatorTests
             var result = translator.Translate(graphQl, variableValues);
             Assert.IsTrue(result.IsSuccessful, $"The parse failed: {result.ParseError}");
 
-            // Tsql the database
+            // Query the database
             var sql = result.Tsql;
             Console.WriteLine(sql);
             var json = await QueryAsync(sql);
             Console.WriteLine(json);
-
-
-            // Show the difference between Expected and Actual
-            //expectedSql = expectedSql.TrimEnd();
-            //var actualSql = result.Tsql.TrimEnd();
-            //if (expectedSql != actualSql)
-            //{
-            //    var expectedLines = expectedSql.Split('\n');
-            //    var actualLines = (actualSql ?? "").Split('\n');
-            //    var errorShown = false;
-
-            //    Console.WriteLine("------------------------------------");
-            //    for (var i = 0; i < Math.Max(expectedLines.Length, actualLines.Length); i++)
-            //    {
-            //        var line1 = i < expectedLines.Length ? expectedLines[i].TrimEnd() : "";
-            //        var line2 = i < actualLines.Length ? actualLines[i].TrimEnd() : "";
-            //        Console.WriteLine(line1.PadRight(60) + " : " + line2);
-            //        if (!errorShown && line1 != line2)
-            //        {
-            //            var diff = 0;
-            //            while (diff < line1.Length - 1 && diff < line2.Length - 1 && line1[diff] == line2[diff])
-            //            {
-            //                diff++;
-            //            }
-            //            var arrow = "".PadRight(diff, '=') + '^';
-            //            Console.WriteLine(arrow.PadRight(60) + " : " + arrow);
-            //            errorShown = true;
-            //        }
-            //    }
-
-            //    Assert.Fail("Unexpected Sql result");
-            //}
         }
 
         private static async Task<string> QueryAsync(string sql)
@@ -76,6 +44,5 @@ namespace GraphqlToTsql.TranslatorTests
                 return json;
             }
         }
-
     }
 }

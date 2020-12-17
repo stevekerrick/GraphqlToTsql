@@ -1,8 +1,8 @@
 ﻿using DemoEntities;
-using GraphqlToTsql.Translator;
+using GraphqlToTsql;
 using NUnit.Framework;
 
-namespace GraphqlToTsql.TranslatorTests
+namespace GraphqlToTsqlTests
 {
     [TestFixture]
     public class SyntaxErrorTests
