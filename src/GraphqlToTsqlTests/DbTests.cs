@@ -33,11 +33,14 @@ namespace GraphqlToTsqlTests
             // Query the database
             var tsql = result.Tsql;
             Console.WriteLine(tsql);
+            var tsqlParameters = result.TsqlParameters;
+            Console.WriteLine(JsonConvert.SerializeObject(tsqlParameters, Formatting.Indented));
             var actualJson = await QueryAsync(tsql, result.TsqlParameters);
 
             // Compare
             var actualObj = JsonConvert.DeserializeObject(actualJson);
             var actualFormattedJson = JsonConvert.SerializeObject(actualObj, Formatting.Indented);
+            Console.WriteLine("");
             Console.WriteLine(actualFormattedJson);
             var expectedFormattedJson = JsonConvert.SerializeObject(expectedObject, Formatting.Indented);
             Assert.AreEqual(expectedFormattedJson, actualFormattedJson, "Database response does not match expected");

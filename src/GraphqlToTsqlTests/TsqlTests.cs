@@ -1,6 +1,7 @@
 ﻿using DemoEntities;
 using GraphqlToTsql;
 using GraphqlToTsql.Translator;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -67,13 +68,13 @@ SELECT
     SELECT
       t1.[Urn] AS [urn]
     FROM [Epc] t1
-    WHERE t1.[Id] = $id
+    WHERE t1.[Id] = @id
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object> {
-                {"id", 1 }
+                {"@id", 1 }
             };
 
             Check(graphQl, null, expectedSql, expectedTsqlParameters);
@@ -127,14 +128,14 @@ SELECT
     SELECT
       t1.[Urn] AS [urn]
     FROM [Epc] t1
-    WHERE t1.[Id] = $idVar AND t1.[Urn] = $urnVar
+    WHERE t1.[Id] = @idVar AND t1.[Urn] = @urnVar
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object> {
-                { "idVar", 2 },
-                { "urnVar", "bill" }
+                { "@idVar", 2 },
+                { "@urnVar", "bill" }
             };
 
             Check(graphQl, variableValues, expectedSql, expectedTsqlParameters);
@@ -242,36 +243,36 @@ query jojaCola ($urn: string) {
             // Show the difference between Expected and Actual Tsql
             expectedSql = expectedSql.TrimEnd();
             var actualSql = result.Tsql.TrimEnd();
-            if (expectedSql != actualSql)
+            var expectedLines = expectedSql.Split('\n');
+            var actualLines = (actualSql ?? "").Split('\n');
+            var errorShown = false;
+
+            for (var i = 0; i < Math.Max(expectedLines.Length, actualLines.Length); i++)
             {
-                var expectedLines = expectedSql.Split('\n');
-                var actualLines = (actualSql ?? "").Split('\n');
-                var errorShown = false;
-
-                Console.WriteLine("------------------------------------");
-                for (var i = 0; i < Math.Max(expectedLines.Length, actualLines.Length); i++)
+                var line1 = i < expectedLines.Length ? expectedLines[i].TrimEnd() : "";
+                var line2 = i < actualLines.Length ? actualLines[i].TrimEnd() : "";
+                Console.WriteLine(line2);
+                if (!errorShown && line1 != line2)
                 {
-                    var line1 = i < expectedLines.Length ? expectedLines[i].TrimEnd() : "";
-                    var line2 = i < actualLines.Length ? actualLines[i].TrimEnd() : "";
-                    Console.WriteLine(line1.PadRight(60) + " : " + line2);
-                    if (!errorShown && line1 != line2)
+                    var diff = 0;
+                    while (diff < line1.Length - 1 && diff < line2.Length - 1 && line1[diff] == line2[diff])
                     {
-                        var diff = 0;
-                        while (diff < line1.Length - 1 && diff < line2.Length - 1 && line1[diff] == line2[diff])
-                        {
-                            diff++;
-                        }
-                        var arrow = "".PadRight(diff, '=') + '^';
-                        Console.WriteLine(arrow.PadRight(60) + " : " + arrow);
-                        errorShown = true;
+                        diff++;
                     }
+                    var arrow = "".PadRight(diff, '~') + '^';
+                    Console.WriteLine(arrow);
+                    errorShown = true;
                 }
-
+            }
+            if (errorShown)
+            {
                 Assert.Fail("Unexpected Sql result");
             }
 
             // Show the difference between Expected and Actual TsqlParameters
             var actualTsqlParameters = result.TsqlParameters;
+            Console.WriteLine("");
+            Console.WriteLine(JsonConvert.SerializeObject(actualTsqlParameters, Formatting.Indented));
             var errorCount = 0;
             foreach (var kv in expectedTsqlParameters)
             {
