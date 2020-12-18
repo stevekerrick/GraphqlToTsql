@@ -19,8 +19,8 @@
                 </li>
             </ul>
             <div class="input-controls">
-                <textarea v-model="query" v-show="inputTab === 0"></textarea>
-                <textarea v-model="params" v-show="inputTab === 1"></textarea>
+                <textarea v-model="graphql" v-show="inputTab === 0"></textarea>
+                <textarea v-model="graphqlParameters" v-show="inputTab === 1"></textarea>
             </div>
         </div>
         <div class="col-3"></div>
@@ -37,7 +37,7 @@
     <div class="row mt-3 pt-3 results-row" v-if="results.length > 0">
         <div class="col-6 scroll-panel">
             <div v-for="r in results" :key="r.key" class="result-card p-2 mt-2" :class="{selected: r === result, error: r.error}" v-on:click="selectResult(r)">
-                {{r.error || r.oneLineQuery}}
+                {{r.error || r.oneLineGraphql}}
             </div>
         </div>
         <div class="col-6 h-100">
@@ -71,12 +71,12 @@
     var app = new Vue({
         el: "#app",
         data: {
-            query: "{ epcs { id }}",
-            params: "{\n  a: 1\n}",
+            graphql: "{ epc(id: 1) { id }}",
+            graphqlParameters: "{\n  a: 1\n}",
             results: [],
             result: null,
             inputTab: 0,
-            resultTabs: ["GraphQL", "Params", "SQL", "Data", "Error"],
+            resultTabs: ["GraphQL", "G Params", "TSQL", "T Params", "Data", "Error"],
             resultTab: 0
         },
         methods: {
@@ -92,20 +92,32 @@
                 }
 
                 function regularResult(data) {
-                    data.query = vm.query;
-                    data.oneLineQuery = removeWhitespace(data.query);
-                    data.params = formatObject(vm.params);
-                    data.key = Date.now();
-                    vm.result = data;
-                    vm.results.unshift(data);
-                    vm.resultTab = 3;
-                }
-
-                function errorResult(error) {
-                    var result = { query: vm.query, params: formatObject(vm.params), isSuccessful: false, error: error, key: Date.now() };
+                    var result = {
+                        graphql: vm.graphql,
+                        graphqlParameters: formatObject(vm.graphqlParameters),
+                        tsql: data.tsql,
+                        tsqlParameters: formatObject(data.tsqlParameters),
+                        data: formatObject(data.data),
+                        isSuccessful: data.isSuccessful,
+                        error: data.error,
+                        key: Date.now()
+                    }
                     vm.result = result;
                     vm.results.unshift(result);
                     vm.resultTab = 4;
+                }
+
+                function errorResult(error) {
+                    var result = {
+                        graphql: vm.graphql,
+                        graphqlParameters: formatObject(vm.graphqlParameters),
+                        isSuccessful: false,
+                        error: error,
+                        key: Date.now()
+                    };
+                    vm.result = result;
+                    vm.results.unshift(result);
+                    vm.resultTab = 5;
                 }
 
                 var antiForgeryToken = $('input:hidden[name="__RequestVerificationToken"]').val();
@@ -116,7 +128,7 @@
                         "Content-Type": "application/json",
                         "RequestVerificationToken": antiForgeryToken
                     },
-                    body: JSON.stringify({ Query: this.query, ParamsJson: formatObject(this.params) }),
+                    body: JSON.stringify({ Graphql: this.graphql, GraphqlParametersJson: formatObject(this.graphqlParameters) }),
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -141,14 +153,16 @@
                 var text = "";
                 if (this.result) {
                     if (this.resultTab === 0)
-                        text = this.result.query;
+                        text = this.result.graphql;
                     else if (this.resultTab === 1)
-                        text = this.result.params;
+                        text = this.result.graphqlParameters;
                     else if (this.resultTab === 2)
-                        text = this.result.sql;
+                        text = this.result.tsql;
                     else if (this.resultTab === 3)
-                        text = this.result.data;
+                        text = this.result.tsqlParameters;
                     else if (this.resultTab === 4)
+                        text = this.result.data;
+                    else if (this.resultTab === 5)
                         text = this.result.error;
                 }
                 return text;

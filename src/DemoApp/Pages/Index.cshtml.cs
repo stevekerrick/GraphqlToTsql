@@ -36,9 +36,10 @@ namespace DemoApp.Pages
 
         private async Task<QueryResult> RunQuery(QueryModel query)
         {
-            var queryParams = string.IsNullOrEmpty(query.ParamsJson)
+            var graphql = query.Graphql;
+            var graphqlParameters = string.IsNullOrEmpty(query.GraphqlParametersJson)
                 ? null
-                : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.ParamsJson);
+                : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.GraphqlParametersJson);
 
             var result = new QueryResult();
 
@@ -47,13 +48,14 @@ namespace DemoApp.Pages
             {
                 var entityList = new DemoEntityList();
                 var translator = new GraphqlTranslator(entityList);
-                var translateResult = translator.Translate(query.Query, queryParams);
+                var translateResult = translator.Translate(graphql, graphqlParameters);
                 if (!translateResult.IsSuccessful)
                 {
                     result.Error = translateResult.ParseError;
                     return result;
                 }
-                result.Sql = translateResult.Tsql;
+                result.Tsql = translateResult.Tsql;
+                result.TsqlParameters = translateResult.TsqlParameters;
             }
             catch (Exception e)
             {
@@ -67,9 +69,8 @@ namespace DemoApp.Pages
                 var conn = _configuration["ConnectionString"];
                 using (var connection = new SqlConnection(conn))
                 {
-                    var json = await connection.QuerySingleOrDefaultAsync<string>(result.Sql);
-                    var obj = JsonConvert.DeserializeObject(json);
-                    result.Data = JsonConvert.SerializeObject(obj, Formatting.Indented);
+                    var json = await connection.QuerySingleOrDefaultAsync<string>(result.Tsql);
+                    result.Data = JsonConvert.DeserializeObject(json);
                 }
             }
             catch (Exception e)
@@ -83,8 +84,9 @@ namespace DemoApp.Pages
 
         private class QueryResult
         {
-            public string Sql { get; set; }
-            public string Data { get; set; }
+            public string Tsql { get; set; }
+            public Dictionary<string, object> TsqlParameters { get; set; }
+            public object Data { get; set; }
             public string Error { get; set; }
             public bool IsSuccess => Error == null;
         }
@@ -92,7 +94,7 @@ namespace DemoApp.Pages
 
     public class QueryModel
     {
-        public string Query { get; set; }
-        public string ParamsJson { get; set; }
+        public string Graphql { get; set; }
+        public string GraphqlParametersJson { get; set; }
     }
 }
