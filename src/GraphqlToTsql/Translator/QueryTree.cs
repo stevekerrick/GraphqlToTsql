@@ -47,6 +47,7 @@ namespace GraphqlToTsql.Translator
             }
 
             _variables[name] = value;
+            value.VariableName = name;
         }
 
         public void BeginQuery()

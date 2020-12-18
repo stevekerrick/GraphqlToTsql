@@ -5,10 +5,11 @@ namespace GraphqlToTsql.Translator
 {
     public class Value
     {
+        public string VariableName { get; set; }
         public ValueType ValueType { get; }
         public object RawValue { get; }
+        public string TsqlParameterName { get; set; }
 
-        //public string ValueString { get; } // Includes '' around string values
 
         public Value(GqlParser.ValueContext valueContext)
         {
@@ -19,8 +20,10 @@ namespace GraphqlToTsql.Translator
                     RawValue = decimal.Parse(numberValueContext.GetText());
                     break;
                 case GqlParser.StringValueContext stringValueContext:
+                    var quoted = stringValueContext.GetText();
+                    var unquoted = quoted.Substring(1, quoted.Length - 2);
                     ValueType = ValueType.String;
-                    RawValue = stringValueContext.GetText();
+                    RawValue = unquoted;
                     break;
                 case GqlParser.BooleanValueContext booleanValueContext:
                     ValueType = ValueType.Boolean;

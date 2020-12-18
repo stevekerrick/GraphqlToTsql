@@ -14,6 +14,7 @@ namespace GraphqlToTsqlTests
         public void SimpleQueryTest()
         {
             const string graphQl = "{ epcs { urn } }";
+
             var expectedSql = @"
 SELECT
 
@@ -26,13 +27,16 @@ SELECT
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
-            Check(graphQl, null, expectedSql);
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphQl, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void AliasTest()
         {
             const string graphQl = "{ codes: epcs { MyUrl: urn } }";
+
             var expectedSql = @"
 SELECT
 
@@ -45,13 +49,16 @@ SELECT
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
-            Check(graphQl, null, expectedSql);
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphQl, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void ArgumentTest()
         {
             const string graphQl = "{ epcs (id: 1) { urn } }";
+
             var expectedSql = @"
 SELECT
 
@@ -60,18 +67,23 @@ SELECT
     SELECT
       t1.[Urn] AS [urn]
     FROM [Epc] t1
-    WHERE t1.[Id] = 1
+    WHERE t1.[Id] = $id
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
-            Check(graphQl, null, expectedSql);
+            var expectedTsqlParameters = new Dictionary<string, object> {
+                {"id", 1 }
+            };
+
+            Check(graphQl, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void JoinTest()
         {
             const string graphQl = "{ epcs { urn product { name } } }";
+
             var expectedSql = @"
 SELECT
 
@@ -92,7 +104,9 @@ SELECT
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
-            Check(graphQl, null, expectedSql);
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphQl, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
@@ -100,6 +114,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
         {
             const string graphQl = "query VariableTest($idVar: ID, $urnVar: String = \"bill\") { epcs (id: $idVar, urn: $urnVar) { urn } }";
             var variableValues = new Dictionary<string, object> { { "idVar", 2 } };
+
             var expectedSql = @"
 -------------------------------
 -- Operation: VariableTest
@@ -112,18 +127,24 @@ SELECT
     SELECT
       t1.[Urn] AS [urn]
     FROM [Epc] t1
-    WHERE t1.[Id] = 2 AND t1.[Urn] = 'bill'
+    WHERE t1.[Id] = $idVar AND t1.[Urn] = $urnVar
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
-            Check(graphQl, variableValues, expectedSql);
+            var expectedTsqlParameters = new Dictionary<string, object> {
+                { "idVar", 2 },
+                { "urnVar", "bill" }
+            };
+
+            Check(graphQl, variableValues, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void CalculatedFieldTest()
         {
             const string graphQl = "{ epcs { urn dispositionName } }";
+
             var expectedSql = @"
 SELECT
 
@@ -137,17 +158,20 @@ SELECT
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
-            Check(graphQl, null, expectedSql);
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphQl, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void FragmentTest()
         {
-          //TODO: Implement enough of a type system so that the fragment can be defined for the type "Epc" (not "epc")
+            //TODO: Implement enough of a type system so that the fragment can be defined for the type "Epc" (not "epc")
             var graphQl = @"
 { epcs { ... frag} }
 fragment frag on epc { urn }
 ".Trim();
+
             var expectedSql = @"
 SELECT
 
@@ -160,7 +184,9 @@ SELECT
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
-            Check(graphQl, null, expectedSql);
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphQl, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
@@ -205,11 +231,15 @@ query jojaCola ($urn: string) {
             return result;
         }
 
-        private static void Check(string graphQl, Dictionary<string, object> variables, string expectedSql)
+        private static void Check(
+            string graphQl,
+            Dictionary<string, object> variables,
+            string expectedSql,
+            Dictionary<string, object> expectedTsqlParameters)
         {
             var result = Translate(graphQl, variables);
 
-            // Show the difference between Expected and Actual
+            // Show the difference between Expected and Actual Tsql
             expectedSql = expectedSql.TrimEnd();
             var actualSql = result.Tsql.TrimEnd();
             if (expectedSql != actualSql)
@@ -239,6 +269,32 @@ query jojaCola ($urn: string) {
 
                 Assert.Fail("Unexpected Sql result");
             }
+
+            // Show the difference between Expected and Actual TsqlParameters
+            var actualTsqlParameters = result.TsqlParameters;
+            var errorCount = 0;
+            foreach (var kv in expectedTsqlParameters)
+            {
+                if (!actualTsqlParameters.ContainsKey(kv.Key))
+                {
+                    Console.WriteLine($"Expected Tsql Parameter is missing: {kv.Key} = {kv.Value}");
+                    errorCount++;
+                }
+                else if (kv.Value?.ToString() != actualTsqlParameters[kv.Key]?.ToString())
+                {
+                    Console.WriteLine($"Tsql Parameter has incorrect value, parameter [{kv.Key}], expected [{kv.Value}], actual [{actualTsqlParameters[kv.Key]}]");
+                    errorCount++;
+                }
+            }
+            foreach (var kv in actualTsqlParameters)
+            {
+                if (!expectedTsqlParameters.ContainsKey(kv.Key))
+                {
+                    Console.WriteLine($"Unexpected Tsql Parameter: {kv.Key} = {kv.Value}");
+                    errorCount++;
+                }
+            }
+            Assert.IsTrue(errorCount == 0, $"{errorCount} Tsql Parameter errors");
         }
     }
 }

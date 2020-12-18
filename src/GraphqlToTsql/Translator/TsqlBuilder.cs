@@ -12,14 +12,16 @@ namespace GraphqlToTsql.Translator
         private int _indent;
         private Sequence _aliasSequence;
         private Dictionary<string, Term> _fragments;
+        private Dictionary<string, object> _tsqlParameters;
 
         public TsqlBuilder()
         {
             _sb = new StringBuilder(2048);
             _aliasSequence = new Sequence();
+            _tsqlParameters = new Dictionary<string, object>();
         }
 
-        public string Build(QueryTree tree)
+        public (string, Dictionary<string, object>) Build(QueryTree tree)
         {
             _fragments = tree.Fragments;
 
@@ -36,7 +38,7 @@ namespace GraphqlToTsql.Translator
             Emit("");
             Emit($"{FOR_JSON}{UNWRAP_ITEM}");
 
-            return _sb.ToString();
+            return (_sb.ToString(), _tsqlParameters);
         }
 
         private void BuildSubquery(Term parent, Term subquery)
@@ -150,7 +152,7 @@ namespace GraphqlToTsql.Translator
             if (filters.Count > 0)
             {
                 var tableAlias = parent.TableAlias(_aliasSequence);
-                joinSnips.AddRange(filters.Select(_ => $"{tableAlias}.[{_.Field.DbColumnName}] = {_.Value.ValueString}"));
+                joinSnips.AddRange(filters.Select(filter => $"{tableAlias}.[{filter.Field.DbColumnName}] = ${RegisterTsqlParameter(filter)}"));
             }
 
             // Emit the complete WHERE clause
@@ -158,6 +160,28 @@ namespace GraphqlToTsql.Translator
             {
                 Emit($"WHERE {string.Join(" AND ", joinSnips)}");
             }
+        }
+
+        private string RegisterTsqlParameter(Arguments.Filter filter)
+        {
+            if (filter.Value.TsqlParameterName != null)
+            {
+                return filter.Value.TsqlParameterName;
+            }
+
+            var fieldName = filter.Value.VariableName ?? filter.Field.Name;
+            var tsqlParameterName = fieldName;
+            var i = 1;
+
+            while (_tsqlParameters.ContainsKey(tsqlParameterName))
+            {
+                i++;
+                tsqlParameterName = $"{fieldName}{i}";
+            }
+
+            filter.Value.TsqlParameterName = tsqlParameterName;
+            _tsqlParameters[tsqlParameterName] = filter.Value.RawValue;
+            return tsqlParameterName;
         }
 
         #region SQL helpers
