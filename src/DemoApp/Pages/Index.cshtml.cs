@@ -66,12 +66,9 @@ namespace DemoApp.Pages
             // Execute the SQL
             try
             {
-                var conn = _configuration["ConnectionString"];
-                using (var connection = new SqlConnection(conn))
-                {
-                    var json = await connection.QuerySingleOrDefaultAsync<string>(result.Tsql);
-                    result.Data = JsonConvert.DeserializeObject(json);
-                }
+                var connectionString = _configuration["ConnectionString"];
+                var json = await DbAccess.QueryAsync(connectionString, result.Tsql, result.TsqlParameters);
+                result.Data = JsonConvert.DeserializeObject(json);
             }
             catch (Exception e)
             {

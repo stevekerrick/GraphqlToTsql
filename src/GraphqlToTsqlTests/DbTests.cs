@@ -1,11 +1,9 @@
-using Dapper;
 using DemoEntities;
 using GraphqlToTsql;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace GraphqlToTsqlTests
@@ -35,7 +33,7 @@ namespace GraphqlToTsqlTests
             Console.WriteLine(tsql);
             var tsqlParameters = result.TsqlParameters;
             Console.WriteLine(JsonConvert.SerializeObject(tsqlParameters, Formatting.Indented));
-            var actualJson = await QueryAsync(tsql, result.TsqlParameters);
+            var actualJson = await DbAccess.QueryAsync(_connectionString, tsql, result.TsqlParameters);
 
             // Compare
             var actualObj = JsonConvert.DeserializeObject(actualJson);
@@ -44,17 +42,6 @@ namespace GraphqlToTsqlTests
             Console.WriteLine(actualFormattedJson);
             var expectedFormattedJson = JsonConvert.SerializeObject(expectedObject, Formatting.Indented);
             Assert.AreEqual(expectedFormattedJson, actualFormattedJson, "Database response does not match expected");
-        }
-
-        private static async Task<string> QueryAsync(string tsql, Dictionary<string, object> tsqlParameters)
-        {
-            var parameters = new DynamicParameters(tsqlParameters);
-
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var json = await connection.QuerySingleOrDefaultAsync<string>(tsql, parameters);
-                return json;
-            }
         }
     }
 }

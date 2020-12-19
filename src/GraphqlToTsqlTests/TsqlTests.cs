@@ -74,7 +74,7 @@ SELECT
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object> {
-                {"@id", 1 }
+                {"id", 1 }
             };
 
             Check(graphQl, null, expectedSql, expectedTsqlParameters);
@@ -134,8 +134,8 @@ SELECT
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object> {
-                { "@idVar", 2 },
-                { "@urnVar", "bill" }
+                { "idVar", 2 },
+                { "urnVar", "bill" }
             };
 
             Check(graphQl, variableValues, expectedSql, expectedTsqlParameters);

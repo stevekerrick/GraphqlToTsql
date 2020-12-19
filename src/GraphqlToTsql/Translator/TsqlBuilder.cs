@@ -152,7 +152,7 @@ namespace GraphqlToTsql.Translator
             if (filters.Count > 0)
             {
                 var tableAlias = parent.TableAlias(_aliasSequence);
-                joinSnips.AddRange(filters.Select(filter => $"{tableAlias}.[{filter.Field.DbColumnName}] = {RegisterTsqlParameter(filter)}"));
+                joinSnips.AddRange(filters.Select(filter => $"{tableAlias}.[{filter.Field.DbColumnName}] = @{RegisterTsqlParameter(filter)}"));
             }
 
             // Emit the complete WHERE clause
@@ -171,13 +171,13 @@ namespace GraphqlToTsql.Translator
 
             // Find a good name for this TsqlParameter
             var fieldName = filter.Value.VariableName ?? filter.Field.Name;
-            var tsqlParameterName = $"@{fieldName}";
+            var tsqlParameterName = $"{fieldName}";
             var i = 1;
 
             while (_tsqlParameters.ContainsKey(tsqlParameterName))
             {
                 i++;
-                tsqlParameterName = $"@{fieldName}{i}";
+                tsqlParameterName = $"{fieldName}{i}";
             }
 
             // Refine the value, if needed
