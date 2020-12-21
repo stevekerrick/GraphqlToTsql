@@ -17,7 +17,8 @@ namespace DemoEntities
 
             using (var connection = new SqlConnection(connectionString))
             {
-                var json = await connection.QuerySingleOrDefaultAsync<string>(tsql, parameters);
+                var jsonSegments = await connection.QueryAsync<string>(tsql, parameters);
+                var json = string.Concat(jsonSegments);
                 return json;
             }
         }

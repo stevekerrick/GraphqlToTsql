@@ -35,15 +35,15 @@
     </div>
 
     <div class="row mt-3 pt-3 results-row" v-if="results.length > 0">
-        <div class="col-6 scroll-panel">
+        <div class="col-4 scroll-panel">
             <div v-for="r in results" :key="r.key" class="result-card p-2 mt-2" :class="{selected: r === result, error: r.error}" v-on:click="selectResult(r)">
                 {{r.error || r.oneLineGraphql}}
             </div>
         </div>
-        <div class="col-6 h-100">
+        <div class="col-8 h-100">
             <ul class="nav nav-tabs">
                 <li v-for="(tab, index) in resultTabs" :key="tab" class="nav-item">
-                    <a class="nav-link" :class="{ active: index === resultTab, disabled: index === 4 && result && !result.error }" href="#" v-on:click="selectResultTab(index)">{{ tab }}</a>
+                    <a class="nav-link" :class="{ active: index === resultTab, disabled: index === 5 && result && !result.error }" href="#" v-on:click="selectResultTab(index)">{{ tab }}</a>
                 </li>
             </ul>
             <div class="result-text-container">
@@ -76,7 +76,7 @@
             results: [],
             result: null,
             inputTab: 0,
-            resultTabs: ["GraphQL", "G Params", "TSQL", "T Params", "Data", "Error"],
+            resultTabs: ["GraphQL", "Params", "TSQL", "Tsql Params", "Data", "Error"],
             resultTab: 0
         },
         methods: {
@@ -94,22 +94,24 @@
                 function regularResult(data) {
                     var result = {
                         graphql: vm.graphql,
+                        oneLineGraphql: removeWhitespace(vm.graphql),
                         graphqlParameters: formatObject(vm.graphqlParameters),
                         tsql: data.tsql,
-                        tsqlParameters: formatObject(data.tsqlParameters),
-                        data: formatObject(data.data),
-                        isSuccessful: data.isSuccessful,
+                        tsqlParameters: data.tsqlParametersJson,
+                        data: data.dataJson,
+                        isSuccess: data.isSuccess,
                         error: data.error,
                         key: Date.now()
                     }
                     vm.result = result;
                     vm.results.unshift(result);
-                    vm.resultTab = 4;
+                    vm.resultTab = result.isSuccess? 4 : 5;
                 }
 
                 function errorResult(error) {
                     var result = {
                         graphql: vm.graphql,
+                        oneLineGraphql: removeWhitespace(vm.graphql),
                         graphqlParameters: formatObject(vm.graphqlParameters),
                         isSuccessful: false,
                         error: error,

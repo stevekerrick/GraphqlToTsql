@@ -1,5 +1,4 @@
-﻿using Dapper;
-using DemoEntities;
+﻿using DemoEntities;
 using GraphqlToTsql;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace DemoApp.Pages
@@ -41,6 +39,7 @@ namespace DemoApp.Pages
                 ? null
                 : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.GraphqlParametersJson);
 
+            GraphqlToTsql.Translator.TranslateResult translateResult;
             var result = new QueryResult();
 
             // Build SQL command
@@ -48,14 +47,14 @@ namespace DemoApp.Pages
             {
                 var entityList = new DemoEntityList();
                 var translator = new GraphqlTranslator(entityList);
-                var translateResult = translator.Translate(graphql, graphqlParameters);
+                translateResult = translator.Translate(graphql, graphqlParameters);
                 if (!translateResult.IsSuccessful)
                 {
                     result.Error = translateResult.ParseError;
                     return result;
                 }
                 result.Tsql = translateResult.Tsql;
-                result.TsqlParameters = translateResult.TsqlParameters;
+                result.TsqlParametersJson = ToFormattedJson(translateResult.TsqlParameters);
             }
             catch (Exception e)
             {
@@ -67,8 +66,8 @@ namespace DemoApp.Pages
             try
             {
                 var connectionString = _configuration["ConnectionString"];
-                var json = await DbAccess.QueryAsync(connectionString, result.Tsql, result.TsqlParameters);
-                result.Data = JsonConvert.DeserializeObject(json);
+                var json = await DbAccess.QueryAsync(connectionString, translateResult.Tsql, translateResult.TsqlParameters);
+                result.DataJson = ToFormattedJson(Deserialize(json));
             }
             catch (Exception e)
             {
@@ -79,11 +78,23 @@ namespace DemoApp.Pages
             return result;
         }
 
+        private static object Deserialize(string json)
+        {
+            if (json == null) return null;
+            return JsonConvert.DeserializeObject(json);
+        }
+
+        private static string ToFormattedJson(object obj)
+        {
+            if (obj == null) return null;
+            return JsonConvert.SerializeObject(obj, Formatting.Indented);
+        }
+
         private class QueryResult
         {
             public string Tsql { get; set; }
-            public Dictionary<string, object> TsqlParameters { get; set; }
-            public object Data { get; set; }
+            public string TsqlParametersJson { get; set; }
+            public string DataJson { get; set; }
             public string Error { get; set; }
             public bool IsSuccess => Error == null;
         }
