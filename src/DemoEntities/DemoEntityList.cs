@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace DemoEntities
 {
+    // TODO: Refactor so that the user's app provides only the list of entities
     public class DemoEntityList : List<EntityBase>, IEntityList
     {
         public DemoEntityList()

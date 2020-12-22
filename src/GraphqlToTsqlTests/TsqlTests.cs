@@ -222,6 +222,38 @@ query jojaCola ($urn: string) {
             Assert.IsTrue(tsql.Contains("Location"));
         }
 
+        [Test]
+        public void TotalCountTest()
+        {
+            var graphQl = @"
+{ products { urn lotsConnection { totalCount } } }
+".Trim();
+
+            var expectedSql = @"
+SELECT
+
+  -- products
+  JSON_QUERY ((
+    SELECT
+      t1.[Urn] AS [urn]
+
+      -- products.lotsConnection
+    , JSON_QUERY ((
+        SELECT
+          (SELECT COUNT(1) FROM [Lot] t2 WHERE t1.[Id] = t2.[ProductId]) AS [totalCount]
+        FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [lotsConnection]
+    FROM [Product] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+        }
+
+
+
         private static TranslateResult Translate(string graphQl, Dictionary<string, object> variableValues)
         {
             var entityList = new DemoEntityList();

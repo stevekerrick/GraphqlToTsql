@@ -95,11 +95,7 @@ namespace GraphqlToTsql.Translator
             }
             else
             {
-                field = _parent.Field.Entity.Fields.FirstOrDefault(_ => _.Name == name);
-                if (field == null)
-                {
-                    throw new Exception($"{_parent.Field.Entity.Name} does not have a field named {name}");
-                }
+                field = _parent.Field.Entity.GetField(name);
             }
 
             _term = new Term(_parent, field, alias ?? name);

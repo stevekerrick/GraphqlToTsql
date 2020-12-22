@@ -29,12 +29,26 @@ namespace GraphqlToTsql.Entities
 
         public Field GetField(string name)
         {
+            // Look for a native field
             var field = Fields.FirstOrDefault(_ => _.Name == name);
-            if (field == null)
+            if (field != null)
             {
-                throw new Exception($"Unknown field: {Name}.{name}");
+                return field;
             }
-            return field;
+
+            // Look for a Connection (where totalCount and cursors live). TODO: Cursors
+            if (name.EndsWith(Constants.CONNECTION))
+            {
+                var setName = name.Substring(0, name.Length - Constants.CONNECTION.Length);
+                var setField = Fields.FirstOrDefault(_ => _.Name == setName && _.FieldType == FieldType.Set);
+                if (setField != null)
+                {
+                    field = Field.Connection(setField);
+                    return field;
+                }
+            }
+
+            throw new Exception($"Unknown field: {Name}.{name}");
         }
 
         // public string SortField => Fields[0].Name; //TODO

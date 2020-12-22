@@ -47,12 +47,30 @@ namespace GraphqlToTsql.Entities
             Name = name,
             Join = join
         };
+
+        public static Field Connection(Field setField) => new Field
+        {
+            FieldType = FieldType.Connection,
+            Entity = new ConnectionEntity(setField),
+            Name = $"{setField.Name}{Constants.CONNECTION}",
+            Join = setField.Join
+        };
+
+        public static Field TotalCount(Field setField) => new Field
+        {
+            FieldType = FieldType.TotalCount,
+            Entity = setField.Entity,
+            Name = Constants.TOTAL_COUNT,
+            Join = setField.Join
+        };
     }
 
     public enum FieldType
     {
         Scalar,
         Row,
-        Set
+        Set,
+        Connection,
+        TotalCount
     }
 }
