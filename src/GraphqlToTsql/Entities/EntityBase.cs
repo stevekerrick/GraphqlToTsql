@@ -13,6 +13,7 @@ namespace GraphqlToTsql.Entities
         public abstract string Name { get; }
         public virtual string PluralName => $"{Name}s";
         public virtual string DbTableName { get; }
+        public abstract string PrimaryKeyFieldName { get; }
         public List<Field> Fields
         {
             get
@@ -50,7 +51,5 @@ namespace GraphqlToTsql.Entities
 
             throw new Exception($"Unknown field: {Name}.{name}");
         }
-
-        // public string SortField => Fields[0].Name; //TODO
     }
 }

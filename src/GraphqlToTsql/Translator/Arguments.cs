@@ -7,7 +7,7 @@ namespace GraphqlToTsql.Translator
     public class Arguments
     {
         public long? Offset { get; set; }
-        public long? Limit { get; set; }
+        public long? First { get; set; }
         public List<Filter> Filters { get; set; }
 
         public Arguments()
@@ -21,9 +21,9 @@ namespace GraphqlToTsql.Translator
             {
                 Offset = IntValue(name, value);
             }
-            else if (name == "limit")
+            else if (name == "first")
             {
-                Limit = IntValue(name, value);
+                First = IntValue(name, value);
             }
             else
             {

@@ -41,25 +41,26 @@ namespace GraphqlToTsql.Translator
             return (_sb.ToString(), _tsqlParameters);
         }
 
-        private void BuildSubquery(Term subquery)
+        private void BuildSubquery(Term term)
         {
             // Wrap the subquery in a JSON_QUERY
-            var separator = subquery.IsFirstChild ? TAB : COMMA_TAB;
+            var separator = term.IsFirstChild ? TAB : COMMA_TAB;
             Emit("");
-            Emit(TAB, $"-- {subquery.FullPath()}");
+            Emit(TAB, $"-- {term.FullPath()}");
             Emit(separator, "JSON_QUERY ((");
             Indent();
 
             // Build the SQL for the subquery
-            BuildSelectClause(subquery);
-            if (subquery.Field.FieldType != FieldType.Connection)
+            BuildSelectClause(term);
+            if (term.Field.FieldType != FieldType.Connection)
             {
-                Emit(FromClause(subquery));
-                Emit(WhereClause(subquery));
+                Emit(FromClause(term));
+                Emit(WhereClause(term));
+                EmitOrderByClause(term);
             }
 
             // Unwrap the JSON_QUERY
-            Emit($"{FOR_JSON}{(subquery.TermType == TermType.Item ? UNWRAP_ITEM : "")})) AS [{subquery.Name}]");
+            Emit($"{FOR_JSON}{(term.TermType == TermType.Item ? UNWRAP_ITEM : "")})) AS [{term.Name}]");
             Outdent();
         }
 
@@ -145,9 +146,9 @@ namespace GraphqlToTsql.Translator
             Emit(separator, $"(SELECT COUNT(1) {fromClause} {whereClause}) AS [{term.Name}]");
         }
 
-        private string FromClause(Term subquery)
+        private string FromClause(Term term)
         {
-            return $"FROM [{subquery.Field.Entity.DbTableName}] {subquery.TableAlias(_aliasSequence)}";
+            return $"FROM [{term.Field.Entity.DbTableName}] {term.TableAlias(_aliasSequence)}";
         }
 
         private string WhereClause(Term term)
@@ -179,6 +180,21 @@ namespace GraphqlToTsql.Translator
             }
 
             return whereClause;
+        }
+
+        private void EmitOrderByClause(Term term)
+        {
+            if (term.Arguments.Offset != null || term.Arguments.First != null)
+            {
+                var entity = term.Field.Entity;
+                var pkColumnName = entity.GetField(entity.PrimaryKeyFieldName).DbColumnName;
+                Emit($"ORDER BY {term.TableAlias(_aliasSequence)}.{pkColumnName}");
+                Emit($"OFFSET {term.Arguments.Offset.GetValueOrDefault(0)} ROWS");
+                if (term.Arguments.First != null)
+                {
+                    Emit($"FETCH FIRST {term.Arguments.First} ROWS ONLY");
+                }
+            }
         }
 
         private string RegisterTsqlParameter(Arguments.Filter filter)

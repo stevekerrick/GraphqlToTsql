@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace GraphqlToTsql.Entities
 {
@@ -8,6 +9,7 @@ namespace GraphqlToTsql.Entities
 
         public override string Name => $"{_setField.Name}{Constants.CONNECTION}";
         public override string DbTableName => _setField.Entity.DbTableName;
+        public override string PrimaryKeyFieldName => throw new Exception("Connections don't have a primary key");
 
         internal ConnectionEntity(Field setField)
         {

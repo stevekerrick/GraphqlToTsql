@@ -9,6 +9,7 @@ namespace DemoEntities
 
         public override string Name => "product";
         public override string DbTableName => "Product";
+        public override string PrimaryKeyFieldName => "id";
 
         protected override List<Field> BuildFieldList()
         {

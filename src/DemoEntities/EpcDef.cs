@@ -8,6 +8,7 @@ namespace DemoEntities
         public static EpcDef Instance = new EpcDef();
         public override string Name => "epc";
         public override string DbTableName => "Epc";
+        public override string PrimaryKeyFieldName => "id";
 
         protected override List<Field> BuildFieldList()
         {
