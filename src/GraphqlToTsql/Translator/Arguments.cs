@@ -15,28 +15,28 @@ namespace GraphqlToTsql.Translator
             Filters = new List<Filter>();
         }
 
-        public void Add(Field field, string name, Value value)
+        public void Add(Field field, string name, Value value, Context context = null)
         {
             if (name == "offset")
             {
-                Offset = IntValue(name, value);
+                Offset = IntValue(name, value, context);
             }
             else if (name == "first")
             {
-                First = IntValue(name, value);
+                First = IntValue(name, value, context);
             }
             else
             {
-                var argumentField = field.Entity.GetField(name);
+                var argumentField = field.Entity.GetField(name, context);
                 Filters.Add(new Filter(argumentField, value));
             }
         }
 
-        private long IntValue(string name, Value value)
+        private long IntValue(string name, Value value, Context context)
         {
             if (value.ValueType != ValueType.Number)
             {
-                throw new Exception($"{name} must be an integer: {value.RawValue}");
+                throw new InvalidRequestException($"{name} must be an integer: {value.RawValue}", context);
             }
 
             return (long)(decimal)value.RawValue;

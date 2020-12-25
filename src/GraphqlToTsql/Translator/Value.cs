@@ -31,7 +31,7 @@ namespace GraphqlToTsql.Translator
                     break;
                 case GqlParser.ArrayValueContext arrayValueContext:
                     var token = arrayValueContext.Start;
-                    throw new Exception($"Arrays Not supported: [{token.Text}], line {token.Line}, column {token.Column}");
+                    throw new InvalidRequestException("Arrays Not supported", new Context(valueContext));
             }
         }
 

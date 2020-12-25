@@ -31,7 +31,7 @@ namespace DemoEntities
                 return Field.Set(entity, name, null);
             }
 
-            throw new Exception($"Unknown type: {name}");
+            return null;
         }
     }
 }

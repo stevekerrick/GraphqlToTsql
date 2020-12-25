@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GraphqlToTsql.Translator;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace GraphqlToTsql.Entities
 
         protected abstract List<Field> BuildFieldList();
 
-        public Field GetField(string name)
+        public Field GetField(string name, Context context = null)
         {
             // Look for a native field
             var field = Fields.FirstOrDefault(_ => _.Name == name);
@@ -49,7 +50,12 @@ namespace GraphqlToTsql.Entities
                 }
             }
 
-            throw new Exception($"Unknown field: {Name}.{name}");
+            // Parse-related errors are from bad input. Others are Entity errors.
+            if (context == null)
+            {
+                throw new Exception($"Unknown field: {Name}.{name}");
+            }
+            throw new InvalidRequestException($"Unknown field: {Name}.{name}", context);
         }
     }
 }

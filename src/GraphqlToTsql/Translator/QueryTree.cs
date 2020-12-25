@@ -33,7 +33,7 @@ namespace GraphqlToTsql.Translator
             OperationName = name;
         }
 
-        public void Variable(string name, string type, Value value)
+        public void Variable(string name, string type, Value value, Context context)
         {
             // See if there's a matching VariableValue
             if (_variableValues != null && _variableValues.ContainsKey(name))
@@ -43,7 +43,7 @@ namespace GraphqlToTsql.Translator
 
             if (value == null)
             {
-                throw new Exception($"Variable [${name}] is used in the query, but doesn't have a value");
+                throw new InvalidRequestException($"Variable [${name}] is used in the query, but doesn't have a value", context);
             }
 
             _variables[name] = value;
@@ -74,9 +74,13 @@ namespace GraphqlToTsql.Translator
             }
         }
 
-        public void BeginFragment(string name, string type)
+        public void BeginFragment(string name, string type, Context context)
         {
             var field = _entityList.Find(type);
+            if (field == null)
+            {
+                throw new InvalidRequestException($"Unknown type: {type}", context);
+            }
 
             _parent = Term.TopLevel();
             _term = new Term(_parent, field, type);
@@ -85,17 +89,25 @@ namespace GraphqlToTsql.Translator
             Fragments[name] = _term;
         }
 
-        public void Field(string alias, string name)
+        public void Field(string alias, string name, Context context)
         {
             Field field;
 
             if (_parent.TermType == TermType.TopLevel)
             {
                 field = _entityList.Find(name);
+                if (field == null)
+                {
+                    throw new InvalidRequestException($"Unknown entity: {name}", context);
+                }
             }
             else
             {
                 field = _parent.Field.Entity.GetField(name);
+                if (field == null)
+                {
+                    throw new InvalidRequestException($"Unknown field: {_parent.Field.Entity.Name}.{name}", context);
+                }
             }
 
             _term = new Term(_parent, field, alias ?? name);
@@ -113,11 +125,11 @@ namespace GraphqlToTsql.Translator
             _term.AddArgument(name, value);
         }
 
-        public void Argument(string name, string variableName)
+        public void Argument(string name, string variableName, Context context)
         {
             if (!_variables.ContainsKey(variableName))
             {
-                throw new Exception($"Variable [${variableName}] is not declared");
+                throw new InvalidRequestException($"Variable [${variableName}] is not declared", context);
             }
 
             _term.AddArgument(name, _variables[variableName]);

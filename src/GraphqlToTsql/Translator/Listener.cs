@@ -34,7 +34,7 @@ namespace GraphqlToTsql.Translator
                 defaultValue = new Value(defaultValueContext);
             }
 
-            _qt.Variable(name, type, defaultValue);
+            _qt.Variable(name, type, defaultValue, new Context(context));
         }
 
         public override void ExitFragmentName(GqlParser.FragmentNameContext context)
@@ -46,7 +46,7 @@ namespace GraphqlToTsql.Translator
         public override void ExitTypeCondition(GqlParser.TypeConditionContext context)
         {
             var type = context.typeName().NAME().GetText();
-            _qt.BeginFragment(_fragmentName, type);
+            _qt.BeginFragment(_fragmentName, type, new Context(context));
         }
 
         public override void EnterSelectionSet(GqlParser.SelectionSetContext context)
@@ -75,7 +75,7 @@ namespace GraphqlToTsql.Translator
                 name = context.NAME().GetText();
             }
 
-            _qt.Field(alias, name);
+            _qt.Field(alias, name, new Context(context));
         }
 
         public override void ExitFragmentSpread(GqlParser.FragmentSpreadContext context)
@@ -92,7 +92,7 @@ namespace GraphqlToTsql.Translator
             if (valueOrVariableContext.variable() != null)
             {
                 var variableName = valueOrVariableContext.variable().children[1].GetText();
-                _qt.Argument(name, variableName);
+                _qt.Argument(name, variableName, new Context(context));
             }
             else
             {
@@ -114,18 +114,12 @@ namespace GraphqlToTsql.Translator
 
         public override void EnterInlineFragment(GqlParser.InlineFragmentContext context)
         {
-            Unsupported("Inline Fragments", context);
+            throw InvalidRequestException.Unsupported("Inline Fragments", context);
         }
 
         public override void EnterDirective(GqlParser.DirectiveContext context)
         {
-            Unsupported("Directives", context);
-        }
-
-        private void Unsupported(string unsupportedFeature, ParserRuleContext context)
-        {
-            var token = context.Start;
-            throw new Exception($"{unsupportedFeature} are not supported: [{token.Text}], line {token.Line}, column {token.Column}");
+            throw InvalidRequestException.Unsupported("Directives", context);
         }
 
         #endregion

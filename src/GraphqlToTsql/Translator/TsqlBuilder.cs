@@ -105,14 +105,14 @@ namespace GraphqlToTsql.Translator
             var fragmentName = term.Name;
             if (!_fragments.ContainsKey(fragmentName))
             {
-                throw new Exception($"Fragment is not defined: {fragmentName}");
+                throw new InvalidRequestException($"Fragment is not defined: {fragmentName}");
             }
             var fragment = _fragments[fragmentName];
 
             // Type check
             if (fragment.Field.Entity != parent.Field.Entity)
             {
-                throw new Exception($"Fragment is not defined: {fragmentName}");
+                throw new InvalidRequestException($"Fragment {fragmentName} is defined for {fragment.Field.Entity.Name}, not {parent.Field.Entity.Name}");
             }
 
             // Copy the fragment subquery because Terms have state
