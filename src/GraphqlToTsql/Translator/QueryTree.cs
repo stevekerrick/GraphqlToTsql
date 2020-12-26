@@ -4,7 +4,23 @@ using System.Linq;
 
 namespace GraphqlToTsql.Translator
 {
-    public class QueryTree
+    public interface IQueryTree
+    {
+        void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
+        ParseResult GetResult();
+
+        void Argument(string name, string variableName, Context context);
+        void Argument(string name, Value value);
+        void BeginFragment(string name, string type, Context context);
+        void BeginQuery();
+        void EndQuery();
+        void Field(string alias, string name, Context context);
+        void SetOperationName(string name);
+        void UseFragment(string name);
+        void Variable(string name, string type, Value value, Context context);
+    }
+
+    public class QueryTree : IQueryTree
     {
         private Dictionary<string, object> _graphqlParameters;
         private List<EntityBase> _entityList;
@@ -12,9 +28,9 @@ namespace GraphqlToTsql.Translator
         private Term _term;
         private Term _parent;
 
-        public Term TopTerm { get; private set; }
-        public Dictionary<string, Term> Fragments;
-        public string OperationName { get; set; }
+        private string _operationName;
+        private Dictionary<string, Term> _fragments;
+        private Term _topTerm;
 
         public QueryTree()
         {
@@ -25,12 +41,22 @@ namespace GraphqlToTsql.Translator
             _graphqlParameters = graphqlParameters;
             _entityList = entityList;
             _variables = new Dictionary<string, Value>();
-            Fragments = new Dictionary<string, Term>();
+            _fragments = new Dictionary<string, Term>();
+        }
+
+        public ParseResult GetResult()
+        {
+            return new ParseResult
+            {
+                OperationName = _operationName,
+                Fragments = _fragments,
+                TopTerm = _topTerm
+            };
         }
 
         public void SetOperationName(string name)
         {
-            OperationName = name;
+            _operationName = name;
         }
 
         public void Variable(string name, string type, Value value, Context context)
@@ -55,7 +81,7 @@ namespace GraphqlToTsql.Translator
             if (_parent == null)
             {
                 _parent = Term.TopLevel();
-                TopTerm = _parent;
+                _topTerm = _parent;
             }
             else
             {
@@ -86,7 +112,7 @@ namespace GraphqlToTsql.Translator
             _term = new Term(_parent, field, type);
             _parent.Children.Add(_term);
 
-            Fragments[name] = _term;
+            _fragments[name] = _term;
         }
 
         public void Field(string alias, string name, Context context)

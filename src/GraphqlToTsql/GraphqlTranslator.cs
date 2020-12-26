@@ -9,7 +9,12 @@ using System.Text;
 
 namespace GraphqlToTsql
 {
-    public class GraphqlTranslator
+    public interface IGraphqlTranslator
+    {
+        TranslateResult Translate(string graphQl, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
+    }
+
+    public class GraphqlTranslator : IGraphqlTranslator
     {
         public GraphqlTranslator()
         {
@@ -53,9 +58,9 @@ namespace GraphqlToTsql
                     }
 
                     // Parse was successful. Now perform the translation.
-                    var queryTree = listener.GetResult();
+                    var parseResult = listener.GetResult();
                     var builder = new TsqlBuilder();
-                    var (tsql, tsqlParameters) = builder.Build(queryTree);
+                    var (tsql, tsqlParameters) = builder.Build(parseResult);
                     var result = new TranslateResult { Tsql = tsql, TsqlParameters = tsqlParameters };
 
                     return result;

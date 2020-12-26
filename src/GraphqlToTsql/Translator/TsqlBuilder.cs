@@ -6,7 +6,12 @@ using System.Text;
 
 namespace GraphqlToTsql.Translator
 {
-    public class TsqlBuilder
+    public interface ITsqlBuilder
+    {
+        (string, Dictionary<string, object>) Build(ParseResult parseResult);
+    }
+
+    public class TsqlBuilder : ITsqlBuilder
     {
         private readonly StringBuilder _sb;
         private int _indent;
@@ -21,19 +26,19 @@ namespace GraphqlToTsql.Translator
             _tsqlParameters = new Dictionary<string, object>();
         }
 
-        public (string, Dictionary<string, object>) Build(QueryTree tree)
+        public (string, Dictionary<string, object>) Build(ParseResult parseResult)
         {
-            _fragments = tree.Fragments;
+            _fragments = parseResult.Fragments;
 
-            if (!string.IsNullOrEmpty(tree.OperationName))
+            if (!string.IsNullOrEmpty(parseResult.OperationName))
             {
                 Emit("-------------------------------");
-                Emit($"-- Operation: {tree.OperationName}");
+                Emit($"-- Operation: {parseResult.OperationName}");
                 Emit("-------------------------------");
                 Emit("");
             }
 
-            BuildSelectClause(tree.TopTerm);
+            BuildSelectClause(parseResult.TopTerm);
 
             Emit("");
             Emit($"{FOR_JSON}{UNWRAP_ITEM}");

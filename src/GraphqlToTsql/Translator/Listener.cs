@@ -4,7 +4,25 @@ using System.Collections.Generic;
 
 namespace GraphqlToTsql.Translator
 {
-    public class Listener : GqlBaseListener
+    public interface IListener
+    {
+        void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
+        ParseResult GetResult();
+
+        void EnterDirective(GqlParser.DirectiveContext context);
+        void EnterInlineFragment(GqlParser.InlineFragmentContext context);
+        void EnterSelectionSet(GqlParser.SelectionSetContext context);
+        void ExitArgument(GqlParser.ArgumentContext context);
+        void ExitFieldName(GqlParser.FieldNameContext context);
+        void ExitFragmentName(GqlParser.FragmentNameContext context);
+        void ExitFragmentSpread(GqlParser.FragmentSpreadContext context);
+        void ExitOperationDefinition(GqlParser.OperationDefinitionContext context);
+        void ExitSelectionSet(GqlParser.SelectionSetContext context);
+        void ExitTypeCondition(GqlParser.TypeConditionContext context);
+        void ExitVariableDefinition(GqlParser.VariableDefinitionContext context);
+    }
+
+    public class Listener : GqlBaseListener, IListener
     {
         private readonly QueryTree _qt;
         private string _fragmentName;
@@ -19,9 +37,9 @@ namespace GraphqlToTsql.Translator
             _qt.Initialize(graphqlParameters, entityList);
         }
 
-        public QueryTree GetResult()
+        public ParseResult GetResult()
         {
-            return _qt;
+            return _qt.GetResult();
         }
 
         public override void ExitVariableDefinition(GqlParser.VariableDefinitionContext context)
