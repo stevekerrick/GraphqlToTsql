@@ -21,11 +21,10 @@ namespace GraphqlToTsqlTests
             await CheckAsync(graphQl, null, expectedObject);
         }
 
-        private static async Task CheckAsync(string graphQl, Dictionary<string, object> variableValues, object expectedObject)
+        private static async Task CheckAsync(string graphQl, Dictionary<string, object> graphqlParameters, object expectedObject)
         {
-            var entityList = new DemoEntityList();
-            var translator = new GraphqlTranslator(entityList);
-            var result = translator.Translate(graphQl, variableValues);
+            var translator = new GraphqlTranslator();
+            var result = translator.Translate(graphQl, graphqlParameters, DemoEntityList.All());
             Assert.IsTrue(result.IsSuccessful, $"The parse failed: {result.ParseError}");
 
             // Query the database

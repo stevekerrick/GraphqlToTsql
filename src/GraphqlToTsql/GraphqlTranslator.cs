@@ -11,14 +11,11 @@ namespace GraphqlToTsql
 {
     public class GraphqlTranslator
     {
-        private readonly IEntityList _entityList;
-
-        public GraphqlTranslator(IEntityList entityList)
+        public GraphqlTranslator()
         {
-            _entityList = entityList;
         }
 
-        public TranslateResult Translate(string graphQl, Dictionary<string, object> variableValues)
+        public TranslateResult Translate(string graphQl, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
         {
             // Construct the parser
             var stream = new AntlrInputStream(graphQl);
@@ -36,7 +33,8 @@ namespace GraphqlToTsql
                     var parser = new GqlParser(tokenStream, outputStringWriter, errorStringWriter);
 
                     // Perform the parse/translation
-                    var listener = new Listener(_entityList, variableValues);
+                    var listener = new Listener();
+                    listener.Initialize(graphqlParameters, entityList);
                     parser.AddParseListener(listener);
                     parser.document();
 
@@ -55,7 +53,7 @@ namespace GraphqlToTsql
                     }
 
                     // Parse was successful. Now perform the translation.
-                    var queryTree = listener.GetQueryTree();
+                    var queryTree = listener.GetResult();
                     var builder = new TsqlBuilder();
                     var (tsql, tsqlParameters) = builder.Build(queryTree);
                     var result = new TranslateResult { Tsql = tsql, TsqlParameters = tsqlParameters };

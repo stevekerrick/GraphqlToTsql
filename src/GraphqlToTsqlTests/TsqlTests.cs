@@ -114,7 +114,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
         public void VariableTest()
         {
             const string graphQl = "query VariableTest($idVar: ID, $urnVar: String = \"bill\") { epcs (id: $idVar, urn: $urnVar) { urn } }";
-            var variableValues = new Dictionary<string, object> { { "idVar", 2 } };
+            var graphqlParameters = new Dictionary<string, object> { { "idVar", 2 } };
 
             var expectedSql = @"
 -------------------------------
@@ -138,7 +138,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
                 { "urnVar", "bill" }
             };
 
-            Check(graphQl, variableValues, expectedSql, expectedTsqlParameters);
+            Check(graphQl, graphqlParameters, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
@@ -210,9 +210,9 @@ query jojaCola ($urn: string) {
   }
 }
 ".Trim();
-            var variableValues = new Dictionary<string, object> { { "urn", "urn:epc:idpat:sgtin:258643.3704146.*" } };
+            var graphqlParameters = new Dictionary<string, object> { { "urn", "urn:epc:idpat:sgtin:258643.3704146.*" } };
 
-            var result = Translate(graphQl, variableValues);
+            var result = Translate(graphQl, graphqlParameters);
             var tsql = result.Tsql;
             Assert.IsTrue(tsql.Contains("jojaCola"));
             Assert.IsTrue(tsql.Contains("Product"));
@@ -277,13 +277,10 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
             Check(graphQl, null, expectedSql, expectedTsqlParameters);
         }
 
-
-
-        private static TranslateResult Translate(string graphQl, Dictionary<string, object> variableValues)
+        private static TranslateResult Translate(string graphQl, Dictionary<string, object> graphqlParameters)
         {
-            var entityList = new DemoEntityList();
-            var translator = new GraphqlTranslator(entityList);
-            var result = translator.Translate(graphQl, variableValues);
+            var translator = new GraphqlTranslator();
+            var result = translator.Translate(graphQl, graphqlParameters, DemoEntityList.All());
             Assert.IsTrue(result.IsSuccessful, $"The parse failed: {result.ParseError}");
 
             return result;

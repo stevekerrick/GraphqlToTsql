@@ -1,5 +1,4 @@
 using GraphqlToTsql.Entities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,23 +6,24 @@ namespace GraphqlToTsql.Translator
 {
     public class QueryTree
     {
-        private readonly IEntityList _entityList;
+        private Dictionary<string, object> _graphqlParameters;
+        private List<EntityBase> _entityList;
+        private Dictionary<string, Value> _variables;
+        private Term _term;
+        private Term _parent;
 
         public Term TopTerm { get; private set; }
         public Dictionary<string, Term> Fragments;
         public string OperationName { get; set; }
-        private Term _term;
-        private Term _parent;
-        private Dictionary<string, object> _variableValues;
-        private Dictionary<string, Value> _variables;
 
-        public QueryTree(
-            IEntityList entityList,
-            Dictionary<string, object> variableValues)
+        public QueryTree()
         {
-            _entityList = entityList;
+        }
 
-            _variableValues = variableValues;
+        public void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
+        {
+            _graphqlParameters = graphqlParameters;
+            _entityList = entityList;
             _variables = new Dictionary<string, Value>();
             Fragments = new Dictionary<string, Term>();
         }
@@ -36,9 +36,9 @@ namespace GraphqlToTsql.Translator
         public void Variable(string name, string type, Value value, Context context)
         {
             // See if there's a matching VariableValue
-            if (_variableValues != null && _variableValues.ContainsKey(name))
+            if (_graphqlParameters != null && _graphqlParameters.ContainsKey(name))
             {
-                value = new Value(_variableValues[name]);
+                value = new Value(_graphqlParameters[name]);
             }
 
             if (value == null)
@@ -76,7 +76,7 @@ namespace GraphqlToTsql.Translator
 
         public void BeginFragment(string name, string type, Context context)
         {
-            var field = _entityList.Find(type);
+            var field = LookupEntity(type);
             if (field == null)
             {
                 throw new InvalidRequestException($"Unknown type: {type}", context);
@@ -95,7 +95,7 @@ namespace GraphqlToTsql.Translator
 
             if (_parent.TermType == TermType.TopLevel)
             {
-                field = _entityList.Find(name);
+                field = LookupEntity(name);
                 if (field == null)
                 {
                     throw new InvalidRequestException($"Unknown entity: {name}", context);
@@ -133,6 +133,23 @@ namespace GraphqlToTsql.Translator
             }
 
             _term.AddArgument(name, _variables[variableName]);
+        }
+
+        private Field LookupEntity(string name)
+        {
+            var entity = _entityList.FirstOrDefault(_ => _.Name == name);
+            if (entity != null)
+            {
+                return Entities.Field.Row(entity, name, null);
+            }
+
+            entity = _entityList.FirstOrDefault(_ => _.PluralName == name);
+            if (entity != null)
+            {
+                return Entities.Field.Set(entity, name, null);
+            }
+
+            return null;
         }
     }
 }

@@ -45,9 +45,8 @@ namespace DemoApp.Pages
             // Build SQL command
             try
             {
-                var entityList = new DemoEntityList();
-                var translator = new GraphqlTranslator(entityList);
-                translateResult = translator.Translate(graphql, graphqlParameters);
+                var translator = new GraphqlTranslator();
+                translateResult = translator.Translate(graphql, graphqlParameters, DemoEntityList.All());
                 if (!translateResult.IsSuccessful)
                 {
                     result.Error = translateResult.ParseError;

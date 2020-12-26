@@ -1,37 +1,20 @@
 using GraphqlToTsql.Entities;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace DemoEntities
 {
-    // TODO: Refactor so that the user's app provides only the list of entities
-    public class DemoEntityList : List<EntityBase>, IEntityList
+    public static class DemoEntityList
     {
-        public DemoEntityList()
+        public static List<EntityBase> All()
         {
-            Add(DispositionDef.Instance);
-            Add(EpcDef.Instance);
-            Add(LocationDef.Instance);
-            Add(LotDef.Instance);
-            Add(ProductDef.Instance);
-        }
-
-        public Field Find(string name)
-        {
-            var entity = this.FirstOrDefault(_ => _.Name == name);
-            if (entity != null)
+            return new List<EntityBase>
             {
-                return Field.Row(entity, name, null);
-            }
-
-            entity = this.FirstOrDefault(_ => _.PluralName == name);
-            if (entity != null)
-            {
-                return Field.Set(entity, name, null);
-            }
-
-            return null;
+                DispositionDef.Instance,
+                EpcDef.Instance,
+                LocationDef.Instance,
+                LotDef.Instance,
+                ProductDef.Instance
+            };
         }
     }
 }

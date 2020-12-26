@@ -1,7 +1,5 @@
-﻿using Antlr4.Runtime;
-using GraphqlToTsql.CodeGen;
+﻿using GraphqlToTsql.CodeGen;
 using GraphqlToTsql.Entities;
-using System;
 using System.Collections.Generic;
 
 namespace GraphqlToTsql.Translator
@@ -11,14 +9,17 @@ namespace GraphqlToTsql.Translator
         private readonly QueryTree _qt;
         private string _fragmentName;
 
-        public Listener(
-            IEntityList entityList,
-            Dictionary<string, object> variableValues)
+        public Listener()
         {
-            _qt = new QueryTree(entityList, variableValues);
+            _qt = new QueryTree();
         }
 
-        public QueryTree GetQueryTree()
+        public void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
+        {
+            _qt.Initialize(graphqlParameters, entityList);
+        }
+
+        public QueryTree GetResult()
         {
             return _qt;
         }
