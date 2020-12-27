@@ -25,7 +25,7 @@ namespace GraphqlToTsqlTests
                 .AddTransient<IDbAccess, DbAccess>()
                 .AddTransient<IGraphqlTranslator, GraphqlTranslator>()
                 .AddTransient<IListener, Listener>()
-                .AddTransient<IParserRunner, ParserRunner>()
+                .AddTransient<IParser, Parser>()
                 .AddTransient<IQueryTree, QueryTree>()
                 .AddTransient<ITsqlBuilder, TsqlBuilder>();
 

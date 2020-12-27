@@ -27,7 +27,7 @@ namespace DemoApp
                 .AddScoped<IDbAccess, DbAccess>()
                 .AddScoped<IGraphqlTranslator, GraphqlTranslator>()
                 .AddScoped<IListener, Listener>()
-                .AddScoped<IParserRunner, ParserRunner>()
+                .AddScoped<IParser, Parser>()
                 .AddScoped<IQueryTree, QueryTree>()
                 .AddScoped<ITsqlBuilder, TsqlBuilder>();
         }

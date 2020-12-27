@@ -25,8 +25,8 @@ namespace GraphqlToTsqlTests
 
         private void Check(string graphQl, string expectedError)
         {
-            var parserRunner = GetService<IParserRunner>();
-            var parseResult = parserRunner.ParseGraphql(graphQl, null, DemoEntityList.All());
+            var parser = GetService<IParser>();
+            var parseResult = parser.ParseGraphql(graphQl, null, DemoEntityList.All());
 
             Assert.IsNotNull(parseResult.ParseError, "The parse was successful, but was expected to fail");
             Assert.IsTrue(parseResult.ParseError.Contains(expectedError), $"Mismatching error message: {parseResult.ParseError}");

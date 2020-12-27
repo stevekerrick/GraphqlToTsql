@@ -13,23 +13,23 @@ namespace GraphqlToTsql
 
     public class GraphqlTranslator : IGraphqlTranslator
     {
-        private readonly IParserRunner _parserRunner;
+        private readonly IParser _parser;
         private readonly ITsqlBuilder _tsqlBuilder;
         private readonly IDbAccess _dbAccess;
 
         public GraphqlTranslator(
-            IParserRunner parserRunner,
+            IParser parser,
             ITsqlBuilder tsqlBuilder,
             IDbAccess dbAccess)
         {
-            _parserRunner = parserRunner;
+            _parser = parser;
             _tsqlBuilder = tsqlBuilder;
             _dbAccess = dbAccess;
         }
 
         public async Task<TranslateResult> Translate(string graphQl, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
         {
-            var parseResult = _parserRunner.ParseGraphql(graphQl, graphqlParameters, entityList);
+            var parseResult = _parser.ParseGraphql(graphQl, graphqlParameters, entityList);
             if (parseResult.ParseError != null)
             {
                 return new TranslateResult { ParseError = parseResult.ParseError };

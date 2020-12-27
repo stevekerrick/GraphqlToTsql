@@ -8,16 +8,16 @@ using System.Text;
 
 namespace GraphqlToTsql.Translator
 {
-    public interface IParserRunner
+    public interface IParser
     {
         ParseResult ParseGraphql(string graphQl, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
     }
 
-    public class ParserRunner : IParserRunner
+    public class Parser : IParser
     {
         private readonly IListener _listener;
 
-        public ParserRunner(
+        public Parser(
             IListener listener)
         {
             _listener = listener;

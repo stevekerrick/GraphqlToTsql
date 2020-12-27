@@ -346,8 +346,8 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 
         private TsqlResult Translate(string graphQl, Dictionary<string, object> graphqlParameters)
         {
-            var parserRunner = GetService<IParserRunner>();
-            var parseResult = parserRunner.ParseGraphql(graphQl, graphqlParameters, DemoEntityList.All());
+            var parser = GetService<IParser>();
+            var parseResult = parser.ParseGraphql(graphQl, graphqlParameters, DemoEntityList.All());
             Assert.IsNull(parseResult.ParseError, $"Parse failed: {parseResult.ParseError}");
 
             var tsqlBuilder = GetService<ITsqlBuilder>();
