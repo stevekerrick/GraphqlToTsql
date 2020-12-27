@@ -2,7 +2,7 @@
 using GraphqlToTsql.Translator;
 using System;
 
-namespace GraphqlToTsql
+namespace GraphqlToTsql.Translator
 {
     public class InvalidRequestException : Exception
     {

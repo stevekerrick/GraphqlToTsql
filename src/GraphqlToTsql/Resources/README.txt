@@ -9,6 +9,9 @@ See the Pre-Build event configured on this Translator project, and the resulting
 The GraphQL grammer is Gql.g4, and was downloaded from: https://github.com/antlr/grammars-v4/tree/master/graphql 
 and renamed as Gql.g4 (because the grammar name is used to name the code-gen'd classes and we wanted something short).
 
-CODE GENERATION
 
-java -jar antlr-4.8-complete.jar -Dlanguage=CSharp -o CodeGen Gql.g4 -package GraphqlToTsql.CodeGen
+CODE GENERATION INSTRUCTIONS
+The project includes the code-generated bits. But in case you need to regenerate them,
+1. CD to src\GraphqlToSql
+2. Execute this command:
+     java -jar Resources\antlr-4.8-complete.jar -Dlanguage=CSharp -o .\CodeGen Resources\Gql.g4 -package GraphqlToTsql.CodeGen

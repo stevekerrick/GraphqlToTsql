@@ -7,5 +7,6 @@ namespace GraphqlToTsql.Translator
         public string OperationName { get; set; }
         public Dictionary<string, Term> Fragments { get; set; }
         public Term TopTerm { get; set; }
+        public string ParseError { get; set; }
     }
 }

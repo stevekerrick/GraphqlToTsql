@@ -1,25 +1,14 @@
-﻿using GraphqlToTsql.CodeGen;
+﻿using Antlr4.Runtime.Tree;
+using GraphqlToTsql.CodeGen;
 using GraphqlToTsql.Entities;
 using System.Collections.Generic;
 
 namespace GraphqlToTsql.Translator
 {
-    public interface IListener
+    public interface IListener : IParseTreeListener
     {
         void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
         ParseResult GetResult();
-
-        void EnterDirective(GqlParser.DirectiveContext context);
-        void EnterInlineFragment(GqlParser.InlineFragmentContext context);
-        void EnterSelectionSet(GqlParser.SelectionSetContext context);
-        void ExitArgument(GqlParser.ArgumentContext context);
-        void ExitFieldName(GqlParser.FieldNameContext context);
-        void ExitFragmentName(GqlParser.FragmentNameContext context);
-        void ExitFragmentSpread(GqlParser.FragmentSpreadContext context);
-        void ExitOperationDefinition(GqlParser.OperationDefinitionContext context);
-        void ExitSelectionSet(GqlParser.SelectionSetContext context);
-        void ExitTypeCondition(GqlParser.TypeConditionContext context);
-        void ExitVariableDefinition(GqlParser.VariableDefinitionContext context);
     }
 
     public class Listener : GqlBaseListener, IListener

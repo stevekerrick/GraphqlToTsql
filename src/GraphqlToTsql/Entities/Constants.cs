@@ -1,4 +1,4 @@
-﻿namespace GraphqlToTsql
+﻿namespace GraphqlToTsql.Entities
 {
     public static class Constants
     {

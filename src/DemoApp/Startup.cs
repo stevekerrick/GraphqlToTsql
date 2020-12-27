@@ -1,3 +1,6 @@
+using GraphqlToTsql;
+using GraphqlToTsql.Database;
+using GraphqlToTsql.Translator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +21,15 @@ namespace DemoApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+
+            services
+                .AddScoped<IConnectionStringProvider, DemoConnectionStringProvider>()
+                .AddScoped<IDbAccess, DbAccess>()
+                .AddScoped<IGraphqlTranslator, GraphqlTranslator>()
+                .AddScoped<IListener, Listener>()
+                .AddScoped<IParserRunner, ParserRunner>()
+                .AddScoped<IQueryTree, QueryTree>()
+                .AddScoped<ITsqlBuilder, TsqlBuilder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

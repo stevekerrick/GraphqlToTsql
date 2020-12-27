@@ -8,7 +8,7 @@ namespace GraphqlToTsql.Translator
 {
     public interface ITsqlBuilder
     {
-        (string, Dictionary<string, object>) Build(ParseResult parseResult);
+        TsqlResult Build(ParseResult parseResult);
     }
 
     public class TsqlBuilder : ITsqlBuilder
@@ -26,7 +26,22 @@ namespace GraphqlToTsql.Translator
             _tsqlParameters = new Dictionary<string, object>();
         }
 
-        public (string, Dictionary<string, object>) Build(ParseResult parseResult)
+        public TsqlResult Build(ParseResult parseResult)
+        {
+            try
+            {
+                return ProcessParseResult(parseResult);
+            }
+            catch (InvalidRequestException e)
+            {
+                return new TsqlResult
+                {
+                    TsqlError = e.Message
+                };
+            }
+        }
+
+        private TsqlResult ProcessParseResult(ParseResult parseResult)
         {
             _fragments = parseResult.Fragments;
 
@@ -43,7 +58,11 @@ namespace GraphqlToTsql.Translator
             Emit("");
             Emit($"{FOR_JSON}{UNWRAP_ITEM}");
 
-            return (_sb.ToString(), _tsqlParameters);
+            return new TsqlResult
+            {
+                Tsql = _sb.ToString(),
+                TsqlParameters = _tsqlParameters
+            };
         }
 
         private void BuildSubquery(Term term)

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,11 +14,16 @@ namespace DemoApp.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly IConfiguration _configuration;
+        private readonly IGraphqlTranslator _graphqlTranslator;
 
-        public IndexModel(ILogger<IndexModel> logger, IConfiguration configuration)
+        public IndexModel(
+            ILogger<IndexModel> logger,
+            IConfiguration configuration,
+            IGraphqlTranslator graphqlTranslator)
         {
             _logger = logger;
             _configuration = configuration;
+            _graphqlTranslator = graphqlTranslator;
         }
 
         public void OnGet()
@@ -39,42 +43,15 @@ namespace DemoApp.Pages
                 ? null
                 : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.GraphqlParametersJson);
 
-            GraphqlToTsql.Translator.TranslateResult translateResult;
-            var result = new QueryResult();
+            var translateResult = await _graphqlTranslator.Translate(graphql, graphqlParameters, DemoEntityList.All());
 
-            // Build SQL command
-            try
+            return new QueryResult
             {
-                var translator = new GraphqlTranslator();
-                translateResult = translator.Translate(graphql, graphqlParameters, DemoEntityList.All());
-                if (!translateResult.IsSuccessful)
-                {
-                    result.Error = translateResult.ParseError;
-                    return result;
-                }
-                result.Tsql = translateResult.Tsql;
-                result.TsqlParametersJson = ToFormattedJson(translateResult.TsqlParameters);
-            }
-            catch (Exception e)
-            {
-                result.Error = $"Error during parse: {e.Message}";
-                return result;
-            }
-
-            // Execute the SQL
-            try
-            {
-                var connectionString = _configuration["ConnectionString"];
-                var json = await DbAccess.QueryAsync(connectionString, translateResult.Tsql, translateResult.TsqlParameters);
-                result.DataJson = ToFormattedJson(Deserialize(json));
-            }
-            catch (Exception e)
-            {
-                result.Error = $"Database error: {e.Message}";
-                return result;
-            }
-
-            return result;
+                Tsql = translateResult.Tsql,
+                TsqlParametersJson = ToFormattedJson(translateResult.TsqlParameters),
+                DataJson = ToFormattedJson(Deserialize(translateResult.DataJson)),
+                Error = translateResult.ParseError ?? translateResult.DbError
+            };
         }
 
         private static object Deserialize(string json)
