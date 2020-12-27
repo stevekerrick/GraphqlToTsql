@@ -25,10 +25,10 @@ namespace DemoApp
             services
                 .AddScoped<IConnectionStringProvider, DemoConnectionStringProvider>()
                 .AddScoped<IDbAccess, DbAccess>()
-                .AddScoped<IGraphqlTranslator, GraphqlTranslator>()
+                .AddScoped<IRunner, Runner>()
                 .AddScoped<IListener, Listener>()
                 .AddScoped<IParser, Parser>()
-                .AddScoped<IQueryTree, QueryTree>()
+                .AddScoped<IQueryTreeBuilder, QueryTreeBuilder>()
                 .AddScoped<ITsqlBuilder, TsqlBuilder>();
         }
 

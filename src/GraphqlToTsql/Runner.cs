@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace GraphqlToTsql
 {
-    public interface IGraphqlTranslator
+    public interface IRunner
     {
-        Task<TranslateResult> Translate(string graphQl, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
+        Task<RunnerResult> TranslateAndRun(string graphQl, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
     }
 
-    public class GraphqlTranslator : IGraphqlTranslator
+    public class Runner : IRunner
     {
         private readonly IParser _parser;
         private readonly ITsqlBuilder _tsqlBuilder;
         private readonly IDbAccess _dbAccess;
 
-        public GraphqlTranslator(
+        public Runner(
             IParser parser,
             ITsqlBuilder tsqlBuilder,
             IDbAccess dbAccess)
@@ -27,22 +27,22 @@ namespace GraphqlToTsql
             _dbAccess = dbAccess;
         }
 
-        public async Task<TranslateResult> Translate(string graphQl, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
+        public async Task<RunnerResult> TranslateAndRun(string graphQl, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
         {
             var parseResult = _parser.ParseGraphql(graphQl, graphqlParameters, entityList);
             if (parseResult.ParseError != null)
             {
-                return new TranslateResult { ParseError = parseResult.ParseError };
+                return new RunnerResult { ParseError = parseResult.ParseError };
             }
 
             var tsqlResult = _tsqlBuilder.Build(parseResult);
             if (tsqlResult.TsqlError != null)
             {
-                return new TranslateResult { ParseError = tsqlResult.TsqlError };
+                return new RunnerResult { ParseError = tsqlResult.TsqlError };
             }
 
             var dbResult = await _dbAccess.QueryAsync(tsqlResult.Tsql, tsqlResult.TsqlParameters);
-            return new TranslateResult
+            return new RunnerResult
             {
                 Tsql = tsqlResult.Tsql,
                 TsqlParameters = tsqlResult.TsqlParameters,

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace GraphqlToTsql.Translator
 {
-    public interface IQueryTree
+    public interface IQueryTreeBuilder
     {
         void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
         ParseResult GetResult();
@@ -20,7 +20,7 @@ namespace GraphqlToTsql.Translator
         void Variable(string name, string type, Value value, Context context);
     }
 
-    public class QueryTree : IQueryTree
+    public class QueryTreeBuilder : IQueryTreeBuilder
     {
         private Dictionary<string, object> _graphqlParameters;
         private List<EntityBase> _entityList;
@@ -32,7 +32,7 @@ namespace GraphqlToTsql.Translator
         private Dictionary<string, Term> _fragments;
         private Term _topTerm;
 
-        public QueryTree()
+        public QueryTreeBuilder()
         {
         }
 

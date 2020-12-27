@@ -11,8 +11,6 @@ namespace GraphqlToTsqlTests
     [TestFixture]
     public class DbTests : IntegrationTestBase
     {
-        private const string _connectionString = "Data Source=MIN-DT180101;Initial Catalog=GraphqlToTsqlTests;Integrated Security=True";
-
         [Test]
         public async Task SimpleQueryTest()
         {
@@ -23,15 +21,15 @@ namespace GraphqlToTsqlTests
 
         private async Task CheckAsync(string graphQl, Dictionary<string, object> graphqlParameters, object expectedObject)
         {
-            var translator = GetService<IGraphqlTranslator>();
-            var result = await translator.Translate(graphQl, graphqlParameters, DemoEntityList.All());
+            var runner = GetService<IRunner>();
+            var runnerResult = await runner.TranslateAndRun(graphQl, graphqlParameters, DemoEntityList.All());
 
-            Assert.IsNull(result.ParseError, $"The parse failed: {result.ParseError}");
-            Console.WriteLine(result.Tsql);
-            Console.WriteLine(JsonConvert.SerializeObject(result.TsqlParameters, Formatting.Indented));
+            Assert.IsNull(runnerResult.ParseError, $"The parse failed: {runnerResult.ParseError}");
+            Console.WriteLine(runnerResult.Tsql);
+            Console.WriteLine(JsonConvert.SerializeObject(runnerResult.TsqlParameters, Formatting.Indented));
 
-            Assert.IsNull(result.DbError, $"The database query failed: {result.DbError}");
-            var dataObj = JsonConvert.DeserializeObject(result.DataJson);
+            Assert.IsNull(runnerResult.DbError, $"The database query failed: {runnerResult.DbError}");
+            var dataObj = JsonConvert.DeserializeObject(runnerResult.DataJson);
             var dataFormattedJson = JsonConvert.SerializeObject(dataObj, Formatting.Indented);
             Console.WriteLine("");
             Console.WriteLine(dataFormattedJson);

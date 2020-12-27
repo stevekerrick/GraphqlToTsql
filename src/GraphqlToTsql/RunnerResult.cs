@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace GraphqlToTsql.Translator
+namespace GraphqlToTsql
 {
-    // TODO: Rename (and move codefile?)
-    public class TranslateResult
+    public class RunnerResult
     {
         public string Tsql { get; set; }
         public Dictionary<string, object> TsqlParameters { get; set; }

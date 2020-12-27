@@ -28,7 +28,7 @@ namespace GraphqlToTsql.Translator
             Dictionary<string, object> graphqlParameters,
             List<EntityBase> entityList)
         {
-            // Set up parser
+            // Set up code-generated GqlParser
             var stream = new AntlrInputStream(graphQl);
             var lexer = new GqlLexer(stream);
             var tokenStream = new CommonTokenStream(lexer);

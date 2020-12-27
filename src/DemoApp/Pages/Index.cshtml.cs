@@ -2,7 +2,6 @@
 using GraphqlToTsql;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -13,14 +12,14 @@ namespace DemoApp.Pages
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
-        private readonly IGraphqlTranslator _graphqlTranslator;
+        private readonly IRunner _runner;
 
         public IndexModel(
             ILogger<IndexModel> logger,
-            IGraphqlTranslator graphqlTranslator)
+            IRunner runner)
         {
             _logger = logger;
-            _graphqlTranslator = graphqlTranslator;
+            _runner = runner;
         }
 
         public void OnGet()
@@ -40,14 +39,14 @@ namespace DemoApp.Pages
                 ? null
                 : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.GraphqlParametersJson);
 
-            var translateResult = await _graphqlTranslator.Translate(graphql, graphqlParameters, DemoEntityList.All());
+            var runnerResult = await _runner.TranslateAndRun(graphql, graphqlParameters, DemoEntityList.All());
 
             return new QueryResult
             {
-                Tsql = translateResult.Tsql,
-                TsqlParametersJson = ToFormattedJson(translateResult.TsqlParameters),
-                DataJson = ToFormattedJson(Deserialize(translateResult.DataJson)),
-                Error = translateResult.ParseError ?? translateResult.DbError
+                Tsql = runnerResult.Tsql,
+                TsqlParametersJson = ToFormattedJson(runnerResult.TsqlParameters),
+                DataJson = ToFormattedJson(Deserialize(runnerResult.DataJson)),
+                Error = runnerResult.ParseError ?? runnerResult.DbError
             };
         }
 
