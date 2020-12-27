@@ -12,6 +12,6 @@ and renamed as Gql.g4 (because the grammar name is used to name the code-gen'd c
 
 CODE GENERATION INSTRUCTIONS
 The project includes the code-generated bits. But in case you need to regenerate them,
-1. CD to src\GraphqlToSql
+1. CD to src\GraphqlToSql\Resources
 2. Execute this command:
-     java -jar Resources\antlr-4.8-complete.jar -Dlanguage=CSharp -o .\CodeGen Resources\Gql.g4 -package GraphqlToTsql.CodeGen
+     java -jar antlr-4.8-complete.jar -Dlanguage=CSharp -o ..\CodeGen Gql.g4 -package GraphqlToTsql.CodeGen
