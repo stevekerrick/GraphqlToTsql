@@ -13,16 +13,13 @@ namespace DemoApp.Pages
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
-        private readonly IConfiguration _configuration;
         private readonly IGraphqlTranslator _graphqlTranslator;
 
         public IndexModel(
             ILogger<IndexModel> logger,
-            IConfiguration configuration,
             IGraphqlTranslator graphqlTranslator)
         {
             _logger = logger;
-            _configuration = configuration;
             _graphqlTranslator = graphqlTranslator;
         }
 

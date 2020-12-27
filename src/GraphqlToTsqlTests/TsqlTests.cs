@@ -5,11 +5,12 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GraphqlToTsqlTests
 {
     [TestFixture]
-    public class TsqlTests
+    public class TsqlTests : IntegrationTestBase
     {
         [Test]
         public void SimpleQueryTest()
@@ -277,16 +278,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
             Check(graphQl, null, expectedSql, expectedTsqlParameters);
         }
 
-        private static TranslateResult Translate(string graphQl, Dictionary<string, object> graphqlParameters)
-        {
-            var translator = new GraphqlTranslator();
-            var result = translator.Translate(graphQl, graphqlParameters, DemoEntityList.All());
-            Assert.IsTrue(result.IsSuccessful, $"The parse failed: {result.ParseError}");
-
-            return result;
-        }
-
-        private static void Check(
+        private void Check(
             string graphQl,
             Dictionary<string, object> variables,
             string expectedSql,
@@ -350,6 +342,19 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
                 }
             }
             Assert.IsTrue(errorCount == 0, $"{errorCount} Tsql Parameter errors");
+        }
+
+        private TsqlResult Translate(string graphQl, Dictionary<string, object> graphqlParameters)
+        {
+            var parserRunner = GetService<IParserRunner>();
+            var parseResult = parserRunner.ParseGraphql(graphQl, graphqlParameters, DemoEntityList.All());
+            Assert.IsNull(parseResult.ParseError, $"Parse failed: {parseResult.ParseError}");
+
+            var tsqlBuilder = GetService<ITsqlBuilder>();
+            var tsqlResult = tsqlBuilder.Build(parseResult);
+            Assert.IsNull(tsqlResult.TsqlError, $"TSQL generation failed: {tsqlResult.TsqlError}");
+
+            return tsqlResult;
         }
     }
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace GraphqlToTsqlTests
 {
     [TestFixture]
-    public class DbTests
+    public class DbTests : IntegrationTestBase
     {
         private const string _connectionString = "Data Source=MIN-DT180101;Initial Catalog=GraphqlToTsqlTests;Integrated Security=True";
 
@@ -21,26 +21,23 @@ namespace GraphqlToTsqlTests
             await CheckAsync(graphQl, null, expectedObject);
         }
 
-        private static async Task CheckAsync(string graphQl, Dictionary<string, object> graphqlParameters, object expectedObject)
+        private async Task CheckAsync(string graphQl, Dictionary<string, object> graphqlParameters, object expectedObject)
         {
-            var translator = new GraphqlTranslator();
-            var result = translator.Translate(graphQl, graphqlParameters, DemoEntityList.All());
-            Assert.IsTrue(result.IsSuccessful, $"The parse failed: {result.ParseError}");
+            var translator = GetService<IGraphqlTranslator>();
+            var result = await translator.Translate(graphQl, graphqlParameters, DemoEntityList.All());
 
-            // Query the database
-            var tsql = result.Tsql;
-            Console.WriteLine(tsql);
-            var tsqlParameters = result.TsqlParameters;
-            Console.WriteLine(JsonConvert.SerializeObject(tsqlParameters, Formatting.Indented));
-            var actualJson = await DbAccess.QueryAsync(_connectionString, tsql, result.TsqlParameters);
+            Assert.IsNull(result.ParseError, $"The parse failed: {result.ParseError}");
+            Console.WriteLine(result.Tsql);
+            Console.WriteLine(JsonConvert.SerializeObject(result.TsqlParameters, Formatting.Indented));
 
-            // Compare
-            var actualObj = JsonConvert.DeserializeObject(actualJson);
-            var actualFormattedJson = JsonConvert.SerializeObject(actualObj, Formatting.Indented);
+            Assert.IsNull(result.DbError, $"The database query failed: {result.DbError}");
+            var dataObj = JsonConvert.DeserializeObject(result.DataJson);
+            var dataFormattedJson = JsonConvert.SerializeObject(dataObj, Formatting.Indented);
             Console.WriteLine("");
-            Console.WriteLine(actualFormattedJson);
+            Console.WriteLine(dataFormattedJson);
+
             var expectedFormattedJson = JsonConvert.SerializeObject(expectedObject, Formatting.Indented);
-            Assert.AreEqual(expectedFormattedJson, actualFormattedJson, "Database response does not match expected");
+            Assert.AreEqual(expectedFormattedJson, dataFormattedJson, "Database response does not match expected");
         }
     }
 }

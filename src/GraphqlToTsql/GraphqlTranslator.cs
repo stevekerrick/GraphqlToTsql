@@ -29,13 +29,13 @@ namespace GraphqlToTsql
 
         public async Task<TranslateResult> Translate(string graphQl, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
         {
-            var parserResult = _parserRunner.ParseGraphql(graphQl, graphqlParameters, entityList);
-            if (parserResult.ParseError != null)
+            var parseResult = _parserRunner.ParseGraphql(graphQl, graphqlParameters, entityList);
+            if (parseResult.ParseError != null)
             {
-                return new TranslateResult { ParseError = parserResult.ParseError };
+                return new TranslateResult { ParseError = parseResult.ParseError };
             }
 
-            var tsqlResult = _tsqlBuilder.Build(parserResult);
+            var tsqlResult = _tsqlBuilder.Build(parseResult);
             if (tsqlResult.TsqlError != null)
             {
                 return new TranslateResult { ParseError = tsqlResult.TsqlError };
