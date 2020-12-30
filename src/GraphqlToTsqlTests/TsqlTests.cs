@@ -278,6 +278,57 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
             Check(graphQl, null, expectedSql, expectedTsqlParameters);
         }
 
+        [Test]
+        public void EdgeNodeTest()
+        {
+            var graphQl = @"
+{
+  products (urn: ""urn:epc:idpat:sgtin:258643.3704146.*"") {
+    urn lotsConnection {
+      edges {
+        node { lotNumber expirationDate }
+      }
+    }
+  }
+}
+".Trim();
+
+            var expectedSql = @"
+SELECT
+
+  -- products
+  JSON_QUERY ((
+    SELECT
+      t1.[Urn] AS [urn]
+
+      -- products.lotsConnection
+    , JSON_QUERY ((
+        SELECT
+
+          -- products.lotsConnection.edges
+          JSON_QUERY ((
+            SELECT
+
+              -- products.lotsConnection.edges.node
+              JSON_QUERY ((
+                SELECT
+                  t2.[LotNumber] AS [lotNumber]
+                , t2.[ExpirationDt] AS [expirationDate]
+                FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
+            FROM [Lot] t2
+            WHERE t1.[Id] = t2.[ProductId]
+            FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]
+        FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [lotsConnection]
+    FROM [Product] t1
+    WHERE t1.[Urn] = @urn
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object> { { "urn", "urn:epc:idpat:sgtin:258643.3704146.*" } };
+
+            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+        }
+
         private void Check(
             string graphQl,
             Dictionary<string, object> variables,

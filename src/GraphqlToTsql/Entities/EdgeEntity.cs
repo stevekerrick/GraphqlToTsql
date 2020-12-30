@@ -3,15 +3,15 @@ using System.Collections.Generic;
 
 namespace GraphqlToTsql.Entities
 {
-    internal class ConnectionEntity : EntityBase
+    public class EdgeEntity : EntityBase
     {
         private Field _setField;
 
-        public override string Name => $"{_setField.Name}{Constants.CONNECTION}";
+        public override string Name => $"edge";
         public override string DbTableName => _setField.Entity.DbTableName;
-        public override string PrimaryKeyFieldName => throw new Exception("Connections don't have a primary key");
+        public override string PrimaryKeyFieldName => throw new Exception("Edges don't have a primary key");
 
-        internal ConnectionEntity(Field setField)
+        internal EdgeEntity(Field setField)
         {
             _setField = setField;
         }
@@ -20,8 +20,7 @@ namespace GraphqlToTsql.Entities
         {
             return new List<Field>
             {
-                Field.TotalCount(_setField),
-                Field.Edges(_setField)
+                Field.Node(_setField),
             };
         }
     }

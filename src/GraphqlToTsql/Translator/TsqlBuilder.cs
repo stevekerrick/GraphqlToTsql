@@ -76,7 +76,8 @@ namespace GraphqlToTsql.Translator
 
             // Build the SQL for the subquery
             BuildSelectClause(term);
-            if (term.Field.FieldType != FieldType.Connection)
+            if (term.Field.FieldType != FieldType.Connection &&
+                term.Field.FieldType != FieldType.Node)
             {
                 Emit(FromClause(term));
                 Emit(WhereClause(term));

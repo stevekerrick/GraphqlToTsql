@@ -63,6 +63,21 @@ namespace GraphqlToTsql.Entities
             Name = Constants.TOTAL_COUNT,
             Join = setField.Join
         };
+
+        public static Field Edges(Field setField) => new Field
+        {
+            FieldType = FieldType.Edge,
+            Entity = new EdgeEntity(setField),
+            Name = "edges",
+            Join = setField.Join
+        };
+
+        public static Field Node(Field setField) => new Field
+        {
+            FieldType = FieldType.Node,
+            Entity = new NodeEntity(setField),
+            Name = "node",
+        };
     }
 
     public enum FieldType
@@ -71,6 +86,8 @@ namespace GraphqlToTsql.Entities
         Row,
         Set,
         Connection,
-        TotalCount
+        TotalCount,
+        Edge,
+        Node
     }
 }

@@ -39,7 +39,7 @@ namespace GraphqlToTsql.Translator
 
             TermType = field.FieldType ==
                 FieldType.Scalar ? TermType.Scalar
-                : field.FieldType == FieldType.Row ? TermType.Item
+                : field.FieldType == FieldType.Row || field.FieldType == FieldType.Node ? TermType.Item
                 : TermType.List;
         }
 
@@ -55,6 +55,13 @@ namespace GraphqlToTsql.Translator
 
         public string TableAlias(Sequence aliasSequence)
         {
+            // The table alias for a Connection is the same as the parent.
+            // Likewise, the table alias for a Node is the same as the parent (Edge).
+            if (Field.FieldType == FieldType.Connection || Field.FieldType == FieldType.Node)
+            {
+                return Parent.TableAlias(aliasSequence);
+            }
+
             if (_tableAlias == null)
             {
                 _tableAlias = $"t{aliasSequence.Next()}";
