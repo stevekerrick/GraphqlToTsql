@@ -1,5 +1,7 @@
-﻿using System;
+﻿using GraphqlToTsql.Util;
+using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace GraphqlToTsql.Entities
 {
@@ -12,6 +14,7 @@ namespace GraphqlToTsql.Entities
         public string DbColumnName { get; private set; }
         public Join Join { get; private set; }
         public Func<string, string> TemplateFunc { get; private set; }
+        public Func<string, string> ReplaceValueFunc { get; private set; }
 
         private Field() { }
 
@@ -88,6 +91,7 @@ namespace GraphqlToTsql.Entities
                 FieldType = FieldType.Cursor,
                 Entity = new NodeEntity(setField),
                 Name = Constants.CURSOR,
+                ReplaceValueFunc = CursorUtility.CreateCursor,
                 TemplateFunc = (tableAlias) => $"CONCAT({tableAlias}.[{entity.PrimaryKeyField.DbColumnName}], '|', '{entity.DbTableName}')"
             };
         }

@@ -12,69 +12,46 @@ namespace GraphqlToTsqlTests
     public class CursorUtilityTests
     {
         private Fixture _fixture = new Fixture();
-        private AutoMocker _mocks = new AutoMocker(MockBehavior.Strict);
-        private static IHashUtility _hashUtility = new HashUtility();
 
         [Test]
         public void CreateCursorTest()
         {
-            var parts = GetCursorPartsAndSetupHashUtility();
-
-            var cursorUtility = _mocks.CreateInstance<CursorUtility>();
-            var cursor = cursorUtility.CreateCursor(parts.DbTableName, parts.IdValue);
+            var parts = _fixture.Create<CursorParts>();
+            var cursor = CursorUtility.CreateCursor(parts.CursorData);
 
             Console.WriteLine(cursor);
-            Assert.IsTrue(cursor.EndsWith($".{parts.Hash}"));
+            Assert.IsNotNull(cursor);
         }
 
         [Test]
         public void CreateAndDecodeCursorTest()
         {
-            var parts = GetCursorPartsAndSetupHashUtility();
+            var parts = _fixture.Create<CursorParts>();
+            var cursor = CursorUtility.CreateCursor(parts.CursorData);
 
-            var cursorUtility = _mocks.CreateInstance<CursorUtility>();
-            var cursor = cursorUtility.CreateCursor(parts.DbTableName, parts.IdValue);
-
-            var decodedIdValue = cursorUtility.DecodeCursor(parts.DbTableName, cursor);
+            var decodedIdValue = CursorUtility.DecodeCursor(parts.DbTableName, cursor);
             Assert.AreEqual(parts.IdValue, decodedIdValue);
         }
 
         [TestCase(null)]
         [TestCase("")]
         [TestCase("abcd.efgh.ijkl")]
-        [TestCase("")]
         public void DecodeIllFormedCursorTest(string cursor)
         {
-            var cursorUtility = _mocks.CreateInstance<CursorUtility>();
             var dbTableName = _fixture.Create<string>();
-            Assert.Throws<InvalidRequestException>(() => cursorUtility.DecodeCursor(dbTableName, cursor));
+            Assert.Throws<InvalidRequestException>(() => CursorUtility.DecodeCursor(dbTableName, cursor));
         }
 
         [TestCaseSource(nameof(CorruptorFuncs))]
         public void CorruptedCursorTest(Func<string, CursorParts, string> corruptorFunc)
         {
-            // For this test, use the real HashUtility
-            var cursorUtility = new CursorUtility(_hashUtility);
-
             // Create an actual cursor
-            var parts = GetCursorPartsAndSetupHashUtility();
-            var cursor = cursorUtility.CreateCursor(parts.DbTableName, parts.IdValue);
-            Console.WriteLine(cursor);
+            var parts = _fixture.Create<CursorParts>();
+            var cursor = CursorUtility.CreateCursor(parts.CursorData);
 
             // Corrupt the cursor and try to decode it
             var corrputedCursor = corruptorFunc(cursor, parts);
-            Assert.Throws<InvalidRequestException>(() => cursorUtility.DecodeCursor(parts.DbTableName, corrputedCursor));
-        }
-
-        private CursorParts GetCursorPartsAndSetupHashUtility()
-        {
-            var parts = _fixture.Create<CursorParts>();
-
-            _mocks.GetMock<IHashUtility>()
-                .Setup(_ => _.Hash(It.IsAny<string>()))
-                .Returns(parts.Hash);
-
-            return parts;
+            Assert.Throws<InvalidRequestException>(() => CursorUtility.DecodeCursor(parts.DbTableName, corrputedCursor));
         }
 
         static Func<string, CursorParts, string>[] CorruptorFuncs =
@@ -92,15 +69,15 @@ namespace GraphqlToTsqlTests
 
         static string ChangeHash(string cursor, CursorParts parts)
         {
-            var fakeHash = _hashUtility.Hash("fake");
+            var fakeHash = HashUtility.Hash("fake");
             var p = cursor.IndexOf('.');
             return cursor.Substring(0, p) + "." + fakeHash;
         }
 
         static string ChangeIdValue(string cursor, CursorParts parts)
         {
-            var cursorUtility = new CursorUtility(_hashUtility);
-            var newCursor = cursorUtility.CreateCursor(parts.DbTableName, parts.IdValue + 1);
+            var newCursorData = $"{parts.IdValue + 1}|{parts.DbTableName}";
+            var newCursor = CursorUtility.CreateCursor(newCursorData);
 
             var pOld = cursor.IndexOf('.');
             var pNew = newCursor.IndexOf('.');
@@ -114,11 +91,10 @@ namespace GraphqlToTsqlTests
         }
     }
 
-
     public class CursorParts
     {
         public int IdValue { get; set; }
         public string DbTableName { get; set; }
-        public string Hash { get; set; }
+        public string CursorData => $"{IdValue}|{DbTableName}";
     }
 }

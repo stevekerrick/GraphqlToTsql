@@ -4,31 +4,22 @@ using System.Text;
 
 namespace GraphqlToTsql.Util
 {
-    public interface ICursorUtility
+    public static class CursorUtility
     {
-        string CreateCursor(string dbTableName, int idValue);
-        int DecodeCursor(string dbTableName, string cursor);
-    }
-
-    public class CursorUtility : ICursorUtility
-    {
-        private readonly IHashUtility _hashUtility;
-
-        public CursorUtility(IHashUtility hashUtility)
+        /// <summary>
+        /// Create an obfuscated cursor, based on the the cursor "root" created in TSQL
+        /// </summary>
+        /// <param name="root">$"{idValue}|{dbTableName}"</param>
+        /// <returns>Obfuscated cursor</returns>
+        public static string CreateCursor(string root)
         {
-            _hashUtility = hashUtility;
-        }
-
-        public string CreateCursor(string dbTableName, int idValue)
-        {
-            var root = $"{idValue}|{dbTableName}";
             var rootBytes = Encoding.UTF8.GetBytes(root);
             var encodedRoot = Convert.ToBase64String(rootBytes);
-            var hash = _hashUtility.Hash(encodedRoot);
+            var hash = HashUtility.Hash(encodedRoot);
             return $"{encodedRoot}.{hash}";
         }
 
-        public int DecodeCursor(string dbTableName, string cursor)
+        public static int DecodeCursor(string dbTableName, string cursor)
         {
             if (string.IsNullOrEmpty(cursor))
             {
@@ -45,7 +36,7 @@ namespace GraphqlToTsql.Util
             var actualHash = cursorParts[1];
 
             // Verify the hash
-            var expectedHash = _hashUtility.Hash(encodedRoot);
+            var expectedHash = HashUtility.Hash(encodedRoot);
             if (actualHash != expectedHash)
             {
                 throw new InvalidRequestException($"Cursor is invalid: {cursor}");
@@ -58,7 +49,7 @@ namespace GraphqlToTsql.Util
                 var rootBytes = Convert.FromBase64String(encodedRoot);
                 root = Encoding.UTF8.GetString(rootBytes);
             }
-            catch (Exception e)
+            catch
             {
                 throw new InvalidRequestException($"Cursor is invalid: {cursor}");
             }

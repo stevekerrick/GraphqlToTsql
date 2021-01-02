@@ -2,17 +2,12 @@
 
 namespace GraphqlToTsql.Util
 {
-    public interface IHashUtility
-    {
-        string Hash(string str);
-    }
-
     /// <summary>
     /// Create short hash of a string.
     /// </summary>
-    public class HashUtility : IHashUtility
+    public static class HashUtility
     {
-        public string Hash(string str)
+        public static string Hash(string str)
         {
             var intHash = GetDeterministicHashCode(str);
             return Convert.ToString(intHash, 16); ;
