@@ -15,14 +15,14 @@ namespace GraphqlToTsql.Translator
     {
         private readonly StringBuilder _sb;
         private int _indent;
-        private Sequence _aliasSequence;
+        private AliasSequence _aliasSequence;
         private Dictionary<string, Term> _fragments;
         private Dictionary<string, object> _tsqlParameters;
 
         public TsqlBuilder()
         {
             _sb = new StringBuilder(2048);
-            _aliasSequence = new Sequence();
+            _aliasSequence = new AliasSequence();
             _tsqlParameters = new Dictionary<string, object>();
         }
 
@@ -70,7 +70,7 @@ namespace GraphqlToTsql.Translator
             // Wrap the subquery in a JSON_QUERY
             var separator = term.IsFirstChild ? TAB : COMMA_TAB;
             Emit("");
-            Emit(TAB, $"-- {term.FullPath()}");
+            Emit(TAB, $"-- {term.FullPath()} ({term.TableAlias(_aliasSequence)})");
             Emit(separator, "JSON_QUERY ((");
             Indent();
 
@@ -106,21 +106,32 @@ namespace GraphqlToTsql.Translator
 
         private void ProcessField(Term parent, Term term)
         {
+            // Fragments are special, and are detected by TermType
             if (term.TermType == TermType.Fragment)
             {
                 ProcessFragmentField(parent, term);
+                return;
             }
-            else if (term.Field.FieldType == FieldType.Scalar)
+
+            // Processed based on FieldType
+            switch (term.Field.FieldType)
             {
-                ProcessScalarField(term);
-            }
-            else if (term.Field.FieldType == FieldType.TotalCount)
-            {
-                ProcessTotalCountField(term);
-            }
-            else
-            {
-                BuildSubquery(term);
+                case FieldType.Scalar:
+                case FieldType.Cursor:
+                    ProcessScalarField(term);
+                    break;
+                case FieldType.TotalCount:
+                    ProcessTotalCountField(term);
+                    break;
+                case FieldType.Row:
+                case FieldType.Set:
+                case FieldType.Connection:
+                case FieldType.Edge:
+                case FieldType.Node:
+                    BuildSubquery(term);
+                    break;
+                default:
+                    throw new NotImplementedException($"Unexpected FieldType: {term.Field.FieldType}");
             }
         }
 
@@ -164,37 +175,39 @@ namespace GraphqlToTsql.Translator
 
         private void ProcessTotalCountField(Term term)
         {
-            var alias = term.Parent.TableAlias(_aliasSequence);
+            var tableAlias = _aliasSequence.Next();
             var separator = term.IsFirstChild ? TAB : COMMA_TAB;
-            var fromClause = FromClause(term.Parent);
-            var whereClause = WhereClause(term.Parent);
+            var fromClause = FromClause(term.Parent, tableAlias);
+            var whereClause = WhereClause(term.Parent, tableAlias);
             Emit(separator, $"(SELECT COUNT(1) {fromClause} {whereClause}) AS [{term.Name}]");
         }
 
-        private string FromClause(Term term)
+        private string FromClause(Term term, string tableAlias = null)
         {
-            return $"FROM [{term.Field.Entity.DbTableName}] {term.TableAlias(_aliasSequence)}";
+            tableAlias = tableAlias ?? term.TableAlias(_aliasSequence);
+            return $"FROM [{term.Field.Entity.DbTableName}] {tableAlias}";
         }
 
-        private string WhereClause(Term term)
+        private string WhereClause(Term term, string childTableAlias = null)
         {
             // Collect the join criteria for Row/List fields
             var joinSnips = new List<string>();
             if (term.Field.Join != null)
             {
                 var parentField = term.Field.Join.ParentFieldFunc();
-                var parentTableAlias = term.Parent.TableAlias(_aliasSequence);
+                var parentTableAlias = term.ParentForJoin.TableAlias(_aliasSequence);
                 var childField = term.Field.Join.ChildFieldFunc();
-                var childTableAlias = term.TableAlias(_aliasSequence);
+                childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
                 joinSnips.Add($"{parentTableAlias}.[{parentField.DbColumnName}] = {childTableAlias}.[{childField.DbColumnName}]");
             }
 
             // Collect the join criteria in the argument filters
+            // todo: Add test for TotalCount and Edges that have argument filters. Make sure the table aliases are right.
             var filters = term.Arguments.Filters;
             if (filters.Count > 0)
             {
-                var tableAlias = term.TableAlias(_aliasSequence);
-                joinSnips.AddRange(filters.Select(filter => $"{tableAlias}.[{filter.Field.DbColumnName}] = @{RegisterTsqlParameter(filter)}"));
+                childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
+                joinSnips.AddRange(filters.Select(filter => $"{childTableAlias}.[{filter.Field.DbColumnName}] = @{RegisterTsqlParameter(filter)}"));
             }
 
             // Build the complete WHERE clause
@@ -212,7 +225,7 @@ namespace GraphqlToTsql.Translator
             if (term.Arguments.Offset != null || term.Arguments.First != null)
             {
                 var entity = term.Field.Entity;
-                var pkColumnName = entity.GetField(entity.PrimaryKeyFieldName).DbColumnName;
+                var pkColumnName = entity.PrimaryKeyField.DbColumnName;
                 Emit($"ORDER BY {term.TableAlias(_aliasSequence)}.{pkColumnName}");
                 Emit($"OFFSET {term.Arguments.Offset.GetValueOrDefault(0)} ROWS");
                 if (term.Arguments.First != null)

@@ -68,7 +68,7 @@ namespace GraphqlToTsql.Entities
         {
             FieldType = FieldType.Edge,
             Entity = new EdgeEntity(setField),
-            Name = "edges",
+            Name = Constants.EDGES,
             Join = setField.Join
         };
 
@@ -76,8 +76,21 @@ namespace GraphqlToTsql.Entities
         {
             FieldType = FieldType.Node,
             Entity = new NodeEntity(setField),
-            Name = "node",
+            Name = Constants.NODE
         };
+
+        public static Field Cursor(Field setField)
+        {
+            var entity = setField.Entity;
+
+            return new Field
+            {
+                FieldType = FieldType.Cursor,
+                Entity = new NodeEntity(setField),
+                Name = Constants.CURSOR,
+                TemplateFunc = (tableAlias) => $"CONCAT({tableAlias}.[{entity.PrimaryKeyField.DbColumnName}], '|', '{entity.DbTableName}')"
+            };
+        }
     }
 
     public enum FieldType
@@ -88,6 +101,7 @@ namespace GraphqlToTsql.Entities
         Connection,
         TotalCount,
         Edge,
-        Node
+        Node,
+        Cursor
     }
 }

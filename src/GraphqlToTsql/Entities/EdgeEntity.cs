@@ -21,6 +21,7 @@ namespace GraphqlToTsql.Entities
             return new List<Field>
             {
                 Field.Node(_setField),
+                Field.Cursor(_setField)
             };
         }
     }

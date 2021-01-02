@@ -1,4 +1,5 @@
 using GraphqlToTsql.Entities;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -37,10 +38,25 @@ namespace GraphqlToTsql.Translator
             Field = field;
             Name = name;
 
-            TermType = field.FieldType ==
-                FieldType.Scalar ? TermType.Scalar
-                : field.FieldType == FieldType.Row || field.FieldType == FieldType.Node ? TermType.Item
-                : TermType.List;
+            switch (field.FieldType)
+            {
+                case FieldType.Scalar:
+                case FieldType.TotalCount:
+                case FieldType.Cursor:
+                    TermType = TermType.Scalar;
+                    break;
+                case FieldType.Row:
+                case FieldType.Connection:
+                case FieldType.Node:
+                    TermType = TermType.Item;
+                    break;
+                case FieldType.Set:
+                case FieldType.Edge:
+                    TermType = TermType.List;
+                    break;
+                default:
+                    throw new NotImplementedException($"Unexpected FieldType: {field.FieldType}");
+            }
         }
 
         public static Term Fragment(Term parent, string name)
@@ -53,20 +69,37 @@ namespace GraphqlToTsql.Translator
             };
         }
 
-        public string TableAlias(Sequence aliasSequence)
+        public string TableAlias(AliasSequence aliasSequence)
         {
-            // The table alias for a Connection is the same as the parent.
-            // Likewise, the table alias for a Node is the same as the parent (Edge).
-            if (Field.FieldType == FieldType.Connection || Field.FieldType == FieldType.Node)
+            // For Edges and Node, the alias is managed by the Connection
+            if (Field.FieldType == FieldType.Edge)
             {
                 return Parent.TableAlias(aliasSequence);
             }
+            if (Field.FieldType == FieldType.Node)
+            {
+                return Parent.Parent.TableAlias(aliasSequence);
+            }
+
 
             if (_tableAlias == null)
             {
-                _tableAlias = $"t{aliasSequence.Next()}";
+                _tableAlias = aliasSequence.Next();
             }
             return _tableAlias;
+        }
+
+        public Term ParentForJoin
+        {
+            get
+            {
+                // When building the Where clause for Edges, the join parent has to skip over the Connection
+                if (Field.FieldType == FieldType.Edge)
+                {
+                    return Parent.Parent;
+                }
+                return Parent;
+            }
         }
 
         public string FullPath()

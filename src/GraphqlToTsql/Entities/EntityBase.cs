@@ -57,5 +57,7 @@ namespace GraphqlToTsql.Entities
             }
             throw new InvalidRequestException($"Unknown field: {Name}.{name}", context);
         }
+
+        public Field PrimaryKeyField => GetField(PrimaryKeyFieldName);
     }
 }

@@ -17,11 +17,11 @@ namespace GraphqlToTsql.Translator
 
         public void Add(Field field, string name, Value value, Context context = null)
         {
-            if (name == "offset")
+            if (name == Constants.OFFSET_ARGUMENT)
             {
                 Offset = IntValue(name, value, context);
             }
-            else if (name == "first")
+            else if (name == Constants.FIRST_ARGUMENT)
             {
                 First = IntValue(name, value, context);
             }

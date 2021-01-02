@@ -20,7 +20,7 @@ namespace GraphqlToTsqlTests
             var expectedSql = @"
 SELECT
 
-  -- epcs
+  -- epcs (t1)
   JSON_QUERY ((
     SELECT
       t1.[Urn] AS [urn]
@@ -42,7 +42,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
             var expectedSql = @"
 SELECT
 
-  -- codes
+  -- codes (t1)
   JSON_QUERY ((
     SELECT
       t1.[Urn] AS [MyUrl]
@@ -64,7 +64,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
             var expectedSql = @"
 SELECT
 
-  -- epcs
+  -- epcs (t1)
   JSON_QUERY ((
     SELECT
       t1.[Urn] AS [urn]
@@ -89,12 +89,12 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
             var expectedSql = @"
 SELECT
 
-  -- epcs
+  -- epcs (t1)
   JSON_QUERY ((
     SELECT
       t1.[Urn] AS [urn]
 
-      -- epcs.product
+      -- epcs.product (t2)
     , JSON_QUERY ((
         SELECT
           t2.[Name] AS [name]
@@ -124,7 +124,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 
 SELECT
 
-  -- epcs
+  -- epcs (t1)
   JSON_QUERY ((
     SELECT
       t1.[Urn] AS [urn]
@@ -150,7 +150,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
             var expectedSql = @"
 SELECT
 
-  -- epcs
+  -- epcs (t1)
   JSON_QUERY ((
     SELECT
       t1.[Urn] AS [urn]
@@ -177,7 +177,7 @@ fragment frag on epc { urn }
             var expectedSql = @"
 SELECT
 
-  -- epcs
+  -- epcs (t1)
   JSON_QUERY ((
     SELECT
       t1.[Urn] AS [urn]
@@ -233,16 +233,16 @@ query jojaCola ($urn: string) {
             var expectedSql = @"
 SELECT
 
-  -- products
+  -- products (t1)
   JSON_QUERY ((
     SELECT
       t1.[Urn] AS [urn]
 
-      -- products.lotsConnection
+      -- products.lotsConnection (t2)
     , JSON_QUERY ((
         SELECT
-          (SELECT COUNT(1) FROM [Lot] t2 WHERE t1.[Id] = t2.[ProductId]) AS [totalCount]
-        FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [lotsConnection]
+          (SELECT COUNT(1) FROM [Lot] t3 WHERE t1.[Id] = t3.[ProductId]) AS [totalCount]
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [lotsConnection]
     FROM [Product] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
 
@@ -261,7 +261,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
             var expectedSql = @"
 SELECT
 
-  -- epcs
+  -- epcs (t1)
   JSON_QUERY ((
     SELECT
       t1.[Urn] AS [urn]
@@ -296,20 +296,20 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
             var expectedSql = @"
 SELECT
 
-  -- products
+  -- products (t1)
   JSON_QUERY ((
     SELECT
       t1.[Urn] AS [urn]
 
-      -- products.lotsConnection
+      -- products.lotsConnection (t2)
     , JSON_QUERY ((
         SELECT
 
-          -- products.lotsConnection.edges
+          -- products.lotsConnection.edges (t2)
           JSON_QUERY ((
             SELECT
 
-              -- products.lotsConnection.edges.node
+              -- products.lotsConnection.edges.node (t2)
               JSON_QUERY ((
                 SELECT
                   t2.[LotNumber] AS [lotNumber]
@@ -318,13 +318,63 @@ SELECT
             FROM [Lot] t2
             WHERE t1.[Id] = t2.[ProductId]
             FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]
-        FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [lotsConnection]
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [lotsConnection]
     FROM [Product] t1
     WHERE t1.[Urn] = @urn
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
             var expectedTsqlParameters = new Dictionary<string, object> { { "urn", "urn:epc:idpat:sgtin:258643.3704146.*" } };
+
+            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+        }
+
+        [Test]
+        public void OutputCursorTest()
+        {
+            var graphQl = @"
+{
+  products {
+    lotsConnection {
+      edges {
+        node { lotNumber }
+        cursor
+      }
+    }
+  }
+}
+".Trim();
+
+            var expectedSql = @"
+SELECT
+
+  -- products (t1)
+  JSON_QUERY ((
+    SELECT
+
+      -- products.lotsConnection (t2)
+      JSON_QUERY ((
+        SELECT
+
+          -- products.lotsConnection.edges (t2)
+          JSON_QUERY ((
+            SELECT
+
+              -- products.lotsConnection.edges.node (t2)
+              JSON_QUERY ((
+                SELECT
+                  t2.[LotNumber] AS [lotNumber]
+                FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
+            , (CONCAT(t2.[Id], '|', 'Lot')) AS [cursor]
+            FROM [Lot] t2
+            WHERE t1.[Id] = t2.[ProductId]
+            FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [lotsConnection]
+    FROM [Product] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object>();
 
             Check(graphQl, null, expectedSql, expectedTsqlParameters);
         }

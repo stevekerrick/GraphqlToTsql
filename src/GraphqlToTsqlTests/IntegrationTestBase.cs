@@ -1,6 +1,7 @@
 ﻿using GraphqlToTsql;
 using GraphqlToTsql.Database;
 using GraphqlToTsql.Translator;
+using GraphqlToTsql.Util;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -22,11 +23,13 @@ namespace GraphqlToTsqlTests
             serviceCollection
                 .AddSingleton((IConfiguration)configuration)
                 .AddTransient<IConnectionStringProvider, TestConnectionStringProvider>()
+                .AddTransient<ICursorUtility, CursorUtility>()
                 .AddTransient<IDbAccess, DbAccess>()
-                .AddTransient<IRunner, Runner>()
+                .AddTransient<IHashUtility, HashUtility>()
                 .AddTransient<IListener, Listener>()
                 .AddTransient<IParser, Parser>()
                 .AddTransient<IQueryTreeBuilder, QueryTreeBuilder>()
+                .AddTransient<IRunner, Runner>()
                 .AddTransient<ITsqlBuilder, TsqlBuilder>();
 
             _services = serviceCollection.BuildServiceProvider();

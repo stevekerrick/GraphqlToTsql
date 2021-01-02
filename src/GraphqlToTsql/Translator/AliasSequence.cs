@@ -1,12 +1,12 @@
 namespace GraphqlToTsql.Translator
 {
-    public class Sequence
+    public class AliasSequence
     {
         private int _seq;
 
-        public int Next()
+        public string Next()
         {
-            return ++_seq;
+            return $"t{++_seq}";
         }
     }
 }

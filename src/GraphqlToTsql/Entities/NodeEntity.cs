@@ -6,7 +6,7 @@ namespace GraphqlToTsql.Entities
     {
         private Field _setField;
 
-        public override string Name => "node";
+        public override string Name => Constants.NODE;
         public override string DbTableName => _setField.Entity.DbTableName;
         public override string PrimaryKeyFieldName => _setField.Entity.PrimaryKeyFieldName;
 
