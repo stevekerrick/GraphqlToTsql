@@ -7,16 +7,21 @@ namespace GraphqlToTsql.Util
     public static class CursorUtility
     {
         /// <summary>
-        /// Create an obfuscated cursor, based on the the cursor "root" created in TSQL
+        /// Create an obfuscated cursor, based on the the "cursorData" created in TSQL
         /// </summary>
-        /// <param name="root">$"{idValue}|{dbTableName}"</param>
+        /// <param name="cursorData">$"{idValue}|{dbTableName}"</param>
         /// <returns>Obfuscated cursor</returns>
-        public static string CreateCursor(string root)
+        public static string CreateCursor(string cursorData)
         {
-            var rootBytes = Encoding.UTF8.GetBytes(root);
-            var encodedRoot = Convert.ToBase64String(rootBytes);
-            var hash = HashUtility.Hash(encodedRoot);
-            return $"{encodedRoot}.{hash}";
+            if (cursorData == null)
+            {
+                return null;
+            }
+
+            var cursorDataBytes = Encoding.UTF8.GetBytes(cursorData);
+            var encodedCursorData = Convert.ToBase64String(cursorDataBytes);
+            var hash = HashUtility.Hash(encodedCursorData);
+            return $"{encodedCursorData}.{hash}";
         }
 
         public static int DecodeCursor(string dbTableName, string cursor)
@@ -26,42 +31,42 @@ namespace GraphqlToTsql.Util
                 throw new InvalidRequestException("Empty cursor is not allowed");
             }
 
-            // Separate the cursor into the encoded root and hash
+            // Separate the cursor into the encoded cursor data and hash
             var cursorParts = cursor.Split('.');
             if (cursorParts.Length != 2)
             {
                 throw new InvalidRequestException($"Cursor is invalid: {cursor}");
             }
-            var encodedRoot = cursorParts[0];
+            var encodedCursorData = cursorParts[0];
             var actualHash = cursorParts[1];
 
             // Verify the hash
-            var expectedHash = HashUtility.Hash(encodedRoot);
+            var expectedHash = HashUtility.Hash(encodedCursorData);
             if (actualHash != expectedHash)
             {
                 throw new InvalidRequestException($"Cursor is invalid: {cursor}");
             }
 
-            // Decode the root. EncodedRoot is base64(root).
-            string root;
+            // Decode the CursorData. EncodedCursorData is base64(CursorData).
+            string cursorData;
             try
             {
-                var rootBytes = Convert.FromBase64String(encodedRoot);
-                root = Encoding.UTF8.GetString(rootBytes);
+                var cursorDataBytes = Convert.FromBase64String(encodedCursorData);
+                cursorData = Encoding.UTF8.GetString(cursorDataBytes);
             }
             catch
             {
                 throw new InvalidRequestException($"Cursor is invalid: {cursor}");
             }
 
-            // Separate the root into idValue and dbTableName
-            var rootParts = root.Split('|');
-            if (rootParts.Length != 2)
+            // Separate the cursorData into idValue and dbTableName
+            var cursorDataParts = cursorData.Split('|');
+            if (cursorDataParts.Length != 2)
             {
                 throw new InvalidRequestException($"Cursor is invalid: {cursor}");
             }
-            var idValue = rootParts[0];
-            var actualDbTableName = rootParts[1];
+            var idValue = cursorDataParts[0];
+            var actualDbTableName = cursorDataParts[1];
 
             // Verify the DbTableName
             if (actualDbTableName != dbTableName)

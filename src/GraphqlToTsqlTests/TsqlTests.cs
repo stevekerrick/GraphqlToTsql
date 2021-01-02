@@ -1,11 +1,9 @@
 ﻿using DemoEntities;
-using GraphqlToTsql;
 using GraphqlToTsql.Translator;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace GraphqlToTsqlTests
 {
