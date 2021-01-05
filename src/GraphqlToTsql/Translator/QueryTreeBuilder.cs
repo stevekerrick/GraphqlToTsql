@@ -10,7 +10,7 @@ namespace GraphqlToTsql.Translator
         ParseResult GetResult();
 
         void Argument(string name, string variableName, Context context);
-        void Argument(string name, Value value);
+        void Argument(string name, Value value, Context context);
         void BeginFragment(string name, string type, Context context);
         void BeginQuery();
         void EndQuery();
@@ -146,9 +146,9 @@ namespace GraphqlToTsql.Translator
             _parent.Children.Add(_term);
         }
 
-        public void Argument(string name, Value value)
+        public void Argument(string name, Value value, Context context)
         {
-            _term.AddArgument(name, value);
+            _term.AddArgument(name, value, context);
         }
 
         public void Argument(string name, string variableName, Context context)
@@ -158,7 +158,7 @@ namespace GraphqlToTsql.Translator
                 throw new InvalidRequestException($"Variable [${variableName}] is not declared", context);
             }
 
-            _term.AddArgument(name, _variables[variableName]);
+            _term.AddArgument(name, _variables[variableName], context);
         }
 
         private Field LookupEntity(string name)

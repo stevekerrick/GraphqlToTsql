@@ -1,4 +1,5 @@
 using GraphqlToTsql.Entities;
+using GraphqlToTsql.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -190,31 +191,41 @@ namespace GraphqlToTsql.Translator
 
         private string WhereClause(Term term, string childTableAlias = null)
         {
-            // Collect the join criteria for Row/List fields
-            var joinSnips = new List<string>();
+            // Collect the where criteria for Row/List fields
+            var whereParts = new List<string>();
             if (term.Field.Join != null)
             {
                 var parentField = term.Field.Join.ParentFieldFunc();
                 var parentTableAlias = term.ParentForJoin.TableAlias(_aliasSequence);
                 var childField = term.Field.Join.ChildFieldFunc();
                 childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
-                joinSnips.Add($"{parentTableAlias}.[{parentField.DbColumnName}] = {childTableAlias}.[{childField.DbColumnName}]");
+                whereParts.Add($"{parentTableAlias}.[{parentField.DbColumnName}] = {childTableAlias}.[{childField.DbColumnName}]");
             }
 
-            // Collect the join criteria in the argument filters
-            // todo: Add test for TotalCount and Edges that have argument filters. Make sure the table aliases are right.
+            // Collect the where criteria in the argument filters
+            // todo: Add test for a query with both TotalCount and Edges that have argument filters. Make sure the table aliases are right.
             var filters = term.Arguments.Filters;
             if (filters.Count > 0)
             {
                 childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
-                joinSnips.AddRange(filters.Select(filter => $"{childTableAlias}.[{filter.Field.DbColumnName}] = @{RegisterTsqlParameter(filter)}"));
+                whereParts.AddRange(filters.Select(filter => $"{childTableAlias}.[{filter.Field.DbColumnName}] = @{RegisterTsqlParameter(filter)}"));
+            }
+
+            // Where criteria for cursor
+            if (term.Arguments.After != null)
+            {
+                var entity = term.Field.Entity;
+                var idValue = CursorUtility.DecodeCursor(entity.DbTableName, term.Arguments.After);
+                var filter = new Arguments.Filter(entity.PrimaryKeyField, new Value(idValue));
+                childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
+                whereParts.Add($"{childTableAlias}.[{filter.Field.DbColumnName}] > @{RegisterTsqlParameter(filter)}");
             }
 
             // Build the complete WHERE clause
             var whereClause = (string)null;
-            if (joinSnips.Count > 0)
+            if (whereParts.Count > 0)
             {
-                whereClause = $"WHERE {string.Join(" AND ", joinSnips)}";
+                whereClause = $"WHERE {string.Join(" AND ", whereParts)}";
             }
 
             return whereClause;
@@ -222,16 +233,22 @@ namespace GraphqlToTsql.Translator
 
         private void EmitOrderByClause(Term term)
         {
-            if (term.Arguments.Offset != null || term.Arguments.First != null)
+            if (term.Arguments.First == null && term.Arguments.Offset == null && term.Arguments.After == null)
             {
-                var entity = term.Field.Entity;
-                var pkColumnName = entity.PrimaryKeyField.DbColumnName;
-                Emit($"ORDER BY {term.TableAlias(_aliasSequence)}.{pkColumnName}");
-                Emit($"OFFSET {term.Arguments.Offset.GetValueOrDefault(0)} ROWS");
-                if (term.Arguments.First != null)
-                {
-                    Emit($"FETCH FIRST {term.Arguments.First} ROWS ONLY");
-                }
+                return;
+            }
+
+            var offset = term.Arguments.Offset.GetValueOrDefault(0);
+            var first = term.Arguments.First;
+
+            var entity = term.Field.Entity;
+            var pkColumnName = entity.PrimaryKeyField.DbColumnName;
+
+            Emit($"ORDER BY {term.TableAlias(_aliasSequence)}.[{pkColumnName}]");
+            Emit($"OFFSET {offset} ROWS");
+            if (first != null)
+            {
+                Emit($"FETCH FIRST {first} ROWS ONLY");
             }
         }
 

@@ -38,7 +38,7 @@ namespace GraphqlToTsql.Entities
                 return field;
             }
 
-            // Look for a Connection (where totalCount and cursors live). TODO: Cursors
+            // Look for a Connection (where totalCount and cursors live)
             if (name.EndsWith(Constants.CONNECTION))
             {
                 var setName = name.Substring(0, name.Length - Constants.CONNECTION.Length);
@@ -58,6 +58,6 @@ namespace GraphqlToTsql.Entities
             throw new InvalidRequestException($"Unknown field: {Name}.{name}", context);
         }
 
-        public Field PrimaryKeyField => GetField(PrimaryKeyFieldName);
+        public virtual Field PrimaryKeyField => GetField(PrimaryKeyFieldName);
     }
 }

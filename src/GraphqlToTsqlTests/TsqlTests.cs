@@ -1,5 +1,6 @@
 ﻿using DemoEntities;
 using GraphqlToTsql.Translator;
+using GraphqlToTsql.Util;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -264,7 +265,7 @@ SELECT
     SELECT
       t1.[Urn] AS [urn]
     FROM [Epc] t1
-    ORDER BY t1.Id
+    ORDER BY t1.[Id]
     OFFSET 10 ROWS
     FETCH FIRST 2 ROWS ONLY
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
@@ -375,6 +376,67 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
             Check(graphQl, null, expectedSql, expectedTsqlParameters);
+        }
+
+
+        [Test]
+        public void FirstAfterTest()
+        {
+            var after = 999;
+            var cursor = CursorUtility.CreateCursor($"{after}|Lot");
+
+            var graphQl = @"
+query InputCursorTest($cursor: String) {
+  products {
+    lotsConnection (first: 3, after: $cursor) {
+      edges {
+        node { lotNumber }
+      }
+    }
+  }
+}
+".Trim();
+            var graphqlParameters = new Dictionary<string, object> { { "cursor", cursor } };
+
+            var expectedSql = @"
+-------------------------------
+-- Operation: InputCursorTest
+-------------------------------
+
+SELECT
+
+  -- products (t1)
+  JSON_QUERY ((
+    SELECT
+
+      -- products.lotsConnection (t2)
+      JSON_QUERY ((
+        SELECT
+
+          -- products.lotsConnection.edges (t2)
+          JSON_QUERY ((
+            SELECT
+
+              -- products.lotsConnection.edges.node (t2)
+              JSON_QUERY ((
+                SELECT
+                  t2.[LotNumber] AS [lotNumber]
+                FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
+            FROM [Lot] t2
+            WHERE t1.[Id] = t2.[ProductId] AND t2.[Id] > @id
+            ORDER BY t2.[Id]
+            OFFSET 0 ROWS
+            FETCH FIRST 3 ROWS ONLY
+            FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [lotsConnection]
+    FROM [Product] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
+
+            var expectedTsqlParameters = new Dictionary<string, object> { { "id", after } };
+
+            Check(graphQl, graphqlParameters, expectedSql, expectedTsqlParameters);
         }
 
         private void Check(

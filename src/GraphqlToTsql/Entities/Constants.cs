@@ -8,7 +8,8 @@
         public const string NODE = "node";
         public const string CURSOR = "cursor";
 
-        public const string OFFSET_ARGUMENT = "offset";
         public const string FIRST_ARGUMENT = "first";
+        public const string OFFSET_ARGUMENT = "offset";
+        public const string AFTER_ARGUMENT = "after";
     }
 }

@@ -10,6 +10,7 @@ namespace GraphqlToTsql.Entities
         public override string Name => $"edge";
         public override string DbTableName => _setField.Entity.DbTableName;
         public override string PrimaryKeyFieldName => throw new Exception("Edges don't have a primary key");
+        public override Field PrimaryKeyField => _setField.Entity.PrimaryKeyField;
 
         internal EdgeEntity(Field setField)
         {

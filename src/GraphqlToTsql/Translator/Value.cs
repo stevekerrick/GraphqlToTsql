@@ -10,7 +10,6 @@ namespace GraphqlToTsql.Translator
         public object RawValue { get; }
         public string TsqlParameterName { get; set; }
 
-
         public Value(GqlParser.ValueContext valueContext)
         {
             switch (valueContext)

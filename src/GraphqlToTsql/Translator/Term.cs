@@ -14,7 +14,8 @@ namespace GraphqlToTsql.Translator
         public Field Field { get; private set; }
         public string Name { get; private set; }
         public TermType TermType { get; private set; }
-        public Arguments Arguments { get; private set; }
+
+        private Arguments _arguments;
         private string _tableAlias;
 
         private Term()
@@ -114,9 +115,24 @@ namespace GraphqlToTsql.Translator
             return path;
         }
 
-        public void AddArgument(string name, Value value)
+        public Arguments Arguments
         {
-            Arguments.Add(Field, name, value);
+            get
+            {
+                // The GraphQL for edges have no arguments -- they appear on the Connection.
+                // But when the TSQL is formed those arguments apply to the edge.
+                return Field.FieldType == FieldType.Edge ? Parent.Arguments : _arguments;
+            }
+            private set
+            {
+                _arguments = value;
+            }
+        }
+
+        public void AddArgument(string name, Value value, Context context)
+        {
+            // 
+            Arguments.Add(Field, name, value, context);
         }
 
         public bool IsFirstChild

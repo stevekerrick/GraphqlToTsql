@@ -105,7 +105,7 @@ namespace GraphqlToTsql.Translator
             else
             {
                 var value = new Value(valueOrVariableContext.value());
-                _qt.Argument(name, value);
+                _qt.Argument(name, value, new Context(context));
             }
         }
 
