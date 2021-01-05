@@ -29,7 +29,8 @@ namespace DemoApp
                 .AddScoped<IListener, Listener>()
                 .AddScoped<IParser, Parser>()
                 .AddScoped<IQueryTreeBuilder, QueryTreeBuilder>()
-                .AddScoped<ITsqlBuilder, TsqlBuilder>();
+                .AddScoped<ITsqlBuilder, TsqlBuilder>()
+                .AddScoped<IDataMutator, DataMutator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

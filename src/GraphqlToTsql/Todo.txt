@@ -6,7 +6,7 @@ Pre-processing of arguments/variables
 Finish DB initialization script
 Rename db to GraphqlToSqlDemoDB
 Add sprocs for children and ancestors and wire them to SET fields on epc
-Add filter params in addition to paging, and to connections. I bet it fails.
+Add tests with filter params in addition to paging, and to connections. I bet it fails.
 Support tables with string PKs
 Support tables with compound PKs
 Claims-based access to tables and fields
