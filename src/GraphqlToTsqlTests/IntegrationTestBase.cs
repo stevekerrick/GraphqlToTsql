@@ -28,7 +28,8 @@ namespace GraphqlToTsqlTests
                 .AddTransient<IParser, Parser>()
                 .AddTransient<IQueryTreeBuilder, QueryTreeBuilder>()
                 .AddTransient<IRunner, Runner>()
-                .AddTransient<ITsqlBuilder, TsqlBuilder>();
+                .AddTransient<ITsqlBuilder, TsqlBuilder>()
+                .AddTransient<IDataMutator, DataMutator>();
 
             _services = serviceCollection.BuildServiceProvider();
         }
