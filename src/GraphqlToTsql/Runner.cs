@@ -8,7 +8,7 @@ namespace GraphqlToTsql
 {
     public interface IRunner
     {
-        Task<RunnerResult> TranslateAndRun(string graphQl, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
+        Task<RunnerResult> TranslateAndRun(string graphql, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
     }
 
     public class Runner : IRunner
@@ -30,10 +30,10 @@ namespace GraphqlToTsql
             _dataMutator = dataMutator;
         }
 
-        public async Task<RunnerResult> TranslateAndRun(string graphQl, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
+        public async Task<RunnerResult> TranslateAndRun(string graphql, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
         {
             // Parse the GraphQL, producing a query tree
-            var parseResult = _parser.ParseGraphql(graphQl, graphqlParameters, entityList);
+            var parseResult = _parser.ParseGraphql(graphql, graphqlParameters, entityList);
             if (parseResult.ParseError != null)
             {
                 return new RunnerResult { ParseError = parseResult.ParseError };

@@ -14,15 +14,15 @@ namespace GraphqlToTsqlTests
         [Test]
         public async Task SimpleQueryTest()
         {
-            const string graphQl = "{ epcs (id: 1) { id } }";
+            const string graphql = "{ epcs (id: 1) { id } }";
             var expectedObject = new { epcs = new[] { new { id = 1 } } };
-            await CheckAsync(graphQl, null, expectedObject);
+            await CheckAsync(graphql, null, expectedObject);
         }
 
-        private async Task CheckAsync(string graphQl, Dictionary<string, object> graphqlParameters, object expectedObject)
+        private async Task CheckAsync(string graphql, Dictionary<string, object> graphqlParameters, object expectedObject)
         {
             var runner = GetService<IRunner>();
-            var runnerResult = await runner.TranslateAndRun(graphQl, graphqlParameters, DemoEntityList.All());
+            var runnerResult = await runner.TranslateAndRun(graphql, graphqlParameters, DemoEntityList.All());
 
             Assert.IsNull(runnerResult.ParseError, $"The parse failed: {runnerResult.ParseError}");
             Console.WriteLine(runnerResult.Tsql);

@@ -14,7 +14,7 @@ namespace GraphqlToTsqlTests
         [Test]
         public void SimpleQueryTest()
         {
-            const string graphQl = "{ epcs { urn } }";
+            const string graphql = "{ epcs { urn } }";
 
             var expectedSql = @"
 SELECT
@@ -30,13 +30,13 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
-            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void AliasTest()
         {
-            const string graphQl = "{ codes: epcs { MyUrl: urn } }";
+            const string graphql = "{ codes: epcs { MyUrl: urn } }";
 
             var expectedSql = @"
 SELECT
@@ -52,13 +52,13 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
-            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void ArgumentTest()
         {
-            const string graphQl = "{ epcs (id: 1) { urn } }";
+            const string graphql = "{ epcs (id: 1) { urn } }";
 
             var expectedSql = @"
 SELECT
@@ -77,13 +77,13 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
                 {"id", 1 }
             };
 
-            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void JoinTest()
         {
-            const string graphQl = "{ epcs { urn product { name } } }";
+            const string graphql = "{ epcs { urn product { name } } }";
 
             var expectedSql = @"
 SELECT
@@ -107,13 +107,13 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
-            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void VariableTest()
         {
-            const string graphQl = "query VariableTest($idVar: ID, $urnVar: String = \"bill\") { epcs (id: $idVar, urn: $urnVar) { urn } }";
+            const string graphql = "query VariableTest($idVar: ID, $urnVar: String = \"bill\") { epcs (id: $idVar, urn: $urnVar) { urn } }";
             var graphqlParameters = new Dictionary<string, object> { { "idVar", 2 } };
 
             var expectedSql = @"
@@ -138,13 +138,13 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
                 { "urnVar", "bill" }
             };
 
-            Check(graphQl, graphqlParameters, expectedSql, expectedTsqlParameters);
+            Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void CalculatedFieldTest()
         {
-            const string graphQl = "{ epcs { urn dispositionName } }";
+            const string graphql = "{ epcs { urn dispositionName } }";
 
             var expectedSql = @"
 SELECT
@@ -161,14 +161,14 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
-            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void FragmentTest()
         {
             //TODO: Implement enough of a type system so that the fragment can be defined for the type "Epc" (not "epc")
-            var graphQl = @"
+            var graphql = @"
 { epcs { ... frag} }
 fragment frag on epc { urn }
 ".Trim();
@@ -187,13 +187,13 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
-            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void ComplicatedQueryTest()
         {
-            var graphQl = @"
+            var graphql = @"
 query jojaCola ($urn: string) {
   product1: product (urn: $urn) {
     name urn
@@ -212,7 +212,7 @@ query jojaCola ($urn: string) {
 ".Trim();
             var graphqlParameters = new Dictionary<string, object> { { "urn", "urn:epc:idpat:sgtin:258643.3704146.*" } };
 
-            var result = Translate(graphQl, graphqlParameters);
+            var result = Translate(graphql, graphqlParameters);
             var tsql = result.Tsql;
             Assert.IsTrue(tsql.Contains("jojaCola"));
             Assert.IsTrue(tsql.Contains("Product"));
@@ -225,7 +225,7 @@ query jojaCola ($urn: string) {
         [Test]
         public void TotalCountTest()
         {
-            var graphQl = @"
+            var graphql = @"
 { products { urn lotsConnection { totalCount } } }
 ".Trim();
 
@@ -249,13 +249,13 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
-            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void FirstOffsetTest()
         {
-            const string graphQl = "{ epcs (offset: 10, first: 2) { urn } }";
+            const string graphql = "{ epcs (offset: 10, first: 2) { urn } }";
 
             var expectedSql = @"
 SELECT
@@ -274,13 +274,13 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
-            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void EdgeNodeTest()
         {
-            var graphQl = @"
+            var graphql = @"
 {
   products (urn: ""urn:epc:idpat:sgtin:258643.3704146.*"") {
     urn lotsConnection {
@@ -325,13 +325,13 @@ SELECT
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
             var expectedTsqlParameters = new Dictionary<string, object> { { "urn", "urn:epc:idpat:sgtin:258643.3704146.*" } };
 
-            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
         [Test]
         public void OutputCursorTest()
         {
-            var graphQl = @"
+            var graphql = @"
 {
   products {
     lotsConnection {
@@ -375,9 +375,8 @@ SELECT
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
-            Check(graphQl, null, expectedSql, expectedTsqlParameters);
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
-
 
         [Test]
         public void FirstAfterTest()
@@ -385,7 +384,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
             var after = 999;
             var cursor = CursorUtility.CreateCursor($"{after}|Lot");
 
-            var graphQl = @"
+            var graphql = @"
 query InputCursorTest($cursor: String) {
   products {
     lotsConnection (first: 3, after: $cursor) {
@@ -436,16 +435,16 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
 
             var expectedTsqlParameters = new Dictionary<string, object> { { "id", after } };
 
-            Check(graphQl, graphqlParameters, expectedSql, expectedTsqlParameters);
+            Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
         }
 
         private void Check(
-            string graphQl,
-            Dictionary<string, object> variables,
+            string graphql,
+            Dictionary<string, object> graphqlParameters,
             string expectedSql,
             Dictionary<string, object> expectedTsqlParameters)
         {
-            var result = Translate(graphQl, variables);
+            var result = Translate(graphql, graphqlParameters);
 
             // Show the difference between Expected and Actual Tsql
             expectedSql = expectedSql.TrimEnd();
@@ -503,19 +502,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
                 }
             }
             Assert.IsTrue(errorCount == 0, $"{errorCount} Tsql Parameter errors");
-        }
-
-        private TsqlResult Translate(string graphQl, Dictionary<string, object> graphqlParameters)
-        {
-            var parser = GetService<IParser>();
-            var parseResult = parser.ParseGraphql(graphQl, graphqlParameters, DemoEntityList.All());
-            Assert.IsNull(parseResult.ParseError, $"Parse failed: {parseResult.ParseError}");
-
-            var tsqlBuilder = GetService<ITsqlBuilder>();
-            var tsqlResult = tsqlBuilder.Build(parseResult);
-            Assert.IsNull(tsqlResult.TsqlError, $"TSQL generation failed: {tsqlResult.TsqlError}");
-
-            return tsqlResult;
         }
     }
 }

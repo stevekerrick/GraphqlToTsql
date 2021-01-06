@@ -10,7 +10,7 @@ namespace GraphqlToTsql.Translator
 {
     public interface IParser
     {
-        ParseResult ParseGraphql(string graphQl, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
+        ParseResult ParseGraphql(string graphql, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
     }
 
     public class Parser : IParser
@@ -24,12 +24,12 @@ namespace GraphqlToTsql.Translator
         }
 
         public ParseResult ParseGraphql(
-            string graphQl,
+            string graphql,
             Dictionary<string, object> graphqlParameters,
             List<EntityBase> entityList)
         {
             // Set up code-generated GqlParser
-            var stream = new AntlrInputStream(graphQl);
+            var stream = new AntlrInputStream(graphql);
             var lexer = new GqlLexer(stream);
             var tokenStream = new CommonTokenStream(lexer);
 

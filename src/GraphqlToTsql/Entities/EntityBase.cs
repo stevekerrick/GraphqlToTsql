@@ -50,11 +50,6 @@ namespace GraphqlToTsql.Entities
                 }
             }
 
-            // Parse-related errors are from bad input. Others are Entity errors.
-            if (context == null)
-            {
-                throw new Exception($"Unknown field: {Name}.{name}");
-            }
             throw new InvalidRequestException($"Unknown field: {Name}.{name}", context);
         }
 
