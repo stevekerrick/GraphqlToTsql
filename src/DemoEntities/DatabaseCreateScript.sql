@@ -1,13 +1,13 @@
 USE [master]
 GO
 
-DROP DATABASE IF EXISTS [GraphqlToTsqlTests]
+DROP DATABASE IF EXISTS [GraphqlToTsqlDemoDB]
 GO
 
-CREATE DATABASE [GraphqlToTsqlTests]
+CREATE DATABASE [GraphqlToTsqlDemoDB]
 GO
 
-USE [GraphqlToTsqlTests]
+USE [GraphqlToTsqlDemoDB]
 GO
 
 CREATE TABLE Disposition (

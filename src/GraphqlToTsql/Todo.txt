@@ -7,7 +7,6 @@ Throw exception if arguments are used on edges or node
 Throw exception if arguments are used on fields
 Pre-processing of arguments/variables
 Finish DB initialization script
-Rename db to GraphqlToSqlDemoDB
 Add sprocs for children and ancestors and wire them to SET fields on epc
 Support tables with string PKs
 Support tables with compound PKs
