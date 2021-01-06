@@ -2,6 +2,7 @@
 using GraphqlToTsql.Entities;
 using GraphqlToTsql.Translator;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace GraphqlToTsql
@@ -32,35 +33,57 @@ namespace GraphqlToTsql
 
         public async Task<RunnerResult> TranslateAndRun(string graphql, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
         {
+            var sw = new Stopwatch();
+
             // Parse the GraphQL, producing a query tree
+            sw.Restart();
             var parseResult = _parser.ParseGraphql(graphql, graphqlParameters, entityList);
             if (parseResult.ParseError != null)
             {
                 return new RunnerResult { ParseError = parseResult.ParseError };
             }
+            var parseElapsedTime = sw.ElapsedMilliseconds;
 
             // Create TSQL
+            sw.Restart();
             var tsqlResult = _tsqlBuilder.Build(parseResult);
             if (tsqlResult.TsqlError != null)
             {
                 return new RunnerResult { ParseError = tsqlResult.TsqlError };
             }
+            var tsqlElapsedTime = sw.ElapsedMilliseconds;
 
             // Execute the TSQL
+            sw.Restart();
             var dbResult = await _dbAccess.QueryAsync(tsqlResult.Tsql, tsqlResult.TsqlParameters);
+            var dbElapsedTime = sw.ElapsedMilliseconds;
 
             // Perform targeted field-level mutations in the data
+            var mutationsElapsedTime = (long?)null;
             if (dbResult.DbError == null)
             {
+                sw.Restart();
                 dbResult.DataJson = _dataMutator.Mutate(dbResult.DataJson, parseResult.TopTerm);
+                mutationsElapsedTime = sw.ElapsedMilliseconds;
             }
+
+            // Gather statistics
+            var statistics = new List<Statistic>
+            {
+                new Statistic("Parse GraphQL (ms)", parseElapsedTime),
+                new Statistic("Create TSQL (ms)", tsqlElapsedTime),
+                new Statistic("Execute TSQL (ms)", dbElapsedTime),
+                new Statistic("Patch resulting data (ms)", mutationsElapsedTime)
+            };
+            statistics.AddRange(dbResult.Statistics);
 
             return new RunnerResult
             {
                 Tsql = tsqlResult.Tsql,
                 TsqlParameters = tsqlResult.TsqlParameters,
                 DataJson = dbResult.DataJson,
-                DbError = dbResult.DbError
+                DbError = dbResult.DbError,
+                Statistics = statistics
             };
         }
     }

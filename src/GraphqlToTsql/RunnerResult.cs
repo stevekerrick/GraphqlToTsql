@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using GraphqlToTsql.Database;
+using System.Collections.Generic;
 
 namespace GraphqlToTsql
 {
@@ -10,5 +11,6 @@ namespace GraphqlToTsql
         public string ParseError { get; set; }
         public string DbError { get; set; }
         public bool IsSuccessful => string.IsNullOrWhiteSpace(ParseError) || string.IsNullOrWhiteSpace(DbError);
+        public List<Statistic> Statistics { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using DemoEntities;
 using GraphqlToTsql;
+using GraphqlToTsql.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -46,7 +47,8 @@ namespace DemoApp.Pages
                 Tsql = runnerResult.Tsql,
                 TsqlParametersJson = ToFormattedJson(runnerResult.TsqlParameters),
                 DataJson = ToFormattedJson(Deserialize(runnerResult.DataJson)),
-                Error = runnerResult.ParseError ?? runnerResult.DbError
+                Error = runnerResult.ParseError ?? runnerResult.DbError,
+                Statistics = runnerResult.Statistics
             };
         }
 
@@ -69,6 +71,7 @@ namespace DemoApp.Pages
             public string DataJson { get; set; }
             public string Error { get; set; }
             public bool IsSuccess => Error == null;
+            public List<Statistic> Statistics { get; set; }
         }
     }
 

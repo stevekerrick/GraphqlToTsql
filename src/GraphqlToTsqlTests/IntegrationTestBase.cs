@@ -13,7 +13,7 @@ namespace GraphqlToTsqlTests
     public abstract class IntegrationTestBase
     {
         private IServiceProvider _services;
-        
+
         [OneTimeSetUp]
         public void Init()
         {
@@ -33,19 +33,6 @@ namespace GraphqlToTsqlTests
                 .AddTransient<IDataMutator, DataMutator>();
 
             _services = serviceCollection.BuildServiceProvider();
-        }
-
-        protected TsqlResult Translate(string graphql, Dictionary<string, object> graphqlParameters)
-        {
-            var parser = GetService<IParser>();
-            var parseResult = parser.ParseGraphql(graphql, graphqlParameters, DemoEntityList.All());
-            Assert.IsNull(parseResult.ParseError, $"Parse failed: {parseResult.ParseError}");
-
-            var tsqlBuilder = GetService<ITsqlBuilder>();
-            var tsqlResult = tsqlBuilder.Build(parseResult);
-            Assert.IsNull(tsqlResult.TsqlError, $"TSQL generation failed: {tsqlResult.TsqlError}");
-
-            return tsqlResult;
         }
 
         protected T GetService<T>()

@@ -503,5 +503,18 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
             }
             Assert.IsTrue(errorCount == 0, $"{errorCount} Tsql Parameter errors");
         }
+
+        private TsqlResult Translate(string graphql, Dictionary<string, object> graphqlParameters)
+        {
+            var parser = GetService<IParser>();
+            var parseResult = parser.ParseGraphql(graphql, graphqlParameters, DemoEntityList.All());
+            Assert.IsNull(parseResult.ParseError, $"Parse failed: {parseResult.ParseError}");
+
+            var tsqlBuilder = GetService<ITsqlBuilder>();
+            var tsqlResult = tsqlBuilder.Build(parseResult);
+            Assert.IsNull(tsqlResult.TsqlError, $"TSQL generation failed: {tsqlResult.TsqlError}");
+
+            return tsqlResult;
+        }
     }
 }
