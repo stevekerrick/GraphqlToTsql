@@ -43,11 +43,22 @@
         <div class="col-8 h-100">
             <ul class="nav nav-tabs">
                 <li v-for="(tab, index) in resultTabs" :key="tab" class="nav-item">
-                    <a class="nav-link" :class="{ active: index === resultTab, disabled: index === 5 && result && !result.error }" href="#" v-on:click="selectResultTab(index)">{{ tab }}</a>
+                    <a class="nav-link" :class="{ active: index === resultTab, disabled: (index === 5 && result && !result.error) || (index === 6 && result && !result.statistics) }" href="#" v-on:click="selectResultTab(index)">{{ tab }}</a>
                 </li>
             </ul>
             <div class="result-text-container">
-                <textarea readonly v-model="resultText"></textarea>
+                <textarea v-model="result.graphql" v-show="resultTab === 0"></textarea>
+                <textarea v-model="result.graphqlParameters" v-show="resultTab === 1"></textarea>
+                <textarea v-model="result.tsql" v-show="resultTab === 2"></textarea>
+                <textarea v-model="result.tsqlParameters" v-show="resultTab === 3"></textarea>
+                <textarea v-model="result.data" v-show="resultTab === 4"></textarea>
+                <textarea v-model="result.error" v-show="resultTab === 5"></textarea>
+                <div v-model="result.statistics" v-show="resultTab === 6">
+                    <div v-for="stat in result.statistics" :key="stat.name" class="statistic">
+                        <div>{{stat.name}}</div>
+                        <div>{{stat.value}}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -101,7 +112,7 @@
                         data: data.dataJson,
                         isSuccess: data.isSuccess,
                         error: data.error,
-                        statistics: JSON.stringify(data.statistics, null, 2),
+                        statistics: data.statistics,
                         key: Date.now()
                     }
                     vm.result = result;
@@ -150,28 +161,6 @@
             selectResult: function (r) {
                 this.result = r;
             }
-        },
-        computed: {
-            resultText: function () {
-                var text = "";
-                if (this.result) {
-                    if (this.resultTab === 0)
-                        text = this.result.graphql;
-                    else if (this.resultTab === 1)
-                        text = this.result.graphqlParameters;
-                    else if (this.resultTab === 2)
-                        text = this.result.tsql;
-                    else if (this.resultTab === 3)
-                        text = this.result.tsqlParameters;
-                    else if (this.resultTab === 4)
-                        text = this.result.data;
-                    else if (this.resultTab === 5)
-                        text = this.result.error;
-                    else if (this.resultTab === 6)
-                        text = this.result.statistics;
-                }
-                return text;
-            }
         }
     });
 
@@ -218,6 +207,10 @@
     }
     .result-card.error {
         border-color: red;
+    }
+    .statistic div {
+        display: inline-block;
+        width: 14em;
     }
 </style>
 }
