@@ -76,7 +76,7 @@
             results: [],
             result: null,
             inputTab: 0,
-            resultTabs: ["GraphQL", "Params", "TSQL", "Tsql Params", "Data", "Error"],
+            resultTabs: ["GraphQL", "Params", "TSQL", "Tsql Params", "Data", "Error", "Stats"],
             resultTab: 0
         },
         methods: {
@@ -101,6 +101,7 @@
                         data: data.dataJson,
                         isSuccess: data.isSuccess,
                         error: data.error,
+                        statistics: JSON.stringify(data.statistics, null, 2),
                         key: Date.now()
                     }
                     vm.result = result;
@@ -166,6 +167,8 @@
                         text = this.result.data;
                     else if (this.resultTab === 5)
                         text = this.result.error;
+                    else if (this.resultTab === 6)
+                        text = this.result.statistics;
                 }
                 return text;
             }
