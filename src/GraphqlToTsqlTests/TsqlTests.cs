@@ -26,7 +26,7 @@ SELECT
     FROM [Epc] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
@@ -48,7 +48,7 @@ SELECT
     FROM [Epc] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [codes]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
@@ -71,7 +71,7 @@ SELECT
     WHERE t1.[Id] = @id
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object> {
                 {"id", 1 }
@@ -103,7 +103,7 @@ SELECT
     FROM [Epc] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
@@ -131,7 +131,7 @@ SELECT
     WHERE t1.[Id] = @idVar AND t1.[Urn] = @urnVar
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object> {
                 { "idVar", 2 },
@@ -157,7 +157,7 @@ SELECT
     FROM [Epc] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
@@ -183,7 +183,7 @@ SELECT
     FROM [Epc] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
@@ -245,7 +245,7 @@ SELECT
     FROM [Product] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
@@ -270,7 +270,7 @@ SELECT
     FETCH FIRST 2 ROWS ONLY
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
@@ -322,7 +322,8 @@ SELECT
     WHERE t1.[Urn] = @urn
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
             var expectedTsqlParameters = new Dictionary<string, object> { { "urn", "urn:epc:idpat:sgtin:258643.3704146.*" } };
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
@@ -372,7 +373,8 @@ SELECT
     FROM [Product] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
@@ -431,7 +433,8 @@ SELECT
     FROM [Product] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
 
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER".Trim();
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
 
             var expectedTsqlParameters = new Dictionary<string, object> { { "id", after } };
 

@@ -70,12 +70,14 @@ namespace GraphqlToTsql
             // Gather statistics
             var statistics = new List<Statistic>
             {
-                new Statistic("Parse GraphQL (ms)", parseElapsedTime),
-                new Statistic("Create TSQL (ms)", tsqlElapsedTime),
-                new Statistic("Execute TSQL (ms)", dbElapsedTime),
-                new Statistic("Patch resulting data (ms)", mutationsElapsedTime)
+                new Statistic("1. Parse GraphQL (ms)", parseElapsedTime),
+                new Statistic("2. Form TSQL (ms)", tsqlElapsedTime),
+                new Statistic("3. Execute TSQL (ms)", dbElapsedTime),
+                new Statistic(">> Actual Database Time (ms)", dbResult.DatabaseQueryTime),
+                new Statistic(">> Query Size (chars)", tsqlResult.Tsql.Length),
+                new Statistic(">> Result Size (chars)", dbResult.DataJson?.Length),
+                new Statistic("4. Tweak Result (ms)", mutationsElapsedTime)
             };
-            statistics.AddRange(dbResult.Statistics);
 
             return new RunnerResult
             {

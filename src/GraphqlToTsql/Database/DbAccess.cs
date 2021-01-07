@@ -16,15 +16,6 @@ namespace GraphqlToTsql.Database
     {
         private readonly string _connectionString;
 
-        private static readonly (string, string)[] _statisticKeys = new[]
-        {
-            ("BytesSent", "Bytes sent to DB"),
-            ("BytesReceived", "Bytes received from DB"),
-            ("ConnectionTime", "DB connection time (ms)"),
-            ("ExecutionTime", "DB execution time (ms)"),
-            ("NetworkServerTime", "DB network server time (ms)")
-        };
-
         public DbAccess(
             IConnectionStringProvider connectionStringProvider)
         {
@@ -50,23 +41,31 @@ namespace GraphqlToTsql.Database
             string tsql,
             Dictionary<string, object> tsqlParameters)
         {
+            var timedQuery = $@"
+DECLARE @startTime DATETIME = GETDATE();
+
+{tsql}
+
+SELECT DATEDIFF(millisecond, @startTime, GETDATE()) AS databaseQueryTime;
+";
+
             var dapperTsqlParameters = ConvertTsqlParameters(tsqlParameters);
             var parameters = new DynamicParameters(dapperTsqlParameters);
 
             using (var connection = new SqlConnection(_connectionString))
+            using (var reader = await connection.QueryMultipleAsync(timedQuery, parameters))
             {
-                connection.StatisticsEnabled = true;
-
                 // Dapper returns long strings in chunks
-                var dataJsonSegments = await connection.QueryAsync<string>(tsql, parameters);
+                var dataJsonSegments = await reader.ReadAsync<string>();
                 var dataJson = string.Concat(dataJsonSegments);
 
-                var statistics = GetStatistics(connection.RetrieveStatistics());
+                // Read the milliseconds spent to execute the query
+                var databaseQueryTime = await reader.ReadFirstAsync<int>();
 
                 return new DbResult
                 {
                     DataJson = dataJson,
-                    Statistics = statistics
+                    DatabaseQueryTime = databaseQueryTime
                 };
             }
         }
@@ -86,45 +85,6 @@ namespace GraphqlToTsql.Database
             }
 
             return dapperTsqlParameters;
-        }
-
-        private static List<Statistic> GetStatistics(IDictionary connectionStatistics)
-        {
-            var statistics = new List<Statistic>();
-
-            foreach (var statisticKey in _statisticKeys)
-            {
-                var value = GetValue(connectionStatistics, statisticKey.Item1);
-                statistics.Add(new Statistic(statisticKey.Item2, value));
-            }
-
-            return statistics;
-        }
-
-        private static long? GetValue(IDictionary connectionStatistics, string key)
-        {
-            if (!connectionStatistics.Contains(key))
-            {
-                return null;
-            }
-
-            var rawValue = connectionStatistics[key];
-            if (rawValue == null)
-            {
-                return null;
-            }
-
-            if (rawValue is int intValue)
-            {
-                return intValue;
-            }
-
-            if (rawValue is long longValue)
-            {
-                return longValue;
-            }
-
-            return null;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿Add tests with filter params in addition to paging, and to connections. I bet it fails.
 
-
 Unit tests for other Translator components
 Support multi-tenant
 Throw exception if arguments are used on edges or node
@@ -16,4 +15,3 @@ Make cursors type Cursor
 Add github readme notes
 Write survey of competing projects
 In DemoApp prepopulate several interesting queries
-Try to capture db statistics, and return them in the Result object

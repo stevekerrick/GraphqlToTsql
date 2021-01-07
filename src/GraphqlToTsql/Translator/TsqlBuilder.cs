@@ -57,7 +57,7 @@ namespace GraphqlToTsql.Translator
             BuildSelectClause(parseResult.TopTerm);
 
             Emit("");
-            Emit($"{FOR_JSON}{UNWRAP_ITEM}");
+            Emit($"{FOR_JSON}{UNWRAP_ITEM};");
 
             return new TsqlResult
             {
