@@ -14,32 +14,8 @@ namespace GraphqlToTsqlTests
         [Test]
         public async Task SimpleQueryTest()
         {
-            //const string graphql = "{ epcs (id: 1) { id } }";
-
-            var graphql = @"
-query jojaCola ($urn: string) {
-  product1: product (urn: $urn) {
-    name urn
-    lots {
-      lotNumber expirationDate
-      epcs {
-        urn disposition { name }
-        bizLocation { urn name }
-        readPoint { urn name }
-        lastUpdate
-        children { urn disposition { name } }
-      }
-    }
-  }
-}
-".Trim();
-            var graphqlParameters = new Dictionary<string, object> { { "urn", "urn:epc:idpat:sgtin:258643.3704146.*" } };
-
-
-
-
-
-
+            const string graphql = "{ epcs (id: 1) { id } }";
+            var graphqlParameters = new Dictionary<string, object> { };
 
             var expectedObject = new { epcs = new[] { new { id = 1 } } };
             await CheckAsync(graphql, graphqlParameters, expectedObject);

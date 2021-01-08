@@ -131,6 +131,31 @@ fragment frag on Arggh { urn }
             ParseShouldFail(graphql, null, "Variable [$Arggh] is not declared");
         }
 
+        [Test]
+        public void ArgumentOnEdgeTest()
+        {
+            const string graphql = "{ products { lotsConnection { edges(cursor: \"hi\") { cursor } } } }";
+
+            ParseShouldFail(graphql, null, "Arguments are not allowed on [edges]");
+        }
+
+        [Test]
+        public void ArgumentOnNodeTest()
+        {
+            const string graphql = "{ products { lotsConnection { edges { node(id: 1) { lotNumber } } } } }";
+
+            ParseShouldFail(graphql, null, "Arguments are not allowed on [node]");
+        }
+
+        [Test]
+        public void ArgumentWithoutNameTest()
+        {
+            // Funny, but our GQL language allows this malformed query, so we throw our own exception
+            const string graphql = "{ epcs (id = 1) { id } }";
+
+            ParseShouldFail(graphql, null, "Arguments should be formed like (id: 1)");
+        }
+
         // The QueryBuilder is also exercised in the Parse step, and that's really where most of the errors are being found
         private void ParseShouldFail(
             string graphql,

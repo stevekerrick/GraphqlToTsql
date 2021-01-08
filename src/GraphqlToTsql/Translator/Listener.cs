@@ -97,6 +97,11 @@ namespace GraphqlToTsql.Translator
             var name = context.NAME().GetText();
 
             var valueOrVariableContext = context.valueOrVariable();
+            if (valueOrVariableContext == null)
+            {
+                throw new InvalidRequestException($"Arguments should be formed like (id: 1)", new Context(context));
+            }
+
             if (valueOrVariableContext.variable() != null)
             {
                 var variableName = valueOrVariableContext.variable().children[1].GetText();

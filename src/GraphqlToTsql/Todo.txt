@@ -2,7 +2,6 @@
 
 Unit tests for other Translator components
 Support multi-tenant
-Throw exception if arguments are used on edges or node
 Throw exception if arguments are used on fields
 Pre-processing of arguments/variables
 Finish DB initialization script
