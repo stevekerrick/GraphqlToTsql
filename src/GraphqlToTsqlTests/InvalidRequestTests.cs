@@ -156,6 +156,14 @@ fragment frag on Arggh { urn }
             ParseShouldFail(graphql, null, "Arguments should be formed like (id: 1)");
         }
 
+        [Test]
+        public void ArgumentOnFieldTest()
+        {
+            const string graphql = "{ products { urn (showAs: \"hex\") } }";
+
+            ParseShouldFail(graphql, null, "Arguments are not allowed on [urn]");
+        }
+
         // The QueryBuilder is also exercised in the Parse step, and that's really where most of the errors are being found
         private void ParseShouldFail(
             string graphql,
