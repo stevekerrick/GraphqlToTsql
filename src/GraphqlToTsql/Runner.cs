@@ -73,9 +73,9 @@ namespace GraphqlToTsql
                 new Statistic("1. Parse GraphQL (ms)", parseElapsedTime),
                 new Statistic("2. Form TSQL (ms)", tsqlElapsedTime),
                 new Statistic("3. Execute TSQL (ms)", dbElapsedTime),
-                new Statistic(">> Actual Database Time (ms)", dbResult.DatabaseQueryTime),
-                new Statistic(">> Query Size (chars)", tsqlResult.Tsql.Length),
-                new Statistic(">> Result Size (chars)", dbResult.DataJson?.Length),
+                new Statistic(" . . . Actual Database Time (ms)", dbResult.DatabaseQueryTime),
+                new Statistic(" . . . Query Size (chars)", tsqlResult.Tsql.Length),
+                new Statistic(" . . . Result Size (chars)", dbResult.DataJson?.Length),
                 new Statistic("4. Tweak Result (ms)", mutationsElapsedTime)
             };
 

@@ -8,8 +8,16 @@
     @Html.AntiForgeryToken()
 
     <div class="row input-row">
-        <div class="col-3"></div>
-        <div class="col-6">
+        <div class="col-4 mt-5 text-right">
+            <div v-for="pbq in prebuiltQueries"
+                 :key="pbq.name"
+                 class="pbq px-1 pb-1 mx-1"
+                 :class="{selected: pbq == selectedPrebuiltQuery}"
+                 v-on:click="selectPrebuiltQuery(pbq)">
+                 <span v-tooltip="pbq.description">{{pbq.name}}</span>
+            </div>
+        </div>
+        <div class="col-8">
             <ul class="nav nav-tabs">
                 <li class="nav-item">
                     <a class="nav-link" :class="{ active: inputTab === 0 }" href="#" v-on:click="selectInputTab(0)">GraphQL</a>
@@ -23,20 +31,18 @@
                 <textarea v-model="graphqlParameters" v-show="inputTab === 1"></textarea>
             </div>
         </div>
-        <div class="col-3"></div>
     </div>
 
     <div class="row input-button-row">
-        <div class="col-3"></div>
-        <div class="col-6 mt-1">
-            <a v-on:click="run" href="#" class="command-link">Run Query</a>
+        <div class="col-4"></div>
+        <div class="col-8 mt-1">
+            <button class="btn btn-sm btn-primary" v-on:click="run">Run Query</button>
         </div>
-        <div class="col-3"></div>
     </div>
 
     <div class="row mt-3 pt-3 results-row" v-if="results.length > 0">
         <div class="col-4 scroll-panel">
-            <div v-for="r in results" :key="r.key" class="result-card p-2 mt-2" :class="{selected: r === result, error: r.error}" v-on:click="selectResult(r)">
+            <div v-for="r in results" :key="r.key" class="result-card p-1 mt-2" :class="{selected: r === result, error: r.error}" v-on:click="selectResult(r)">
                 {{r.error || r.oneLineGraphql}}
             </div>
         </div>
@@ -47,13 +53,13 @@
                 </li>
             </ul>
             <div class="result-text-container">
-                <textarea v-model="result.graphql" v-show="resultTab === 0"></textarea>
-                <textarea v-model="result.graphqlParameters" v-show="resultTab === 1"></textarea>
-                <textarea v-model="result.tsql" v-show="resultTab === 2"></textarea>
-                <textarea v-model="result.tsqlParameters" v-show="resultTab === 3"></textarea>
-                <textarea v-model="result.data" v-show="resultTab === 4"></textarea>
-                <textarea v-model="result.error" v-show="resultTab === 5"></textarea>
-                <div v-model="result.statistics" v-show="resultTab === 6">
+                <textarea readonly v-model="result.graphql" v-show="resultTab === 0"></textarea>
+                <textarea readonly v-model="result.graphqlParameters" v-show="resultTab === 1"></textarea>
+                <textarea readonly v-model="result.tsql" v-show="resultTab === 2"></textarea>
+                <textarea readonly v-model="result.tsqlParameters" v-show="resultTab === 3"></textarea>
+                <textarea readonly v-model="result.data" v-show="resultTab === 4"></textarea>
+                <textarea readonly v-model="result.error" v-show="resultTab === 5"></textarea>
+                <div class="statistics scroll-panel p-1" v-show="resultTab === 6">
                     <div v-for="stat in result.statistics" :key="stat.name" class="statistic">
                         <div>{{stat.name}}</div>
                         <div>{{stat.value}}</div>
@@ -65,8 +71,34 @@
 </div>
 
 @section Scripts {
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/popper.js"></script>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/v-tooltip@2.0.2"></script>
 
+<script>
+    // Prebuilt queries
+    var simpleQuery = `{
+  epc (id: 1) {
+    id
+  }
+}`;
+    var productLotsQuery = `query ProductLots ($urn: String) {
+  product (urn: $urn) {
+    name lots {
+      lotNumber expirationDate epcsConnection {
+        epcCount: totalCount
+      }
+    }
+  }
+}`;
+
+    var prebuiltQueries = [
+        { name: "empty", description: "clears the workspace", graphql: "", graphqlParameters: "" },
+        { name: "simple", description: "simplest possible query", graphql: simpleQuery, graphqlParameters: "" },
+        { name: "product lots", description: "highlights totalCount", graphql: productLotsQuery, graphqlParameters: '{ urn: "urn:epc:idpat:sgtin:258643.3704146.*" }' }
+    ];
+
+</script>
 <script>
 
     function stringToObject(objectString) {
@@ -82,8 +114,10 @@
     var app = new Vue({
         el: "#app",
         data: {
-            graphql: "{ epc(id: 1) { id }}",
-            graphqlParameters: "{\n  a: 1\n}",
+            prebuiltQueries: prebuiltQueries,
+            selectedPrebuiltQuery: null,
+            graphql: "",
+            graphqlParameters: "",
             results: [],
             result: null,
             inputTab: 0,
@@ -160,7 +194,15 @@
             },
             selectResult: function (r) {
                 this.result = r;
+            },
+            selectPrebuiltQuery: function (pbq) {
+                this.selectedPrebuiltQuery = pbq;
+                this.graphql = pbq.graphql;
+                this.graphqlParameters = pbq.graphqlParameters;
             }
+        },
+        mounted: function () {
+            this.selectPrebuiltQuery(this.prebuiltQueries[1]);
         }
     });
 
@@ -182,6 +224,15 @@
         padding: .5em;
         border-color: lightgray;
     }
+    .pbq { 
+        display: inline-block; 
+        border: 1px solid grey; 
+        border-radius: 1em; 
+        background-color: whitesmoke; 
+        cursor: pointer;
+        font-size: smaller;
+    }
+    .pbq.selected { background-color: white; }
     .input-row { height: calc(48% - 1em); }
     .input-controls { height: calc(100% - 37px); }
     .input-button-row { height: 2em; }
@@ -201,6 +252,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        font-size: smaller;
     }
     .result-card.selected {
         background-color: whitesmoke;
@@ -208,9 +260,106 @@
     .result-card.error {
         border-color: red;
     }
+    .statistics {
+        background-color: white;
+    }
     .statistic div {
         display: inline-block;
         width: 15em;
+    }
+</style>
+<style>
+    .tooltip {
+      display: block !important;
+      z-index: 10000;
+    }
+
+    .tooltip .tooltip-inner {
+      background: black;
+      color: white;
+      border-radius: 16px;
+      padding: 5px 10px 4px;
+    }
+
+    .tooltip .tooltip-arrow {
+      width: 0;
+      height: 0;
+      border-style: solid;
+      position: absolute;
+      margin: 5px;
+      border-color: black;
+    }
+
+    .tooltip[x-placement^="top"] {
+      margin-bottom: 10px;
+    }
+
+    .tooltip[x-placement^="top"] .tooltip-arrow {
+      border-width: 5px 5px 0 5px;
+      border-left-color: transparent !important;
+      border-right-color: transparent !important;
+      border-bottom-color: transparent !important;
+      bottom: -5px;
+      left: calc(50% - 5px);
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    .tooltip[x-placement^="bottom"] {
+      margin-top: 5px;
+    }
+
+    .tooltip[x-placement^="bottom"] .tooltip-arrow {
+      border-width: 0 5px 5px 5px;
+      border-left-color: transparent !important;
+      border-right-color: transparent !important;
+      border-top-color: transparent !important;
+      top: -5px;
+      left: calc(50% - 5px);
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    .tooltip[x-placement^="right"] {
+      margin-left: 5px;
+    }
+
+    .tooltip[x-placement^="right"] .tooltip-arrow {
+      border-width: 5px 5px 5px 0;
+      border-left-color: transparent !important;
+      border-top-color: transparent !important;
+      border-bottom-color: transparent !important;
+      left: -5px;
+      top: calc(50% - 5px);
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .tooltip[x-placement^="left"] {
+      margin-right: 5px;
+    }
+
+    .tooltip[x-placement^="left"] .tooltip-arrow {
+      border-width: 5px 0 5px 5px;
+      border-top-color: transparent !important;
+      border-right-color: transparent !important;
+      border-bottom-color: transparent !important;
+      right: -5px;
+      top: calc(50% - 5px);
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .tooltip[aria-hidden='true'] {
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity .15s, visibility .15s;
+    }
+
+    .tooltip[aria-hidden='false'] {
+      visibility: visible;
+      opacity: 1;
+      transition: opacity .15s;
     }
 </style>
 }

@@ -1,6 +1,5 @@
 ﻿using DemoEntities;
 using GraphqlToTsql;
-using GraphqlToTsql.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
