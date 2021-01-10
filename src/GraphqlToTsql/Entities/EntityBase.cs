@@ -50,6 +50,14 @@ namespace GraphqlToTsql.Entities
                 }
             }
 
+            // If this is a Connection entity, allow filtering arguments on Edges.Node
+            if (GetType() == typeof(ConnectionEntity))
+            {
+                var edgesField = GetField(Constants.EDGES);
+                var nodeField = edgesField.Entity.GetField(Constants.NODE);
+                return nodeField.Entity.GetField(name, context);
+            }
+
             throw new InvalidRequestException($"Unknown field: {Name}.{name}", context);
         }
 

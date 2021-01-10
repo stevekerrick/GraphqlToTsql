@@ -387,7 +387,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             var cursor = CursorUtility.CreateCursor($"{after}|Lot");
 
             var graphql = @"
-query InputCursorTest($cursor: String) {
+query FirstAfterTest($cursor: String) {
   products {
     lotsConnection (first: 3, after: $cursor) {
       edges {
@@ -401,7 +401,7 @@ query InputCursorTest($cursor: String) {
 
             var expectedSql = @"
 -------------------------------
--- Operation: InputCursorTest
+-- Operation: FirstAfterTest
 -------------------------------
 
 SELECT
@@ -437,6 +437,93 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
 
             var expectedTsqlParameters = new Dictionary<string, object> { { "id", after } };
+
+            Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
+        }
+
+        [Test]
+        public void FirstOffsetWithFilterTest()
+        {
+            const string graphql = "{ epcs (offset: 10, first: 2, dispositionId: 99) { urn } }";
+
+            var expectedSql = @"
+SELECT
+
+  -- epcs (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Urn] AS [urn]
+    FROM [Epc] t1
+    WHERE t1.[DispositionId] = @dispositionId
+    ORDER BY t1.[Id]
+    OFFSET 10 ROWS
+    FETCH FIRST 2 ROWS ONLY
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object> { { "dispositionId", 99 } };
+
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
+        }
+
+        [Test]
+        public void FirstAfterWithFilterTest()
+        {
+            var after = 999;
+            var cursor = CursorUtility.CreateCursor($"{after}|Epc");
+
+            var graphql = @"
+query FirstAfterWithFilterTest($cursor: String) {
+  products {
+    epcsConnection (first: 3, after: $cursor, dispositionId: 1) {
+      edges {
+        node { lotId }
+      }
+    }
+  }
+}
+".Trim();
+            var graphqlParameters = new Dictionary<string, object> { { "cursor", cursor } };
+
+            var expectedSql = @"
+-------------------------------
+-- Operation: FirstAfterWithFilterTest
+-------------------------------
+
+SELECT
+
+  -- products (t1)
+  JSON_QUERY ((
+    SELECT
+
+      -- products.epcsConnection (t2)
+      JSON_QUERY ((
+        SELECT
+
+          -- products.epcsConnection.edges (t2)
+          JSON_QUERY ((
+            SELECT
+
+              -- products.epcsConnection.edges.node (t2)
+              JSON_QUERY ((
+                SELECT
+                  t2.[LotId] AS [lotId]
+                FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
+            FROM [Epc] t2
+            WHERE t1.[Id] = t2.[ProductId] AND t2.[DispositionId] = @dispositionId AND t2.[Id] > @id
+            ORDER BY t2.[Id]
+            OFFSET 0 ROWS
+            FETCH FIRST 3 ROWS ONLY
+            FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [epcsConnection]
+    FROM [Product] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+
+            var expectedTsqlParameters = new Dictionary<string, object> { { "id", after }, { "dispositionId", 1 } };
 
             Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
         }

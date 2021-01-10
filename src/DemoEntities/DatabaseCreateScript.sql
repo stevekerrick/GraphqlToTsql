@@ -61,7 +61,9 @@ DECLARE
 , @retailSold INT = 6
 , @returned INT = 7
 ;
-INSERT Disposition VALUES
+INSERT Disposition
+ (Id,           Urn,                                   [Name])
+VALUES
  (@active,     'urn:epcglobal:cbv:disp:active',       N'active')
 ,(@destroyed,  'urn:epcglobal:cbv:disp:destroyed',    N'destroyed')
 ,(@inProgress, 'urn:epcglobal:cbv:disp:in_progress',  N'in_progress')
@@ -83,7 +85,9 @@ DECLARE
 , @silver2 INT = 8
 , @happyFreight INT = 9
 ;
-INSERT [Location] VALUES
+INSERT [Location]
+ (Id,             Urn,                             [Name],                              IsActive)
+VALUES
  (@jojaBottling, 'urn:epc:sgln:950110153.000.1',  N'Joja Bottling Plant',               1)
 ,(@jojaLine1,    'urn:epc:sgln:950110153.000.2',  N'Joja Bottling Plant, Line 1',       1)
 ,(@jojaAgg,      'urn:epc:sgln:950110153.000.3',  N'Joja Bottling Plant, Agg Station',  1)
@@ -104,7 +108,9 @@ DECLARE
 , @water INT = 5
 , @waterCase INT = 6
 ;
-INSERT Product VALUES
+INSERT Product
+ (Id,                 Urn,                                     [Name],                [Weight])
+VALUES
  (@jojaCola,         'urn:epc:idpat:sgtin:258643.3704146.*',  N'Joja Cola .5L',        NULL)
 ,(@jojaColaCase,     'urn:epc:idpat:sgtin:258643.3704200.*',  N'Joja Cola Case',       20.32)
 ,(@jojaDietCola,     'urn:epc:idpat:sgtin:258643.4821101.*',  N'Joja Diet Cola .5L',   NULL)
@@ -121,7 +127,9 @@ DECLARE
 , @lot2003a INT = 4
 , @lot2003b INT = 5
 ;
-INSERT Lot VALUES
+INSERT Lot
+ (Id,           LotNumber,    ExpirationDt,   ProductId)
+VALUES
  (@lot2001a,  N'LOT 2001a',  '2020-01-31',   @jojaCola)
 ,(@lot2002a,  N'LOT 2002a',  '2020-02-15',   @jojaCola)
 ,(@lot2002b,  N'LOT 2002b',  '2020-02-17',   @jojaDietCola)
@@ -134,38 +142,59 @@ DECLARE @time DATETIMEOFFSET = '2019-04-01 16:00:00Z';
 DECLARE @pallet INT, @case INT;
 
 -- Build up pallet with two cases of Cola and one of Diet Cola
-INSERT Epc VALUES ('urn:epc:id:sscc:258643.11122233344', @active, null, @jojaWrhse, @jojaWrhse, null, null, @time);
+INSERT Epc
+ ( Urn,                                     DispositionId, ParentId, BizLocationId, ReadPointId, ProductId,        LotId,     LastUpdate)
+VALUES
+ ('urn:epc:id:sscc:258643.11122233344',    @active,        null,    @jojaWrhse,    @jojaWrhse,   null,             null,     @time);
 SET @pallet = SCOPE_IDENTITY();
 
-INSERT Epc VALUES ('urn:epc:idpat:sgtin:258643.3704200.1', @active, @pallet, @jojaWrhse, @jojaWrhse, @jojaColaCase, null, @time);
+INSERT Epc VALUES
+ ('urn:epc:idpat:sgtin:258643.3704200.1',  @active,       @pallet,  @jojaWrhse,    @jojaWrhse,  @jojaColaCase,     null,     @time);
 SET @case = SCOPE_IDENTITY();
-INSERT Epc VALUES ('urn:epc:idpat:sgtin:258643.3704146.1', @active, @case, @jojaWrhse, @jojaWrhse, @jojaCola, @lot2003a, @time)
-                , ('urn:epc:idpat:sgtin:258643.3704146.2', @active, @case, @jojaWrhse, @jojaWrhse, @jojaCola, @lot2003a, @time)
-                , ('urn:epc:idpat:sgtin:258643.3704146.3', @active, @case, @jojaWrhse, @jojaWrhse, @jojaCola, @lot2003a, @time)
-                , ('urn:epc:idpat:sgtin:258643.3704146.4', @active, @case, @jojaWrhse, @jojaWrhse, @jojaCola, @lot2003a, @time);
-
-INSERT Epc VALUES ('urn:epc:idpat:sgtin:258643.3704200.2', @active, @pallet, @jojaWrhse, @jojaWrhse, @jojaColaCase, null, @time);
+INSERT Epc VALUES
+ ('urn:epc:idpat:sgtin:258643.3704146.1',  @active,       @case,    @jojaWrhse,    @jojaWrhse,  @jojaCola,        @lot2003a, @time)
+,('urn:epc:idpat:sgtin:258643.3704146.2',  @active,       @case,    @jojaWrhse,    @jojaWrhse,  @jojaCola,        @lot2003a, @time)
+,('urn:epc:idpat:sgtin:258643.3704146.3',  @destroyed,    @case,    @jojaWrhse,    @jojaWrhse,  @jojaCola,        @lot2003a, '2019-04-04 14:10:00Z')
+,('urn:epc:idpat:sgtin:258643.3704146.4',  @active,       @case,    @jojaWrhse,    @jojaWrhse,  @jojaCola,        @lot2003a, @time)
+;
+INSERT Epc VALUES
+ ('urn:epc:idpat:sgtin:258643.3704200.2',  @active,       @pallet,  @jojaWrhse,    @jojaWrhse,  @jojaColaCase,     null,     @time);
 SET @case = SCOPE_IDENTITY();
-INSERT Epc VALUES ('urn:epc:idpat:sgtin:258643.3704146.11', @active, @case, @jojaWrhse, @jojaWrhse, @jojaCola, @lot2001a, @time)
-                , ('urn:epc:idpat:sgtin:258643.3704146.12', @active, @case, @jojaWrhse, @jojaWrhse, @jojaCola, @lot2001a, @time)
-                , ('urn:epc:idpat:sgtin:258643.3704146.13', @active, @case, @jojaWrhse, @jojaWrhse, @jojaCola, @lot2001a, @time)
-                , ('urn:epc:idpat:sgtin:258643.3704146.14', @active, @case, @jojaWrhse, @jojaWrhse, @jojaCola, @lot2001a, @time);
-
-INSERT Epc VALUES ('urn:epc:idpat:sgtin:258643.4821216.1', @active, @pallet, @jojaWrhse, @jojaWrhse, @jojaDietColaCase, null, @time);
+INSERT Epc VALUES
+ ('urn:epc:idpat:sgtin:258643.3704146.11', @active,       @case,    @jojaWrhse,    @jojaWrhse,  @jojaCola,        @lot2001a, @time)
+,('urn:epc:idpat:sgtin:258643.3704146.12', @active,       @case,    @jojaWrhse,    @jojaWrhse,  @jojaCola,        @lot2001a, @time)
+,('urn:epc:idpat:sgtin:258643.3704146.13', @active,       @case,    @jojaWrhse,    @jojaWrhse,  @jojaCola,        @lot2001a, @time)
+,('urn:epc:idpat:sgtin:258643.3704146.14', @active,       @case,    @jojaWrhse,    @jojaWrhse,  @jojaCola,        @lot2001a, @time)
+;
+INSERT Epc VALUES
+ ('urn:epc:idpat:sgtin:258643.4821216.1',  @active,       @pallet,  @jojaWrhse,    @jojaWrhse,  @jojaDietColaCase, null,     @time);
 SET @case = SCOPE_IDENTITY();
-INSERT Epc VALUES ('urn:epc:idpat:sgtin:258643.4821101.21', @active, @case, @jojaWrhse, @jojaWrhse, @jojaDietCola, @lot2002b, @time)
-                , ('urn:epc:idpat:sgtin:258643.4821101.22', @active, @case, @jojaWrhse, @jojaWrhse, @jojaDietCola, @lot2002b, @time)
-                , ('urn:epc:idpat:sgtin:258643.4821101.23', @active, @case, @jojaWrhse, @jojaWrhse, @jojaDietCola, @lot2002b, @time)
-                , ('urn:epc:idpat:sgtin:258643.4821101.24', @active, @case, @jojaWrhse, @jojaWrhse, @jojaDietCola, @lot2002b, @time);
+INSERT Epc VALUES
+ ('urn:epc:idpat:sgtin:258643.4821101.21', @active,       @case,    @jojaWrhse,    @jojaWrhse,  @jojaDietCola,    @lot2002b, @time)
+,('urn:epc:idpat:sgtin:258643.4821101.22', @active,       @case,    @jojaWrhse,    @jojaWrhse,  @jojaDietCola,    @lot2002b, @time)
+,('urn:epc:idpat:sgtin:258643.4821101.23', @active,       @case,    @jojaWrhse,    @jojaWrhse,  @jojaDietCola,    @lot2002b, @time)
+,('urn:epc:idpat:sgtin:258643.4821101.24', @active,       @case,    @jojaWrhse,    @jojaWrhse,  @jojaDietCola,    @lot2002b, @time)
+;
+
+-- Some colas were recalled from @lot2003a
+SET @time = '2019-06-12 10:11:12Z';
+INSERT Epc VALUES
+ ('urn:epc:idpat:sgtin:258643.4821101.101', @recalled,     null,     null,         @silver1,    @jojaCola,        @lot2003a, @time)
+,('urn:epc:idpat:sgtin:258643.4821101.102', @recalled,     null,     null,         @silver1,    @jojaCola,        @lot2003a, @time)
+,('urn:epc:idpat:sgtin:258643.4821101.103', @recalled,     null,     null,         @silver2,    @jojaCola,        @lot2003a, @time)
+,('urn:epc:idpat:sgtin:258643.4821101.104', @recalled,     null,     null,         @jojaWrhse,  @jojaCola,        @lot2003a, @time)
+;
+
+-- Case of water is being sent to Silver Warehouse
+SET @time = '2019-04-29 10:11:12Z';
+INSERT Epc VALUES
+ ('urn:epc:idpat:sgtin:258643.6310025.200', @inTransit,    null,    @silverWrhse,  @jojaBottling, @waterCase,      null,     @time);
+SET @case = SCOPE_IDENTITY();
+INSERT Epc VALUES
+ ('urn:epc:idpat:sgtin:258643.6310000.201', @inTransit,    null,    @silverWrhse,  @jojaBottling, @water,          null,     @time)
+,('urn:epc:idpat:sgtin:258643.6310000.202', @inTransit,    null,    @silverWrhse,  @jojaBottling, @water,          null,     @time)
+,('urn:epc:idpat:sgtin:258643.6310000.203', @inTransit,    null,    @silverWrhse,  @jojaBottling, @water,          null,     @time)
+,('urn:epc:idpat:sgtin:258643.6310000.204', @inTransit,    null,    @silverWrhse,  @jojaBottling, @water,          null,     @time)
+;
 
 
-
-
---,   Urn           VARCHAR(128) NOT NULL
---,   DispositionId INT NULL REFERENCES Disposition (Id)
---,   ParentId      INT NULL REFERENCES Epc (Id)
---,   BizLocationId INT NULL REFERENCES [Location] (Id)
---,   ReadPointId   INT NULL REFERENCES [Location] (Id)
---,   ProductId     INT NULL REFERENCES Product (Id)
---,   LotId         INT NULL REFERENCES Lot (Id)
---,   LastUpdate    DATETIMEOFFSET(7) NULL

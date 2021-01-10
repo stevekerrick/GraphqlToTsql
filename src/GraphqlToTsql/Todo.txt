@@ -1,7 +1,4 @@
-﻿In DemoApp prepopulate several interesting queries
-
-
-Add tests with filter params in addition to paging, and to connections. I bet it fails.
+﻿Add tests with filter params in addition to paging, and to connections. I bet it fails.
 
 Unit tests for other Translator components
 Support multi-tenant
