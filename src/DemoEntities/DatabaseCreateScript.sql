@@ -198,3 +198,59 @@ INSERT Epc VALUES
 ;
 
 
+GO
+CREATE FUNCTION tvf_AllDescendants (
+  @parentEpcId INT
+)
+RETURNS TABLE
+AS
+RETURN
+  WITH ParentCTE AS (
+    SELECT
+      Id
+    , ParentId
+    FROM Epc e
+    WHERE e.ParentId = @parentEpcId
+
+    UNION ALL
+
+    SELECT
+      child.Id
+    , child.ParentId
+    FROM ParentCTE parent
+    INNER JOIN Epc child
+      ON child.ParentId = parent.Id
+  )
+
+  SELECT
+    Id
+  FROM ParentCTE;
+
+
+GO
+CREATE FUNCTION tvf_AllAncestors (
+  @epcId INT
+)
+RETURNS TABLE
+AS
+RETURN
+  WITH ChildCTE AS (
+    SELECT
+      Id
+    , ParentId
+    FROM Epc e
+    WHERE e.id = @epcId AND e.ParentId IS NOT NULL
+
+    UNION ALL
+
+    SELECT
+      parent.Id
+    , parent.ParentId
+    FROM ChildCTE child
+    INNER JOIN Epc parent
+      ON parent.Id = child.ParentId AND parent.ParentId IS NOT NULL
+  )
+
+  SELECT
+    ParentId AS Id
+  FROM ChildCTE;
