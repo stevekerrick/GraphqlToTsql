@@ -24,7 +24,9 @@ namespace DemoEntities
                 Field.Scalar(this, "lotId", "LotId"),
                 Field.Scalar(this, "lastUpdate", "LastUpdate"),
 
-                Field.CalculatedField(this, "dispositionName", (tableAlias) => $"SELECT d.Name FROM Disposition d WHERE d.Id = {tableAlias}.DispositionId"),
+                Field.CalculatedField(this, "dispositionName", 
+                    (tableAlias) => $"SELECT d.Name FROM Disposition d WHERE d.Id = {tableAlias}.DispositionId"
+                ),
 
                 Field.Row(this, "parent", new Join(
                     ()=>this.GetField("parentId"),
@@ -54,6 +56,13 @@ namespace DemoEntities
                 Field.Set(this, "children", new Join(
                     ()=>this.GetField("id"),
                     ()=>this.GetField("parentId"))
+                ),
+
+                Field.CalculatedSet(this, "descendants",
+                    (tableAlias) => $"SELECT e.* FROM tvf_AllDescendants({tableAlias}.Id) d INNER JOIN Epc e ON d.Id = e.Id"
+                ),
+                Field.CalculatedSet(this, "ancestors",
+                    (tableAlias) => $"SELECT e.* FROM tvf_AllAncestors({tableAlias}.Id) d INNER JOIN Epc e ON d.Id = e.Id"
                 )
             };
         }

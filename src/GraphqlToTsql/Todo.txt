@@ -1,14 +1,13 @@
-﻿Add tests with filter params in addition to paging, and to connections. I bet it fails.
+﻿Finish DB initialization script
 
 Unit tests for other Translator components
 Support multi-tenant
 Pre-processing of arguments/variables
-Finish DB initialization script
-Add sprocs for children and ancestors and wire them to SET fields on epc
 Support tables with string PKs
 Support tables with compound PKs
 Claims-based access to tables and fields
-Make cursors type Cursor
+Make cursors type Cursor?
+Field.CalculatedRow
 
 Add github readme notes
 Write survey of competing projects

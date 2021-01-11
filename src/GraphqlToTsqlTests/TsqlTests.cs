@@ -528,6 +528,36 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
         }
 
+        [Test]
+        public void CalculatedSetTest()
+        {
+            const string graphql = "{ epcs { urn descendants { id urn } } }";
+
+            var expectedSql = @"
+SELECT
+
+  -- epcs (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Urn] AS [urn]
+
+      -- epcs.descendants (t2)
+    , JSON_QUERY ((
+        SELECT
+          t2.[Id] AS [id]
+        , t2.[Urn] AS [urn]
+        FROM (SELECT e.* FROM tvf_AllDescendants(t1.Id) d INNER JOIN Epc e ON d.Id = e.Id) t2
+        FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [descendants]
+    FROM [Epc] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
+        }
+
         private void Check(
             string graphql,
             Dictionary<string, object> graphqlParameters,

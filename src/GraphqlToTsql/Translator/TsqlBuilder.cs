@@ -186,6 +186,12 @@ namespace GraphqlToTsql.Translator
         private string FromClause(Term term, string tableAlias = null)
         {
             tableAlias = tableAlias ?? term.TableAlias(_aliasSequence);
+
+            if (term.Field.TemplateFunc != null)
+            {
+                var parentTableAlias = term.ParentForJoin.TableAlias(_aliasSequence);
+                return $"FROM ({term.Field.TemplateFunc(parentTableAlias)}) {tableAlias}";
+            }
             return $"FROM [{term.Field.Entity.DbTableName}] {tableAlias}";
         }
 
