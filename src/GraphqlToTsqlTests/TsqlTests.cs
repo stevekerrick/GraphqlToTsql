@@ -153,7 +153,7 @@ SELECT
   JSON_QUERY ((
     SELECT
       t1.[Urn] AS [urn]
-    , (SELECT d.Name FROM Disposition d WHERE d.Id = t1.DispositionId) AS [dispositionName]
+    , (SELECT d.Name FROM Disposition d WHERE d.Urn = t1.DispositionUrn) AS [dispositionName]
     FROM [Epc] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
 
@@ -444,7 +444,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void FirstOffsetWithFilterTest()
         {
-            const string graphql = "{ epcs (offset: 10, first: 2, dispositionId: 99) { urn } }";
+            const string graphql = "{ epcs (offset: 10, first: 2, dispositionUrn: 99) { urn } }";
 
             var expectedSql = @"
 SELECT
@@ -454,7 +454,7 @@ SELECT
     SELECT
       t1.[Urn] AS [urn]
     FROM [Epc] t1
-    WHERE t1.[DispositionId] = @dispositionId
+    WHERE t1.[DispositionUrn] = @dispositionUrn
     ORDER BY t1.[Id]
     OFFSET 10 ROWS
     FETCH FIRST 2 ROWS ONLY
@@ -462,7 +462,7 @@ SELECT
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
-            var expectedTsqlParameters = new Dictionary<string, object> { { "dispositionId", 99 } };
+            var expectedTsqlParameters = new Dictionary<string, object> { { "dispositionUrn", 99 } };
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
@@ -476,7 +476,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             var graphql = @"
 query FirstAfterWithFilterTest($cursor: String) {
   products {
-    epcsConnection (first: 3, after: $cursor, dispositionId: 1) {
+    epcsConnection (first: 3, after: $cursor, dispositionUrn: 1) {
       edges {
         node { lotId }
       }
@@ -511,7 +511,7 @@ SELECT
                   t2.[LotId] AS [lotId]
                 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
             FROM [Epc] t2
-            WHERE t1.[Id] = t2.[ProductId] AND t2.[DispositionId] = @dispositionId AND t2.[Id] > @id
+            WHERE t1.[Id] = t2.[ProductId] AND t2.[DispositionUrn] = @dispositionUrn AND t2.[Id] > @id
             ORDER BY t2.[Id]
             OFFSET 0 ROWS
             FETCH FIRST 3 ROWS ONLY
@@ -523,7 +523,7 @@ SELECT
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
 
-            var expectedTsqlParameters = new Dictionary<string, object> { { "id", after }, { "dispositionId", 1 } };
+            var expectedTsqlParameters = new Dictionary<string, object> { { "id", after }, { "dispositionUrn", 1 } };
 
             Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
         }

@@ -9,19 +9,18 @@ namespace DemoEntities
 
         public override string Name => "disposition";
         public override string DbTableName => "Disposition";
-        public override string PrimaryKeyFieldName => "id";
+        public override string PrimaryKeyFieldName => "urn";
 
         protected override List<Field> BuildFieldList()
         {
             return new List<Field>
             {
-                Field.Scalar(this, "id", "Id"),
                 Field.Scalar(this, "urn", "Urn"),
                 Field.Scalar(this, "name", "Name"),
 
                 Field.Set(EpcDef.Instance, "epcs", new Join(
                     ()=>this.GetField("id"),
-                    ()=>EpcDef.Instance.GetField("dispositionId"))
+                    ()=>EpcDef.Instance.GetField("dispositionUrn"))
                 )
             };
         }

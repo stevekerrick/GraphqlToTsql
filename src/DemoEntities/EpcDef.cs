@@ -16,7 +16,7 @@ namespace DemoEntities
             {
                 Field.Scalar(this, "id", "Id"),
                 Field.Scalar(this, "urn", "Urn"),
-                Field.Scalar(this, "dispositionId", "DispositionId"),
+                Field.Scalar(this, "dispositionUrn", "DispositionUrn"),
                 Field.Scalar(this, "parentId", "ParentId"),
                 Field.Scalar(this, "bizLocationId", "BizLocationId"),
                 Field.Scalar(this, "readPointId", "ReadPointId"),
@@ -25,7 +25,7 @@ namespace DemoEntities
                 Field.Scalar(this, "lastUpdate", "LastUpdate"),
 
                 Field.CalculatedField(this, "dispositionName", 
-                    (tableAlias) => $"SELECT d.Name FROM Disposition d WHERE d.Id = {tableAlias}.DispositionId"
+                    (tableAlias) => $"SELECT d.Name FROM Disposition d WHERE d.Urn = {tableAlias}.DispositionUrn"
                 ),
 
                 Field.Row(this, "parent", new Join(
@@ -33,8 +33,8 @@ namespace DemoEntities
                     ()=>this.GetField("id"))
                 ),
                 Field.Row(DispositionDef.Instance, "disposition", new Join(
-                    ()=>this.GetField("dispositionId"),
-                    ()=>DispositionDef.Instance.GetField("id"))
+                    ()=>this.GetField("dispositionUrn"),
+                    ()=>DispositionDef.Instance.GetField("urn"))
                 ),
                 Field.Row(LocationDef.Instance, "bizLocation", new Join(
                     ()=>this.GetField("bizLocationId"),

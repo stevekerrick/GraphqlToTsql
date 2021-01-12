@@ -11,8 +11,7 @@ USE [GraphqlToTsqlDemoDB]
 GO
 
 CREATE TABLE Disposition (
-    Id            INT NOT NULL PRIMARY KEY CLUSTERED
-,   Urn           VARCHAR(128) NOT NULL
+    Urn           VARCHAR(128) NOT NULL PRIMARY KEY CLUSTERED
 ,   [Name]        NVARCHAR(128) NOT NULL
 );
 
@@ -40,7 +39,7 @@ CREATE TABLE Lot (
 CREATE TABLE Epc (
     Id            INT NOT NULL IDENTITY(1,1) PRIMARY KEY CLUSTERED
 ,   Urn           VARCHAR(128) NOT NULL
-,   DispositionId INT NULL REFERENCES Disposition (Id)
+,   DispositionUrn VARCHAR(128) NULL REFERENCES Disposition (Urn)
 ,   ParentId      INT NULL REFERENCES Epc (Id)
 ,   BizLocationId INT NULL REFERENCES [Location] (Id)
 ,   ReadPointId   INT NULL REFERENCES [Location] (Id)
@@ -53,24 +52,24 @@ GO
 
 PRINT 'Populating: Disposition';
 DECLARE
-  @active INT = 1
-, @destroyed INT = 2
-, @inProgress INT = 3
-, @inTransit INT = 4
-, @recalled INT = 5
-, @retailSold INT = 6
-, @returned INT = 7
+  @active VARCHAR(128) = 'urn:epcglobal:cbv:disp:active'
+, @destroyed VARCHAR(128) = 'urn:epcglobal:cbv:disp:destroyed'
+, @inProgress VARCHAR(128) = 'urn:epcglobal:cbv:disp:in_progress'
+, @inTransit VARCHAR(128) = 'urn:epcglobal:cbv:disp:in_transit'
+, @recalled VARCHAR(128) = 'urn:epcglobal:cbv:disp:recalled'
+, @retailSold VARCHAR(128) = 'urn:epcglobal:cbv:disp:retail_sold'
+, @returned VARCHAR(128) = 'urn:epcglobal:cbv:disp:returned'
 ;
 INSERT Disposition
- (Id,           Urn,                                   [Name])
+ (Urn,          [Name])
 VALUES
- (@active,     'urn:epcglobal:cbv:disp:active',       N'active')
-,(@destroyed,  'urn:epcglobal:cbv:disp:destroyed',    N'destroyed')
-,(@inProgress, 'urn:epcglobal:cbv:disp:in_progress',  N'in_progress')
-,(@inTransit,  'urn:epcglobal:cbv:disp:in_transit',   N'in_transit')
-,(@recalled,   'urn:epcglobal:cbv:disp:recalled',     N'recalled')
-,(@retailSold, 'urn:epcglobal:cbv:disp:retail_sold',  N'retail_sold')
-,(@returned,   'urn:epcglobal:cbv:disp:returned',     N'returned')
+ (@active,     N'active')
+,(@destroyed,  N'destroyed')
+,(@inProgress, N'in_progress')
+,(@inTransit,  N'in_transit')
+,(@recalled,   N'recalled')
+,(@retailSold, N'retail_sold')
+,(@returned,   N'returned')
 ;
 
 PRINT 'Populating: Location';
@@ -143,7 +142,7 @@ DECLARE @pallet INT, @case INT;
 
 -- Build up pallet with two cases of Cola and one of Diet Cola
 INSERT Epc
- ( Urn,                                     DispositionId, ParentId, BizLocationId, ReadPointId, ProductId,        LotId,     LastUpdate)
+ ( Urn,                                    DispositionUrn, ParentId, BizLocationId, ReadPointId, ProductId,        LotId,     LastUpdate)
 VALUES
  ('urn:epc:id:sscc:258643.11122233344',    @active,        null,    @jojaWrhse,    @jojaWrhse,   null,             null,     @time);
 SET @pallet = SCOPE_IDENTITY();
