@@ -27,7 +27,7 @@ namespace DemoEntities
 
                 Field.Set(EpcDef.Instance, "epcs", new Join(
                     ()=>this.GetField("id"),
-                    ()=>EpcDef.Instance.GetField("lotId"))
+                    ()=>EpcDef.Instance.GetField("lotNumber"))
                 )
             };
         }

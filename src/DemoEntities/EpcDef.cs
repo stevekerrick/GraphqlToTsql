@@ -21,7 +21,7 @@ namespace DemoEntities
                 Field.Scalar(this, "bizLocationId", "BizLocationId"),
                 Field.Scalar(this, "readPointId", "ReadPointId"),
                 Field.Scalar(this, "productId", "ProductId"),
-                Field.Scalar(this, "lotId", "LotId"),
+                Field.Scalar(this, "lotNumber", "LotNumber"),
                 Field.Scalar(this, "lastUpdate", "LastUpdate"),
 
                 Field.CalculatedField(this, "dispositionName", 
@@ -49,8 +49,8 @@ namespace DemoEntities
                     ()=>ProductDef.Instance.GetField("id"))
                 ),
                 Field.Row(LotDef.Instance, "lot", new Join(
-                    ()=>this.GetField("lotId"),
-                    ()=>LotDef.Instance.GetField("id"))
+                    ()=>this.GetField("lotNumber"),
+                    ()=>LotDef.Instance.GetField("lotNumber"))
                 ),
 
                 Field.Set(this, "children", new Join(

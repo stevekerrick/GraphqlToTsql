@@ -30,8 +30,7 @@ CREATE TABLE Product (
 );
 
 CREATE TABLE Lot (
-    Id            INT NOT NULL PRIMARY KEY CLUSTERED
-,   LotNumber     NVARCHAR(128) NOT NULL
+    LotNumber     NVARCHAR(128) NOT NULL  PRIMARY KEY CLUSTERED
 ,   ExpirationDt  DATE NULL
 ,   ProductId     INT NOT NULL REFERENCES Product (Id)
 );
@@ -44,7 +43,7 @@ CREATE TABLE Epc (
 ,   BizLocationId INT NULL REFERENCES [Location] (Id)
 ,   ReadPointId   INT NULL REFERENCES [Location] (Id)
 ,   ProductId     INT NULL REFERENCES Product (Id)
-,   LotId         INT NULL REFERENCES Lot (Id)
+,   LotNumber     NVARCHAR(128) NULL REFERENCES Lot (LotNumber)
 ,   LastUpdate    DATETIMEOFFSET(7) NULL
 );
 GO
@@ -142,7 +141,7 @@ DECLARE @pallet INT, @case INT;
 
 -- Build up pallet with two cases of Cola and one of Diet Cola
 INSERT Epc
- ( Urn,                                    DispositionUrn, ParentId, BizLocationId, ReadPointId, ProductId,        LotId,     LastUpdate)
+ ( Urn,                                    DispositionUrn, ParentId, BizLocationId, ReadPointId, ProductId,        LotNumber,     LastUpdate)
 VALUES
  ('urn:epc:id:sscc:258643.11122233344',    @active,        null,    @jojaWrhse,    @jojaWrhse,   null,             null,     @time);
 SET @pallet = SCOPE_IDENTITY();

@@ -383,7 +383,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void FirstAfterTest()
         {
-            var after = 999;
+            var after = "Lot999";
             var cursor = CursorUtility.CreateCursor($"{after}|Lot");
 
             var graphql = @"
@@ -436,7 +436,7 @@ SELECT
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
 
-            var expectedTsqlParameters = new Dictionary<string, object> { { "id", after } };
+            var expectedTsqlParameters = new Dictionary<string, object> { { "lotNumber", after } };
 
             Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
         }
@@ -478,7 +478,7 @@ query FirstAfterWithFilterTest($cursor: String) {
   products {
     epcsConnection (first: 3, after: $cursor, dispositionUrn: 1) {
       edges {
-        node { lotId }
+        node { lotNumber }
       }
     }
   }
@@ -508,7 +508,7 @@ SELECT
               -- products.epcsConnection.edges.node (t2)
               JSON_QUERY ((
                 SELECT
-                  t2.[LotId] AS [lotId]
+                  t2.[LotNumber] AS [lotNumber]
                 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
             FROM [Epc] t2
             WHERE t1.[Id] = t2.[ProductId] AND t2.[DispositionUrn] = @dispositionUrn AND t2.[Id] > @id
