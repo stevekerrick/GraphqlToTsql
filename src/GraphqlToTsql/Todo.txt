@@ -1,13 +1,19 @@
-﻿Finish DB initialization script
+﻿Mutate boolean sql results from 0/1 to false/true
+
+Validate value types in parameters and arguments
+Field.CalculatedRow
+Exercise the Date and DateTime columns in queries
+Measure test coverage
+
+
+Finish DB initialization script
 
 Unit tests for other Translator components
 Support multi-tenant
 Pre-processing of arguments/variables
 Support tables with compound PKs
 Claims-based access to tables and fields
-Make cursors type Cursor?
-Field.CalculatedRow
 
 Add github readme notes
 Write survey of competing projects
-I bet we need a ValueType for DateTime. Think it through.
+Add a Timestamp column and test it

@@ -19,6 +19,7 @@ namespace DemoEntities
                 Field.Scalar(this, "id", "Id", ValueType.Number),
                 Field.Scalar(this, "urn", "Urn", ValueType.String),
                 Field.Scalar(this, "name", "Name", ValueType.String),
+                Field.Scalar(this, "isActive", "IsActive", ValueType.Boolean),
 
                 Field.Set(EpcDef.Instance, "epcs", new Join(
                     ()=>this.GetField("id"),
