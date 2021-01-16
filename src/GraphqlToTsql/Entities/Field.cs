@@ -1,7 +1,8 @@
-﻿using GraphqlToTsql.Util;
+﻿using GraphqlToTsql.Translator;
+using GraphqlToTsql.Util;
 using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
+using ValueType = GraphqlToTsql.Translator.ValueType;
 
 namespace GraphqlToTsql.Entities
 {
@@ -100,8 +101,8 @@ namespace GraphqlToTsql.Entities
                 FieldType = FieldType.Cursor,
                 Entity = new NodeEntity(setField),
                 Name = Constants.CURSOR,
-                MutatorFunc = CursorUtility.CreateCursor,
-                TemplateFunc = (tableAlias) => $"CONCAT({tableAlias}.[{entity.PrimaryKeyField.DbColumnName}], '|', '{entity.DbTableName}')"
+                MutatorFunc =  CursorUtility.CreateCursor,
+                TemplateFunc = (tableAlias) => CursorUtility.TsqlCursorDataFunc(ValueType.Number, tableAlias, entity.DbTableName, entity.PrimaryKeyField.DbColumnName)
             };
         }
     }

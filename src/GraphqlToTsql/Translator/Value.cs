@@ -12,6 +12,13 @@ namespace GraphqlToTsql.Translator
 
         public Value(GqlParser.ValueContext valueContext)
         {
+            if (valueContext == null)
+            {
+                ValueType = ValueType.Null;
+                RawValue = null;
+                return;
+            }
+
             switch (valueContext)
             {
                 case GqlParser.NumberValueContext numberValueContext:
@@ -29,50 +36,75 @@ namespace GraphqlToTsql.Translator
                     RawValue = bool.Parse(booleanValueContext.GetText().ToLower());
                     break;
                 case GqlParser.ArrayValueContext arrayValueContext:
-                    var token = arrayValueContext.Start;
                     throw new InvalidRequestException("Arrays Not supported", new Context(valueContext));
             }
         }
 
-        //TODO: Detect and reject complex rawValues
         public Value(object rawValue)
         {
             if (rawValue == null)
             {
-                ValueType = ValueType.None;
+                ValueType = ValueType.Null;
                 RawValue = null;
                 return;
             }
 
-            var rawValueString = rawValue.ToString();
-            if (string.IsNullOrEmpty(rawValueString))
-            {
-                ValueType = ValueType.None;
-                RawValue = null;
-                return;
-            }
+            var typeName = rawValue.GetType().Name;
 
-            if (decimal.TryParse(rawValueString, out var numberValue))
+            switch (typeName)
             {
-                ValueType = ValueType.Number;
-                RawValue = numberValue;
+                case "Int32":
+                case "Int64":
+                case "Single":
+                case "Double":
+                case "Decimal":
+                    var stringValue = rawValue.ToString();
+                    ValueType = ValueType.Number;
+                    RawValue = decimal.Parse(stringValue);
+                    break;
+
+                case "String":
+                    ValueType = ValueType.String;
+                    RawValue = (string)rawValue;
+                    break;
+
+                case "Boolean":
+                    ValueType = ValueType.Boolean;
+                    RawValue = (bool)rawValue;
+                    break;
+
+                default:
+                    throw new InvalidRequestException($"Unsupported value type, value=[{rawValue}], type=[{typeName}]");
             }
-            else if (bool.TryParse(rawValueString, out var boolValue))
+        }
+
+        public Value(ValueType valueType, string stringValue)
+        {
+            ValueType = valueType;
+
+            switch (valueType)
             {
-                ValueType = ValueType.Boolean;
-                RawValue = boolValue;
-            }
-            else
-            {
-                ValueType = ValueType.String;
-                RawValue = rawValueString;
+                case ValueType.Null:
+                    RawValue = null;
+                    break;
+                case ValueType.Number:
+                    RawValue = decimal.Parse(stringValue);
+                    break;
+                case ValueType.String:
+                    RawValue = stringValue;
+                    break;
+                case ValueType.Boolean:
+                    RawValue = bool.Parse(stringValue); ;
+                    break;
+                default:
+                    throw new Exception($"Unsupported ValueType: {valueType}");
             }
         }
     }
 
     public enum ValueType
     {
-        None,
+        Null = 1,
         Number,
         String,
         Boolean

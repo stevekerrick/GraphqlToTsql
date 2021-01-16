@@ -9,13 +9,12 @@ namespace DemoEntities
 
         public override string Name => "lot";
         public override string DbTableName => "Lot";
-        public override string PrimaryKeyFieldName => "id";
+        public override string PrimaryKeyFieldName => "lotNumber";
 
         protected override List<Field> BuildFieldList()
         {
             return new List<Field>
             {
-                Field.Scalar(this, "id", "Id"),
                 Field.Scalar(this, "lotNumber", "LotNumber"),
                 Field.Scalar(this, "expirationDate", "ExpirationDt"),
                 Field.Scalar(this, "productId", "ProductId"),
@@ -26,7 +25,7 @@ namespace DemoEntities
                 ),
 
                 Field.Set(EpcDef.Instance, "epcs", new Join(
-                    ()=>this.GetField("id"),
+                    ()=>this.GetField("lotNumber"),
                     ()=>EpcDef.Instance.GetField("lotNumber"))
                 )
             };

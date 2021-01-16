@@ -42,11 +42,11 @@ namespace GraphqlToTsqlTests
         {
             // Create a couple of cursors to use
             var lotId1 = _fixture.Create<int>();
-            var cursorData1 = $"{lotId1}|Lot";
+            var cursorData1 = CursorUtility.CursorDataFunc(new Value(lotId1), "Lot");
             var cursor1 = CursorUtility.CreateCursor(cursorData1);
 
             var lotId2 = _fixture.Create<int>();
-            var cursorData2 = $"{lotId2}|Lot";
+            var cursorData2 = CursorUtility.CursorDataFunc(new Value(lotId2), "Lot");
             var cursor2 = CursorUtility.CreateCursor(cursorData2);
 
             // Build up the term tree
@@ -91,10 +91,6 @@ namespace GraphqlToTsqlTests
                         new {
                             lotNumber = lotNumber2,
                             cursor = cursorData2
-                        },
-                        new {
-                            lotNumber = (string)null,
-                            cursor = (string)null
                         }
                     }
                 }
@@ -115,10 +111,6 @@ namespace GraphqlToTsqlTests
                         new {
                             lotNumber = lotNumber2,
                             cursor = cursor2
-                        },
-                        new {
-                            lotNumber = (string)null,
-                            cursor = (string)null
                         }
                     }
                 }

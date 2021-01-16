@@ -1,30 +1,46 @@
 ﻿using GraphqlToTsql.Translator;
 using System;
 using System.Text;
+using ValueType = GraphqlToTsql.Translator.ValueType;
 
 namespace GraphqlToTsql.Util
 {
     public static class CursorUtility
     {
         /// <summary>
-        /// Create an obfuscated cursor, based on the the "cursorData" created in TSQL
+        /// Func that generates a TSQL expression for the "decodedCursor".
+        /// After the TSQL has been executed, the DataMutator will use the CreateCursor function below to
+        /// transfrom the "decodedCursor" into the obfuscated (and hash-coded) cursor.
         /// </summary>
-        /// <param name="cursorData">$"{idValue}|{dbTableName}"</param>
+        public static string TsqlCursorDataFunc(ValueType valueType, string tableAlias, string dbTableName, string dbColumnName) =>
+            $"CONCAT('{(int)valueType}', '|', {tableAlias}.[{dbColumnName}], '|', '{dbTableName}')";
+
+        public static string CursorDataFunc(Value value, string dbTableName) => $"{(int)value.ValueType}|{value.RawValue}|{dbTableName}";
+
+        public static string CreateCursor(Value value, string dbTableName) {
+            return CreateCursor(CursorDataFunc(value, dbTableName));
+        }
+
+        /// <summary>
+        /// Create an obfuscated cursor, based on the the "cursorData" created in TSQL.
+        /// </summary>
+        /// <param name="decodedCursor">
+        ///   This is created in the TSQL (see Field.Cursor()).
+        /// </param>
         /// <returns>Obfuscated cursor</returns>
-        public static string CreateCursor(string cursorData)
+        public static string CreateCursor(string decodedCursor)
         {
-            if (cursorData == null)
+            if (string.IsNullOrEmpty(decodedCursor))
             {
-                return null;
+                throw new Exception("Empty cursor data");
             }
 
-            var cursorDataBytes = Encoding.UTF8.GetBytes(cursorData);
-            var encodedCursorData = Convert.ToBase64String(cursorDataBytes);
+            var encodedCursorData = Base64Utility.Encode(decodedCursor);
             var hash = HashUtility.Hash(encodedCursorData);
             return $"{encodedCursorData}.{hash}";
         }
 
-        public static int DecodeCursor(string dbTableName, string cursor)
+        public static CursorData DecodeCursor(string cursor, string dbTableName)
         {
             if (string.IsNullOrEmpty(cursor))
             {
@@ -48,25 +64,25 @@ namespace GraphqlToTsql.Util
             }
 
             // Decode the CursorData. EncodedCursorData is base64(CursorData).
-            string cursorData;
+            string decodedCursor;
             try
             {
-                var cursorDataBytes = Convert.FromBase64String(encodedCursorData);
-                cursorData = Encoding.UTF8.GetString(cursorDataBytes);
+                decodedCursor = Base64Utility.Decode(encodedCursorData);
             }
             catch
             {
                 throw new InvalidRequestException($"Cursor is invalid: {cursor}");
             }
 
-            // Separate the cursorData into idValue and dbTableName
-            var cursorDataParts = cursorData.Split('|');
-            if (cursorDataParts.Length != 2)
+            // Separate the decodedCursor into valueType, idValue, and dbTableName
+            var cursorDataParts = decodedCursor.Split('|');
+            if (cursorDataParts.Length != 3)
             {
                 throw new InvalidRequestException($"Cursor is invalid: {cursor}");
             }
-            var idValue = cursorDataParts[0];
-            var actualDbTableName = cursorDataParts[1];
+            var valueType = (ValueType)int.Parse(cursorDataParts[0]);
+            var idValue = cursorDataParts[1];
+            var actualDbTableName = cursorDataParts[2];
 
             // Verify the DbTableName
             if (actualDbTableName != dbTableName)
@@ -74,7 +90,18 @@ namespace GraphqlToTsql.Util
                 throw new InvalidRequestException($"Cursor is invalid: {cursor}");
             }
 
-            return int.Parse(idValue);
+            // Return the value
+            return new CursorData
+            {
+                DbTableName = actualDbTableName,
+                Value = new Value(valueType, idValue)
+            };
         }
+    }
+
+    public class CursorData
+    {
+        public string DbTableName { get; set; }
+        public Value Value { get; set; }
     }
 }

@@ -1,10 +1,9 @@
 ﻿using AutoFixture;
 using GraphqlToTsql.Translator;
 using GraphqlToTsql.Util;
-using Moq;
-using Moq.AutoMock;
 using NUnit.Framework;
 using System;
+using ValueType = GraphqlToTsql.Translator.ValueType;
 
 namespace GraphqlToTsqlTests
 {
@@ -14,23 +13,31 @@ namespace GraphqlToTsqlTests
         private Fixture _fixture = new Fixture();
 
         [Test]
-        public void CreateCursorTest()
+        public void CreateAndDecodeIntCursorTest()
         {
-            var parts = _fixture.Create<CursorParts>();
-            var cursor = CursorUtility.CreateCursor(parts.CursorData);
+            var value = RandomIntValue();
+            var dbTableName = _fixture.Create<string>();
 
-            Console.WriteLine(cursor);
-            Assert.IsNotNull(cursor);
+            var cursor = CursorUtility.CreateCursor(value, dbTableName);
+            var cursorData = CursorUtility.DecodeCursor(cursor, dbTableName);
+
+            Assert.AreEqual(value.ValueType, cursorData.Value.ValueType);
+            Assert.AreEqual(value.RawValue, cursorData.Value.RawValue);
+            Assert.AreEqual(dbTableName, cursorData.DbTableName);
         }
 
         [Test]
-        public void CreateAndDecodeCursorTest()
+        public void CreateAndDecodeStringCursorTest()
         {
-            var parts = _fixture.Create<CursorParts>();
-            var cursor = CursorUtility.CreateCursor(parts.CursorData);
+            var value = RandomStringValue();
+            var dbTableName = _fixture.Create<string>();
 
-            var decodedIdValue = CursorUtility.DecodeCursor(parts.DbTableName, cursor);
-            Assert.AreEqual(parts.IdValue, decodedIdValue);
+            var cursor = CursorUtility.CreateCursor(value, dbTableName);
+            var cursorData = CursorUtility.DecodeCursor(cursor, dbTableName);
+
+            Assert.AreEqual(value.ValueType, cursorData.Value.ValueType);
+            Assert.AreEqual(value.RawValue, cursorData.Value.RawValue);
+            Assert.AreEqual(dbTableName, cursorData.DbTableName);
         }
 
         [TestCase(null)]
@@ -39,22 +46,23 @@ namespace GraphqlToTsqlTests
         public void DecodeIllFormedCursorTest(string cursor)
         {
             var dbTableName = _fixture.Create<string>();
-            Assert.Throws<InvalidRequestException>(() => CursorUtility.DecodeCursor(dbTableName, cursor));
+            Assert.Throws<InvalidRequestException>(() => CursorUtility.DecodeCursor(cursor, dbTableName));
         }
 
         [TestCaseSource(nameof(CorruptorFuncs))]
-        public void CorruptedCursorTest(Func<string, CursorParts, string> corruptorFunc)
+        public void CorruptedCursorTest(Func<string, string> corruptorFunc)
         {
             // Create an actual cursor
-            var parts = _fixture.Create<CursorParts>();
-            var cursor = CursorUtility.CreateCursor(parts.CursorData);
+            var value = new Value(_fixture.Create<int>());
+            var dbTableName = _fixture.Create<string>();
+            var cursor = CursorUtility.CreateCursor(value, dbTableName);
 
             // Corrupt the cursor and try to decode it
-            var corrputedCursor = corruptorFunc(cursor, parts);
-            Assert.Throws<InvalidRequestException>(() => CursorUtility.DecodeCursor(parts.DbTableName, corrputedCursor));
+            var corrputedCursor = corruptorFunc(cursor);
+            Assert.Throws<InvalidRequestException>(() => CursorUtility.DecodeCursor(corrputedCursor, dbTableName));
         }
 
-        static Func<string, CursorParts, string>[] CorruptorFuncs =
+        static Func<string, string>[] CorruptorFuncs =
         {
             NullCursor,
             EmptyStringCursor,
@@ -63,38 +71,43 @@ namespace GraphqlToTsqlTests
             InvalidBase64Chars
         };
 
-        static string NullCursor(string cursor, CursorParts parts) => null;
+        static string NullCursor(string cursor) => null;
 
-        static string EmptyStringCursor(string cursor, CursorParts parts) => "";
+        static string EmptyStringCursor(string cursor) => "";
 
-        static string ChangeHash(string cursor, CursorParts parts)
+        static string ChangeHash(string cursor)
         {
             var fakeHash = HashUtility.Hash("fake");
             var p = cursor.IndexOf('.');
             return cursor.Substring(0, p) + "." + fakeHash;
         }
 
-        static string ChangeIdValue(string cursor, CursorParts parts)
+        static string ChangeIdValue(string cursor)
         {
-            var newCursorData = $"{parts.IdValue + 1}|{parts.DbTableName}";
-            var newCursor = CursorUtility.CreateCursor(newCursorData);
+            var parts1 = cursor.Split('.');
+            var decodedCursor = Base64Utility.Decode(parts1[0]);
+            var parts2 = decodedCursor.Split('|');
 
-            var pOld = cursor.IndexOf('.');
-            var pNew = newCursor.IndexOf('.');
+            parts2[1] = "12345";
 
-            return newCursor.Substring(0, pNew) + cursor.Substring(pOld);
+            var newDecodedCursor = string.Join('|', parts2);
+            parts1[0] = Base64Utility.Encode(newDecodedCursor);
+            return string.Join('.', parts1);
         }
 
-        static string InvalidBase64Chars(string cursor, CursorParts parts)
+        static string InvalidBase64Chars(string cursor)
         {
             return '!' + cursor.Substring(1);
         }
-    }
+ 
+        Value RandomIntValue()
+        {
+            return new Value(_fixture.Create<int>());
+        }
 
-    public class CursorParts
-    {
-        public int IdValue { get; set; }
-        public string DbTableName { get; set; }
-        public string CursorData => $"{IdValue}|{DbTableName}";
+        Value RandomStringValue()
+        {
+            return new Value(_fixture.Create<string>());
+        }
     }
 }

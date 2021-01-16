@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using ValueType = GraphqlToTsql.Translator.ValueType;
 
 namespace GraphqlToTsqlTests
 {
@@ -345,7 +346,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 }
 ".Trim();
 
-            var expectedSql = @"
+            var expectedSql = @$"
 SELECT
 
   -- products (t1)
@@ -365,7 +366,7 @@ SELECT
                 SELECT
                   t2.[LotNumber] AS [lotNumber]
                 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
-            , (CONCAT(t2.[Id], '|', 'Lot')) AS [cursor]
+            , ({CursorUtility.TsqlCursorDataFunc(ValueType.String, "t2", "Lot", "LotNumber")}) AS [cursor]
             FROM [Lot] t2
             WHERE t1.[Id] = t2.[ProductId]
             FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]
@@ -384,7 +385,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         public void FirstAfterTest()
         {
             var after = "Lot999";
-            var cursor = CursorUtility.CreateCursor($"{after}|Lot");
+            var cursor = CursorUtility.CreateCursor(new Value(after), "Lot");
 
             var graphql = @"
 query FirstAfterTest($cursor: String) {
@@ -424,8 +425,8 @@ SELECT
                   t2.[LotNumber] AS [lotNumber]
                 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
             FROM [Lot] t2
-            WHERE t1.[Id] = t2.[ProductId] AND t2.[Id] > @id
-            ORDER BY t2.[Id]
+            WHERE t1.[Id] = t2.[ProductId] AND t2.[LotNumber] > @lotNumber
+            ORDER BY t2.[LotNumber]
             OFFSET 0 ROWS
             FETCH FIRST 3 ROWS ONLY
             FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]
@@ -471,7 +472,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         public void FirstAfterWithFilterTest()
         {
             var after = 999;
-            var cursor = CursorUtility.CreateCursor($"{after}|Epc");
+            var cursor = CursorUtility.CreateCursor(new Value(after), "Epc");
 
             var graphql = @"
 query FirstAfterWithFilterTest($cursor: String) {

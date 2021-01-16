@@ -221,8 +221,8 @@ namespace GraphqlToTsql.Translator
             if (term.Arguments.After != null)
             {
                 var entity = term.Field.Entity;
-                var idValue = CursorUtility.DecodeCursor(entity.DbTableName, term.Arguments.After);
-                var filter = new Arguments.Filter(entity.PrimaryKeyField, new Value(idValue));
+                var cursorData = CursorUtility.DecodeCursor(term.Arguments.After, entity.DbTableName);
+                var filter = new Arguments.Filter(entity.PrimaryKeyField, cursorData.Value);
                 childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
                 whereParts.Add($"{childTableAlias}.[{filter.Field.DbColumnName}] > @{RegisterTsqlParameter(filter)}");
             }
