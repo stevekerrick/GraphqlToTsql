@@ -1,4 +1,5 @@
 using GraphqlToTsql.Entities;
+using GraphqlToTsql.Translator;
 using System.Collections.Generic;
 
 namespace DemoEntities
@@ -15,8 +16,8 @@ namespace DemoEntities
         {
             return new List<Field>
             {
-                Field.Scalar(this, "urn", "Urn"),
-                Field.Scalar(this, "name", "Name"),
+                Field.Scalar(this, "urn", "Urn", ValueType.String),
+                Field.Scalar(this, "name", "Name", ValueType.String),
 
                 Field.Set(EpcDef.Instance, "epcs", new Join(
                     ()=>this.GetField("id"),

@@ -1,4 +1,5 @@
 using GraphqlToTsql.Entities;
+using GraphqlToTsql.Translator;
 using System.Collections.Generic;
 
 namespace DemoEntities
@@ -15,9 +16,9 @@ namespace DemoEntities
         {
             return new List<Field>
             {
-                Field.Scalar(this, "lotNumber", "LotNumber"),
-                Field.Scalar(this, "expirationDate", "ExpirationDt"),
-                Field.Scalar(this, "productId", "ProductId"),
+                Field.Scalar(this, "lotNumber", "LotNumber", ValueType.String),
+                Field.Scalar(this, "expirationDate", "ExpirationDt", ValueType.String),
+                Field.Scalar(this, "productId", "ProductId", ValueType.Number),
 
                 Field.Row(ProductDef.Instance, "product", new Join(
                     ()=>this.GetField("productId"),

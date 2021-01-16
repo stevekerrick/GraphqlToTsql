@@ -1,4 +1,5 @@
 using GraphqlToTsql.Entities;
+using GraphqlToTsql.Translator;
 using System.Collections.Generic;
 
 namespace DemoEntities
@@ -14,15 +15,15 @@ namespace DemoEntities
         {
             return new List<Field>
             {
-                Field.Scalar(this, "id", "Id"),
-                Field.Scalar(this, "urn", "Urn"),
-                Field.Scalar(this, "dispositionUrn", "DispositionUrn"),
-                Field.Scalar(this, "parentId", "ParentId"),
-                Field.Scalar(this, "bizLocationId", "BizLocationId"),
-                Field.Scalar(this, "readPointId", "ReadPointId"),
-                Field.Scalar(this, "productId", "ProductId"),
-                Field.Scalar(this, "lotNumber", "LotNumber"),
-                Field.Scalar(this, "lastUpdate", "LastUpdate"),
+                Field.Scalar(this, "id", "Id", ValueType.Number),
+                Field.Scalar(this, "urn", "Urn", ValueType.String),
+                Field.Scalar(this, "dispositionUrn", "DispositionUrn", ValueType.String),
+                Field.Scalar(this, "parentId", "ParentId", ValueType.Number),
+                Field.Scalar(this, "bizLocationId", "BizLocationId", ValueType.Number),
+                Field.Scalar(this, "readPointId", "ReadPointId", ValueType.Number),
+                Field.Scalar(this, "productId", "ProductId", ValueType.Number),
+                Field.Scalar(this, "lotNumber", "LotNumber", ValueType.String),
+                Field.Scalar(this, "lastUpdate", "LastUpdate", ValueType.String),
 
                 Field.CalculatedField(this, "dispositionName", 
                     (tableAlias) => $"SELECT d.Name FROM Disposition d WHERE d.Urn = {tableAlias}.DispositionUrn"

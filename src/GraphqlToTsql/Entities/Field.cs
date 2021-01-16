@@ -1,5 +1,4 @@
-﻿using GraphqlToTsql.Translator;
-using GraphqlToTsql.Util;
+﻿using GraphqlToTsql.Util;
 using System;
 using System.Diagnostics;
 using ValueType = GraphqlToTsql.Translator.ValueType;
@@ -13,18 +12,20 @@ namespace GraphqlToTsql.Entities
         public string Name { get; private set; }
         public FieldType FieldType { get; private set; }
         public string DbColumnName { get; private set; }
+        public ValueType ValueType { get; private set; }
         public Join Join { get; private set; }
         public Func<string, string> TemplateFunc { get; private set; }
         public Func<string, string> MutatorFunc { get; private set; }
 
         private Field() { }
 
-        public static Field Scalar(EntityBase entity, string name, string dbColumnName) => new Field
+        public static Field Scalar(EntityBase entity, string name, string dbColumnName, ValueType valueType) => new Field
         {
             FieldType = FieldType.Scalar,
             Entity = entity,
             Name = name,
-            DbColumnName = dbColumnName
+            DbColumnName = dbColumnName,
+            ValueType = valueType
         };
 
         public static Field CalculatedField(EntityBase entity, string name,
@@ -74,6 +75,7 @@ namespace GraphqlToTsql.Entities
             FieldType = FieldType.TotalCount,
             Entity = setField.Entity,
             Name = Constants.TOTAL_COUNT,
+            ValueType = ValueType.Number,
             Join = setField.Join
         };
 
@@ -95,14 +97,16 @@ namespace GraphqlToTsql.Entities
         public static Field Cursor(Field setField)
         {
             var entity = setField.Entity;
+            var pk = entity.PrimaryKeyField;
 
             return new Field
             {
                 FieldType = FieldType.Cursor,
                 Entity = new NodeEntity(setField),
                 Name = Constants.CURSOR,
+                ValueType = ValueType.String,
                 MutatorFunc =  CursorUtility.CreateCursor,
-                TemplateFunc = (tableAlias) => CursorUtility.TsqlCursorDataFunc(ValueType.Number, tableAlias, entity.DbTableName, entity.PrimaryKeyField.DbColumnName)
+                TemplateFunc = (tableAlias) => CursorUtility.TsqlCursorDataFunc(pk.ValueType, tableAlias, entity.DbTableName, pk.DbColumnName)
             };
         }
     }
