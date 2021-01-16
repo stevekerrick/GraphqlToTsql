@@ -166,6 +166,31 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
+        public void QueryOnBoolFieldTest()
+        {
+            const string graphql = "{ locations (isActive: true) { urn name isActive } }";
+
+            var expectedSql = @"
+SELECT
+
+  -- locations (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Urn] AS [urn]
+    , t1.[Name] AS [name]
+    , t1.[IsActive] AS [isActive]
+    FROM [Location] t1
+    WHERE t1.[IsActive] = @isActive
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [locations]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object> { { "isActive", 1 } };
+
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
+        }
+
+        [Test]
         public void FragmentTest()
         {
             //TODO: Implement enough of a type system so that the fragment can be defined for the type "Epc" (not "epc")

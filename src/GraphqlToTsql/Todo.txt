@@ -3,7 +3,6 @@
 Validate value types in parameters and arguments
 Field.CalculatedRow
 Exercise the Date and DateTime columns in queries
-Measure test coverage
 
 
 Finish DB initialization script
@@ -17,3 +16,4 @@ Claims-based access to tables and fields
 Add github readme notes
 Write survey of competing projects
 Add a Timestamp column and test it
+Try using null values as parameters

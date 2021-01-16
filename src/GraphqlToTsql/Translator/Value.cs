@@ -10,6 +10,32 @@ namespace GraphqlToTsql.Translator
         public object RawValue { get; }
         public string TsqlParameterName { get; set; }
 
+        // Value that can be used for TSQL Parameters
+        public object TsqlValue
+        {
+            get
+            {
+                // If a number has no fractional part, convert to int
+                if (ValueType == ValueType.Number)
+                {
+                    var decimalValue = (decimal)RawValue;
+                    if (decimalValue % 1.0m == 0.0m)
+                    {
+                        return (int)decimalValue;
+                    }
+                }
+
+                // For booleans use 0/1 (because they're type BIT in the database)
+                if (ValueType == ValueType.Boolean)
+                {
+                    var boolValue = (bool)RawValue;
+                    return boolValue ? 1 : 0;
+                }
+
+                return RawValue;
+            }
+        }
+
         public Value(GqlParser.ValueContext valueContext)
         {
             if (valueContext == null)

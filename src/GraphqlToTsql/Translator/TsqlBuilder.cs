@@ -276,20 +276,8 @@ namespace GraphqlToTsql.Translator
                 tsqlParameterName = $"{fieldName}{i}";
             }
 
-            // Refine the value, if needed
-            var value = filter.Value.RawValue;
-            if (value != null && value is decimal)
-            {
-                var decimalValue = (decimal)value;
-                var intValue = Convert.ToInt32(decimalValue);
-                if (decimalValue - intValue == 0.0M)
-                {
-                    value = intValue;
-                }
-            }
-
             filter.Value.TsqlParameterName = tsqlParameterName;
-            _tsqlParameters[tsqlParameterName] = value;
+            _tsqlParameters[tsqlParameterName] = filter.Value.TsqlValue;
             return tsqlParameterName;
         }
 
