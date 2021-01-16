@@ -21,6 +21,25 @@ namespace GraphqlToTsqlTests
             await CheckAsync(graphql, graphqlParameters, expectedObject);
         }
 
+        [Test]
+        public async Task BoolValueQueryTest()
+        {
+            const string graphql = "{ locations (isActive: false) { name isActive } }";
+            var graphqlParameters = new Dictionary<string, object> { { "isActiv", 0 } };
+
+            var expectedObject = new
+            {
+                locations = new[]
+                {
+                    new { name = "Silver Foods Warehouse", isActive = false },
+                    new { name = "Silver Foods #1", isActive = false },
+                    new { name = "Silver Foods #2", isActive = false }
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
+
         private async Task CheckAsync(string graphql, Dictionary<string, object> graphqlParameters, object expectedObject)
         {
             var runner = GetService<IRunner>();
