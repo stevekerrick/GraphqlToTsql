@@ -119,20 +119,20 @@ VALUES
 
 PRINT 'Populating: Lot';
 DECLARE
-  @lot2001a INT = 1
-, @lot2002a INT = 2
-, @lot2002b INT = 3
-, @lot2003a INT = 4
-, @lot2003b INT = 5
+  @lot2001a NVARCHAR(128) = N'LOT 2001a'
+, @lot2002a NVARCHAR(128) = N'LOT 2002a'
+, @lot2002b NVARCHAR(128) = N'LOT 2002b'
+, @lot2003a NVARCHAR(128) = N'LOT 2003a'
+, @lot2003b NVARCHAR(128) = N'LOT 2003b'
 ;
 INSERT Lot
- (Id,           LotNumber,    ExpirationDt,   ProductId)
+ (LotNumber,   ExpirationDt,   ProductId)
 VALUES
- (@lot2001a,  N'LOT 2001a',  '2020-01-31',   @jojaCola)
-,(@lot2002a,  N'LOT 2002a',  '2020-02-15',   @jojaCola)
-,(@lot2002b,  N'LOT 2002b',  '2020-02-17',   @jojaDietCola)
-,(@lot2003a,  N'LOT 2003a',  '2020-03-02',   @jojaCola)
-,(@lot2003b,  N'LOT 2003b',  '2020-03-21',   @jojaCola)
+ (@lot2001a,  '2020-01-31',   @jojaCola)
+,(@lot2002a,  '2020-02-15',   @jojaCola)
+,(@lot2002b,  '2020-02-17',   @jojaDietCola)
+,(@lot2003a,  '2020-03-02',   @jojaCola)
+,(@lot2003b,  '2020-03-21',   @jojaCola)
 ;
 
 PRINT 'Populating: Epc';

@@ -25,7 +25,7 @@ namespace GraphqlToTsqlTests
         public async Task BoolValueQueryTest()
         {
             const string graphql = "{ locations (isActive: false) { name isActive } }";
-            var graphqlParameters = new Dictionary<string, object> { { "isActiv", 0 } };
+            var graphqlParameters = new Dictionary<string, object> { { "isActiv", true } };
 
             var expectedObject = new
             {
@@ -34,6 +34,34 @@ namespace GraphqlToTsqlTests
                     new { name = "Silver Foods Warehouse", isActive = false },
                     new { name = "Silver Foods #1", isActive = false },
                     new { name = "Silver Foods #2", isActive = false }
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
+        [Test]
+        public async Task DateQueryTest()
+        {
+            var graphql = @"
+{
+  lots (expirationDate: ""2020-01-31"") {
+    lotNumber expirationDate epcs (first: 1) { id lastUpdate }
+  }
+}".Trim();
+            var graphqlParameters = new Dictionary<string, object> { { "isActiv", true } };
+
+            var expectedObject = new
+            {
+                lots = new[]
+                {
+                    new {
+                        lotNumber = "LOT 2001a",
+                        expirationDate = "2020-01-31",
+                        epcs = new[]
+                        {
+                            new { id = 8, lastUpdate = "2019-04-01T16:00:00Z" }
+                        }
+                    }
                 }
             };
             await CheckAsync(graphql, graphqlParameters, expectedObject);

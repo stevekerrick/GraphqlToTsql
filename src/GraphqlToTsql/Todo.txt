@@ -1,7 +1,7 @@
-﻿Mutate boolean sql results from 0/1 to false/true
+﻿Field.CalculatedRow
+
 
 Validate value types in parameters and arguments
-Field.CalculatedRow
 Exercise the Date and DateTime columns in queries
 
 
