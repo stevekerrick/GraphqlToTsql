@@ -13,7 +13,7 @@ GO
 
 CREATE TABLE Seller (
     [Name]        VARCHAR(64) NOT NULL PRIMARY KEY CLUSTERED
-,   Distributor   VARCHAR(64) NULL
+,   DistributorName VARCHAR(64) NULL
 ,   City          VARCHAR(64) NULL
 ,   [State]       VARCHAR(64) NULL
 ,   PostalCode    VARCHAR(15) NULL
@@ -27,7 +27,7 @@ CREATE TABLE Product (
 
 CREATE TABLE [Order] (
     Id            INT NOT NULL IDENTITY(1,1) PRIMARY KEY CLUSTERED
-,   Seller        NVARCHAR(64) NOT NULL
+,   SellerName    NVARCHAR(64) NOT NULL
 ,   [Date]        DATE NOT NULL
 ,   Shipping      DECIMAL(5,2) NOT NULL
 );
@@ -115,34 +115,34 @@ DECLARE
 , @zeus NVARCHAR(64) = 'Zeus'
 ;
 INSERT Seller
- ([Name],     Distributor,  City,         [State], PostalCode)
+ ([Name],     DistributorName, City,         [State], PostalCode)
 VALUES
- (@amber,     NULL,        'Atlanta',     'GA',   '30316')
-,(@bill,      @amber,      'Los Angeles', 'CA',   '90001')
-,(@chris,     @amber,      'Miami',       'FL',   '33101')
-,(@donada,    @bill,       'Evansville',  'IN',   '47711')
-,(@erik,      @bill,       'Baldwin',     'NY',   '11510')
-,(@francesca, @bill,       'Akron',       'OH',   '44312')
-,(@georgey,   @bill,       'Farmington',  'MI',   '48331')
-,(@helena,    @bill,       'Eastlake',    'OH',   '44095')
-,(@ivan,      @erik,       'San Angelo',  'TX',   '76901')
-,(@jolie,     @ivan,       'Goodlettsville', 'TN', '37072')
-,(@kevin,     @ivan,       'Millville',   'NJ',   '08332')
-,(@lynnette,  @chris,      'Rockville',   'MD',   '20850')
-,(@marco,     @chris,      'Riverside',   'NJ',   '08075')
-,(@novalee,   @marco,      'Navarre',     'FL',   '32566')
-,(@ovette,    @marco,      'Louisville',  'KY',   '40207')
-,(@pete,      @marco,      'Traverse City', 'MI', '49684')
-,(@queenie,   @marco,      'Manahawkin',  'NJ',   '08050')
-,(@roy,       @marco,      'Brunswick',   'GA',   '31525')
-,(@steve,     @marco,      'Plainfield',  'NJ',   '07060')
-,(@tariq,     @ovette,     'Richmond',    'VA',   '23223')
-,(@ursula,    @ovette,     'Delaware',    'OH',   '43015')
-,(@vanessa,   @ovette,     'Grand Island', 'NE',  '68801')
-,(@willem,    @vanessa,    'Norwood',     'MA',   '02062')
-,(@xavier,    @willem,     'Greenville',  'NC',   '27834')
-,(@yvette,    @xavier,     'Petersburg',  'VA',   '23803')
-,(@zeus,      @xavier,     'Dublin',      'GA',   '31021')
+ (@amber,     NULL,           'Atlanta',     'GA',   '30316')
+,(@bill,      @amber,         'Los Angeles', 'CA',   '90001')
+,(@chris,     @amber,         'Miami',       'FL',   '33101')
+,(@donada,    @bill,          'Evansville',  'IN',   '47711')
+,(@erik,      @bill,          'Baldwin',     'NY',   '11510')
+,(@francesca, @bill,          'Akron',       'OH',   '44312')
+,(@georgey,   @bill,          'Farmington',  'MI',   '48331')
+,(@helena,    @bill,          'Eastlake',    'OH',   '44095')
+,(@ivan,      @erik,          'San Angelo',  'TX',   '76901')
+,(@jolie,     @ivan,          'Goodlettsville', 'TN', '37072')
+,(@kevin,     @ivan,          'Millville',   'NJ',   '08332')
+,(@lynnette,  @chris,         'Rockville',   'MD',   '20850')
+,(@marco,     @chris,         'Riverside',   'NJ',   '08075')
+,(@novalee,   @marco,         'Navarre',     'FL',   '32566')
+,(@ovette,    @marco,         'Louisville',  'KY',   '40207')
+,(@pete,      @marco,         'Traverse City', 'MI', '49684')
+,(@queenie,   @marco,         'Manahawkin',  'NJ',   '08050')
+,(@roy,       @marco,         'Brunswick',   'GA',   '31525')
+,(@steve,     @marco,         'Plainfield',  'NJ',   '07060')
+,(@tariq,     @ovette,        'Richmond',    'VA',   '23223')
+,(@ursula,    @ovette,        'Delaware',    'OH',   '43015')
+,(@vanessa,   @ovette,        'Grand Island', 'NE',  '68801')
+,(@willem,    @vanessa,       'Norwood',     'MA',   '02062')
+,(@xavier,    @willem,        'Greenville',  'NC',   '27834')
+,(@yvette,    @xavier,        'Petersburg',  'VA',   '23803')
+,(@zeus,      @xavier,        'Dublin',      'GA',   '31021')
 ;
 
 ALTER TABLE Seller
@@ -284,18 +284,18 @@ RETURN
   WITH ParentCTE AS (
     SELECT
       [Name]
-    , Distributor
+    , DistributorName
     FROM Seller s
-    WHERE s.Distributor = @parentName
+    WHERE s.DistributorName = @parentName
 
     UNION ALL
 
     SELECT
       child.[Name]
-    , child.Distributor
+    , child.DistributorName
     FROM ParentCTE parent
     INNER JOIN Seller child
-      ON child.Distributor = parent.[Name]
+      ON child.DistributorName = parent.[Name]
   )
 
   SELECT
@@ -312,20 +312,20 @@ RETURN
   WITH ChildCTE AS (
     SELECT
       [Name]
-    , Distributor
+    , DistributorName
     FROM Seller s
-    WHERE s.[Name] = @name AND s.Distributor IS NOT NULL
+    WHERE s.[Name] = @name AND s.DistributorName IS NOT NULL
 
     UNION ALL
 
     SELECT
       parent.[Name]
-    , parent.Distributor
+    , parent.DistributorName
     FROM ChildCTE child
     INNER JOIN Seller parent
-      ON parent.[Name] = child.Distributor AND parent.Distributor IS NOT NULL
+      ON parent.[Name] = child.DistributorName AND parent.DistributorName IS NOT NULL
   )
 
   SELECT
-    Distributor AS [Name]
+    DistributorName AS [Name]
   FROM ChildCTE;

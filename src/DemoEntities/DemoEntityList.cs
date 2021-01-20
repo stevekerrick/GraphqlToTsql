@@ -9,11 +9,12 @@ namespace DemoEntities
         {
             return new List<EntityBase>
             {
-                DispositionDef.Instance,
-                EpcDef.Instance,
-                LocationDef.Instance,
-                LotDef.Instance,
-                ProductDef.Instance
+                BadgeDef.Instance,
+                OrderDef.Instance,
+                OrderDetailDef.Instance,
+                ProductDef.Instance,
+                SellerDef.Instance,
+                SellerBadgeDef.Instance
             };
         }
     }
