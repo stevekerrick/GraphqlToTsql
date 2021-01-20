@@ -14,10 +14,10 @@ namespace GraphqlToTsqlTests
         [Test]
         public async Task SimpleQueryTest()
         {
-            const string graphql = "{ epcs (id: 1) { id } }";
+            const string graphql = "{ orders (id: 1) { id } }";
             var graphqlParameters = new Dictionary<string, object> { };
 
-            var expectedObject = new { epcs = new[] { new { id = 1 } } };
+            var expectedObject = new { orders = new[] { new { id = 1 } } };
             await CheckAsync(graphql, graphqlParameters, expectedObject);
         }
 
