@@ -146,7 +146,7 @@ VALUES
 ;
 
 ALTER TABLE Seller
-  ADD CONSTRAINT FK_Seller_Distributor FOREIGN KEY (Distributor) REFERENCES Seller([Name]);
+  ADD CONSTRAINT FK_Seller_Distributor FOREIGN KEY (DistributorName) REFERENCES Seller([Name]);
 
 
 PRINT 'Populating: Product';
