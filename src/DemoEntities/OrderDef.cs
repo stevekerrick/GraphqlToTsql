@@ -20,6 +20,7 @@ namespace DemoEntities
                 Field.Scalar(this, "sellerName", "SellerName", ValueType.String),
                 Field.Scalar(this, "date", "Date", ValueType.String),
                 Field.Scalar(this, "shipping", "Shipping", ValueType.Number),
+                Field.CalculatedField(this, "total", t1=>$"SELECT "), //TODO: calculated field here
 
                 Field.Row(SellerDef.Instance, "seller", new Join(
                     ()=>this.GetField("sellerName"),

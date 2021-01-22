@@ -19,7 +19,7 @@ namespace GraphqlToTsqlTests
         [Test]
         public void EmptySelectionSetTest()
         {
-            var graphql = "{ epcs { } }";
+            var graphql = "{ products { } }";
             ParseShouldFail(graphql, null, "mismatched input '}'");
         }
 
@@ -28,10 +28,10 @@ namespace GraphqlToTsqlTests
         {
             var graphql = @"
 {
-  products {
-    urn
-    ... on Lot {
-      lotNumber
+  orders {
+    date
+    ... on Seller {
+      name
     }
   }
 }
@@ -45,9 +45,9 @@ namespace GraphqlToTsqlTests
         {
             var graphql = @"
 {
-  products {
-    lots @include(if: true) {
-      lotNumber
+  orders {
+    seller @include(if: true) {
+      name
     }
   }
 }
@@ -59,7 +59,7 @@ namespace GraphqlToTsqlTests
         [Test]
         public void FirstArgumentMustBeIntTest()
         {
-            const string graphql = "{ products { lotsConnection (first: \"oops\") { totalCount } } }";
+            const string graphql = "{ products { orderDetailsConnection (first: \"oops\") { totalCount } } }";
 
             ParseShouldFail(graphql, null, "first must be an integer");
         }
@@ -67,7 +67,7 @@ namespace GraphqlToTsqlTests
         [Test]
         public void OffsetArgumentMustBeIntTest()
         {
-            const string graphql = "{ products { lotsConnection (offset: \"oops\") { totalCount } } }";
+            const string graphql = "{ products { orderDetailsConnection (offset: \"oops\") { totalCount } } }";
 
             ParseShouldFail(graphql, null, "offset must be an integer");
         }
@@ -75,7 +75,7 @@ namespace GraphqlToTsqlTests
         [Test]
         public void AfterArgumentMustBeStringTest()
         {
-            const string graphql = "{ products { lotsConnection (after: 66) { totalCount } } }";
+            const string graphql = "{ products { orderDetailsConnection (after: 66) { totalCount } } }";
 
             ParseShouldFail(graphql, null, "after must be a string");
         }
@@ -83,7 +83,7 @@ namespace GraphqlToTsqlTests
         [Test]
         public void UsingBothOffsetAndAfterTest()
         {
-            const string graphql = "{ products { lotsConnection (first: 2, offset: 3, after: \"myCursor\") { totalCount } } }";
+            const string graphql = "{ products { orderDetailsConnection (first: 2, offset: 3, after: \"myCursor\") { totalCount } } }";
 
             ParseShouldFail(graphql, null, "You can't use 'offset' and 'after' at the same time");
         }
@@ -91,7 +91,7 @@ namespace GraphqlToTsqlTests
         [Test]
         public void DeclaredVariableWithoutValueTest()
         {
-            const string graphql = "query mytest($id: Int) { epc (id: $id) { urn } }";
+            const string graphql = "query mytest($id: Int) { order (id: $id) { shipping } }";
 
             ParseShouldFail(graphql, null, "Variable [$id] is used in the query, but doesn't have a value");
         }
@@ -100,8 +100,8 @@ namespace GraphqlToTsqlTests
         public void FragmentWithUnknownTypeTest()
         {
             var graphql = @"
-{ epcs { ... frag} }
-fragment frag on Arggh { urn }
+{ order { ... frag} }
+fragment frag on Arggh { id }
 ".Trim();
 
             ParseShouldFail(graphql, null, "Unknown type: Arggh");
@@ -110,7 +110,7 @@ fragment frag on Arggh { urn }
         [Test]
         public void UnknownEntityTest()
         {
-            const string graphql = "{ Arggh { urn } }";
+            const string graphql = "{ Arggh { id } }";
 
             ParseShouldFail(graphql, null, "Unknown entity: Arggh");
         }
@@ -118,15 +118,15 @@ fragment frag on Arggh { urn }
         [Test]
         public void UnknownFieldTest()
         {
-            const string graphql = "{ epcs { urn arggh id } }";
+            const string graphql = "{ order { id arggh shipping } }";
 
-            ParseShouldFail(graphql, null, "Unknown field: epc.arggh");
+            ParseShouldFail(graphql, null, "Unknown field: order.arggh");
         }
 
         [Test]
         public void UndeclaredVariableTest()
         {
-            const string graphql = "{ epcs(id: $Arggh) { urn } }";
+            const string graphql = "{ order(id: $Arggh) { shipping } }";
 
             ParseShouldFail(graphql, null, "Variable [$Arggh] is not declared");
         }
@@ -134,7 +134,7 @@ fragment frag on Arggh { urn }
         [Test]
         public void ArgumentOnEdgeTest()
         {
-            const string graphql = "{ products { lotsConnection { edges(cursor: \"hi\") { cursor } } } }";
+            const string graphql = "{ sellers { ordersConnection { edges(cursor: \"hi\") { cursor } } } }";
 
             ParseShouldFail(graphql, null, "Arguments are not allowed on [edges]");
         }
@@ -142,7 +142,7 @@ fragment frag on Arggh { urn }
         [Test]
         public void ArgumentOnNodeTest()
         {
-            const string graphql = "{ products { lotsConnection { edges { node(id: 1) { lotNumber } } } } }";
+            const string graphql = "{ sellers { ordersConnection { edges { node(id: 1) { id } } } } }";
 
             ParseShouldFail(graphql, null, "Arguments are not allowed on [node]");
         }
@@ -151,7 +151,7 @@ fragment frag on Arggh { urn }
         public void ArgumentWithoutNameTest()
         {
             // Funny, but our GQL language allows this malformed query, so we throw our own exception
-            const string graphql = "{ epcs (id = 1) { id } }";
+            const string graphql = "{ orders (id = 1) { id } }";
 
             ParseShouldFail(graphql, null, "Arguments should be formed like (id: 1)");
         }
@@ -159,9 +159,9 @@ fragment frag on Arggh { urn }
         [Test]
         public void ArgumentOnFieldTest()
         {
-            const string graphql = "{ products { urn (showAs: \"hex\") } }";
+            const string graphql = "{ seller { name (showAs: \"hex\") } }";
 
-            ParseShouldFail(graphql, null, "Arguments are not allowed on [urn]");
+            ParseShouldFail(graphql, null, "Arguments are not allowed on [name]");
         }
 
         // The QueryBuilder is also exercised in the Parse step, and that's really where most of the errors are being found

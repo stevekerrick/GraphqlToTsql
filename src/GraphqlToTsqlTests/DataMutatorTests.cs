@@ -14,7 +14,7 @@ namespace GraphqlToTsqlTests
         private Fixture _fixture = new Fixture();
 
         [Test]
-        public void NoMutationsNeededReturnsOriginalDataJsonTest()
+        public void NoMutationsNeededRetnamesOriginalDataJsonTest()
         {
             // Build up the term tree
             var topTerm = Term.TopLevel();
@@ -24,16 +24,16 @@ namespace GraphqlToTsqlTests
             var productTerm = new Term(topTerm, productField, "product");
             topTerm.Children.Add(productTerm);
 
-            var urnField = product.GetField("urn");
-            var urnTerm = new Term(productTerm, urnField, "urn");
-            productTerm.Children.Add(urnTerm);
+            var nameField = product.GetField("name");
+            var nameTerm = new Term(productTerm, nameField, "name");
+            productTerm.Children.Add(nameTerm);
 
             // Act
             var dataJson = "{foo: 1}";
             var dataMutator = new DataMutator();
             var mutatedJson = dataMutator.Mutate(dataJson, topTerm);
 
-            // The original DataJson object should have been returned
+            // The original DataJson object should have been retnameed
             Assert.AreSame(dataJson, mutatedJson);
         }
 
@@ -41,55 +41,55 @@ namespace GraphqlToTsqlTests
         public void MutationsAreAppliedTest()
         {
             // Create a couple of cursors to use
-            var lotId1 = _fixture.Create<int>();
-            var cursorData1 = CursorUtility.CursorDataFunc(new Value(lotId1), "Lot");
+            var order1 = _fixture.Create<int>();
+            var cursorData1 = CursorUtility.CursorDataFunc(new Value(order1), "Order");
             var cursor1 = CursorUtility.CreateCursor(cursorData1);
 
-            var lotId2 = _fixture.Create<int>();
-            var cursorData2 = CursorUtility.CursorDataFunc(new Value(lotId2), "Lot");
+            var order2 = _fixture.Create<int>();
+            var cursorData2 = CursorUtility.CursorDataFunc(new Value(order2), "Order");
             var cursor2 = CursorUtility.CreateCursor(cursorData2);
 
             // Build up the term tree
             var topTerm = Term.TopLevel();
-            var product = ProductDef.Instance;
+            var seller = SellerDef.Instance;
 
-            var productField = Field.Row(product, "product", null);
-            var productTerm = new Term(topTerm, productField, "product");
-            topTerm.Children.Add(productTerm);
+            var sellerField = Field.Row(seller, "seller", null);
+            var sellerTerm = new Term(topTerm, sellerField, "seller");
+            topTerm.Children.Add(sellerTerm);
 
-            var urnField = product.GetField("urn");
-            var urnTerm = new Term(productTerm, urnField, "urn");
-            productTerm.Children.Add(urnTerm);
+            var nameField = seller.GetField("name");
+            var nameTerm = new Term(sellerTerm, nameField, "name");
+            sellerTerm.Children.Add(nameTerm);
 
-            var lotsField = product.GetField("lots");
-            var lotsTerm = new Term(productTerm, lotsField, "lots");
-            productTerm.Children.Add(lotsTerm);
+            var ordersField = seller.GetField("orders");
+            var ordersTerm = new Term(sellerTerm, ordersField, "orders");
+            sellerTerm.Children.Add(ordersTerm);
 
-            var lotNumberField = lotsField.Entity.GetField("lotNumber");
-            var lotNumberTerm = new Term(lotsTerm, lotNumberField, "lotNumber");
-            lotsTerm.Children.Add(lotNumberTerm);
+            var orderIdField = ordersField.Entity.GetField("id");
+            var orderIdTerm = new Term(ordersTerm, orderIdField, "id");
+            ordersTerm.Children.Add(orderIdTerm);
 
-            var lotCursorField = Field.Cursor(lotsField);
-            var lotCursorTerm = new Term(lotsTerm, lotCursorField, "cursor");
-            lotsTerm.Children.Add(lotCursorTerm);
+            var orderCursorField = Field.Cursor(ordersField);
+            var orderCursorTerm = new Term(ordersTerm, orderCursorField, "cursor");
+            ordersTerm.Children.Add(orderCursorTerm);
 
             // Starting data
-            var productUrn = _fixture.Create<string>();
-            var lotNumber1 = _fixture.Create<string>();
-            var lotNumber2 = _fixture.Create<string>();
+            var sellerName = _fixture.Create<string>();
+            var orderId1 = _fixture.Create<int>();
+            var orderId2 = _fixture.Create<int>();
 
             var startingData = new
             {
-                product = new
+                seller = new
                 {
-                    urn = productUrn,
-                    lots = new[] {
+                    name = sellerName,
+                    orders = new[] {
                         new {
-                            lotNumber = lotNumber1,
+                            id = orderId1,
                             cursor = cursorData1
                         },
                         new {
-                            lotNumber = lotNumber2,
+                            id = orderId2,
                             cursor = cursorData2
                         }
                     }
@@ -100,16 +100,16 @@ namespace GraphqlToTsqlTests
             // Expected data
             var expectedData = new
             {
-                product = new
+                seller = new
                 {
-                    urn = productUrn,
-                    lots = new[] {
+                    name = sellerName,
+                    orders = new[] {
                         new {
-                            lotNumber = lotNumber1,
+                            id = orderId1,
                             cursor = cursor1
                         },
                         new {
-                            lotNumber = lotNumber2,
+                            id = orderId2,
                             cursor = cursor2
                         }
                     }

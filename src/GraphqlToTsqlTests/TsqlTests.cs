@@ -15,17 +15,17 @@ namespace GraphqlToTsqlTests
         [Test]
         public void SimpleQueryTest()
         {
-            const string graphql = "{ epcs { urn } }";
+            const string graphql = "{ sellers { name } }";
 
             var expectedSql = @"
 SELECT
 
-  -- epcs (t1)
+  -- sellers (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [urn]
-    FROM [Epc] t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+      t1.[Name] AS [name]
+    FROM [Seller] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
@@ -37,17 +37,17 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void AliasTest()
         {
-            const string graphql = "{ codes: epcs { MyUrl: urn } }";
+            const string graphql = "{ dealers: sellers { HappyName: name } }";
 
             var expectedSql = @"
 SELECT
 
-  -- codes (t1)
+  -- dealers (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [MyUrl]
-    FROM [Epc] t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [codes]
+      t1.[Name] AS [HappyName]
+    FROM [Seller] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [dealers]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
@@ -59,18 +59,18 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void ArgumentTest()
         {
-            const string graphql = "{ epcs (id: 1) { urn } }";
+            const string graphql = "{ orders (id: 1) { shipping } }";
 
             var expectedSql = @"
 SELECT
 
-  -- epcs (t1)
+  -- orders (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [urn]
-    FROM [Epc] t1
+      t1.[Shipping] AS [shipping]
+    FROM [Order] t1
     WHERE t1.[Id] = @id
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [orders]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
@@ -84,25 +84,25 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void JoinTest()
         {
-            const string graphql = "{ epcs { urn product { name } } }";
+            const string graphql = "{ orders { id seller { name } } }";
 
             var expectedSql = @"
 SELECT
 
-  -- epcs (t1)
+  -- orders (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [urn]
+      t1.[Id] AS [id]
 
-      -- epcs.product (t2)
+      -- orders.seller (t2)
     , JSON_QUERY ((
         SELECT
           t2.[Name] AS [name]
-        FROM [Product] t2
-        WHERE t1.[ProductId] = t2.[Id]
-        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [product]
-    FROM [Epc] t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+        FROM [Seller] t2
+        WHERE t1.[SellerName] = t2.[Name]
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [seller]
+    FROM [Order] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [orders]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
@@ -114,8 +114,8 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void VariableTest()
         {
-            const string graphql = "query VariableTest($idVar: ID, $urnVar: String = \"bill\") { epcs (id: $idVar, urn: $urnVar) { urn } }";
-            var graphqlParameters = new Dictionary<string, object> { { "idVar", 2 } };
+            const string graphql = "query VariableTest($nameVar: String = \"Hammer\", $priceVar: Float) { products (name: $nameVar, price: $priceVar) { price } }";
+            var graphqlParameters = new Dictionary<string, object> { { "priceVar", 11.22 } };
 
             var expectedSql = @"
 -------------------------------
@@ -124,19 +124,19 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
 SELECT
 
-  -- epcs (t1)
+  -- products (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [urn]
-    FROM [Epc] t1
-    WHERE t1.[Id] = @idVar AND t1.[Urn] = @urnVar
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+      t1.[Price] AS [price]
+    FROM [Product] t1
+    WHERE t1.[Name] = @nameVar AND t1.[Price] = @priceVar
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object> {
-                { "idVar", 2 },
-                { "urnVar", "bill" }
+                { "nameVar", "Hammer" },
+                { "priceVar", 11.22 }
             };
 
             Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
@@ -168,24 +168,23 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void QueryOnBoolFieldTest()
         {
-            const string graphql = "{ locations (isActive: true) { urn name isActive } }";
+            const string graphql = "{ badges (isSpecial: true) { name isSpecial } }";
 
             var expectedSql = @"
 SELECT
 
-  -- locations (t1)
+  -- badges (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [urn]
-    , t1.[Name] AS [name]
-    , t1.[IsActive] AS [isActive]
-    FROM [Location] t1
-    WHERE t1.[IsActive] = @isActive
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [locations]
+      t1.[Name] AS [name]
+    , t1.[IsSpecial] AS [isSpecial]
+    FROM [Badge] t1
+    WHERE t1.[IsSpecial] = @isSpecial
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [badges]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
-            var expectedTsqlParameters = new Dictionary<string, object> { { "isActive", 1 } };
+            var expectedTsqlParameters = new Dictionary<string, object> { { "isSpecial", 1 } };
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
@@ -195,19 +194,19 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         {
             //TODO: Implement enough of a type system so that the fragment can be defined for the type "Epc" (not "epc")
             var graphql = @"
-{ epcs { ... frag} }
-fragment frag on epc { urn }
+{ badges { ... frag} }
+fragment frag on badge { name }
 ".Trim();
 
             var expectedSql = @"
 SELECT
 
-  -- epcs (t1)
+  -- badges (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [urn]
-    FROM [Epc] t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+      t1.[Name] AS [name]
+    FROM [Badge] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [badges]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
@@ -220,56 +219,58 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         public void ComplicatedQueryTest()
         {
             var graphql = @"
-query jojaCola ($urn: string) {
-  product1: product (urn: $urn) {
-    name urn
-    lots {
-      lotNumber expirationDate
-      epcs {
-        urn disposition { name }
-        bizLocation { urn name }
-        readPoint { urn name }
-        lastUpdate
-        children { urn disposition { name } }
+query hammerQuery ($name: string) {
+  product1: product (name: $name) {
+    name price
+    orderDetails {
+      orderId quantity
+      order {
+        date seller {
+          city state
+          distributor { name }
+          recruits { name }
+          sellerBadges { badge { name } }
+        }
       }
     }
   }
 }
 ".Trim();
-            var graphqlParameters = new Dictionary<string, object> { { "urn", "urn:epc:idpat:sgtin:258643.3704146.*" } };
+            var graphqlParameters = new Dictionary<string, object> { { "name", "Hammer" } };
 
             var result = Translate(graphql, graphqlParameters);
             var tsql = result.Tsql;
-            Assert.IsTrue(tsql.Contains("jojaCola"));
+            Assert.IsTrue(tsql.Contains("hammerQuery"));
             Assert.IsTrue(tsql.Contains("Product"));
-            Assert.IsTrue(tsql.Contains("Lot"));
-            Assert.IsTrue(tsql.Contains("Epc"));
-            Assert.IsTrue(tsql.Contains("Disposition"));
-            Assert.IsTrue(tsql.Contains("Location"));
+            Assert.IsTrue(tsql.Contains("OrderDetail"));
+            Assert.IsTrue(tsql.Contains("Order"));
+            Assert.IsTrue(tsql.Contains("Seller"));
+            Assert.IsTrue(tsql.Contains("SellerBadge"));
+            Assert.IsTrue(tsql.Contains("Badge"));
         }
 
         [Test]
         public void TotalCountTest()
         {
             var graphql = @"
-{ products { urn lotsConnection { totalCount } } }
+{ sellers { name ordersConnection { totalCount } } }
 ".Trim();
 
             var expectedSql = @"
 SELECT
 
-  -- products (t1)
+  -- sellers (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [urn]
+      t1.[Name] AS [name]
 
-      -- products.lotsConnection (t2)
+      -- sellers.ordersConnection (t2)
     , JSON_QUERY ((
         SELECT
-          (SELECT COUNT(1) FROM [Lot] t3 WHERE t1.[Id] = t3.[ProductId]) AS [totalCount]
-        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [lotsConnection]
-    FROM [Product] t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+          (SELECT COUNT(1) FROM [Order] t3 WHERE t1.[Name] = t3.[SellerName]) AS [totalCount]
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [ordersConnection]
+    FROM [Seller] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
@@ -281,20 +282,20 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void FirstOffsetTest()
         {
-            const string graphql = "{ epcs (offset: 10, first: 2) { urn } }";
+            const string graphql = "{ sellers (offset: 10, first: 2) { city } }";
 
             var expectedSql = @"
 SELECT
 
-  -- epcs (t1)
+  -- sellers (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [urn]
-    FROM [Epc] t1
-    ORDER BY t1.[Id]
+      t1.[City] AS [city]
+    FROM [Seller] t1
+    ORDER BY t1.[Name]
     OFFSET 10 ROWS
     FETCH FIRST 2 ROWS ONLY
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
@@ -308,10 +309,10 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         {
             var graphql = @"
 {
-  products (urn: ""urn:epc:idpat:sgtin:258643.3704146.*"") {
-    urn lotsConnection {
+  sellers (name: ""bill"") {
+    city ordersConnection {
       edges {
-        node { lotNumber expirationDate }
+        node { date shipping }
       }
     }
   }
@@ -321,36 +322,36 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             var expectedSql = @"
 SELECT
 
-  -- products (t1)
+  -- sellers (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [urn]
+      t1.[City] AS [city]
 
-      -- products.lotsConnection (t2)
+      -- sellers.ordersConnection (t2)
     , JSON_QUERY ((
         SELECT
 
-          -- products.lotsConnection.edges (t2)
+          -- sellers.ordersConnection.edges (t2)
           JSON_QUERY ((
             SELECT
 
-              -- products.lotsConnection.edges.node (t2)
+              -- sellers.ordersConnection.edges.node (t2)
               JSON_QUERY ((
                 SELECT
-                  t2.[LotNumber] AS [lotNumber]
-                , t2.[ExpirationDt] AS [expirationDate]
+                  t2.[Date] AS [date]
+                , t2.[Shipping] AS [shipping]
                 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
-            FROM [Lot] t2
-            WHERE t1.[Id] = t2.[ProductId]
+            FROM [Order] t2
+            WHERE t1.[Name] = t2.[SellerName]
             FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]
-        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [lotsConnection]
-    FROM [Product] t1
-    WHERE t1.[Urn] = @urn
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [ordersConnection]
+    FROM [Seller] t1
+    WHERE t1.[Name] = @name
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
-            var expectedTsqlParameters = new Dictionary<string, object> { { "urn", "urn:epc:idpat:sgtin:258643.3704146.*" } };
+            var expectedTsqlParameters = new Dictionary<string, object> { { "name", "bill" } };
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
@@ -360,10 +361,10 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         {
             var graphql = @"
 {
-  products {
-    lotsConnection {
+  sellers {
+    ordersConnection {
       edges {
-        node { lotNumber }
+        node { id }
         cursor
       }
     }
@@ -374,30 +375,30 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             var expectedSql = @$"
 SELECT
 
-  -- products (t1)
+  -- sellers (t1)
   JSON_QUERY ((
     SELECT
 
-      -- products.lotsConnection (t2)
+      -- sellers.ordersConnection (t2)
       JSON_QUERY ((
         SELECT
 
-          -- products.lotsConnection.edges (t2)
+          -- sellers.ordersConnection.edges (t2)
           JSON_QUERY ((
             SELECT
 
-              -- products.lotsConnection.edges.node (t2)
+              -- sellers.ordersConnection.edges.node (t2)
               JSON_QUERY ((
                 SELECT
-                  t2.[LotNumber] AS [lotNumber]
+                  t2.[Id] AS [id]
                 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
-            , ({CursorUtility.TsqlCursorDataFunc(ValueType.String, "t2", "Lot", "LotNumber")}) AS [cursor]
-            FROM [Lot] t2
-            WHERE t1.[Id] = t2.[ProductId]
+            , ({CursorUtility.TsqlCursorDataFunc(ValueType.Number, "t2", "Order", "Id")}) AS [cursor]
+            FROM [Order] t2
+            WHERE t1.[Name] = t2.[SellerName]
             FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]
-        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [lotsConnection]
-    FROM [Product] t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [ordersConnection]
+    FROM [Seller] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
@@ -409,15 +410,15 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void FirstAfterTest()
         {
-            var after = "Lot999";
-            var cursor = CursorUtility.CreateCursor(new Value(after), "Lot");
+            var after = 999;
+            var cursor = CursorUtility.CreateCursor(new Value(after), "Order");
 
             var graphql = @"
 query FirstAfterTest($cursor: String) {
-  products {
-    lotsConnection (first: 3, after: $cursor) {
+  sellers {
+    ordersConnection (first: 3, after: $cursor) {
       edges {
-        node { lotNumber }
+        node { shipping }
       }
     }
   }
@@ -432,37 +433,37 @@ query FirstAfterTest($cursor: String) {
 
 SELECT
 
-  -- products (t1)
+  -- sellers (t1)
   JSON_QUERY ((
     SELECT
 
-      -- products.lotsConnection (t2)
+      -- sellers.ordersConnection (t2)
       JSON_QUERY ((
         SELECT
 
-          -- products.lotsConnection.edges (t2)
+          -- sellers.ordersConnection.edges (t2)
           JSON_QUERY ((
             SELECT
 
-              -- products.lotsConnection.edges.node (t2)
+              -- sellers.ordersConnection.edges.node (t2)
               JSON_QUERY ((
                 SELECT
-                  t2.[LotNumber] AS [lotNumber]
+                  t2.[Shipping] AS [shipping]
                 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
-            FROM [Lot] t2
-            WHERE t1.[Id] = t2.[ProductId] AND t2.[LotNumber] > @lotNumber
-            ORDER BY t2.[LotNumber]
+            FROM [Order] t2
+            WHERE t1.[Name] = t2.[SellerName] AND t2.[Id] > @id
+            ORDER BY t2.[Id]
             OFFSET 0 ROWS
             FETCH FIRST 3 ROWS ONLY
             FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]
-        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [lotsConnection]
-    FROM [Product] t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [ordersConnection]
+    FROM [Seller] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
 
-            var expectedTsqlParameters = new Dictionary<string, object> { { "lotNumber", after } };
+            var expectedTsqlParameters = new Dictionary<string, object> { { "id", after } };
 
             Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
         }
@@ -470,25 +471,25 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void FirstOffsetWithFilterTest()
         {
-            const string graphql = "{ epcs (offset: 10, first: 2, dispositionUrn: 99) { urn } }";
+            const string graphql = "{ sellers (offset: 10, first: 2, city: \"Kona\") { distributorName } }";
 
             var expectedSql = @"
 SELECT
 
-  -- epcs (t1)
+  -- sellers (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [urn]
-    FROM [Epc] t1
-    WHERE t1.[DispositionUrn] = @dispositionUrn
-    ORDER BY t1.[Id]
+      t1.[DistributorName] AS [distributorName]
+    FROM [Seller] t1
+    WHERE t1.[City] = @city
+    ORDER BY t1.[Name]
     OFFSET 10 ROWS
     FETCH FIRST 2 ROWS ONLY
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
-            var expectedTsqlParameters = new Dictionary<string, object> { { "dispositionUrn", 99 } };
+            var expectedTsqlParameters = new Dictionary<string, object> { { "city", "Kona" } };
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
@@ -497,14 +498,14 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         public void FirstAfterWithFilterTest()
         {
             var after = 999;
-            var cursor = CursorUtility.CreateCursor(new Value(after), "Epc");
+            var cursor = CursorUtility.CreateCursor(new Value(after), "Order");
 
             var graphql = @"
 query FirstAfterWithFilterTest($cursor: String) {
-  products {
-    epcsConnection (first: 3, after: $cursor, dispositionUrn: 1) {
+  sellers {
+    ordersConnection (first: 3, after: $cursor, shipping: 9.95) {
       edges {
-        node { lotNumber }
+        node { date }
       }
     }
   }
@@ -519,37 +520,37 @@ query FirstAfterWithFilterTest($cursor: String) {
 
 SELECT
 
-  -- products (t1)
+  -- sellers (t1)
   JSON_QUERY ((
     SELECT
 
-      -- products.epcsConnection (t2)
+      -- sellers.ordersConnection (t2)
       JSON_QUERY ((
         SELECT
 
-          -- products.epcsConnection.edges (t2)
+          -- sellers.ordersConnection.edges (t2)
           JSON_QUERY ((
             SELECT
 
-              -- products.epcsConnection.edges.node (t2)
+              -- sellers.ordersConnection.edges.node (t2)
               JSON_QUERY ((
                 SELECT
-                  t2.[LotNumber] AS [lotNumber]
+                  t2.[Date] AS [date]
                 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
-            FROM [Epc] t2
-            WHERE t1.[Id] = t2.[ProductId] AND t2.[DispositionUrn] = @dispositionUrn AND t2.[Id] > @id
+            FROM [Order] t2
+            WHERE t1.[Name] = t2.[SellerName] AND t2.[Shipping] = @shipping AND t2.[Id] > @id
             ORDER BY t2.[Id]
             OFFSET 0 ROWS
             FETCH FIRST 3 ROWS ONLY
             FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]
-        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [epcsConnection]
-    FROM [Product] t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [ordersConnection]
+    FROM [Seller] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
 
-            var expectedTsqlParameters = new Dictionary<string, object> { { "id", after }, { "dispositionUrn", 1 } };
+            var expectedTsqlParameters = new Dictionary<string, object> { { "id", after }, { "shipping", 9.95 } };
 
             Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
         }

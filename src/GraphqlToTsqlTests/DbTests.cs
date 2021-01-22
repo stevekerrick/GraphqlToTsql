@@ -24,16 +24,15 @@ namespace GraphqlToTsqlTests
         [Test]
         public async Task BoolValueQueryTest()
         {
-            const string graphql = "{ locations (isActive: false) { name isActive } }";
-            var graphqlParameters = new Dictionary<string, object> { { "isActiv", true } };
+            const string graphql = "{ badges (isSpecial: true) { name isSpecial } }";
+            var graphqlParameters = new Dictionary<string, object> { { "isSpecial", true } };
 
             var expectedObject = new
             {
-                locations = new[]
+                badges = new[]
                 {
-                    new { name = "Silver Foods Warehouse", isActive = false },
-                    new { name = "Silver Foods #1", isActive = false },
-                    new { name = "Silver Foods #2", isActive = false }
+                    new { name = "Diamond", isSpecial = true },
+                    new { name = "Founder", isSpecial = true }
                 }
             };
             await CheckAsync(graphql, graphqlParameters, expectedObject);
@@ -44,22 +43,24 @@ namespace GraphqlToTsqlTests
         {
             var graphql = @"
 {
-  lots (expirationDate: ""2020-01-31"") {
-    lotNumber expirationDate epcs (first: 1) { id lastUpdate }
+  orders (date: ""2020-01-29"") {
+    id date seller { name sellerBadges(first: 1) { badgeName dateAwarded } }
   }
 }".Trim();
             var graphqlParameters = new Dictionary<string, object> { { "isActiv", true } };
 
             var expectedObject = new
             {
-                lots = new[]
+                orders = new[]
                 {
                     new {
-                        lotNumber = "LOT 2001a",
-                        expirationDate = "2020-01-31",
-                        epcs = new[]
-                        {
-                            new { id = 8, lastUpdate = "2019-04-01T16:00:00Z" }
+                        id = 2,
+                        date = "2020-01-29",
+                        seller = new {
+                            name = "Bill",
+                            sellerBadges = new[] {
+                                new { badgeName = "Founder", dateAwarded = "2020-02-07" }
+                            }
                         }
                     }
                 }
