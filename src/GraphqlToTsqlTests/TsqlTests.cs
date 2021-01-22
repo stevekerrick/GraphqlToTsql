@@ -145,18 +145,18 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void CalculatedFieldTest()
         {
-            const string graphql = "{ epcs { urn dispositionName } }";
+            const string graphql = "{ products { price totalRevenue } }";
 
             var expectedSql = @"
 SELECT
 
-  -- epcs (t1)
+  -- products (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [urn]
-    , (SELECT d.Name FROM Disposition d WHERE d.Urn = t1.DispositionUrn) AS [dispositionName]
-    FROM [Epc] t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+      t1.[Price] AS [price]
+    , (SELECT (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE t1.[Name] = od.ProductName) * t1.Price) AS [totalRevenue]
+    FROM [Product] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
@@ -558,25 +558,25 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void CalculatedSetTest()
         {
-            const string graphql = "{ epcs { urn descendants { id urn } } }";
+            const string graphql = "{ sellers { name descendants { name city } } }";
 
             var expectedSql = @"
 SELECT
 
-  -- epcs (t1)
+  -- sellers (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Urn] AS [urn]
+      t1.[Name] AS [name]
 
-      -- epcs.descendants (t2)
+      -- sellers.descendants (t2)
     , JSON_QUERY ((
         SELECT
-          t2.[Id] AS [id]
-        , t2.[Urn] AS [urn]
-        FROM (SELECT e.* FROM tvf_AllDescendants(t1.Id) d INNER JOIN Epc e ON d.Id = e.Id) t2
+          t2.[Name] AS [name]
+        , t2.[City] AS [city]
+        FROM (SELECT s.* FROM tvf_AllDescendants(t1.Name) d INNER JOIN Seller s ON d.Name = e.Name) t2
         FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [descendants]
-    FROM [Epc] t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [epcs]
+    FROM [Seller] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();

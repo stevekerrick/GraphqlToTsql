@@ -38,6 +38,13 @@ namespace DemoEntities
                 Field.Set(SellerBadgeDef.Instance, "sellerBadges", new Join(
                     ()=>this.GetField("name"),
                     ()=>SellerBadgeDef.Instance.GetField("sellerName"))
+                ),
+
+                Field.CalculatedSet(this, "descendants",
+                    (tableAlias) => $"SELECT s.* FROM tvf_AllDescendants({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = e.Name"
+                ),
+                Field.CalculatedSet(this, "ancestors",
+                    (tableAlias) => $"SELECT s.* FROM tvf_AllAncestors({tableAlias}.Name) a INNER JOIN Seller s ON a.Name = e.Name"
                 )
             };
         }

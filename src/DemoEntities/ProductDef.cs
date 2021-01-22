@@ -20,6 +20,10 @@ namespace DemoEntities
                 Field.Scalar(this, "description", "Description", ValueType.String),
                 Field.Scalar(this, "price", "Price", ValueType.Number),
 
+                Field.CalculatedField(this, "totalRevenue",
+                    (tableAlias) => $"SELECT (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName) * {tableAlias}.Price"
+                ),
+
                 Field.Set(OrderDetailDef.Instance, "orderDetails", new Join(
                     ()=>this.GetField("name"),
                     ()=>OrderDetailDef.Instance.GetField("productName"))
