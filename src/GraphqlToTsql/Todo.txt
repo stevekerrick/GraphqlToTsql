@@ -1,11 +1,11 @@
-﻿Field.CalculatedRow
+﻿Table as SQL query
+Composite Keys
+Mark field as "Private"
 
 
+Field.CalculatedRow
 Validate value types in parameters and arguments
 Exercise the Date and DateTime columns in queries
-
-
-Finish DB initialization script
 
 Unit tests for other Translator components
 Support multi-tenant
@@ -18,8 +18,5 @@ Write survey of competing projects
 Add a Timestamp column and test it
 Try using null values as parameters
 
-Composite Keys
-Mark field as "Private"
-Table as SQL query
 Create new queries for DemoApp
 

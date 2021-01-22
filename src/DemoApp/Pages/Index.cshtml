@@ -78,23 +78,19 @@
 <script>
     // Prebuilt queries
     var simpleQuery = `{
-  epc (id: 1) {
-    id
+  product (name: "Hammer") {
+    name
   }
 }`;
-    var productLotsQuery = `query ProductLots ($urn: String) {
-  product (urn: $urn) {
-    name lots {
-      lotNumber expirationDate epcsConnection {
-        epcCount: totalCount
-      }
-    }
+    var productTotalsQuery = `query ProductTotals {
+  products {
+    name description price totalRevenue
   }
 }`;
-    var epcDescendantsQuery = `query EpcDescendants ($id: Int) {
-  epc (id: $id) {
-    id urn dispositionName descendants {
-      id urn dispositionName
+    var sellerDescendantsQuery = `query SellerDescendants ($name: String) {
+  seller (name: $name) {
+    name city state descendants {
+      name city state
     }
   }
 }`;
@@ -102,8 +98,8 @@
     var prebuiltQueries = [
         { name: "empty", description: "clears the workspace", graphql: "", graphqlParameters: "" },
         { name: "simple", description: "simplest possible query", graphql: simpleQuery, graphqlParameters: "" },
-        { name: "product lots", description: "highlights: totalCount", graphql: productLotsQuery, graphqlParameters: '{ urn: "urn:epc:idpat:sgtin:258643.3704146.*" }' },
-        { name: "epc descendants", description: "highlights: using a tvf", graphql: epcDescendantsQuery, graphqlParameters: '{ id: 2 }' }
+        { name: "product totals", description: "highlights: computed column", graphql: productTotalsQuery, graphqlParameters: '{ }' },
+        { name: "seller descendants", description: "highlights: using a tvf", graphql: sellerDescendantsQuery, graphqlParameters: '{ name: "Bill" }' }
     ];
 
 </script>

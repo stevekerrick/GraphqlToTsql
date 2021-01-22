@@ -27,7 +27,7 @@ namespace DemoEntities
                 Field.Row(ProductDef.Instance, "product", new Join(
                     ()=>this.GetField("productName"),
                     ()=>ProductDef.Instance.GetField("name"))
-                ),
+                )
             };
         }
     }

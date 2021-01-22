@@ -41,10 +41,10 @@ namespace DemoEntities
                 ),
 
                 Field.CalculatedSet(this, "descendants",
-                    (tableAlias) => $"SELECT s.* FROM tvf_AllDescendants({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = e.Name"
+                    (tableAlias) => $"SELECT s.* FROM tvf_AllDescendants({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name"
                 ),
                 Field.CalculatedSet(this, "ancestors",
-                    (tableAlias) => $"SELECT s.* FROM tvf_AllAncestors({tableAlias}.Name) a INNER JOIN Seller s ON a.Name = e.Name"
+                    (tableAlias) => $"SELECT s.* FROM tvf_AllAncestors({tableAlias}.Name) a INNER JOIN Seller s ON a.Name = s.Name"
                 )
             };
         }

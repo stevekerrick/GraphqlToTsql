@@ -14,6 +14,7 @@ namespace GraphqlToTsql.Entities
         public virtual string PluralName => $"{Name}s";
         public virtual string DbTableName { get; }
         public abstract string PrimaryKeyFieldName { get; }
+        public virtual string VirtualEntitySql { get; }
         public List<Field> Fields
         {
             get
