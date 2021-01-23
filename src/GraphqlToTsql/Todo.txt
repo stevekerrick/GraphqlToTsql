@@ -1,5 +1,4 @@
-﻿Table as SQL query
-Composite Keys
+﻿Composite Keys
 Mark field as "Private"
 
 
@@ -17,6 +16,5 @@ Add github readme notes
 Write survey of competing projects
 Add a Timestamp column and test it
 Try using null values as parameters
-
-Create new queries for DemoApp
+Use settings to force paging on large lists
 

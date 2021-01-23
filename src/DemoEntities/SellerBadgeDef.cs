@@ -10,7 +10,7 @@ namespace DemoEntities
 
         public override string Name => "sellerBadge";
         public override string DbTableName => "SellerBadge";
-        public override string PrimaryKeyFieldName => "sellerName"; //TODO: composite key
+        public override string[] PrimaryKeyFieldNames => new[] { "sellerName", "badgeName" };
 
         protected override List<Field> BuildFieldList()
         {

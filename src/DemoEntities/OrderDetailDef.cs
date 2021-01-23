@@ -10,7 +10,7 @@ namespace DemoEntities
 
         public override string Name => "orderDetail";
         public override string DbTableName => "OrderDetail";
-        public override string PrimaryKeyFieldName => "orderId"; //TODO: composite PK
+        public override string[] PrimaryKeyFieldNames => new[] { "orderId", "productName" };
 
         protected override List<Field> BuildFieldList()
         {

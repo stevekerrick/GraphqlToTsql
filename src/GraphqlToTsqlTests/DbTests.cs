@@ -59,7 +59,7 @@ namespace GraphqlToTsqlTests
                         seller = new {
                             name = "Bill",
                             sellerBadges = new[] {
-                                new { badgeName = "Founder", dateAwarded = "2020-02-07" }
+                                new { badgeName = "Diamond", dateAwarded = "2020-04-07" }
                             }
                         }
                     }

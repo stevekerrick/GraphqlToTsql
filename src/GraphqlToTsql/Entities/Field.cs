@@ -1,4 +1,5 @@
-﻿using GraphqlToTsql.Util;
+﻿using GraphqlToTsql.Translator;
+using GraphqlToTsql.Util;
 using System;
 using System.Diagnostics;
 using ValueType = GraphqlToTsql.Translator.ValueType;
@@ -97,7 +98,7 @@ namespace GraphqlToTsql.Entities
         public static Field Cursor(Field setField)
         {
             var entity = setField.Entity;
-            var pk = entity.PrimaryKeyField;
+            var pk = entity.SinglePrimaryKeyFieldForPaging;
 
             return new Field
             {
@@ -109,6 +110,7 @@ namespace GraphqlToTsql.Entities
                 TemplateFunc = (tableAlias) => CursorUtility.TsqlCursorDataFunc(pk.ValueType, tableAlias, entity.DbTableName, pk.DbColumnName)
             };
         }
+
     }
 
     public enum FieldType

@@ -11,7 +11,7 @@ namespace DemoEntities
 
         public override string Name => "sellerProductTotal";
         public override string DbTableName => "SellerProductTotal";
-        public override string PrimaryKeyFieldName => "name"; //TODO: composite key
+        public override string[] PrimaryKeyFieldNames => new[] { "sellerName", "productName" };
         public override string SqlDefinition => @"
 SELECT
   o.SellerName

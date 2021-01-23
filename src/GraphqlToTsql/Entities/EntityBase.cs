@@ -13,7 +13,7 @@ namespace GraphqlToTsql.Entities
         public abstract string Name { get; }
         public virtual string PluralName => $"{Name}s";
         public virtual string DbTableName { get; }
-        public abstract string PrimaryKeyFieldName { get; }
+        public abstract string[] PrimaryKeyFieldNames { get; }
         public virtual string SqlDefinition { get; }
         public List<Field> Fields
         {
@@ -61,6 +61,27 @@ namespace GraphqlToTsql.Entities
             throw new InvalidRequestException($"Unknown field: {Name}.{name}", context);
         }
 
-        public virtual Field PrimaryKeyField => GetField(PrimaryKeyFieldName);
+        public virtual List<Field> PrimaryKeyFields
+        {
+            get
+            {
+                return PrimaryKeyFieldNames
+                    .Select(pk => GetField(pk))
+                    .ToList();
+            }
+        }
+
+        public Field SinglePrimaryKeyFieldForPaging
+        {
+            get
+            {
+                var pks = PrimaryKeyFields;
+                if (pks.Count > 1)
+                {
+                    throw new InvalidRequestException($"Cursor-based paging can not be used for {Name}. Try paging with First/Offset instead.");
+                }
+                return pks[0];
+            }
+        }
     }
 }

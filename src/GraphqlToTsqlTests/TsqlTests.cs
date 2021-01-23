@@ -305,6 +305,31 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
+        public void FirstOffsetCompositeKeyTest()
+        {
+            const string graphql = "{ sellerBadges (offset: 10, first: 2) { badgeName } }";
+
+            var expectedSql = @"
+SELECT
+
+  -- sellerBadges (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[BadgeName] AS [badgeName]
+    FROM [SellerBadge] t1
+    ORDER BY t1.[SellerName], t1.[BadgeName]
+    OFFSET 10 ROWS
+    FETCH FIRST 2 ROWS ONLY
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellerBadges]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
+        }
+
+        [Test]
         public void EdgeNodeTest()
         {
             var graphql = @"
@@ -628,9 +653,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
-
-
-
 
         private void Check(
             string graphql,

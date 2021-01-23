@@ -251,7 +251,7 @@ namespace GraphqlToTsql.Translator
             {
                 var entity = term.Field.Entity;
                 var cursorData = CursorUtility.DecodeCursor(term.Arguments.After, entity.DbTableName);
-                var filter = new Arguments.Filter(entity.PrimaryKeyField, cursorData.Value);
+                var filter = new Arguments.Filter(entity.SinglePrimaryKeyFieldForPaging, cursorData.Value);
                 childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
                 whereParts.Add($"{childTableAlias}.[{filter.Field.DbColumnName}] > @{RegisterTsqlParameter(filter)}");
             }
@@ -277,9 +277,11 @@ namespace GraphqlToTsql.Translator
             var first = term.Arguments.First;
 
             var entity = term.Field.Entity;
-            var pkColumnName = entity.PrimaryKeyField.DbColumnName;
+            var pks = entity.PrimaryKeyFields;
+            var columns = pks.Select(pk => $"{term.TableAlias(_aliasSequence)}.[{pk.DbColumnName}]");
+            var orderBy = string.Join(", ", columns);
 
-            Emit($"ORDER BY {term.TableAlias(_aliasSequence)}.[{pkColumnName}]");
+            Emit($"ORDER BY {orderBy}");
             Emit($"OFFSET {offset} ROWS");
             if (first != null)
             {
