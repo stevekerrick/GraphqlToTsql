@@ -39,6 +39,10 @@ namespace DemoEntities
                     ()=>this.GetField("name"),
                     ()=>SellerBadgeDef.Instance.GetField("sellerName"))
                 ),
+                Field.Set(SellerProductTotalDef.Instance, "sellerProductTotals", new Join(
+                    ()=>this.GetField("name"),
+                    ()=>SellerBadgeDef.Instance.GetField("sellerName"))
+                ),
 
                 Field.CalculatedSet(this, "descendants",
                     (tableAlias) => $"SELECT s.* FROM tvf_AllDescendants({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name"

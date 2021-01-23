@@ -8,7 +8,7 @@
     @Html.AntiForgeryToken()
 
     <div class="row input-row">
-        <div class="col-4 mt-5 text-right">
+        <div class="col-4 text-right pbqs">
             <div v-for="pbq in prebuiltQueries"
                  :key="pbq.name"
                  class="pbq px-1 pb-1 mx-1"
@@ -94,12 +94,20 @@
     }
   }
 }`;
+    var sellerTotalsQuery = `query SellerTotals ($name: String) {
+  seller (name: $name) {
+    name city state 
+    sellerProductTotals { productName totalQuantity totalAmount}
+    orders { date shipping }
+  }
+}`;
 
     var prebuiltQueries = [
         { name: "empty", description: "clears the workspace", graphql: "", graphqlParameters: "" },
         { name: "simple", description: "simplest possible query", graphql: simpleQuery, graphqlParameters: "" },
         { name: "product totals", description: "highlights: computed column", graphql: productTotalsQuery, graphqlParameters: '{ }' },
-        { name: "seller descendants", description: "highlights: using a tvf", graphql: sellerDescendantsQuery, graphqlParameters: '{ name: "Bill" }' }
+        { name: "seller descendants", description: "highlights: uses tvf", graphql: sellerDescendantsQuery, graphqlParameters: '{ name: "Bill" }' },
+        { name: "seller totals", description: "highlights: uses virtual table", graphql: sellerTotalsQuery, graphqlParameters: '{ name: "Bill" }' }
     ];
 
 </script>
@@ -228,6 +236,7 @@
         padding: .5em;
         border-color: lightgray;
     }
+    .pbqs { margin-top: 4em; }
     .pbq { 
         display: inline-block; 
         border: 1px solid grey; 

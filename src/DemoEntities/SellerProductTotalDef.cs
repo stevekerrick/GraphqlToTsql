@@ -10,9 +10,9 @@ namespace DemoEntities
         public static SellerProductTotalDef Instance = new SellerProductTotalDef();
 
         public override string Name => "sellerProductTotal";
-        public override string DbTableName => throw new Exception($"{Name} is a virtual entity");
-        public override string PrimaryKeyFieldName => "name";
-        public override string VirtualEntitySql => @"
+        public override string DbTableName => "SellerProductTotal";
+        public override string PrimaryKeyFieldName => "name"; //TODO: composite key
+        public override string SqlDefinition => @"
 SELECT
   o.SellerName
 , od.ProductName

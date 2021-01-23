@@ -27,6 +27,10 @@ namespace DemoEntities
                 Field.Set(OrderDetailDef.Instance, "orderDetails", new Join(
                     ()=>this.GetField("name"),
                     ()=>OrderDetailDef.Instance.GetField("productName"))
+                ),
+                Field.Set(SellerProductTotalDef.Instance, "sellerProductTotals", new Join(
+                    ()=>this.GetField("name"),
+                    ()=>OrderDetailDef.Instance.GetField("productName"))
                 )
             };
         }

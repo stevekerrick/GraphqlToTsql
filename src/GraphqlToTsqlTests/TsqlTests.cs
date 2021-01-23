@@ -585,6 +585,53 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
+        [Test]
+        public void VirtualTableTest()
+        {
+            const string graphql = "{ sellers { name sellerProductTotals { totalAmount } } }";
+
+            var expectedSql = @"
+WITH [SellerProductTotal] AS (
+  SELECT
+    o.SellerName
+  , od.ProductName
+  , SUM(od.Quantity) AS TotalQuantity
+  , SUM(od.Quantity * p.Price) AS TotalAmount
+  FROM OrderDetail od
+  INNER JOIN [Order] o
+    ON od.OrderId = o.Id
+  INNER JOIN Product p
+    ON od.ProductName = p.[Name]
+  GROUP BY o.SellerName, od.ProductName
+)
+
+SELECT
+
+  -- sellers (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Name] AS [name]
+
+      -- sellers.sellerProductTotals (t2)
+    , JSON_QUERY ((
+        SELECT
+          t2.[TotalAmount] AS [totalAmount]
+        FROM [SellerProductTotal] t2
+        WHERE t1.[Name] = t2.[SellerName]
+        FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellerProductTotals]
+    FROM [Seller] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
+        }
+
+
+
+
         private void Check(
             string graphql,
             Dictionary<string, object> graphqlParameters,

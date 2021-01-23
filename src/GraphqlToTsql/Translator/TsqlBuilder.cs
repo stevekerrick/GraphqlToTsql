@@ -19,12 +19,14 @@ namespace GraphqlToTsql.Translator
         private AliasSequence _aliasSequence;
         private Dictionary<string, Term> _fragments;
         private Dictionary<string, object> _tsqlParameters;
+        private List<string> _ctes;
 
         public TsqlBuilder()
         {
             _sb = new StringBuilder(2048);
             _aliasSequence = new AliasSequence();
             _tsqlParameters = new Dictionary<string, object>();
+            _ctes = new List<string>();
         }
 
         public TsqlResult Build(ParseResult parseResult)
@@ -54,6 +56,8 @@ namespace GraphqlToTsql.Translator
                 Emit("");
             }
 
+            BuildCommonTableExpressions(parseResult.TopTerm);
+
             BuildSelectClause(parseResult.TopTerm);
 
             Emit("");
@@ -64,6 +68,31 @@ namespace GraphqlToTsql.Translator
                 Tsql = _sb.ToString(),
                 TsqlParameters = _tsqlParameters
             };
+        }
+
+        private void BuildCommonTableExpressions(Term term)
+        {
+            var entity = term.Field?.Entity;
+            if (entity != null && entity.SqlDefinition != null && !_ctes.Contains(entity.Name))
+            {
+                var cteAnnouncement = _ctes.Count == 0 ? "WITH" : ",";
+                var sqlLines = entity.SqlDefinition.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+
+                Emit($"{cteAnnouncement} [{entity.DbTableName}] AS (");
+                foreach(var sqlLine in sqlLines)
+                {
+                    Emit(TAB, sqlLine);
+                }
+                Emit(")");
+                Emit("");
+
+                _ctes.Add(entity.Name);
+            }
+
+            foreach(var child in term.Children)
+            {
+                BuildCommonTableExpressions(child);
+            }
         }
 
         private void BuildSubquery(Term term)

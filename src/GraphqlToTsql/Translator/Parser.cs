@@ -28,6 +28,11 @@ namespace GraphqlToTsql.Translator
             Dictionary<string, object> graphqlParameters,
             List<EntityBase> entityList)
         {
+            if (string.IsNullOrEmpty(graphql))
+            {
+                return new ParseResult { ParseError = "Empty GraphQL query received" };
+            }
+
             // Set up code-generated GqlParser
             var stream = new AntlrInputStream(graphql);
             var lexer = new GqlLexer(stream);
