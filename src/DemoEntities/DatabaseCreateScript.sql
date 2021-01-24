@@ -137,7 +137,7 @@ VALUES
 ,(@roy,       @marco,         'Brunswick',   'GA',   '31525')
 ,(@steve,     @marco,         'Plainfield',  'NJ',   '07060')
 ,(@tariq,     @ovette,        'Richmond',    'VA',   '23223')
-,(@ursula,    @ovette,        'Delaware',    'OH',   '43015')
+,(@ursula,    @ovette,         NULL,          NULL,   NULL)
 ,(@vanessa,   @ovette,        'Grand Island', 'NE',  '68801')
 ,(@willem,    @vanessa,       'Norwood',     'MA',   '02062')
 ,(@xavier,    @willem,        'Greenville',  'NC',   '27834')

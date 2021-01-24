@@ -143,6 +143,35 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
+        public void NullVariableTest()
+        {
+            const string graphql = "query NullVariableTest($cityVar: String) { sellers (city: $cityVar) { name } }";
+            var graphqlParameters = new Dictionary<string, object> { { "cityVar", null } };
+
+            var expectedSql = @"
+-------------------------------
+-- Operation: NullVariableTest
+-------------------------------
+
+SELECT
+
+  -- sellers (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Name] AS [name]
+    FROM [Seller] t1
+    WHERE t1.[City] IS NULL
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
+        }
+
+
+        [Test]
         public void CalculatedFieldTest()
         {
             const string graphql = "{ products { price totalRevenue } }";
@@ -639,7 +668,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
-
 
         [Test]
         public void VirtualTableTest()

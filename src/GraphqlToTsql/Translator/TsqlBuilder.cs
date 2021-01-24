@@ -79,7 +79,7 @@ namespace GraphqlToTsql.Translator
                 var sqlLines = entity.SqlDefinition.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
                 Emit($"{cteAnnouncement} [{entity.DbTableName}] AS (");
-                foreach(var sqlLine in sqlLines)
+                foreach (var sqlLine in sqlLines)
                 {
                     Emit(TAB, sqlLine);
                 }
@@ -89,7 +89,7 @@ namespace GraphqlToTsql.Translator
                 _ctes.Add(entity.Name);
             }
 
-            foreach(var child in term.Children)
+            foreach (var child in term.Children)
             {
                 BuildCommonTableExpressions(child);
             }
@@ -238,12 +238,18 @@ namespace GraphqlToTsql.Translator
             }
 
             // Collect the where criteria in the argument filters
-            // todo: Add test for a query with both TotalCount and Edges that have argument filters. Make sure the table aliases are right.
             var filters = term.Arguments.Filters;
             if (filters.Count > 0)
             {
                 childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
-                whereParts.AddRange(filters.Select(filter => $"{childTableAlias}.[{filter.Field.DbColumnName}] = @{RegisterTsqlParameter(filter)}"));
+                foreach (var filter in filters)
+                {
+                    var lhs = $"{childTableAlias}.[{filter.Field.DbColumnName}]";
+                    var wherePart = filter.Value.TsqlValue == null
+                        ? $"{lhs} IS NULL"
+                        : $"{lhs} = @{RegisterTsqlParameter(filter)}";
+                    whereParts.Add(wherePart);
+                }
             }
 
             // Where criteria for cursor

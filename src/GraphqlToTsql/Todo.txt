@@ -4,7 +4,6 @@ Validate value types in parameters and arguments
 Unit tests for other Translator components
 Pre-processing of arguments/variables
 Add a Timestamp column and test it
-Try using null values as parameters
 Use settings to force paging on large lists
 
 
