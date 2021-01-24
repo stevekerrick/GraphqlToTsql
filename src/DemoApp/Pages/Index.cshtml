@@ -96,9 +96,9 @@
 }`;
     var sellerTotalsQuery = `query SellerTotals ($name: String) {
   seller (name: $name) {
-    name city state 
+    name city state
+    sellerTotal { sellerName totalOrders totalQuantity totalAmount }
     sellerProductTotals { productName totalQuantity totalAmount}
-    orders { date shipping }
   }
 }`;
 
@@ -107,7 +107,7 @@
         { name: "simple", description: "simplest possible query", graphql: simpleQuery, graphqlParameters: "" },
         { name: "product totals", description: "highlights: computed column", graphql: productTotalsQuery, graphqlParameters: '{ }' },
         { name: "seller descendants", description: "highlights: uses tvf", graphql: sellerDescendantsQuery, graphqlParameters: '{ name: "Bill" }' },
-        { name: "seller totals", description: "highlights: uses virtual table", graphql: sellerTotalsQuery, graphqlParameters: '{ name: "Bill" }' }
+        { name: "seller totals", description: "highlights: uses virtual tables", graphql: sellerTotalsQuery, graphqlParameters: '{ name: "Bill" }' }
     ];
 
 </script>

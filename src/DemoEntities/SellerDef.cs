@@ -26,6 +26,13 @@ namespace DemoEntities
                     ()=>this.GetField("distributorName"),
                     ()=>Instance.GetField("name"))
                 ),
+                Field.Row(SellerTotalDef.Instance, "sellerTotal", new Join(
+                    ()=>this.GetField("name"),
+                    ()=>SellerTotalDef.Instance.GetField("sellerName"))
+                ),
+                Field.CalculatedRow(this, "apexDistributor",
+                    (tableAlias) => $"SELECT s.* FROM tvf_AllAncestors({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name AND s.DistributorName IS NULL"
+                ),
 
                 Field.Set(this, "recruits", new Join(
                     ()=>this.GetField("name"),
@@ -43,7 +50,6 @@ namespace DemoEntities
                     ()=>this.GetField("name"),
                     ()=>SellerBadgeDef.Instance.GetField("sellerName"))
                 ),
-
                 Field.CalculatedSet(this, "descendants",
                     (tableAlias) => $"SELECT s.* FROM tvf_AllDescendants({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name"
                 ),

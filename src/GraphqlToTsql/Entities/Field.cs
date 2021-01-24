@@ -54,6 +54,15 @@ namespace GraphqlToTsql.Entities
             Join = join
         };
 
+        public static Field CalculatedRow(EntityBase entity, string name,
+            Func<string, string> templateFunc) => new Field
+            {
+                FieldType = FieldType.Row,
+                Entity = entity,
+                Name = name,
+                TemplateFunc = templateFunc
+            };
+
         public static Field CalculatedSet(EntityBase entity, string name,
             Func<string, string> templateFunc) => new Field
             {

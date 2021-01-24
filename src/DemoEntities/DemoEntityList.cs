@@ -15,7 +15,8 @@ namespace DemoEntities
                 ProductDef.Instance,
                 SellerDef.Instance,
                 SellerBadgeDef.Instance,
-                SellerProductTotalDef.Instance
+                SellerProductTotalDef.Instance,
+                SellerTotalDef.Instance
             };
         }
     }
