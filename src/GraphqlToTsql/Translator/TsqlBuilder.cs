@@ -97,6 +97,20 @@ namespace GraphqlToTsql.Translator
 
         private void BuildSubquery(Term term)
         {
+            // Enforce MaxPageSize
+            if (term.TermType == TermType.List && term.Field.Entity.MaxPageSize != null)
+            {
+                var max = term.Field.Entity.MaxPageSize.Value;
+                if (term.Arguments.First == null)
+                {
+                    throw new InvalidRequestException($"Paging is required with {term.Name}. Use argument 'first: {max}' for the initial page, and 'first'/'offset' or 'first'/'after' for subsequent pages.");
+                }
+                if (term.Arguments.First.Value > max)
+                {
+                    throw new InvalidRequestException($"The max page size for {term.Name} is {max}");
+                }
+            }
+
             // Wrap the subquery in a JSON_QUERY
             var separator = term.IsFirstChild ? TAB : COMMA_TAB;
             Emit("");

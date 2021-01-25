@@ -1,15 +1,18 @@
-﻿
+﻿Use settings to force paging on large lists
+
 
 Validate value types in parameters and arguments
 Unit tests for other Translator components
 Pre-processing of arguments/variables
 Add a Timestamp column and test it
-Use settings to force paging on large lists
+Add structured comments to EntityBase (in fact all the classes in the Entities folder)
+Remove all the todo's, and add their issues here
 
 
 Documentation
 * Add github readme notes
 * Write survey of competing projects
+* Improve DemoApp so that it links to documentation
 
 Post-MVP
 * Mark field as "Private"

@@ -11,6 +11,7 @@ namespace DemoEntities
         public override string Name => "order";
         public override string DbTableName => "Order";
         public override string[] PrimaryKeyFieldNames => new[] { "id" };
+        public override long? MaxPageSize => 1000L;
 
         protected override List<Field> BuildFieldList()
         {

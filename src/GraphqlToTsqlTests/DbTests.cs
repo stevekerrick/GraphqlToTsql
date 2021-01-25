@@ -14,7 +14,7 @@ namespace GraphqlToTsqlTests
         [Test]
         public async Task SimpleQueryTest()
         {
-            const string graphql = "{ orders (id: 1) { id } }";
+            const string graphql = "{ orders (first: 10, id: 1) { id } }";
             var graphqlParameters = new Dictionary<string, object> { };
 
             var expectedObject = new { orders = new[] { new { id = 1 } } };
@@ -43,7 +43,7 @@ namespace GraphqlToTsqlTests
         {
             var graphql = @"
 {
-  orders (date: ""2020-01-29"") {
+  orders (first: 10, date: ""2020-01-29"") {
     id date seller { name sellerBadges(first: 1) { badgeName dateAwarded } }
   }
 }".Trim();

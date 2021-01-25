@@ -59,18 +59,18 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void ArgumentTest()
         {
-            const string graphql = "{ orders (id: 1) { shipping } }";
+            const string graphql = "{ order (id: 1) { shipping } }";
 
             var expectedSql = @"
 SELECT
 
-  -- orders (t1)
+  -- order (t1)
   JSON_QUERY ((
     SELECT
       t1.[Shipping] AS [shipping]
     FROM [Order] t1
     WHERE t1.[Id] = @id
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [orders]
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [order]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
@@ -84,17 +84,17 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void JoinTest()
         {
-            const string graphql = "{ orders { id seller { name } } }";
+            const string graphql = "{ order (id: 10) { id seller { name } } }";
 
             var expectedSql = @"
 SELECT
 
-  -- orders (t1)
+  -- order (t1)
   JSON_QUERY ((
     SELECT
       t1.[Id] AS [id]
 
-      -- orders.seller (t2)
+      -- order.seller (t2)
     , JSON_QUERY ((
         SELECT
           t2.[Name] AS [name]
@@ -102,11 +102,12 @@ SELECT
         WHERE t1.[SellerName] = t2.[Name]
         FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [seller]
     FROM [Order] t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [orders]
+    WHERE t1.[Id] = @id
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [order]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
-            var expectedTsqlParameters = new Dictionary<string, object>();
+            var expectedTsqlParameters = new Dictionary<string, object> { { "id", 10 } };
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
@@ -169,7 +170,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
             Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
         }
-
 
         [Test]
         public void CalculatedFieldTest()

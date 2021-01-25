@@ -164,6 +164,41 @@ fragment frag on Arggh { id }
             ParseShouldFail(graphql, null, "Arguments are not allowed on [name]");
         }
 
+        [Test]
+        public void MissingFirstOnMaxPageSizeTest()
+        {
+            const string graphql = "{ orders { id } }";
+
+            TsqlGenerationShouldFail(graphql, null, "Paging is required with orders");
+        }
+
+        [Test]
+        public void FirstIsOverMaxPageSizeTest()
+        {
+            const string graphql = "{ orders (first: 2000) { id } }";
+
+            TsqlGenerationShouldFail(graphql, null, "The max page size for orders is 1000");
+        }
+
+        [Test]
+        public void FragmentIsNotDefinedTest()
+        {
+            const string graphql = "{ sellers { ... sellerFields } }";
+
+            TsqlGenerationShouldFail(graphql, null, "Fragment is not defined: sellerFields");
+        }
+
+        [Test]
+        public void FragmentIsForWrongTypeTest()
+        {
+            var graphql = @"
+{ badges { ... frag} }
+fragment frag on seller { name }
+".Trim();
+
+            TsqlGenerationShouldFail(graphql, null, "Fragment frag is defined for seller, not badge");
+        }
+
         // The QueryBuilder is also exercised in the Parse step, and that's really where most of the errors are being found
         private void ParseShouldFail(
             string graphql,
@@ -177,6 +212,22 @@ fragment frag on Arggh { id }
             Assert.IsNotNull(parseResult.ParseError, "Expected parse to fail, but it succeeded");
             Assert.IsTrue(parseResult.ParseError.Contains(partialErrorMessage),
                 $"Unexpected error message. Expected [{partialErrorMessage}] but found [{parseResult.ParseError}]");
+        }
+
+        private void TsqlGenerationShouldFail(
+            string graphql,
+            Dictionary<string, object> graphqlParameters,
+            string partialErrorMessage)
+        {
+            var parser = GetService<IParser>();
+            var parseResult = parser.ParseGraphql(graphql, graphqlParameters, DemoEntityList.All());
+            Assert.IsNull(parseResult.ParseError, $"Parse failed: {parseResult.ParseError}");
+
+            var tsqlBuilder = GetService<ITsqlBuilder>();
+            var tsqlResult = tsqlBuilder.Build(parseResult);
+            Assert.IsNotNull(tsqlResult.TsqlError, "Expected TSQL generation to fail, but it succeeded");
+            Assert.IsTrue(tsqlResult.TsqlError.Contains(partialErrorMessage),
+                $"Unexpected error message. Expected [{partialErrorMessage}] but found [{tsqlResult.TsqlError}]");
         }
     }
 }

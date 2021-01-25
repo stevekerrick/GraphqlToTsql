@@ -15,6 +15,7 @@ namespace GraphqlToTsql.Entities
         public virtual string DbTableName { get; }
         public abstract string[] PrimaryKeyFieldNames { get; }
         public virtual string SqlDefinition { get; }
+        public virtual long? MaxPageSize { get; }
         public List<Field> Fields
         {
             get
