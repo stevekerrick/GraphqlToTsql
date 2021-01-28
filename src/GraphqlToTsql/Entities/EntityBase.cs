@@ -5,18 +5,53 @@ using System.Linq;
 
 namespace GraphqlToTsql.Entities
 {
+    /// <summary>
+    /// Each of the tables you want to expose in the GraphQL will need an Entity class, inheriting from EntityBase
+    /// </summary>
     [DebuggerDisplay("{Name,nq}")]
     public abstract class EntityBase
     {
         private List<Field> _fields;
 
+        /// <summary>
+        /// The name to use for the entity in GraphQL queries (singlular)
+        /// </summary>
         public abstract string Name { get; }
+
+        /// <summary>
+        /// The plural name to use for the entity in GraphQL queries
+        /// </summary>
         public virtual string PluralName => $"{Name}s";
+
+        /// <summary>
+        /// The name for the underlying SQL table
+        /// </summary>
         public virtual string DbTableName { get; }
+
+        /// <summary>
+        /// The names of the PK fields. Use the GraphQL names, not the SQL names. 
+        /// An entity must have at least one PK field.
+        /// PK fields are needed when the query uses paging.
+        /// </summary>
         public abstract string[] PrimaryKeyFieldNames { get; }
+
+        /// <summary>
+        /// Sometimes you want to map a GraphQL entity to a SQL SELECT statement rather than an actual
+        /// database table. To do that, put your SELECT statement here.
+        /// When you use this entity in one of your queries, GraphqlToTsqpl puts uses your SELECT as a
+        /// Common Table Expression, so regular CTE limitations apply (e.g. you aren't allowed to
+        /// use an ORDER BY clause).
+        /// 
+        /// When using SqlDefinition, set DbTableName to the name for the CTE.
+        /// </summary>
         public virtual string SqlDefinition { get; }
+
+        /// <summary>
+        /// If you set a MaxPageSize, users are forced to access lists of thei entity using paging.
+        /// </summary>
         public virtual long? MaxPageSize { get; }
-        public List<Field> Fields
+
+        internal List<Field> Fields
         {
             get
             {
@@ -28,6 +63,11 @@ namespace GraphqlToTsql.Entities
             }
         }
 
+        /// <summary>
+        /// You must implement this method to populate the list of entity fields.
+        /// This is the hardest part of your entity mapping. You'll use the static Field
+        /// factory methods.
+        /// </summary>
         protected abstract List<Field> BuildFieldList();
 
         public Field GetField(string name, Context context = null)
@@ -62,7 +102,10 @@ namespace GraphqlToTsql.Entities
             throw new InvalidRequestException($"Unknown field: {Name}.{name}", context);
         }
 
-        public virtual List<Field> PrimaryKeyFields
+        /// <summary>
+        /// Don't override this method. It's virtual so that EdgeEntity can override it.
+        /// </summary>
+        internal virtual List<Field> PrimaryKeyFields
         {
             get
             {
@@ -72,7 +115,7 @@ namespace GraphqlToTsql.Entities
             }
         }
 
-        public Field SinglePrimaryKeyFieldForPaging
+        internal Field SinglePrimaryKeyFieldForPaging
         {
             get
             {

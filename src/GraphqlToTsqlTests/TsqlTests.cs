@@ -221,7 +221,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void FragmentTest()
         {
-            //TODO: Implement enough of a type system so that the fragment can be defined for the type "Epc" (not "epc")
             var graphql = @"
 { badges { ... frag} }
 fragment frag on badge { name }

@@ -16,9 +16,9 @@ namespace DemoEntities
         {
             return new List<Field>
             {
-                Field.Scalar(this, "name", "Name", ValueType.String),
-                Field.Scalar(this, "description", "Description", ValueType.String),
-                Field.Scalar(this, "price", "Price", ValueType.Number),
+                Field.Column(this, "name", "Name", ValueType.String),
+                Field.Column(this, "description", "Description", ValueType.String),
+                Field.Column(this, "price", "Price", ValueType.Number),
 
                 Field.CalculatedField(this, "totalRevenue",
                     (tableAlias) => $"SELECT (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName) * {tableAlias}.Price"

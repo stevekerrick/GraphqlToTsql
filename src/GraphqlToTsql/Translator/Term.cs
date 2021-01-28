@@ -41,7 +41,7 @@ namespace GraphqlToTsql.Translator
 
             switch (field.FieldType)
             {
-                case FieldType.Scalar:
+                case FieldType.Column:
                 case FieldType.TotalCount:
                 case FieldType.Cursor:
                     TermType = TermType.Scalar;

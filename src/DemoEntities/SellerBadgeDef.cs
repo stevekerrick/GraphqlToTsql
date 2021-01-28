@@ -16,9 +16,9 @@ namespace DemoEntities
         {
             return new List<Field>
             {
-                Field.Scalar(this, "sellerName", "SellerName", ValueType.String),
-                Field.Scalar(this, "badgeName", "BadgeName", ValueType.String),
-                Field.Scalar(this, "dateAwarded", "DateAwarded", ValueType.String),
+                Field.Column(this, "sellerName", "SellerName", ValueType.String),
+                Field.Column(this, "badgeName", "BadgeName", ValueType.String),
+                Field.Column(this, "dateAwarded", "DateAwarded", ValueType.String),
 
                 Field.Row(SellerDef.Instance, "seller", new Join(
                     ()=>this.GetField("sellerName"),

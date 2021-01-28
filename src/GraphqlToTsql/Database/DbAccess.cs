@@ -7,8 +7,17 @@ using System.Threading.Tasks;
 
 namespace GraphqlToTsql.Database
 {
+    /// <summary>
+    /// Execute a SQL query
+    /// </summary>
     public interface IDbAccess
     {
+        /// <summary>
+        /// Perform the database query
+        /// </summary>
+        /// <param name="tsql">SQL query</param>
+        /// <param name="tsqlParameters">SQL parameters</param>
+        /// <returns>Result object with the resulting json and execution time</returns>
         Task<DbResult> QueryAsync(string tsql, Dictionary<string, object> tsqlParameters);
     }
 

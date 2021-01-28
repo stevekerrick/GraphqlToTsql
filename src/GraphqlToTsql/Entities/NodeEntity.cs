@@ -2,7 +2,7 @@
 
 namespace GraphqlToTsql.Entities
 {
-    public class NodeEntity : EntityBase
+    internal class NodeEntity : EntityBase
     {
         private Field _setField;
 

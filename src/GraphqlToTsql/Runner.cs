@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace GraphqlToTsql
 {
+    /// <summary>
+    /// Parse the source GraogQL, generate TSQL, and run the query
+    /// </summary>
     public interface IRunner
     {
         Task<RunnerResult> TranslateAndRun(string graphql, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);

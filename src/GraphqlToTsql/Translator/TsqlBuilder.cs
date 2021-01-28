@@ -160,7 +160,7 @@ namespace GraphqlToTsql.Translator
             // Processed based on FieldType
             switch (term.Field.FieldType)
             {
-                case FieldType.Scalar:
+                case FieldType.Column:
                 case FieldType.Cursor:
                     ProcessScalarField(term);
                     break;

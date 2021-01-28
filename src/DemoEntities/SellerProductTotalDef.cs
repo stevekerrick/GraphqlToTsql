@@ -30,10 +30,10 @@ GROUP BY o.SellerName, od.ProductName
         {
             return new List<Field>
             {
-                Field.Scalar(this, "sellerName", "SellerName", ValueType.String),
-                Field.Scalar(this, "productName", "ProductName", ValueType.String),
-                Field.Scalar(this, "totalQuantity", "TotalQuantity", ValueType.Number),
-                Field.Scalar(this, "totalAmount", "TotalAmount", ValueType.Number),
+                Field.Column(this, "sellerName", "SellerName", ValueType.String),
+                Field.Column(this, "productName", "ProductName", ValueType.String),
+                Field.Column(this, "totalQuantity", "TotalQuantity", ValueType.Number),
+                Field.Column(this, "totalAmount", "TotalAmount", ValueType.Number),
 
                 Field.Row(SellerDef.Instance, "seller", new Join(
                     ()=>this.GetField("sellerName"),

@@ -16,11 +16,11 @@ namespace DemoEntities
         {
             return new List<Field>
             {
-                Field.Scalar(this, "name", "Name", ValueType.String),
-                Field.Scalar(this, "distributorName", "DistributorName", ValueType.String),
-                Field.Scalar(this, "city", "City", ValueType.String),
-                Field.Scalar(this, "state", "State", ValueType.String),
-                Field.Scalar(this, "postalCode", "PostalCode", ValueType.String),
+                Field.Column(this, "name", "Name", ValueType.String),
+                Field.Column(this, "distributorName", "DistributorName", ValueType.String),
+                Field.Column(this, "city", "City", ValueType.String),
+                Field.Column(this, "state", "State", ValueType.String),
+                Field.Column(this, "postalCode", "PostalCode", ValueType.String),
 
                 Field.Row(this, "distributor", new Join(
                     ()=>this.GetField("distributorName"),
@@ -40,7 +40,7 @@ namespace DemoEntities
                 ),
                 Field.Set(OrderDef.Instance, "orders", new Join(
                     ()=>this.GetField("name"),
-                    ()=>SellerBadgeDef.Instance.GetField("sellerName"))
+                    ()=>OrderDef.Instance.GetField("sellerName"))
                 ),
                 Field.Set(SellerBadgeDef.Instance, "sellerBadges", new Join(
                     ()=>this.GetField("name"),

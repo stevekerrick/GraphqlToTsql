@@ -31,10 +31,10 @@ GROUP BY s.[Name]
         {
             return new List<Field>
             {
-                Field.Scalar(this, "sellerName", "SellerName", ValueType.String),
-                Field.Scalar(this, "totalOrders", "TotalOrders", ValueType.Number),
-                Field.Scalar(this, "totalQuantity", "TotalQuantity", ValueType.Number),
-                Field.Scalar(this, "totalAmount", "TotalAmount", ValueType.Number),
+                Field.Column(this, "sellerName", "SellerName", ValueType.String),
+                Field.Column(this, "totalOrders", "TotalOrders", ValueType.Number),
+                Field.Column(this, "totalQuantity", "TotalQuantity", ValueType.Number),
+                Field.Column(this, "totalAmount", "TotalAmount", ValueType.Number),
 
                 Field.Row(SellerDef.Instance, "seller", new Join(
                     ()=>this.GetField("sellerName"),

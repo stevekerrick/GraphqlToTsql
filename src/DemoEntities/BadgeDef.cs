@@ -16,8 +16,8 @@ namespace DemoEntities
         {
             return new List<Field>
             {
-                Field.Scalar(this, "name", "Name", ValueType.String),
-                Field.Scalar(this, "isSpecial", "IsSpecial", ValueType.Boolean),
+                Field.Column(this, "name", "Name", ValueType.String),
+                Field.Column(this, "isSpecial", "IsSpecial", ValueType.Boolean),
 
                 Field.Set(SellerBadgeDef.Instance, "sellerBadges", new Join(
                     ()=>this.GetField("name"),
