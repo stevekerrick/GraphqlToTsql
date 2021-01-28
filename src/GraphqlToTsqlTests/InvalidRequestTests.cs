@@ -120,7 +120,7 @@ fragment frag on Arggh { id }
         {
             const string graphql = "{ order { id arggh shipping } }";
 
-            ParseShouldFail(graphql, null, "Unknown field: order.arggh");
+            ParseShouldFail(graphql, null, "Unknown field: Order.arggh");
         }
 
         [Test]
@@ -193,10 +193,10 @@ fragment frag on Arggh { id }
         {
             var graphql = @"
 { badges { ... frag} }
-fragment frag on seller { name }
+fragment frag on Seller { name }
 ".Trim();
 
-            TsqlGenerationShouldFail(graphql, null, "Fragment frag is defined for seller, not badge");
+            TsqlGenerationShouldFail(graphql, null, "Fragment frag is defined for Seller, not Badge");
         }
 
         // The QueryBuilder is also exercised in the Parse step, and that's really where most of the errors are being found

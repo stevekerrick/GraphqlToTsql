@@ -13,7 +13,7 @@ namespace GraphqlToTsql.Translator
         public InvalidRequestException(string message, Context context)
             : base(context == null
                   ? message
-                  : $"{message}: [{context.Text}], line {context.Line}, column {context.Column}")
+                  : $"{message} [\"{context.Text}\", line {context.Line}, column {context.Column}]")
         {
         }
 

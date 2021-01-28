@@ -1,11 +1,10 @@
-﻿Add structured comments to EntityBase (in fact all the classes in the Entities folder)
+﻿Validate value types in parameters and arguments
 
 
-Validate value types in parameters and arguments
 Unit tests for other Translator components
 Pre-processing of arguments/variables
 Add a Timestamp column and test it
-Implement enough of a type system so that the fragment can be defined for the type "Epc" (not "epc")
+Provide method to do DI registrations
 
 
 Documentation

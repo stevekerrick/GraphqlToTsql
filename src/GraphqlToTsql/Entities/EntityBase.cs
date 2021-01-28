@@ -14,12 +14,13 @@ namespace GraphqlToTsql.Entities
         private List<Field> _fields;
 
         /// <summary>
-        /// The name to use for the entity in GraphQL queries (singlular)
+        /// The name to use for the entity in GraphQL queries (singlular). This is mainly used for the top-level
+        /// query.
         /// </summary>
         public abstract string Name { get; }
 
         /// <summary>
-        /// The plural name to use for the entity in GraphQL queries
+        /// The plural name to use for the entity in GraphQL queries. This is mainly used for the top-level query.
         /// </summary>
         public virtual string PluralName => $"{Name}s";
 
@@ -27,6 +28,11 @@ namespace GraphqlToTsql.Entities
         /// The name for the underlying SQL table
         /// </summary>
         public virtual string DbTableName { get; }
+
+        /// <summary>
+        /// The name of the entity type
+        /// </summary>
+        public virtual string EntityType => DbTableName;
 
         /// <summary>
         /// The names of the PK fields. Use the GraphQL names, not the SQL names. 
@@ -99,7 +105,7 @@ namespace GraphqlToTsql.Entities
                 return nodeField.Entity.GetField(name, context);
             }
 
-            throw new InvalidRequestException($"Unknown field: {Name}.{name}", context);
+            throw new InvalidRequestException($"Unknown field: {EntityType}.{name}", context);
         }
 
         /// <summary>

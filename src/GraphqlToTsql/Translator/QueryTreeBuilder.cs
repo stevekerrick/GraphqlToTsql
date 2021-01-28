@@ -102,11 +102,7 @@ namespace GraphqlToTsql.Translator
 
         public void BeginFragment(string name, string type, Context context)
         {
-            var field = LookupEntity(type);
-            if (field == null)
-            {
-                throw new InvalidRequestException($"Unknown type: {type}", context);
-            }
+            var field = LookupType(type, context);
 
             _parent = Term.TopLevel();
             _term = new Term(_parent, field, type);
@@ -159,6 +155,17 @@ namespace GraphqlToTsql.Translator
             }
 
             _term.AddArgument(name, _variables[variableName], context);
+        }
+
+        private Field LookupType(string type, Context context)
+        {
+            var entity = _entityList.FirstOrDefault(_ => _.EntityType == type);
+            if (entity == null)
+            {
+                throw new InvalidRequestException($"Unknown type: {type}", context);
+            }
+
+            return Entities.Field.Row(entity, entity.Name, null);
         }
 
         private Field LookupEntity(string name)

@@ -223,7 +223,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         {
             var graphql = @"
 { badges { ... frag} }
-fragment frag on badge { name }
+fragment frag on Badge { name }
 ".Trim();
 
             var expectedSql = @"

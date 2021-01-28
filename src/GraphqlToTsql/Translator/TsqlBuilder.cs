@@ -192,7 +192,7 @@ namespace GraphqlToTsql.Translator
             // Type check
             if (fragment.Field.Entity != parent.Field.Entity)
             {
-                throw new InvalidRequestException($"Fragment {fragmentName} is defined for {fragment.Field.Entity.Name}, not {parent.Field.Entity.Name}");
+                throw new InvalidRequestException($"Fragment {fragmentName} is defined for {fragment.Field.Entity.EntityType}, not {parent.Field.Entity.EntityType}");
             }
 
             // Copy the fragment subquery because Terms have state
