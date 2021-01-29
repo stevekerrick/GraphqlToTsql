@@ -55,7 +55,7 @@
     <script>
       function graphQLFetcher(graphQLParams) {
         return fetch(
-          'https://swapi-graphql.netlify.com/.netlify/functions/index',
+          '/api/graphql',
           {
             method: 'post',
             headers: {

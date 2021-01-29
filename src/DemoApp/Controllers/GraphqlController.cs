@@ -42,7 +42,7 @@ namespace DemoApp.Controllers
 
             return new QueryResponse
             {
-                Data = ToFormattedJson(Deserialize(runnerResult.DataJson)),
+                Data = Deserialize(runnerResult.DataJson),
                 Errors = errors,
                 Tsql = runnerResult.Tsql,
                 TsqlParametersJson = ToFormattedJson(runnerResult.TsqlParameters),
@@ -77,7 +77,7 @@ namespace DemoApp.Controllers
     public class QueryResponse
     {
         // These parts are dictated by the GraphQL standard
-        public string Data { get; set; }
+        public object Data { get; set; }
         public string[] Errors { get; set; }
 
         // These parts are extra
