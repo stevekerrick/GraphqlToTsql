@@ -34,7 +34,7 @@ namespace GraphqlToTsql.Translator
         public override void ExitVariableDefinition(GqlParser.VariableDefinitionContext context)
         {
             var name = context.variable().children[1].GetText();
-            var type = context.type().GetText();
+            var type = context.type_().GetText();
             Value defaultValue = null;
             if (context.defaultValue() != null)
             {
@@ -47,13 +47,13 @@ namespace GraphqlToTsql.Translator
 
         public override void ExitFragmentName(GqlParser.FragmentNameContext context)
         {
-            _fragmentName = context.NAME().GetText();
+            _fragmentName = context.name().GetText();
         }
 
         // This is the best place to initialize a new Fragment definition
         public override void ExitTypeCondition(GqlParser.TypeConditionContext context)
         {
-            var type = context.typeName().NAME().GetText();
+            var type = context.namedType().name().GetText();
             _qt.BeginFragment(_fragmentName, type, new Context(context));
         }
 
@@ -67,36 +67,29 @@ namespace GraphqlToTsql.Translator
             _qt.EndQuery();
         }
 
-        public override void ExitFieldName(GqlParser.FieldNameContext context)
+        public override void ExitFieldDefinition(GqlParser.FieldDefinitionContext context)
         {
-            string name, alias;
-            var aliasContext = context.alias();
+            var aliasContext = context.description();
+            var alias = aliasContext == null? null :aliasContext.GetText();
 
-            if (aliasContext != null)
-            {
-                alias = aliasContext.NAME()[0].GetText();
-                name = aliasContext.NAME()[1].GetText();
-            }
-            else
-            {
-                alias = null;
-                name = context.NAME().GetText();
-            }
+            var name = context.name().GetText();
 
             _qt.Field(alias, name, new Context(context));
         }
 
         public override void ExitFragmentSpread(GqlParser.FragmentSpreadContext context)
         {
-            var name = context.fragmentName().NAME().GetText();
+            var name = context.fragmentName().name().GetText();
             _qt.UseFragment(name);
         }
 
         public override void ExitArgument(GqlParser.ArgumentContext context)
         {
-            var name = context.NAME().GetText();
+            var name = context.name().GetText();
 
-            var valueOrVariableContext = context.valueOrVariable();
+            //var value = context.value();
+
+            var valueOrVariableContext = context.value();
             if (valueOrVariableContext == null)
             {
                 throw new InvalidRequestException($"Arguments should be formed like (id: 1)", new Context(context));
@@ -109,14 +102,14 @@ namespace GraphqlToTsql.Translator
             }
             else
             {
-                var value = new Value(valueOrVariableContext.value());
+                var value = new Value(valueOrVariableContext);
                 _qt.Argument(name, value, new Context(context));
             }
         }
 
         public override void ExitOperationDefinition(GqlParser.OperationDefinitionContext context)
         {
-            var name = context.NAME();
+            var name = context.name();
             if (name != null)
             {
                 _qt.SetOperationName(name.GetText());

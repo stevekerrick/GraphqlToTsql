@@ -45,8 +45,24 @@ namespace GraphqlToTsql.Translator
                 return;
             }
 
+            var intValueContext = valueContext.intValue();
+            if (intValueContext != null)
+            {
+                ValueType = ValueType.Int;
+                
+            }
+
+
+
+
             switch (valueContext)
             {
+                case GqlParser.IntValueContext intValueContext:
+
+
+                    break;
+
+
                 case GqlParser.NumberValueContext numberValueContext:
                     ValueType = ValueType.Number;
                     RawValue = decimal.Parse(numberValueContext.GetText());

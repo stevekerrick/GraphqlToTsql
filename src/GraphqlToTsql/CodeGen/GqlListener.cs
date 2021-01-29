@@ -52,6 +52,16 @@ public interface IGqlListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitDefinition([NotNull] GqlParser.DefinitionContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.executableDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterExecutableDefinition([NotNull] GqlParser.ExecutableDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.executableDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitExecutableDefinition([NotNull] GqlParser.ExecutableDefinitionContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.operationDefinition"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -62,16 +72,6 @@ public interface IGqlListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitOperationDefinition([NotNull] GqlParser.OperationDefinitionContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.selectionSet"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterSelectionSet([NotNull] GqlParser.SelectionSetContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.selectionSet"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitSelectionSet([NotNull] GqlParser.SelectionSetContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.operationType"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -81,6 +81,16 @@ public interface IGqlListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitOperationType([NotNull] GqlParser.OperationTypeContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.selectionSet"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSelectionSet([NotNull] GqlParser.SelectionSetContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.selectionSet"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSelectionSet([NotNull] GqlParser.SelectionSetContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.selection"/>.
 	/// </summary>
@@ -102,26 +112,6 @@ public interface IGqlListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitField([NotNull] GqlParser.FieldContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.fieldName"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterFieldName([NotNull] GqlParser.FieldNameContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.fieldName"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitFieldName([NotNull] GqlParser.FieldNameContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.alias"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterAlias([NotNull] GqlParser.AliasContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.alias"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitAlias([NotNull] GqlParser.AliasContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.arguments"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -142,6 +132,16 @@ public interface IGqlListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitArgument([NotNull] GqlParser.ArgumentContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.alias"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterAlias([NotNull] GqlParser.AliasContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.alias"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitAlias([NotNull] GqlParser.AliasContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.fragmentSpread"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -151,16 +151,6 @@ public interface IGqlListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitFragmentSpread([NotNull] GqlParser.FragmentSpreadContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.inlineFragment"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterInlineFragment([NotNull] GqlParser.InlineFragmentContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.inlineFragment"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitInlineFragment([NotNull] GqlParser.InlineFragmentContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.fragmentDefinition"/>.
 	/// </summary>
@@ -182,26 +172,6 @@ public interface IGqlListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitFragmentName([NotNull] GqlParser.FragmentNameContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.directives"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterDirectives([NotNull] GqlParser.DirectivesContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.directives"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitDirectives([NotNull] GqlParser.DirectivesContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.directive"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterDirective([NotNull] GqlParser.DirectiveContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.directive"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitDirective([NotNull] GqlParser.DirectiveContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.typeCondition"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -211,6 +181,126 @@ public interface IGqlListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitTypeCondition([NotNull] GqlParser.TypeConditionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.inlineFragment"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInlineFragment([NotNull] GqlParser.InlineFragmentContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.inlineFragment"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInlineFragment([NotNull] GqlParser.InlineFragmentContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.value"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterValue([NotNull] GqlParser.ValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.value"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitValue([NotNull] GqlParser.ValueContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.intValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterIntValue([NotNull] GqlParser.IntValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.intValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitIntValue([NotNull] GqlParser.IntValueContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.floatValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFloatValue([NotNull] GqlParser.FloatValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.floatValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFloatValue([NotNull] GqlParser.FloatValueContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.booleanValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterBooleanValue([NotNull] GqlParser.BooleanValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.booleanValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitBooleanValue([NotNull] GqlParser.BooleanValueContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.stringValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterStringValue([NotNull] GqlParser.StringValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.stringValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitStringValue([NotNull] GqlParser.StringValueContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.nullValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterNullValue([NotNull] GqlParser.NullValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.nullValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitNullValue([NotNull] GqlParser.NullValueContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.enumValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterEnumValue([NotNull] GqlParser.EnumValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.enumValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitEnumValue([NotNull] GqlParser.EnumValueContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.listValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterListValue([NotNull] GqlParser.ListValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.listValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitListValue([NotNull] GqlParser.ListValueContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.objectValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterObjectValue([NotNull] GqlParser.ObjectValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.objectValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitObjectValue([NotNull] GqlParser.ObjectValueContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.objectField"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterObjectField([NotNull] GqlParser.ObjectFieldContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.objectField"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitObjectField([NotNull] GqlParser.ObjectFieldContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.variable"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterVariable([NotNull] GqlParser.VariableContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.variable"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitVariable([NotNull] GqlParser.VariableContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.variableDefinitions"/>.
 	/// </summary>
@@ -232,16 +322,6 @@ public interface IGqlListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitVariableDefinition([NotNull] GqlParser.VariableDefinitionContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.variable"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterVariable([NotNull] GqlParser.VariableContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.variable"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitVariable([NotNull] GqlParser.VariableContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.defaultValue"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -252,83 +332,25 @@ public interface IGqlListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitDefaultValue([NotNull] GqlParser.DefaultValueContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.valueOrVariable"/>.
+	/// Enter a parse tree produced by <see cref="GqlParser.type_"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterValueOrVariable([NotNull] GqlParser.ValueOrVariableContext context);
+	void EnterType_([NotNull] GqlParser.Type_Context context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.valueOrVariable"/>.
+	/// Exit a parse tree produced by <see cref="GqlParser.type_"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitValueOrVariable([NotNull] GqlParser.ValueOrVariableContext context);
+	void ExitType_([NotNull] GqlParser.Type_Context context);
 	/// <summary>
-	/// Enter a parse tree produced by the <c>stringValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
+	/// Enter a parse tree produced by <see cref="GqlParser.namedType"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterStringValue([NotNull] GqlParser.StringValueContext context);
+	void EnterNamedType([NotNull] GqlParser.NamedTypeContext context);
 	/// <summary>
-	/// Exit a parse tree produced by the <c>stringValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
+	/// Exit a parse tree produced by <see cref="GqlParser.namedType"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitStringValue([NotNull] GqlParser.StringValueContext context);
-	/// <summary>
-	/// Enter a parse tree produced by the <c>numberValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterNumberValue([NotNull] GqlParser.NumberValueContext context);
-	/// <summary>
-	/// Exit a parse tree produced by the <c>numberValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitNumberValue([NotNull] GqlParser.NumberValueContext context);
-	/// <summary>
-	/// Enter a parse tree produced by the <c>booleanValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterBooleanValue([NotNull] GqlParser.BooleanValueContext context);
-	/// <summary>
-	/// Exit a parse tree produced by the <c>booleanValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitBooleanValue([NotNull] GqlParser.BooleanValueContext context);
-	/// <summary>
-	/// Enter a parse tree produced by the <c>arrayValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterArrayValue([NotNull] GqlParser.ArrayValueContext context);
-	/// <summary>
-	/// Exit a parse tree produced by the <c>arrayValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitArrayValue([NotNull] GqlParser.ArrayValueContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.type"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterType([NotNull] GqlParser.TypeContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.type"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitType([NotNull] GqlParser.TypeContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.typeName"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterTypeName([NotNull] GqlParser.TypeNameContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.typeName"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitTypeName([NotNull] GqlParser.TypeNameContext context);
+	void ExitNamedType([NotNull] GqlParser.NamedTypeContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.listType"/>.
 	/// </summary>
@@ -340,24 +362,384 @@ public interface IGqlListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitListType([NotNull] GqlParser.ListTypeContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.nonNullType"/>.
+	/// Enter a parse tree produced by <see cref="GqlParser.directives"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterNonNullType([NotNull] GqlParser.NonNullTypeContext context);
+	void EnterDirectives([NotNull] GqlParser.DirectivesContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.nonNullType"/>.
+	/// Exit a parse tree produced by <see cref="GqlParser.directives"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitNonNullType([NotNull] GqlParser.NonNullTypeContext context);
+	void ExitDirectives([NotNull] GqlParser.DirectivesContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.array"/>.
+	/// Enter a parse tree produced by <see cref="GqlParser.directive"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterArray([NotNull] GqlParser.ArrayContext context);
+	void EnterDirective([NotNull] GqlParser.DirectiveContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.array"/>.
+	/// Exit a parse tree produced by <see cref="GqlParser.directive"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitArray([NotNull] GqlParser.ArrayContext context);
+	void ExitDirective([NotNull] GqlParser.DirectiveContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.typeSystemDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTypeSystemDefinition([NotNull] GqlParser.TypeSystemDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.typeSystemDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTypeSystemDefinition([NotNull] GqlParser.TypeSystemDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.typeSystemExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTypeSystemExtension([NotNull] GqlParser.TypeSystemExtensionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.typeSystemExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTypeSystemExtension([NotNull] GqlParser.TypeSystemExtensionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.schemaDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSchemaDefinition([NotNull] GqlParser.SchemaDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.schemaDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSchemaDefinition([NotNull] GqlParser.SchemaDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.rootOperationTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterRootOperationTypeDefinition([NotNull] GqlParser.RootOperationTypeDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.rootOperationTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitRootOperationTypeDefinition([NotNull] GqlParser.RootOperationTypeDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.schemaExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSchemaExtension([NotNull] GqlParser.SchemaExtensionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.schemaExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSchemaExtension([NotNull] GqlParser.SchemaExtensionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.operationTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterOperationTypeDefinition([NotNull] GqlParser.OperationTypeDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.operationTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitOperationTypeDefinition([NotNull] GqlParser.OperationTypeDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.description"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDescription([NotNull] GqlParser.DescriptionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.description"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDescription([NotNull] GqlParser.DescriptionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.typeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTypeDefinition([NotNull] GqlParser.TypeDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.typeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTypeDefinition([NotNull] GqlParser.TypeDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.typeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTypeExtension([NotNull] GqlParser.TypeExtensionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.typeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTypeExtension([NotNull] GqlParser.TypeExtensionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.scalarTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterScalarTypeDefinition([NotNull] GqlParser.ScalarTypeDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.scalarTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitScalarTypeDefinition([NotNull] GqlParser.ScalarTypeDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.scalarTypeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterScalarTypeExtension([NotNull] GqlParser.ScalarTypeExtensionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.scalarTypeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitScalarTypeExtension([NotNull] GqlParser.ScalarTypeExtensionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.objectTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterObjectTypeDefinition([NotNull] GqlParser.ObjectTypeDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.objectTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitObjectTypeDefinition([NotNull] GqlParser.ObjectTypeDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.implementsInterfaces"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterImplementsInterfaces([NotNull] GqlParser.ImplementsInterfacesContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.implementsInterfaces"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitImplementsInterfaces([NotNull] GqlParser.ImplementsInterfacesContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.fieldsDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFieldsDefinition([NotNull] GqlParser.FieldsDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.fieldsDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFieldsDefinition([NotNull] GqlParser.FieldsDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.fieldDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFieldDefinition([NotNull] GqlParser.FieldDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.fieldDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFieldDefinition([NotNull] GqlParser.FieldDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.argumentsDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterArgumentsDefinition([NotNull] GqlParser.ArgumentsDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.argumentsDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitArgumentsDefinition([NotNull] GqlParser.ArgumentsDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.inputValueDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInputValueDefinition([NotNull] GqlParser.InputValueDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.inputValueDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInputValueDefinition([NotNull] GqlParser.InputValueDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.objectTypeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterObjectTypeExtension([NotNull] GqlParser.ObjectTypeExtensionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.objectTypeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitObjectTypeExtension([NotNull] GqlParser.ObjectTypeExtensionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.interfaceTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInterfaceTypeDefinition([NotNull] GqlParser.InterfaceTypeDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.interfaceTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInterfaceTypeDefinition([NotNull] GqlParser.InterfaceTypeDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.interfaceTypeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInterfaceTypeExtension([NotNull] GqlParser.InterfaceTypeExtensionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.interfaceTypeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInterfaceTypeExtension([NotNull] GqlParser.InterfaceTypeExtensionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.unionTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterUnionTypeDefinition([NotNull] GqlParser.UnionTypeDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.unionTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitUnionTypeDefinition([NotNull] GqlParser.UnionTypeDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.unionMemberTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterUnionMemberTypes([NotNull] GqlParser.UnionMemberTypesContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.unionMemberTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitUnionMemberTypes([NotNull] GqlParser.UnionMemberTypesContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.unionTypeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterUnionTypeExtension([NotNull] GqlParser.UnionTypeExtensionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.unionTypeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitUnionTypeExtension([NotNull] GqlParser.UnionTypeExtensionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.enumTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterEnumTypeDefinition([NotNull] GqlParser.EnumTypeDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.enumTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitEnumTypeDefinition([NotNull] GqlParser.EnumTypeDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.enumValuesDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterEnumValuesDefinition([NotNull] GqlParser.EnumValuesDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.enumValuesDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitEnumValuesDefinition([NotNull] GqlParser.EnumValuesDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.enumValueDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterEnumValueDefinition([NotNull] GqlParser.EnumValueDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.enumValueDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitEnumValueDefinition([NotNull] GqlParser.EnumValueDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.enumTypeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterEnumTypeExtension([NotNull] GqlParser.EnumTypeExtensionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.enumTypeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitEnumTypeExtension([NotNull] GqlParser.EnumTypeExtensionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.inputObjectTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInputObjectTypeDefinition([NotNull] GqlParser.InputObjectTypeDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.inputObjectTypeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInputObjectTypeDefinition([NotNull] GqlParser.InputObjectTypeDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.inputFieldsDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInputFieldsDefinition([NotNull] GqlParser.InputFieldsDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.inputFieldsDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInputFieldsDefinition([NotNull] GqlParser.InputFieldsDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.inputObjectTypeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInputObjectTypeExtension([NotNull] GqlParser.InputObjectTypeExtensionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.inputObjectTypeExtension"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInputObjectTypeExtension([NotNull] GqlParser.InputObjectTypeExtensionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.directiveDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDirectiveDefinition([NotNull] GqlParser.DirectiveDefinitionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.directiveDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDirectiveDefinition([NotNull] GqlParser.DirectiveDefinitionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.directiveLocations"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDirectiveLocations([NotNull] GqlParser.DirectiveLocationsContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.directiveLocations"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDirectiveLocations([NotNull] GqlParser.DirectiveLocationsContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.directiveLocation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDirectiveLocation([NotNull] GqlParser.DirectiveLocationContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.directiveLocation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDirectiveLocation([NotNull] GqlParser.DirectiveLocationContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.executableDirectiveLocation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterExecutableDirectiveLocation([NotNull] GqlParser.ExecutableDirectiveLocationContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.executableDirectiveLocation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitExecutableDirectiveLocation([NotNull] GqlParser.ExecutableDirectiveLocationContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.typeSystemDirectiveLocation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTypeSystemDirectiveLocation([NotNull] GqlParser.TypeSystemDirectiveLocationContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.typeSystemDirectiveLocation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTypeSystemDirectiveLocation([NotNull] GqlParser.TypeSystemDirectiveLocationContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.name"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterName([NotNull] GqlParser.NameContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.name"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitName([NotNull] GqlParser.NameContext context);
 }
 } // namespace GraphqlToTsql.CodeGen

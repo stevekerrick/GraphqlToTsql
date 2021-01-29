@@ -60,6 +60,18 @@ public partial class GqlBaseListener : IGqlListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitDefinition([NotNull] GqlParser.DefinitionContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.executableDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterExecutableDefinition([NotNull] GqlParser.ExecutableDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.executableDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitExecutableDefinition([NotNull] GqlParser.ExecutableDefinitionContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.operationDefinition"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -72,18 +84,6 @@ public partial class GqlBaseListener : IGqlListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitOperationDefinition([NotNull] GqlParser.OperationDefinitionContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.selectionSet"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterSelectionSet([NotNull] GqlParser.SelectionSetContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.selectionSet"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitSelectionSet([NotNull] GqlParser.SelectionSetContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.operationType"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -95,6 +95,18 @@ public partial class GqlBaseListener : IGqlListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitOperationType([NotNull] GqlParser.OperationTypeContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.selectionSet"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSelectionSet([NotNull] GqlParser.SelectionSetContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.selectionSet"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSelectionSet([NotNull] GqlParser.SelectionSetContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.selection"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -120,30 +132,6 @@ public partial class GqlBaseListener : IGqlListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitField([NotNull] GqlParser.FieldContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.fieldName"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterFieldName([NotNull] GqlParser.FieldNameContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.fieldName"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitFieldName([NotNull] GqlParser.FieldNameContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.alias"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterAlias([NotNull] GqlParser.AliasContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.alias"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitAlias([NotNull] GqlParser.AliasContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.arguments"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -168,6 +156,18 @@ public partial class GqlBaseListener : IGqlListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitArgument([NotNull] GqlParser.ArgumentContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.alias"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAlias([NotNull] GqlParser.AliasContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.alias"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAlias([NotNull] GqlParser.AliasContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.fragmentSpread"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -179,18 +179,6 @@ public partial class GqlBaseListener : IGqlListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitFragmentSpread([NotNull] GqlParser.FragmentSpreadContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.inlineFragment"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterInlineFragment([NotNull] GqlParser.InlineFragmentContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.inlineFragment"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitInlineFragment([NotNull] GqlParser.InlineFragmentContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.fragmentDefinition"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -216,30 +204,6 @@ public partial class GqlBaseListener : IGqlListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitFragmentName([NotNull] GqlParser.FragmentNameContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.directives"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterDirectives([NotNull] GqlParser.DirectivesContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.directives"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitDirectives([NotNull] GqlParser.DirectivesContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.directive"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterDirective([NotNull] GqlParser.DirectiveContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.directive"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitDirective([NotNull] GqlParser.DirectiveContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.typeCondition"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -251,6 +215,150 @@ public partial class GqlBaseListener : IGqlListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitTypeCondition([NotNull] GqlParser.TypeConditionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.inlineFragment"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterInlineFragment([NotNull] GqlParser.InlineFragmentContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.inlineFragment"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitInlineFragment([NotNull] GqlParser.InlineFragmentContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.value"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterValue([NotNull] GqlParser.ValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.value"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitValue([NotNull] GqlParser.ValueContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.intValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterIntValue([NotNull] GqlParser.IntValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.intValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitIntValue([NotNull] GqlParser.IntValueContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.floatValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFloatValue([NotNull] GqlParser.FloatValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.floatValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFloatValue([NotNull] GqlParser.FloatValueContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.booleanValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterBooleanValue([NotNull] GqlParser.BooleanValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.booleanValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitBooleanValue([NotNull] GqlParser.BooleanValueContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.stringValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterStringValue([NotNull] GqlParser.StringValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.stringValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitStringValue([NotNull] GqlParser.StringValueContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.nullValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterNullValue([NotNull] GqlParser.NullValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.nullValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitNullValue([NotNull] GqlParser.NullValueContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.enumValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterEnumValue([NotNull] GqlParser.EnumValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.enumValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitEnumValue([NotNull] GqlParser.EnumValueContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.listValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterListValue([NotNull] GqlParser.ListValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.listValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitListValue([NotNull] GqlParser.ListValueContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.objectValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterObjectValue([NotNull] GqlParser.ObjectValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.objectValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitObjectValue([NotNull] GqlParser.ObjectValueContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.objectField"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterObjectField([NotNull] GqlParser.ObjectFieldContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.objectField"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitObjectField([NotNull] GqlParser.ObjectFieldContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.variable"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterVariable([NotNull] GqlParser.VariableContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.variable"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitVariable([NotNull] GqlParser.VariableContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.variableDefinitions"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -276,18 +384,6 @@ public partial class GqlBaseListener : IGqlListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitVariableDefinition([NotNull] GqlParser.VariableDefinitionContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.variable"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterVariable([NotNull] GqlParser.VariableContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.variable"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitVariable([NotNull] GqlParser.VariableContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.defaultValue"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -300,97 +396,29 @@ public partial class GqlBaseListener : IGqlListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitDefaultValue([NotNull] GqlParser.DefaultValueContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.valueOrVariable"/>.
+	/// Enter a parse tree produced by <see cref="GqlParser.type_"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterValueOrVariable([NotNull] GqlParser.ValueOrVariableContext context) { }
+	public virtual void EnterType_([NotNull] GqlParser.Type_Context context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.valueOrVariable"/>.
+	/// Exit a parse tree produced by <see cref="GqlParser.type_"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitValueOrVariable([NotNull] GqlParser.ValueOrVariableContext context) { }
+	public virtual void ExitType_([NotNull] GqlParser.Type_Context context) { }
 	/// <summary>
-	/// Enter a parse tree produced by the <c>stringValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
+	/// Enter a parse tree produced by <see cref="GqlParser.namedType"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterStringValue([NotNull] GqlParser.StringValueContext context) { }
+	public virtual void EnterNamedType([NotNull] GqlParser.NamedTypeContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by the <c>stringValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
+	/// Exit a parse tree produced by <see cref="GqlParser.namedType"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitStringValue([NotNull] GqlParser.StringValueContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by the <c>numberValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterNumberValue([NotNull] GqlParser.NumberValueContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by the <c>numberValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitNumberValue([NotNull] GqlParser.NumberValueContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by the <c>booleanValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterBooleanValue([NotNull] GqlParser.BooleanValueContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by the <c>booleanValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitBooleanValue([NotNull] GqlParser.BooleanValueContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by the <c>arrayValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterArrayValue([NotNull] GqlParser.ArrayValueContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by the <c>arrayValue</c>
-	/// labeled alternative in <see cref="GqlParser.value"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitArrayValue([NotNull] GqlParser.ArrayValueContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.type"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterType([NotNull] GqlParser.TypeContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.type"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitType([NotNull] GqlParser.TypeContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.typeName"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterTypeName([NotNull] GqlParser.TypeNameContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.typeName"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitTypeName([NotNull] GqlParser.TypeNameContext context) { }
+	public virtual void ExitNamedType([NotNull] GqlParser.NamedTypeContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.listType"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -404,29 +432,461 @@ public partial class GqlBaseListener : IGqlListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitListType([NotNull] GqlParser.ListTypeContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.nonNullType"/>.
+	/// Enter a parse tree produced by <see cref="GqlParser.directives"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterNonNullType([NotNull] GqlParser.NonNullTypeContext context) { }
+	public virtual void EnterDirectives([NotNull] GqlParser.DirectivesContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.nonNullType"/>.
+	/// Exit a parse tree produced by <see cref="GqlParser.directives"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitNonNullType([NotNull] GqlParser.NonNullTypeContext context) { }
+	public virtual void ExitDirectives([NotNull] GqlParser.DirectivesContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GqlParser.array"/>.
+	/// Enter a parse tree produced by <see cref="GqlParser.directive"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterArray([NotNull] GqlParser.ArrayContext context) { }
+	public virtual void EnterDirective([NotNull] GqlParser.DirectiveContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="GqlParser.array"/>.
+	/// Exit a parse tree produced by <see cref="GqlParser.directive"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitArray([NotNull] GqlParser.ArrayContext context) { }
+	public virtual void ExitDirective([NotNull] GqlParser.DirectiveContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.typeSystemDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTypeSystemDefinition([NotNull] GqlParser.TypeSystemDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.typeSystemDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTypeSystemDefinition([NotNull] GqlParser.TypeSystemDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.typeSystemExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTypeSystemExtension([NotNull] GqlParser.TypeSystemExtensionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.typeSystemExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTypeSystemExtension([NotNull] GqlParser.TypeSystemExtensionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.schemaDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSchemaDefinition([NotNull] GqlParser.SchemaDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.schemaDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSchemaDefinition([NotNull] GqlParser.SchemaDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.rootOperationTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterRootOperationTypeDefinition([NotNull] GqlParser.RootOperationTypeDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.rootOperationTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitRootOperationTypeDefinition([NotNull] GqlParser.RootOperationTypeDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.schemaExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSchemaExtension([NotNull] GqlParser.SchemaExtensionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.schemaExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSchemaExtension([NotNull] GqlParser.SchemaExtensionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.operationTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterOperationTypeDefinition([NotNull] GqlParser.OperationTypeDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.operationTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitOperationTypeDefinition([NotNull] GqlParser.OperationTypeDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.description"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDescription([NotNull] GqlParser.DescriptionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.description"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDescription([NotNull] GqlParser.DescriptionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.typeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTypeDefinition([NotNull] GqlParser.TypeDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.typeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTypeDefinition([NotNull] GqlParser.TypeDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.typeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTypeExtension([NotNull] GqlParser.TypeExtensionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.typeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTypeExtension([NotNull] GqlParser.TypeExtensionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.scalarTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterScalarTypeDefinition([NotNull] GqlParser.ScalarTypeDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.scalarTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitScalarTypeDefinition([NotNull] GqlParser.ScalarTypeDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.scalarTypeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterScalarTypeExtension([NotNull] GqlParser.ScalarTypeExtensionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.scalarTypeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitScalarTypeExtension([NotNull] GqlParser.ScalarTypeExtensionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.objectTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterObjectTypeDefinition([NotNull] GqlParser.ObjectTypeDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.objectTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitObjectTypeDefinition([NotNull] GqlParser.ObjectTypeDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.implementsInterfaces"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterImplementsInterfaces([NotNull] GqlParser.ImplementsInterfacesContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.implementsInterfaces"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitImplementsInterfaces([NotNull] GqlParser.ImplementsInterfacesContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.fieldsDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFieldsDefinition([NotNull] GqlParser.FieldsDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.fieldsDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFieldsDefinition([NotNull] GqlParser.FieldsDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.fieldDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFieldDefinition([NotNull] GqlParser.FieldDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.fieldDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFieldDefinition([NotNull] GqlParser.FieldDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.argumentsDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterArgumentsDefinition([NotNull] GqlParser.ArgumentsDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.argumentsDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitArgumentsDefinition([NotNull] GqlParser.ArgumentsDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.inputValueDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterInputValueDefinition([NotNull] GqlParser.InputValueDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.inputValueDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitInputValueDefinition([NotNull] GqlParser.InputValueDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.objectTypeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterObjectTypeExtension([NotNull] GqlParser.ObjectTypeExtensionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.objectTypeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitObjectTypeExtension([NotNull] GqlParser.ObjectTypeExtensionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.interfaceTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterInterfaceTypeDefinition([NotNull] GqlParser.InterfaceTypeDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.interfaceTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitInterfaceTypeDefinition([NotNull] GqlParser.InterfaceTypeDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.interfaceTypeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterInterfaceTypeExtension([NotNull] GqlParser.InterfaceTypeExtensionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.interfaceTypeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitInterfaceTypeExtension([NotNull] GqlParser.InterfaceTypeExtensionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.unionTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterUnionTypeDefinition([NotNull] GqlParser.UnionTypeDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.unionTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitUnionTypeDefinition([NotNull] GqlParser.UnionTypeDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.unionMemberTypes"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterUnionMemberTypes([NotNull] GqlParser.UnionMemberTypesContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.unionMemberTypes"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitUnionMemberTypes([NotNull] GqlParser.UnionMemberTypesContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.unionTypeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterUnionTypeExtension([NotNull] GqlParser.UnionTypeExtensionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.unionTypeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitUnionTypeExtension([NotNull] GqlParser.UnionTypeExtensionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.enumTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterEnumTypeDefinition([NotNull] GqlParser.EnumTypeDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.enumTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitEnumTypeDefinition([NotNull] GqlParser.EnumTypeDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.enumValuesDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterEnumValuesDefinition([NotNull] GqlParser.EnumValuesDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.enumValuesDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitEnumValuesDefinition([NotNull] GqlParser.EnumValuesDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.enumValueDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterEnumValueDefinition([NotNull] GqlParser.EnumValueDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.enumValueDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitEnumValueDefinition([NotNull] GqlParser.EnumValueDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.enumTypeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterEnumTypeExtension([NotNull] GqlParser.EnumTypeExtensionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.enumTypeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitEnumTypeExtension([NotNull] GqlParser.EnumTypeExtensionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.inputObjectTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterInputObjectTypeDefinition([NotNull] GqlParser.InputObjectTypeDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.inputObjectTypeDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitInputObjectTypeDefinition([NotNull] GqlParser.InputObjectTypeDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.inputFieldsDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterInputFieldsDefinition([NotNull] GqlParser.InputFieldsDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.inputFieldsDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitInputFieldsDefinition([NotNull] GqlParser.InputFieldsDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.inputObjectTypeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterInputObjectTypeExtension([NotNull] GqlParser.InputObjectTypeExtensionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.inputObjectTypeExtension"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitInputObjectTypeExtension([NotNull] GqlParser.InputObjectTypeExtensionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.directiveDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDirectiveDefinition([NotNull] GqlParser.DirectiveDefinitionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.directiveDefinition"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDirectiveDefinition([NotNull] GqlParser.DirectiveDefinitionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.directiveLocations"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDirectiveLocations([NotNull] GqlParser.DirectiveLocationsContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.directiveLocations"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDirectiveLocations([NotNull] GqlParser.DirectiveLocationsContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.directiveLocation"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDirectiveLocation([NotNull] GqlParser.DirectiveLocationContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.directiveLocation"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDirectiveLocation([NotNull] GqlParser.DirectiveLocationContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.executableDirectiveLocation"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterExecutableDirectiveLocation([NotNull] GqlParser.ExecutableDirectiveLocationContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.executableDirectiveLocation"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitExecutableDirectiveLocation([NotNull] GqlParser.ExecutableDirectiveLocationContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.typeSystemDirectiveLocation"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTypeSystemDirectiveLocation([NotNull] GqlParser.TypeSystemDirectiveLocationContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.typeSystemDirectiveLocation"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTypeSystemDirectiveLocation([NotNull] GqlParser.TypeSystemDirectiveLocationContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.name"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterName([NotNull] GqlParser.NameContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.name"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitName([NotNull] GqlParser.NameContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>
