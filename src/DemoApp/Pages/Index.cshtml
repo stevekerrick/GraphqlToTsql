@@ -182,7 +182,7 @@
 
                 var antiForgeryToken = $('input:hidden[name="__RequestVerificationToken"]').val();
 
-                fetch("/?handler=RunQuery", {
+                fetch("/api/graphql", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

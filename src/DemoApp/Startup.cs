@@ -21,6 +21,7 @@ namespace DemoApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+            services.AddControllers();
 
             services
                 .AddScoped<IConnectionStringProvider, DemoConnectionStringProvider>()
@@ -47,6 +48,7 @@ namespace DemoApp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapControllers();
             });
         }
     }
