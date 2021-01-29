@@ -125,7 +125,7 @@ namespace GraphqlToTsql.Translator
             }
             else
             {
-                field = _parent.Field.Entity.GetField(name);
+                field = _parent.Field.Entity.GetField(name, context);
                 if (field == null)
                 {
                     throw new InvalidRequestException($"Unknown field: {_parent.Field.Entity.Name}.{name}", context);
