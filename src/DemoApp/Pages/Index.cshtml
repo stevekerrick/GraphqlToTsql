@@ -113,12 +113,6 @@
 </script>
 <script>
 
-    function stringToObject(objectString) {
-        if (!objectString) return objectString;
-        var jsObject = Function('return ' + objectString)();
-        return jsObject;
-    }
-
     function removeWhitespace(str) {
         return (str || "").replace(/\s+/g, " ");
     }
@@ -142,7 +136,15 @@
 
                 function formatObject(objectString) {
                     if (!objectString) return objectString;
-                    var jsObject = Function('return ' + objectString)();
+
+                    // We might have been sent an object string, a json string, or an object
+                    var jsObject;
+                    if (typeof objectString !== "string") {
+                        jsObject = objectString
+                    } else {
+                        jsObject = Function('return ' + objectString)();
+                    }
+
                     if (!jsObject) return objectString;
                     var json = JSON.stringify(jsObject, null, 2);
                     return json;
@@ -154,8 +156,8 @@
                         oneLineGraphql: removeWhitespace(vm.graphql),
                         graphqlParameters: formatObject(vm.graphqlParameters),
                         tsql: data.tsql,
-                        tsqlParameters: data.tsqlParametersJson,
-                        data: data.data,
+                        tsqlParameters: formatObject(data.tsqlParameters),
+                        data: formatObject(data.data),
                         error: data.errors? data.errors[0] : null,
                         statistics: data.statistics,
                         key: Date.now()
@@ -180,7 +182,7 @@
 
                 var antiForgeryToken = $('input:hidden[name="__RequestVerificationToken"]').val();
 
-                fetch("/api/graphql", {
+                fetch("/api/graphql?showStatistics=true", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

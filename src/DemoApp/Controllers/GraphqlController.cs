@@ -20,10 +20,25 @@ namespace DemoApp.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> Post([FromBody] QueryRequest query)
+        public async Task<JsonResult> Post([FromBody] QueryRequest query, bool? showStatistics)
         {
             var result = await RunQuery(query);
-            return new JsonResult(result);
+
+            object response;
+            if (showStatistics.GetValueOrDefault())
+            {
+                response = result;
+            }
+            else if (result.Errors != null)
+            {
+                response = new { result.Errors };
+            }
+            else
+            {
+                response = new { result.Data };
+            }
+
+            return new JsonResult(response);
         }
 
         private async Task<QueryResponse> RunQuery(QueryRequest query)
@@ -45,7 +60,7 @@ namespace DemoApp.Controllers
                 Data = Deserialize(runnerResult.DataJson),
                 Errors = errors,
                 Tsql = runnerResult.Tsql,
-                TsqlParametersJson = ToFormattedJson(runnerResult.TsqlParameters),
+                TsqlParameters = runnerResult.TsqlParameters,
                 Statistics = runnerResult.Statistics
             };
         }
@@ -55,13 +70,6 @@ namespace DemoApp.Controllers
             if (json == null) return null;
             return JsonConvert.DeserializeObject(json);
         }
-
-        private static string ToFormattedJson(object obj)
-        {
-            if (obj == null) return null;
-            return JsonConvert.SerializeObject(obj, Formatting.Indented);
-        }
-
     }
 
     // The shape of the QueryRequest is dictated by the GraphQL standard
@@ -82,7 +90,7 @@ namespace DemoApp.Controllers
 
         // These parts are extra
         public string Tsql { get; set; }
-        public string TsqlParametersJson { get; set; }
+        public Dictionary<string, object> TsqlParameters { get; set; }
         public List<Statistic> Statistics { get; set; }
     }
 }
