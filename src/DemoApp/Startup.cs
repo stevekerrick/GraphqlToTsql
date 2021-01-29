@@ -25,13 +25,13 @@ namespace DemoApp
 
             services
                 .AddScoped<IConnectionStringProvider, DemoConnectionStringProvider>()
+                .AddScoped<IDataMutator, DataMutator>()
                 .AddScoped<IDbAccess, DbAccess>()
                 .AddScoped<IRunner, Runner>()
                 .AddScoped<IListener, Listener>()
                 .AddScoped<IParser, Parser>()
                 .AddScoped<IQueryTreeBuilder, QueryTreeBuilder>()
-                .AddScoped<ITsqlBuilder, TsqlBuilder>()
-                .AddScoped<IDataMutator, DataMutator>();
+                .AddScoped<ITsqlBuilder, TsqlBuilder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

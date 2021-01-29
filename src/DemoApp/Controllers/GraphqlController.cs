@@ -20,27 +20,32 @@ namespace DemoApp.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> Post([FromBody] QueryModel query)
+        public async Task<JsonResult> Post([FromBody] QueryRequest query)
         {
             var result = await RunQuery(query);
             return new JsonResult(result);
         }
 
-        private async Task<QueryResult> RunQuery(QueryModel query)
+        private async Task<QueryResponse> RunQuery(QueryRequest query)
         {
-            var graphql = query.Graphql;
-            var graphqlParameters = string.IsNullOrEmpty(query.GraphqlParametersJson)
+            var graphql = query.Query;
+            var graphqlParameters = string.IsNullOrEmpty(query.Variables)
                 ? null
-                : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.GraphqlParametersJson);
+                : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.Variables);
 
             var runnerResult = await _runner.TranslateAndRun(graphql, graphqlParameters, DemoEntityList.All());
 
-            return new QueryResult
+            var errors =
+                runnerResult.ParseError != null ? new[] { runnerResult.ParseError }
+                : runnerResult.DbError != null ? new[] { runnerResult.DbError }
+                : null;
+
+            return new QueryResponse
             {
+                Data = ToFormattedJson(Deserialize(runnerResult.DataJson)),
+                Errors = errors,
                 Tsql = runnerResult.Tsql,
                 TsqlParametersJson = ToFormattedJson(runnerResult.TsqlParameters),
-                DataJson = ToFormattedJson(Deserialize(runnerResult.DataJson)),
-                Error = runnerResult.ParseError ?? runnerResult.DbError,
                 Statistics = runnerResult.Statistics
             };
         }
@@ -57,20 +62,27 @@ namespace DemoApp.Controllers
             return JsonConvert.SerializeObject(obj, Formatting.Indented);
         }
 
-        private class QueryResult
-        {
-            public string Tsql { get; set; }
-            public string TsqlParametersJson { get; set; }
-            public string DataJson { get; set; }
-            public string Error { get; set; }
-            public bool IsSuccess => Error == null;
-            public List<Statistic> Statistics { get; set; }
-        }
     }
 
-    public class QueryModel
+    // The shape of the QueryRequest is dictated by the GraphQL standard
+    public class QueryRequest
     {
-        public string Graphql { get; set; }
-        public string GraphqlParametersJson { get; set; }
+        // The GraphQL query
+        public string Query { get; set; }
+
+        // The GraphQL variable values, in JSON format
+        public string Variables { get; set; }
+    }
+
+    public class QueryResponse
+    {
+        // These parts are dictated by the GraphQL standard
+        public string Data { get; set; }
+        public string[] Errors { get; set; }
+
+        // These parts are extra
+        public string Tsql { get; set; }
+        public string TsqlParametersJson { get; set; }
+        public List<Statistic> Statistics { get; set; }
     }
 }

@@ -155,15 +155,14 @@
                         graphqlParameters: formatObject(vm.graphqlParameters),
                         tsql: data.tsql,
                         tsqlParameters: data.tsqlParametersJson,
-                        data: data.dataJson,
-                        isSuccess: data.isSuccess,
-                        error: data.error,
+                        data: data.data,
+                        error: data.errors? data.errors[0] : null,
                         statistics: data.statistics,
                         key: Date.now()
                     }
                     vm.result = result;
                     vm.results.unshift(result);
-                    vm.resultTab = result.isSuccess? 4 : 5;
+                    vm.resultTab = result.error? 5 : 4;
                 }
 
                 function errorResult(error) {
@@ -171,7 +170,6 @@
                         graphql: vm.graphql,
                         oneLineGraphql: removeWhitespace(vm.graphql),
                         graphqlParameters: formatObject(vm.graphqlParameters),
-                        isSuccessful: false,
                         error: error,
                         key: Date.now()
                     };
@@ -188,7 +186,7 @@
                         "Content-Type": "application/json",
                         "RequestVerificationToken": antiForgeryToken
                     },
-                    body: JSON.stringify({ Graphql: this.graphql, GraphqlParametersJson: formatObject(this.graphqlParameters) }),
+                    body: JSON.stringify({ query: this.graphql, variables: formatObject(this.graphqlParameters) }),
                 })
                 .then(response => response.json())
                 .then(data => {
