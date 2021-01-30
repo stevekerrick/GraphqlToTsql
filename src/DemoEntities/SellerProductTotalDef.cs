@@ -32,8 +32,8 @@ GROUP BY o.SellerName, od.ProductName
             {
                 Field.Column(this, "sellerName", "SellerName", ValueType.String),
                 Field.Column(this, "productName", "ProductName", ValueType.String),
-                Field.Column(this, "totalQuantity", "TotalQuantity", ValueType.Number),
-                Field.Column(this, "totalAmount", "TotalAmount", ValueType.Number),
+                Field.Column(this, "totalQuantity", "TotalQuantity", ValueType.Int),
+                Field.Column(this, "totalAmount", "TotalAmount", ValueType.Float),
 
                 Field.Row(SellerDef.Instance, "seller", new Join(
                     ()=>this.GetField("sellerName"),

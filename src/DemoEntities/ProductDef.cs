@@ -18,7 +18,7 @@ namespace DemoEntities
             {
                 Field.Column(this, "name", "Name", ValueType.String),
                 Field.Column(this, "description", "Description", ValueType.String),
-                Field.Column(this, "price", "Price", ValueType.Number),
+                Field.Column(this, "price", "Price", ValueType.Float),
 
                 Field.CalculatedField(this, "totalRevenue",
                     (tableAlias) => $"SELECT (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName) * {tableAlias}.Price"

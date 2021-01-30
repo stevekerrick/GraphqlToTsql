@@ -132,7 +132,7 @@ namespace GraphqlToTsql.Entities
             FieldType = FieldType.TotalCount,
             Entity = setField.Entity,
             Name = Constants.TOTAL_COUNT,
-            ValueType = ValueType.Number,
+            ValueType = ValueType.Int,
             Join = setField.Join
         };
 

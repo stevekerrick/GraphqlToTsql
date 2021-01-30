@@ -199,6 +199,23 @@ fragment frag on Seller { name }
             TsqlGenerationShouldFail(graphql, null, "Fragment frag is defined for Seller, not Badge");
         }
 
+        [Test]
+        public void ArgumentTypeFieldTypeMismatchTest()
+        {
+            const string graphql = "{ seller (name: 1234) { distributorName } }";
+
+            ParseShouldFail(graphql, null, "Argument is the wrong type: Seller.name is a String");
+        }
+
+        [Test]
+        public void VariableTypeParameterTypeMismatchTest()
+        {
+            const string graphql = "query test($myId: Int) { seller (id: $myId) { distributorName } }";
+            var graphqlParameters = new Dictionary<string, object> { { "myId", "1234" } };
+
+            ParseShouldFail(graphql, null, "uh-oh");
+        }
+
         // The QueryBuilder is also exercised in the Parse step, and that's really where most of the errors are being found
         private void ParseShouldFail(
             string graphql,

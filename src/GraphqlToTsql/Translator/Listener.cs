@@ -31,6 +31,16 @@ namespace GraphqlToTsql.Translator
             return _qt.GetResult();
         }
 
+        public override void EnterOperationDefinition(GqlParser.OperationDefinitionContext context)
+        {
+            _qt.BeginOperation();
+        }
+
+        //public override void ExitOperationDefinition(GqlParser.OperationDefinitionContext context)
+        //{
+        //    _qt.EndOperation();
+        //}
+
         public override void ExitVariableDefinition(GqlParser.VariableDefinitionContext context)
         {
             var name = context.variable().children[1].GetText();

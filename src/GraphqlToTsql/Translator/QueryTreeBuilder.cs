@@ -54,6 +54,16 @@ namespace GraphqlToTsql.Translator
             };
         }
 
+        public void BeginOperation()
+        {
+            _parent = Term.TopLevel();
+            _topTerm = _parent;
+        }
+
+        //public void EndOperation()
+        //{
+        //}
+
         public void SetOperationName(string name)
         {
             _operationName = name;
@@ -78,16 +88,7 @@ namespace GraphqlToTsql.Translator
 
         public void BeginQuery()
         {
-            if (_parent == null)
-            {
-                _parent = Term.TopLevel();
-                _topTerm = _parent;
-            }
-            else
-            {
-                _parent = _term;
-            }
-
+            _parent = _term;
             _term = null;
         }
 

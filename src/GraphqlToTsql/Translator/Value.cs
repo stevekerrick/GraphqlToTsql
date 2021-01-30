@@ -15,16 +15,6 @@ namespace GraphqlToTsql.Translator
         {
             get
             {
-                // If a number has no fractional part, convert to int
-                if (ValueType == ValueType.Number)
-                {
-                    var decimalValue = (decimal)RawValue;
-                    if (decimalValue % 1.0m == 0.0m)
-                    {
-                        return (int)decimalValue;
-                    }
-                }
-
                 // For booleans use 0/1 (because they're type BIT in the database)
                 if (ValueType == ValueType.Boolean)
                 {
@@ -45,41 +35,65 @@ namespace GraphqlToTsql.Translator
                 return;
             }
 
+            var nullValueContext = valueContext.nullValue();
+            if (nullValueContext != null)
+            {
+                ValueType = ValueType.Null;
+                RawValue = null;
+                return;
+            }
+
+            var stringValueContext = valueContext.stringValue();
+            if (stringValueContext != null)
+            {
+                ValueType = ValueType.Int;
+                RawValue = stringValueContext.GetText();
+                return;
+            }
+
             var intValueContext = valueContext.intValue();
             if (intValueContext != null)
             {
                 ValueType = ValueType.Int;
-                
+                RawValue = long.Parse(intValueContext.GetText());
+                return;
             }
 
-
-
-
-            switch (valueContext)
+            var floatValueContext = valueContext.floatValue();
+            if (floatValueContext != null)
             {
-                case GqlParser.IntValueContext intValueContext:
-
-
-                    break;
-
-
-                case GqlParser.NumberValueContext numberValueContext:
-                    ValueType = ValueType.Number;
-                    RawValue = decimal.Parse(numberValueContext.GetText());
-                    break;
-                case GqlParser.StringValueContext stringValueContext:
-                    var quoted = stringValueContext.GetText();
-                    var unquoted = quoted.Substring(1, quoted.Length - 2);
-                    ValueType = ValueType.String;
-                    RawValue = unquoted;
-                    break;
-                case GqlParser.BooleanValueContext booleanValueContext:
-                    ValueType = ValueType.Boolean;
-                    RawValue = bool.Parse(booleanValueContext.GetText().ToLower());
-                    break;
-                case GqlParser.ArrayValueContext arrayValueContext:
-                    throw new InvalidRequestException("Arrays Not supported", new Context(valueContext));
+                ValueType = ValueType.Float;
+                RawValue = decimal.Parse(floatValueContext.GetText());
+                return;
             }
+
+            var boolValueContext = valueContext.booleanValue();
+            if (boolValueContext != null)
+            {
+                ValueType = ValueType.Float;
+                RawValue = bool.Parse(boolValueContext.GetText());
+                return;
+            }
+
+            var listValueContext = valueContext.listValue();
+            if (listValueContext != null)
+            {
+                throw new InvalidRequestException("List values are not supported", new Context(valueContext));
+            }
+
+            var objectValueContext = valueContext.objectValue();
+            if (objectValueContext != null)
+            {
+                throw new InvalidRequestException("Object values are not supported", new Context(valueContext));
+            }
+
+            var enumValueContext = valueContext.enumValue();
+            if (enumValueContext != null)
+            {
+                throw new InvalidRequestException("Enum values are not supported", new Context(valueContext));
+            }
+
+            throw new InvalidRequestException("Unexpected value type", new Context(valueContext));
         }
 
         public Value(object rawValue)
@@ -95,19 +109,36 @@ namespace GraphqlToTsql.Translator
 
             switch (typeName)
             {
+                case "String":
+                    ValueType = ValueType.String;
+                    RawValue = (string)rawValue;
+                    break;
+
                 case "Int32":
+                    ValueType = ValueType.Int;
+                    RawValue = (int)rawValue;
+                    break;
                 case "Int64":
+                    ValueType = ValueType.Int;
+                    RawValue = (long)rawValue;
+                    break;
+
                 case "Single":
                 case "Double":
                 case "Decimal":
                     var stringValue = rawValue.ToString();
-                    ValueType = ValueType.Number;
-                    RawValue = decimal.Parse(stringValue);
-                    break;
-
-                case "String":
-                    ValueType = ValueType.String;
-                    RawValue = (string)rawValue;
+                    var decimalValue = decimal.Parse(stringValue);
+                    if (decimalValue % 1.0m == 0.0m)
+                    {
+                        // If there's no fractional part, convert to Int
+                        ValueType = ValueType.Int;
+                        RawValue = (long)decimalValue;
+                    }
+                    else
+                    {
+                        ValueType = ValueType.Float;
+                        RawValue = decimalValue;
+                    }
                     break;
 
                 case "Boolean":
@@ -129,11 +160,14 @@ namespace GraphqlToTsql.Translator
                 case ValueType.Null:
                     RawValue = null;
                     break;
-                case ValueType.Number:
-                    RawValue = decimal.Parse(stringValue);
-                    break;
                 case ValueType.String:
                     RawValue = stringValue;
+                    break;
+                case ValueType.Int:
+                    RawValue = long.Parse(stringValue);
+                    break;
+                case ValueType.Float:
+                    RawValue = decimal.Parse(stringValue);
                     break;
                 case ValueType.Boolean:
                     RawValue = bool.Parse(stringValue); ;
@@ -141,6 +175,20 @@ namespace GraphqlToTsql.Translator
                 default:
                     throw new Exception($"Unsupported ValueType: {valueType}");
             }
+        }
+
+        public Value(ValueType newValueType, Value oldValue)
+        {
+            if (oldValue.ValueType == newValueType || oldValue.ValueType == ValueType.Null)
+            {
+                ValueType = oldValue.ValueType;
+                RawValue = oldValue.RawValue;
+                return;
+            }
+
+            // TODO: Int vs Float
+
+            throw new InvalidRequestException($"{oldValue.RawValue} is not of type {newValueType}");
         }
     }
 }

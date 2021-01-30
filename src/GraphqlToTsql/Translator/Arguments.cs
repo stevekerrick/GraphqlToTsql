@@ -40,18 +40,22 @@ namespace GraphqlToTsql.Translator
             else
             {
                 var argumentField = field.Entity.GetField(name, context);
+
+
+
+
                 Filters.Add(new Filter(argumentField, value));
             }
         }
 
         private long IntValue(string name, Value value, Context context)
         {
-            if (value.ValueType != ValueType.Number)
+            if (value.ValueType != ValueType.Int)
             {
                 throw new InvalidRequestException($"{name} must be an integer: {value.RawValue}", context);
             }
 
-            return (long)(decimal)value.RawValue;
+            return (long)value.RawValue;
         }
 
         private string StringValue(string name, Value value, Context context)

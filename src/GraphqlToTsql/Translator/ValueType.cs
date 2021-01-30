@@ -2,9 +2,11 @@
 {
     public enum ValueType
     {
-        Null = 1,
-        Number,
+        Unknown = 0,
+        Null,
         String,
+        Int,
+        Float,
         Boolean
     }
 }

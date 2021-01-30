@@ -16,9 +16,9 @@ namespace DemoEntities
         {
             return new List<Field>
             {
-                Field.Column(this, "orderId", "OrderId", ValueType.Number),
+                Field.Column(this, "orderId", "OrderId", ValueType.Int),
                 Field.Column(this, "productName", "ProductName", ValueType.String),
-                Field.Column(this, "quantity", "Quantity", ValueType.Number),
+                Field.Column(this, "quantity", "Quantity", ValueType.Int),
 
                 Field.Row(OrderDef.Instance, "order", new Join(
                     ()=>this.GetField("orderId"),

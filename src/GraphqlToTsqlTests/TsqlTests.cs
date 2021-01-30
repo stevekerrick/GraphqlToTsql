@@ -445,7 +445,7 @@ SELECT
                 SELECT
                   t2.[Id] AS [id]
                 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
-            , ({CursorUtility.TsqlCursorDataFunc(ValueType.Number, "t2", "Order", "Id")}) AS [cursor]
+            , ({CursorUtility.TsqlCursorDataFunc(ValueType.Int, "t2", "Order", "Id")}) AS [cursor]
             FROM [Order] t2
             WHERE t1.[Name] = t2.[SellerName]
             FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]

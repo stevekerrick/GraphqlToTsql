@@ -1,10 +1,12 @@
 ﻿Validate value types in parameters and arguments
 
 
-Unit tests for other Translator components
-Pre-processing of arguments/variables
+Do we implement nullability in our types?
+Do we implement ID type?
 Add a Timestamp column and test it
 Provide method to do DI registrations
+Rename top-level to root
+Support arrays
 
 
 Documentation
