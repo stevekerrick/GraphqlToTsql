@@ -222,7 +222,10 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         public void FragmentTest()
         {
             var graphql = @"
-{ badges { ... frag} }
+{
+  badges { ... frag}
+  sellers { city }
+}
 fragment frag on Badge { name }
 ".Trim();
 
@@ -235,6 +238,13 @@ SELECT
       t1.[Name] AS [name]
     FROM [Badge] t1
     FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [badges]
+
+  -- sellers (t2)
+, JSON_QUERY ((
+    SELECT
+      t2.[City] AS [city]
+    FROM [Seller] t2
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
