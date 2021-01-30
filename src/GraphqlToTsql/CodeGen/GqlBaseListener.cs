@@ -132,6 +132,18 @@ public partial class GqlBaseListener : IGqlListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitField([NotNull] GqlParser.FieldContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.fieldName"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFieldName([NotNull] GqlParser.FieldNameContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.fieldName"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFieldName([NotNull] GqlParser.FieldNameContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.arguments"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

@@ -31,16 +31,6 @@ namespace GraphqlToTsql.Translator
             return _qt.GetResult();
         }
 
-        public override void EnterOperationDefinition(GqlParser.OperationDefinitionContext context)
-        {
-            _qt.BeginOperation();
-        }
-
-        //public override void ExitOperationDefinition(GqlParser.OperationDefinitionContext context)
-        //{
-        //    _qt.EndOperation();
-        //}
-
         public override void ExitVariableDefinition(GqlParser.VariableDefinitionContext context)
         {
             var name = context.variable().children[1].GetText();
@@ -55,17 +45,17 @@ namespace GraphqlToTsql.Translator
             _qt.Variable(name, type, defaultValue, new Context(context));
         }
 
-        public override void ExitFragmentName(GqlParser.FragmentNameContext context)
-        {
-            _fragmentName = context.name().GetText();
-        }
+        //public override void ExitFragmentName(GqlParser.FragmentNameContext context)
+        //{
+        //    _fragmentName = context.name().GetText();
+        //}
 
-        // This is the best place to initialize a new Fragment definition
-        public override void ExitTypeCondition(GqlParser.TypeConditionContext context)
-        {
-            var type = context.namedType().name().GetText();
-            _qt.BeginFragment(_fragmentName, type, new Context(context));
-        }
+        //// This is the best place to initialize a new Fragment definition
+        //public override void ExitTypeCondition(GqlParser.TypeConditionContext context)
+        //{
+        //    var type = context.namedType().name().GetText();
+        //    _qt.BeginFragment(_fragmentName, type, new Context(context));
+        //}
 
         public override void EnterSelectionSet(GqlParser.SelectionSetContext context)
         {
@@ -77,27 +67,35 @@ namespace GraphqlToTsql.Translator
             _qt.EndQuery();
         }
 
-        public override void ExitFieldDefinition(GqlParser.FieldDefinitionContext context)
+        public override void ExitFieldName(GqlParser.FieldNameContext context)
         {
-            var aliasContext = context.description();
-            var alias = aliasContext == null? null :aliasContext.GetText();
+            var aliasContext = context.alias();
+            var alias = aliasContext == null ? null : aliasContext.name().GetText();
 
             var name = context.name().GetText();
 
             _qt.Field(alias, name, new Context(context));
         }
 
-        public override void ExitFragmentSpread(GqlParser.FragmentSpreadContext context)
-        {
-            var name = context.fragmentName().name().GetText();
-            _qt.UseFragment(name);
-        }
+        //public override void ExitField(GqlParser.FieldContext context)
+        //{
+        //    var aliasContext = context.alias();
+        //    var alias = aliasContext == null ? null : aliasContext.GetText();
+
+        //    var name = context.name().GetText();
+
+        //    _qt.Field(alias, name, new Context(context));
+        //}
+
+        //public override void ExitFragmentSpread(GqlParser.FragmentSpreadContext context)
+        //{
+        //    var name = context.fragmentName().name().GetText();
+        //    _qt.UseFragment(name);
+        //}
 
         public override void ExitArgument(GqlParser.ArgumentContext context)
         {
             var name = context.name().GetText();
-
-            //var value = context.value();
 
             var valueOrVariableContext = context.value();
             if (valueOrVariableContext == null)

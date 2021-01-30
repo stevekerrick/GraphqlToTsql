@@ -54,16 +54,6 @@ namespace GraphqlToTsql.Translator
             };
         }
 
-        public void BeginOperation()
-        {
-            _parent = Term.TopLevel();
-            _topTerm = _parent;
-        }
-
-        //public void EndOperation()
-        //{
-        //}
-
         public void SetOperationName(string name)
         {
             _operationName = name;
@@ -88,7 +78,16 @@ namespace GraphqlToTsql.Translator
 
         public void BeginQuery()
         {
-            _parent = _term;
+            if (_parent == null)
+            {
+                _parent = Term.TopLevel();
+                _topTerm = _parent;
+            }
+            else
+            {
+                _parent = _term;
+            }
+
             _term = null;
         }
 
@@ -126,7 +125,7 @@ namespace GraphqlToTsql.Translator
             }
             else
             {
-                field = _parent.Field.Entity.GetField(name, context);
+                field = _parent.Field.Entity.GetField(name);
                 if (field == null)
                 {
                     throw new InvalidRequestException($"Unknown field: {_parent.Field.Entity.Name}.{name}", context);

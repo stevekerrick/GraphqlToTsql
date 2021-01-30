@@ -61,7 +61,12 @@ selection: field
     | inlineFragment
     ;
 //https://spec.graphql.org/June2018/#sec-Language.Fields
-field: alias? name arguments? directives? selectionSet?;
+field: fieldName arguments? directives? selectionSet?;
+
+
+// CUSTOMIZATION
+fieldName: alias? name;
+
 
 //https://spec.graphql.org/June2018/#sec-Language.Arguments
 arguments: '(' argument+ ')';

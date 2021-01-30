@@ -46,8 +46,20 @@ namespace GraphqlToTsql.Translator
             var stringValueContext = valueContext.stringValue();
             if (stringValueContext != null)
             {
-                ValueType = ValueType.Int;
-                RawValue = stringValueContext.GetText();
+                var stringValue = (string)null;
+                if (stringValueContext.STRING() != null)
+                {
+                    var quotedString = stringValueContext.STRING().GetText();
+                    stringValue = quotedString.Substring(1, quotedString.Length - 2);
+                }
+                else if (stringValueContext.BLOCK_STRING() != null)
+                {
+                    var tripleQuotedString = stringValueContext.BLOCK_STRING().GetText();
+                    stringValue = tripleQuotedString.Substring(3, tripleQuotedString.Length - 6);
+                }
+
+                ValueType = ValueType.String;
+                RawValue = stringValue;
                 return;
             }
 
@@ -70,7 +82,7 @@ namespace GraphqlToTsql.Translator
             var boolValueContext = valueContext.booleanValue();
             if (boolValueContext != null)
             {
-                ValueType = ValueType.Float;
+                ValueType = ValueType.Boolean;
                 RawValue = bool.Parse(boolValueContext.GetText());
                 return;
             }

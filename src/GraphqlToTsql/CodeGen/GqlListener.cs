@@ -112,6 +112,16 @@ public interface IGqlListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitField([NotNull] GqlParser.FieldContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.fieldName"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFieldName([NotNull] GqlParser.FieldNameContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.fieldName"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFieldName([NotNull] GqlParser.FieldNameContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.arguments"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
