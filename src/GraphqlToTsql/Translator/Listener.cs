@@ -45,18 +45,6 @@ namespace GraphqlToTsql.Translator
             _qt.Variable(name, type, defaultValue, new Context(context));
         }
 
-        public override void ExitFragmentName(GqlParser.FragmentNameContext context)
-        {
-            _fragmentName = context.name().GetText();
-        }
-
-        // This is the best place to initialize a new Fragment definition
-        public override void ExitTypeCondition(GqlParser.TypeConditionContext context)
-        {
-            var type = context.namedType().name().GetText();
-            _qt.BeginFragment(_fragmentName, type, new Context(context));
-        }
-
         public override void EnterSelectionSet(GqlParser.SelectionSetContext context)
         {
             _qt.BeginQuery();
@@ -75,22 +63,6 @@ namespace GraphqlToTsql.Translator
             var name = context.name().GetText();
 
             _qt.Field(alias, name, new Context(context));
-        }
-
-        //public override void ExitField(GqlParser.FieldContext context)
-        //{
-        //    var aliasContext = context.alias();
-        //    var alias = aliasContext == null ? null : aliasContext.GetText();
-
-        //    var name = context.name().GetText();
-
-        //    _qt.Field(alias, name, new Context(context));
-        //}
-
-        public override void ExitFragmentSpread(GqlParser.FragmentSpreadContext context)
-        {
-            var name = context.fragmentName().name().GetText();
-            _qt.UseFragment(name);
         }
 
         public override void ExitArgument(GqlParser.ArgumentContext context)
@@ -123,6 +95,29 @@ namespace GraphqlToTsql.Translator
                 _qt.SetOperationName(name.GetText());
             }
         }
+
+
+        // -------------------------------------
+        // Fragment stuff
+        // -------------------------------------
+        public override void ExitFragmentName(GqlParser.FragmentNameContext context)
+        {
+            _fragmentName = context.name().GetText();
+        }
+
+        // This is the best place to initialize a new Fragment definition
+        public override void ExitTypeCondition(GqlParser.TypeConditionContext context)
+        {
+            var type = context.namedType().name().GetText();
+            _qt.BeginFragment(_fragmentName, type, new Context(context));
+        }
+
+        public override void ExitFragmentSpread(GqlParser.FragmentSpreadContext context)
+        {
+            var name = context.fragmentName().name().GetText();
+            _qt.UseFragment(name);
+        }
+
 
         #region Unsupported GraphQL features
 

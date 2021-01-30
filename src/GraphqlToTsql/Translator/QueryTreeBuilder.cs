@@ -1,4 +1,5 @@
 using GraphqlToTsql.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -61,19 +62,28 @@ namespace GraphqlToTsql.Translator
 
         public void Variable(string name, string type, Value value, Context context)
         {
-            // See if there's a matching VariableValue
+            // Get the variable's ValueType
+            if (!Enum.TryParse<ValueType>(type, out var valueType))
+            {
+                throw new InvalidRequestException($"Unsupported type: {type}", context);
+            }
+
+            // The value parameter is usually null, but can be the default value for the Variable
+            // See if the GraphqlParameters dictionary has a variable value, otherwise the default is used
             if (_graphqlParameters != null && _graphqlParameters.ContainsKey(name))
             {
                 value = new Value(_graphqlParameters[name]);
             }
-
             if (value == null)
             {
-                throw new InvalidRequestException($"Variable [${name}] is used in the query, but doesn't have a value", context);
+                throw new InvalidRequestException($"Variable ${name} is used in the query, but doesn't have a value", context);
             }
 
-            _variables[name] = value;
-            value.VariableName = name;
+            // Make sure the value's type matches the declared type
+            var coercedValue = new Value(valueType, value, ()=> $"Variable value is the wrong type: ${name} is type {valueType}");
+
+            coercedValue.VariableName = name;
+            _variables[name] = coercedValue;
         }
 
         public void BeginQuery()

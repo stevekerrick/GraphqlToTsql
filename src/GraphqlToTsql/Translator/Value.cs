@@ -167,6 +167,7 @@ namespace GraphqlToTsql.Translator
         {
             ValueType = valueType;
 
+            // This is only used by our internally-constructed Cursors, so we can trust Parse
             switch (valueType)
             {
                 case ValueType.Null:
@@ -189,18 +190,30 @@ namespace GraphqlToTsql.Translator
             }
         }
 
-        public Value(ValueType newValueType, Value oldValue)
+        public Value(ValueType expectedValueType, Value value, Func<string> errorMessageFunc)
         {
-            if (oldValue.ValueType == newValueType || oldValue.ValueType == ValueType.Null)
+            // TODO: validate nullability
+
+            // Allow the value if it matches the expected type, or if it is null
+            if (value.ValueType == expectedValueType || value.ValueType == ValueType.Null)
             {
-                ValueType = oldValue.ValueType;
-                RawValue = oldValue.RawValue;
+                ValueType = value.ValueType;
+                RawValue = value.RawValue;
+                VariableName = value.VariableName;
                 return;
             }
 
-            // TODO: Int vs Float
+            // Allow Int => Float
+            if (value.ValueType == ValueType.Int && expectedValueType == ValueType.Float)
+            {
+                ValueType = ValueType.Float;
+                RawValue = Convert.ToDecimal((long)value.RawValue);
+                VariableName = value.VariableName;
+                return;
+            }
 
-            throw new InvalidRequestException($"{oldValue.RawValue} is not of type {newValueType}");
+            var errorMessage = errorMessageFunc();
+            throw new InvalidRequestException(errorMessage);
         }
     }
 }

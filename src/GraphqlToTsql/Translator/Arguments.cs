@@ -21,7 +21,7 @@ namespace GraphqlToTsql.Translator
             {
                 First = IntValue(name, value, context);
             }
-            else if(name == Constants.OFFSET_ARGUMENT)
+            else if (name == Constants.OFFSET_ARGUMENT)
             {
                 Offset = IntValue(name, value, context);
                 if (Offset != null && After != null)
@@ -40,11 +40,8 @@ namespace GraphqlToTsql.Translator
             else
             {
                 var argumentField = field.Entity.GetField(name, context);
-
-
-
-
-                Filters.Add(new Filter(argumentField, value));
+                var newValue = new Value(argumentField.ValueType, value, () => $"Argument is the wrong type: {field.Entity.EntityType}.{name} is type {argumentField.ValueType}");
+                Filters.Add(new Filter(argumentField, newValue));
             }
         }
 
@@ -75,8 +72,9 @@ namespace GraphqlToTsql.Translator
 
             public Filter(Field field, Value value)
             {
+                var coercedValue = new Value(field.ValueType, value, () => $"Argument is the wrong type: {field.Entity.EntityType}.{field.Name} is type {field.ValueType}");
                 Field = field;
-                Value = value;
+                Value = coercedValue;
             }
         }
     }

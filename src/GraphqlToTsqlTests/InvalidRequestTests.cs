@@ -93,7 +93,7 @@ namespace GraphqlToTsqlTests
         {
             const string graphql = "query mytest($id: Int) { order (id: $id) { shipping } }";
 
-            ParseShouldFail(graphql, null, "Variable [$id] is used in the query, but doesn't have a value");
+            ParseShouldFail(graphql, null, "Variable $id is used in the query, but doesn't have a value");
         }
 
         [Test]
@@ -204,16 +204,16 @@ fragment frag on Seller { name }
         {
             const string graphql = "{ seller (name: 1234) { distributorName } }";
 
-            ParseShouldFail(graphql, null, "Argument is the wrong type: Seller.name is a String");
+            ParseShouldFail(graphql, null, "Argument is the wrong type: Seller.name is type String");
         }
 
         [Test]
         public void VariableTypeParameterTypeMismatchTest()
         {
-            const string graphql = "query test($myId: Int) { seller (id: $myId) { distributorName } }";
+            const string graphql = "query test($myId: Int) { order (id: $myId) { sellerName } }";
             var graphqlParameters = new Dictionary<string, object> { { "myId", "1234" } };
 
-            ParseShouldFail(graphql, null, "uh-oh");
+            ParseShouldFail(graphql, graphqlParameters, "Variable value is the wrong type: $myId is type Int");
         }
 
         // The QueryBuilder is also exercised in the Parse step, and that's really where most of the errors are being found

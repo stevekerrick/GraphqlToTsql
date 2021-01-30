@@ -257,7 +257,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         public void ComplicatedQueryTest()
         {
             var graphql = @"
-query hammerQuery ($name: string) {
+query hammerQuery ($name: String) {
   product1: product (name: $name) {
     name price
     orderDetails {
