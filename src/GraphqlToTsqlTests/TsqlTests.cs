@@ -318,6 +318,55 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
+        public void FilterTest()
+        {
+            const string graphql = "{ products (name: \"Hammer\") { price } }";
+
+            var expectedSql = @"
+SELECT
+
+  -- products (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Price] AS [price]
+    FROM [Product] t1
+    WHERE t1.[Name] = @name
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object> { { "name", "Hammer" } };
+
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
+        }
+
+        [Test]
+        public void FilterOnCalculatedFieldTest()
+        {
+            const string graphql = "{ products (totalRevenue: 100.12) { price } }";
+
+            var expectedSql = @"
+SELECT
+
+  -- products (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Price] AS [price]
+    FROM [Product] t1
+    WHERE (SELECT (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE t1.[Name] = od.ProductName) * t1.Price) = @totalRevenue
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object> { { "totalRevenue", 100.12M } };
+
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
+        }
+
+
+
+
+        [Test]
         public void FirstOffsetTest()
         {
             const string graphql = "{ sellers (offset: 10, first: 2) { city } }";

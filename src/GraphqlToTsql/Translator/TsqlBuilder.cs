@@ -258,10 +258,14 @@ namespace GraphqlToTsql.Translator
                 childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
                 foreach (var filter in filters)
                 {
-                    var lhs = $"{childTableAlias}.[{filter.Field.DbColumnName}]";
+                    var lhs = filter.Field.TemplateFunc == null
+                        ? $"{childTableAlias}.[{filter.Field.DbColumnName}]"
+                        : $"({filter.Field.TemplateFunc(childTableAlias)})";
+
                     var wherePart = filter.Value.TsqlValue == null
                         ? $"{lhs} IS NULL"
                         : $"{lhs} = @{RegisterTsqlParameter(filter)}";
+
                     whereParts.Add(wherePart);
                 }
             }

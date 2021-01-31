@@ -31,7 +31,7 @@ namespace GraphqlToTsql.Entities
         /// <param name="entity">The entity this field belongs to</param>
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="dbColumnName">The column name in the database</param>
-        /// <param name="valueType">Data type of the column. One of: Number, String, Boolean.</param>
+        /// <param name="valueType">Data type of the column. One of: String, Int, Float, Boolean.</param>
         public static Field Column(EntityBase entity, string name, string dbColumnName, ValueType valueType) => new Field
         {
             FieldType = FieldType.Column,
@@ -47,17 +47,19 @@ namespace GraphqlToTsql.Entities
         /// </summary>
         /// <param name="entity">The entity this field belongs to</param>
         /// <param name="name">The name of the field in the GraphQL</param>
+        /// <param name="valueType">Data type of the column. One of: String, Int, Float, Boolean.</param>
         /// <param name="templateFunc">Function that takes the table alias, and returns a SQL SELECT statement.
         /// <example>For example:
         /// <code>(tableAlias) => $"SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName"</code>
         /// </example>
         /// </param>
-        public static Field CalculatedField(EntityBase entity, string name,
+        public static Field CalculatedField(EntityBase entity, string name, ValueType valueType,
             Func<string, string> templateFunc) => new Field
             {
                 FieldType = FieldType.Column,
                 Entity = entity,
                 Name = name,
+                ValueType = valueType,
                 TemplateFunc = templateFunc
             };
 
