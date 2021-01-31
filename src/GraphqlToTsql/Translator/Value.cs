@@ -15,7 +15,7 @@ namespace GraphqlToTsql.Translator
         {
             get
             {
-                // For booleans use 0/1 (because they're type BIT in the database)
+                // For booleans return 0/1 (because they're type BIT in the database)
                 if (ValueType == ValueType.Boolean)
                 {
                     var boolValue = (bool)RawValue;
@@ -128,7 +128,7 @@ namespace GraphqlToTsql.Translator
 
                 case "Int32":
                     ValueType = ValueType.Int;
-                    RawValue = (int)rawValue;
+                    RawValue = (long)(int)rawValue;
                     break;
                 case "Int64":
                     ValueType = ValueType.Int;
@@ -193,7 +193,9 @@ namespace GraphqlToTsql.Translator
         public Value(ValueType expectedValueType, Value value, Func<string> errorMessageFunc)
         {
             // Allow the value if it matches the expected type, or if it is null
-            if (value.ValueType == expectedValueType || value.ValueType == ValueType.Null)
+            if (value.ValueType == expectedValueType ||
+                expectedValueType == ValueType.Null ||
+                value.ValueType == ValueType.Null)
             {
                 ValueType = value.ValueType;
                 RawValue = value.RawValue;
