@@ -16,11 +16,11 @@ namespace DemoEntities
         {
             return new List<Field>
             {
-                Field.Column(this, "name", "Name", ValueType.String),
-                Field.Column(this, "distributorName", "DistributorName", ValueType.String),
-                Field.Column(this, "city", "City", ValueType.String),
-                Field.Column(this, "state", "State", ValueType.String),
-                Field.Column(this, "postalCode", "PostalCode", ValueType.String),
+                Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
+                Field.Column(this, "distributorName", "DistributorName", ValueType.String, IsNullable.Yes),
+                Field.Column(this, "city", "City", ValueType.String, IsNullable.Yes),
+                Field.Column(this, "state", "State", ValueType.String, IsNullable.Yes),
+                Field.Column(this, "postalCode", "PostalCode", ValueType.String, IsNullable.Yes),
 
                 Field.Row(this, "distributor", new Join(
                     ()=>this.GetField("distributorName"),

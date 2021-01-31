@@ -16,11 +16,11 @@ namespace DemoEntities
         {
             return new List<Field>
             {
-                Field.Column(this, "name", "Name", ValueType.String),
-                Field.Column(this, "description", "Description", ValueType.String),
-                Field.Column(this, "price", "Price", ValueType.Float),
+                Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
+                Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
+                Field.Column(this, "price", "Price", ValueType.Float, IsNullable.No),
 
-                Field.CalculatedField(this, "totalRevenue", ValueType.Float,
+                Field.CalculatedField(this, "totalRevenue", ValueType.Float, IsNullable.No,
                     (tableAlias) => $"SELECT (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName) * {tableAlias}.Price"
                 ),
 

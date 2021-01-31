@@ -1,4 +1,5 @@
 ﻿using GraphqlToTsql.Entities;
+using GraphqlToTsql.Translator;
 using System.Collections.Generic;
 using ValueType = GraphqlToTsql.Translator.ValueType;
 
@@ -31,10 +32,10 @@ GROUP BY s.[Name]
         {
             return new List<Field>
             {
-                Field.Column(this, "sellerName", "SellerName", ValueType.String),
-                Field.Column(this, "totalOrders", "TotalOrders", ValueType.Int),
-                Field.Column(this, "totalQuantity", "TotalQuantity", ValueType.Int),
-                Field.Column(this, "totalAmount", "TotalAmount", ValueType.Float),
+                Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No),
+                Field.Column(this, "totalOrders", "TotalOrders", ValueType.Int, IsNullable.No),
+                Field.Column(this, "totalQuantity", "TotalQuantity", ValueType.Int, IsNullable.No),
+                Field.Column(this, "totalAmount", "TotalAmount", ValueType.Float, IsNullable.No),
 
                 Field.Row(SellerDef.Instance, "seller", new Join(
                     ()=>this.GetField("sellerName"),

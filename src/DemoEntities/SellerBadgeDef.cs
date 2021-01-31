@@ -16,9 +16,9 @@ namespace DemoEntities
         {
             return new List<Field>
             {
-                Field.Column(this, "sellerName", "SellerName", ValueType.String),
-                Field.Column(this, "badgeName", "BadgeName", ValueType.String),
-                Field.Column(this, "dateAwarded", "DateAwarded", ValueType.String),
+                Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No),
+                Field.Column(this, "badgeName", "BadgeName", ValueType.String, IsNullable.No),
+                Field.Column(this, "dateAwarded", "DateAwarded", ValueType.String, IsNullable.No),
 
                 Field.Row(SellerDef.Instance, "seller", new Join(
                     ()=>this.GetField("sellerName"),

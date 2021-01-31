@@ -216,6 +216,24 @@ fragment frag on Seller { name }
             ParseShouldFail(graphql, graphqlParameters, "Variable value is the wrong type: $myId is type Int");
         }
 
+        [Test]
+        public void NullValueOnNonNullableFieldTest()
+        {
+            const string graphql = "query test($myId: Int) { order (id: $myId) { date } }";
+            var graphqlParameters = new Dictionary<string, object> { { "myId", null } };
+
+            ParseShouldFail(graphql, graphqlParameters, "Order.id can not be null");
+        }
+
+        [Test]
+        public void NullValueForNonNullableVariableTest()
+        {
+            const string graphql = "query test($name: String!) { seller (sellerName: $name) { name } }";
+            var graphqlParameters = new Dictionary<string, object> { { "name", null } };
+
+            ParseShouldFail(graphql, graphqlParameters, "Invalid null value: Variable $name is not nullable");
+        }
+
         // The QueryBuilder is also exercised in the Parse step, and that's really where most of the errors are being found
         private void ParseShouldFail(
             string graphql,

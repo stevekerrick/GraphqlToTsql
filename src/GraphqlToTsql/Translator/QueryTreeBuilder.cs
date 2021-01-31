@@ -18,7 +18,7 @@ namespace GraphqlToTsql.Translator
         void Field(string alias, string name, Context context);
         void SetOperationName(string name);
         void UseFragment(string name);
-        void Variable(string name, string type, Value value, Context context);
+        void Variable(string name, string type, bool typeIsNullable, Value value, Context context);
     }
 
     public class QueryTreeBuilder : IQueryTreeBuilder
@@ -60,7 +60,7 @@ namespace GraphqlToTsql.Translator
             _operationName = name;
         }
 
-        public void Variable(string name, string type, Value value, Context context)
+        public void Variable(string name, string type, bool typeIsNullable, Value value, Context context)
         {
             // Get the variable's ValueType
             if (!Enum.TryParse<ValueType>(type, out var valueType))
@@ -81,6 +81,12 @@ namespace GraphqlToTsql.Translator
 
             // Make sure the value's type matches the declared type
             var coercedValue = new Value(valueType, value, ()=> $"Variable value is the wrong type: ${name} is type {valueType}");
+
+            // Disallow null values on non-nullable Variables
+            if (!typeIsNullable && coercedValue.ValueType == ValueType.Null)
+            {
+                throw new InvalidRequestException($"Invalid null value: Variable ${name} is not nullable", context);
+            }
 
             coercedValue.VariableName = name;
             _variables[name] = coercedValue;

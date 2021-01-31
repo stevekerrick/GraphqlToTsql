@@ -34,7 +34,16 @@ namespace GraphqlToTsql.Translator
         public override void ExitVariableDefinition(GqlParser.VariableDefinitionContext context)
         {
             var name = context.variable().children[1].GetText();
-            var type = context.type_().GetText();
+
+            var typeContext = context.type_();
+            if (typeContext.listType() != null)
+            {
+                throw InvalidRequestException.Unsupported("Array values", context);
+            }
+            var type = typeContext.namedType().GetText();
+
+            var typeIsNullable = !context.type_().GetText().EndsWith("!");
+
             Value defaultValue = null;
             if (context.defaultValue() != null)
             {
@@ -42,7 +51,7 @@ namespace GraphqlToTsql.Translator
                 defaultValue = new Value(defaultValueContext);
             }
 
-            _qt.Variable(name, type, defaultValue, new Context(context));
+            _qt.Variable(name, type, typeIsNullable, defaultValue, new Context(context));
         }
 
         public override void EnterSelectionSet(GqlParser.SelectionSetContext context)

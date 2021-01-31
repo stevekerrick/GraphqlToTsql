@@ -20,29 +20,37 @@ namespace GraphqlToTsql.Translator
             if (name == Constants.FIRST_ARGUMENT)
             {
                 First = IntValue(name, value, context);
+                return;
             }
-            else if (name == Constants.OFFSET_ARGUMENT)
+
+            if (name == Constants.OFFSET_ARGUMENT)
             {
                 Offset = IntValue(name, value, context);
                 if (Offset != null && After != null)
                 {
                     throw new InvalidRequestException("You can't use 'offset' and 'after' at the same time", context);
                 }
+                return;
             }
-            else if (name == Constants.AFTER_ARGUMENT)
+
+            if (name == Constants.AFTER_ARGUMENT)
             {
                 After = StringValue(name, value, context);
                 if (Offset != null && After != null)
                 {
                     throw new InvalidRequestException("You can't use 'offset' and 'after' at the same time", context);
                 }
+                return;
             }
-            else
+
+            var argumentField = field.Entity.GetField(name, context);
+            var newValue = new Value(argumentField.ValueType, value, () => $"Argument is the wrong type: {field.Entity.EntityType}.{name} is type {argumentField.ValueType}");
+            if (newValue.ValueType == ValueType.Null && argumentField.IsNullable == IsNullable.No)
             {
-                var argumentField = field.Entity.GetField(name, context);
-                var newValue = new Value(argumentField.ValueType, value, () => $"Argument is the wrong type: {field.Entity.EntityType}.{name} is type {argumentField.ValueType}");
-                Filters.Add(new Filter(argumentField, newValue));
+                throw new InvalidRequestException($"{field.Entity.EntityType}.{name} can not be null", context);
             }
+
+            Filters.Add(new Filter(argumentField, newValue));
         }
 
         private long IntValue(string name, Value value, Context context)

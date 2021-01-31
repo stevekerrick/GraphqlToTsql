@@ -1,4 +1,5 @@
-﻿using GraphqlToTsql.Util;
+﻿using GraphqlToTsql.Translator;
+using GraphqlToTsql.Util;
 using System;
 using System.Diagnostics;
 using ValueType = GraphqlToTsql.Translator.ValueType;
@@ -19,6 +20,7 @@ namespace GraphqlToTsql.Entities
         internal FieldType FieldType { get; private set; }
         internal string DbColumnName { get; private set; }
         internal ValueType ValueType { get; private set; }
+        internal IsNullable? IsNullable { get; private set; }
         internal Join Join { get; private set; }
         internal Func<string, string> TemplateFunc { get; private set; }
         internal Func<string, string> MutatorFunc { get; private set; }
@@ -32,13 +34,15 @@ namespace GraphqlToTsql.Entities
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="dbColumnName">The column name in the database</param>
         /// <param name="valueType">Data type of the column. One of: String, Int, Float, Boolean.</param>
-        public static Field Column(EntityBase entity, string name, string dbColumnName, ValueType valueType) => new Field
+        /// <param name="isNullable">Is the database column nullable?</param>
+        public static Field Column(EntityBase entity, string name, string dbColumnName, ValueType valueType, IsNullable isNullable) => new Field
         {
             FieldType = FieldType.Column,
             Entity = entity,
             Name = name,
             DbColumnName = dbColumnName,
-            ValueType = valueType
+            ValueType = valueType,
+            IsNullable = isNullable
         };
 
         /// <summary>
@@ -48,18 +52,20 @@ namespace GraphqlToTsql.Entities
         /// <param name="entity">The entity this field belongs to</param>
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="valueType">Data type of the column. One of: String, Int, Float, Boolean.</param>
+        /// <param name="isNullable">Can the custom SQL result in a null value?</param>
         /// <param name="templateFunc">Function that takes the table alias, and returns a SQL SELECT statement.
         /// <example>For example:
         /// <code>(tableAlias) => $"SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName"</code>
         /// </example>
         /// </param>
-        public static Field CalculatedField(EntityBase entity, string name, ValueType valueType,
+        public static Field CalculatedField(EntityBase entity, string name, ValueType valueType, IsNullable isNullable,
             Func<string, string> templateFunc) => new Field
             {
                 FieldType = FieldType.Column,
                 Entity = entity,
                 Name = name,
                 ValueType = valueType,
+                IsNullable = isNullable,
                 TemplateFunc = templateFunc
             };
 

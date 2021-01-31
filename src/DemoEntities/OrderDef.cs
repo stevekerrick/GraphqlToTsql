@@ -17,10 +17,10 @@ namespace DemoEntities
         {
             return new List<Field>
             {
-                Field.Column(this, "id", "Id", ValueType.Int),
-                Field.Column(this, "sellerName", "SellerName", ValueType.String),
-                Field.Column(this, "date", "Date", ValueType.String),
-                Field.Column(this, "shipping", "Shipping", ValueType.Float),
+                Field.Column(this, "id", "Id", ValueType.Int, IsNullable.No),
+                Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No),
+                Field.Column(this, "date", "Date", ValueType.String, IsNullable.No),
+                Field.Column(this, "shipping", "Shipping", ValueType.Float, IsNullable.No),
 
                 Field.Row(SellerDef.Instance, "seller", new Join(
                     ()=>this.GetField("sellerName"),
