@@ -1,13 +1,12 @@
-﻿Validate value types in parameters and arguments
+﻿Validate nullability of values. See Value.cs:194
+Nullability of Columns, even calculated fields
 
 
-Do we implement nullability in our types?
-Do we implement ID type?
 Add a Timestamp column and test it
 Provide method to do DI registrations
 Rename top-level to root
 Support arrays
-Validate nullability of values. See Value.cs:194
+INTROSPECTION
 
 
 Documentation

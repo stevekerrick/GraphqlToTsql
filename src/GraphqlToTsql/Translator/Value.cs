@@ -192,8 +192,6 @@ namespace GraphqlToTsql.Translator
 
         public Value(ValueType expectedValueType, Value value, Func<string> errorMessageFunc)
         {
-            // TODO: validate nullability
-
             // Allow the value if it matches the expected type, or if it is null
             if (value.ValueType == expectedValueType || value.ValueType == ValueType.Null)
             {
