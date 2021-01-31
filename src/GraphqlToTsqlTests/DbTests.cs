@@ -47,7 +47,7 @@ namespace GraphqlToTsqlTests
     id date seller { name sellerBadges(first: 1) { badgeName dateAwarded } }
   }
 }".Trim();
-            var graphqlParameters = new Dictionary<string, object> { { "isActiv", true } };
+            var graphqlParameters = new Dictionary<string, object>();
 
             var expectedObject = new
             {
@@ -67,7 +67,6 @@ namespace GraphqlToTsqlTests
             };
             await CheckAsync(graphql, graphqlParameters, expectedObject);
         }
-
 
         private async Task CheckAsync(string graphql, Dictionary<string, object> graphqlParameters, object expectedObject)
         {
