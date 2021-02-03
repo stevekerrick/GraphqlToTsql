@@ -141,6 +141,7 @@ namespace GraphqlToTsql.Entities
             Entity = setField.Entity,
             Name = Constants.TOTAL_COUNT,
             ValueType = ValueType.Int,
+            IsNullable = Translator.IsNullable.No,
             Join = setField.Join
         };
 
@@ -170,6 +171,7 @@ namespace GraphqlToTsql.Entities
                 Entity = new NodeEntity(setField),
                 Name = Constants.CURSOR,
                 ValueType = ValueType.String,
+                IsNullable = Translator.IsNullable.No,
                 MutatorFunc = CursorUtility.CreateCursor,
                 TemplateFunc = (tableAlias) => CursorUtility.TsqlCursorDataFunc(pk.ValueType, tableAlias, entity.DbTableName, pk.DbColumnName)
             };

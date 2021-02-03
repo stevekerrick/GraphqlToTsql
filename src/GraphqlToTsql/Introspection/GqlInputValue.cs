@@ -2,9 +2,9 @@
 {
     internal class GqlInputValue
     {
-        public string name { get; set; }
-        public string description { get; set; }
-        public GqlType type { get; set; }
-        public string defaultValue { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public GqlType Type { get; set; }
+        public string DefaultValue { get; set; }
     }
 }
