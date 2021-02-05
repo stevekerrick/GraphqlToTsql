@@ -1,4 +1,5 @@
 ﻿using DemoEntities;
+using GraphqlToTsql.Introspection;
 using GraphqlToTsql.Translator;
 using GraphqlToTsql.Util;
 using Newtonsoft.Json;
@@ -362,9 +363,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
-
-
-
 
         [Test]
         public void FirstOffsetTest()
@@ -771,6 +769,29 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
+        [Test]
+        public void IntrospectionTypeNamesTest()
+        {
+            const string graphql = "{ __schema { types { name } } }";
+
+            var expectedSql = @"
+SELECT
+
+  -- __schema (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Name] AS [name]
+    FROM [Seller] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
+        }
+
+
         private void Check(
             string graphql,
             Dictionary<string, object> graphqlParameters,
@@ -839,8 +860,11 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
         private TsqlResult Translate(string graphql, Dictionary<string, object> graphqlParameters)
         {
+            var allEntities = DemoEntityList.All();
+            allEntities.AddRange(IntrospectionEntityList.All());
+
             var parser = GetService<IParser>();
-            var parseResult = parser.ParseGraphql(graphql, graphqlParameters, DemoEntityList.All());
+            var parseResult = parser.ParseGraphql(graphql, graphqlParameters, allEntities);
             Assert.IsNull(parseResult.ParseError, $"Parse failed: {parseResult.ParseError}");
 
             var tsqlBuilder = GetService<ITsqlBuilder>();

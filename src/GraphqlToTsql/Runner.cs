@@ -1,5 +1,6 @@
 ﻿using GraphqlToTsql.Database;
 using GraphqlToTsql.Entities;
+using GraphqlToTsql.Introspection;
 using GraphqlToTsql.Translator;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -37,6 +38,7 @@ namespace GraphqlToTsql
         public async Task<RunnerResult> TranslateAndRun(string graphql, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
         {
             var sw = new Stopwatch();
+            entityList.AddRange(IntrospectionEntityList.All());
 
             // Parse the GraphQL, producing a query tree
             sw.Restart();
