@@ -1,4 +1,5 @@
 ﻿using DemoEntities;
+using GraphqlToTsql.Entities;
 using GraphqlToTsql.Introspection;
 using GraphqlToTsql.Translator;
 using GraphqlToTsql.Util;
@@ -860,8 +861,10 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
         private TsqlResult Translate(string graphql, Dictionary<string, object> graphqlParameters)
         {
-            var allEntities = DemoEntityList.All();
+            var allEntities = new List<EntityBase>();
+            allEntities.AddRange(DemoEntityList.All());
             allEntities.AddRange(IntrospectionEntityList.All());
+            IntrospectionData.Initialize(allEntities);
 
             var parser = GetService<IParser>();
             var parseResult = parser.ParseGraphql(graphql, graphqlParameters, allEntities);

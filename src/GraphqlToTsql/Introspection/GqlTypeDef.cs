@@ -69,5 +69,7 @@ namespace GraphqlToTsql.Introspection
                     tableAlias => "TODO")
             };
         }
+
+        public override string SqlDefinition => IntrospectionData.GetTypesSql();
     }
 }

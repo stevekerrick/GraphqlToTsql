@@ -21,6 +21,7 @@
 //            return _types.Values.ToList();
 //        }
 
+
 //        private GqlType EntityType(EntityBase entity)
 //        {
 //            // If this type has already been built (or at least initialized) return it
@@ -63,7 +64,7 @@
 
 //        private GqlField ScalarField(Field field)
 //        {
-//            var baseType = _types[field.FieldType.ToString()];
+//            var baseType = _types[field.ValueType.ToString()];
 
 //            var type = field.IsNullable == IsNullable.Yes
 //                ? baseType

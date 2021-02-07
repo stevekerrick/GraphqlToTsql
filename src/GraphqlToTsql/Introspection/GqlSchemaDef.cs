@@ -39,5 +39,7 @@ namespace GraphqlToTsql.Introspection
                     tableAlias => "SELECT * FROM GqlDirective")
             };
         }
+
+        public override string SqlDefinition => "SELECT 'hello' AS UnusedColumn";
     }
 }

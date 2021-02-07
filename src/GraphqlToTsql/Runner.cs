@@ -35,14 +35,28 @@ namespace GraphqlToTsql
             _dataMutator = dataMutator;
         }
 
-        public async Task<RunnerResult> TranslateAndRun(string graphql, Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
+        public async Task<RunnerResult> TranslateAndRun(
+            string graphql,
+            Dictionary<string, object> graphqlParameters,
+            List<EntityBase> entityList)
         {
+            const bool enableIntrospection = true;
+
             var sw = new Stopwatch();
-            entityList.AddRange(IntrospectionEntityList.All());
+
+            var allEntities = new List<EntityBase>();
+            allEntities.AddRange(entityList);
+
+            // Set up Introspection
+            if (enableIntrospection)
+            {
+                allEntities.AddRange(IntrospectionEntityList.All());
+                IntrospectionData.Initialize(allEntities);
+            }
 
             // Parse the GraphQL, producing a query tree
             sw.Restart();
-            var parseResult = _parser.ParseGraphql(graphql, graphqlParameters, entityList);
+            var parseResult = _parser.ParseGraphql(graphql, graphqlParameters, allEntities);
             if (parseResult.ParseError != null)
             {
                 return new RunnerResult { ParseError = parseResult.ParseError };
