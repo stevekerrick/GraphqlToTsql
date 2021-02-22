@@ -5,6 +5,7 @@ namespace GraphqlToTsql.Introspection
 {
     internal class GqlType
     {
+        public string Key { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public TypeKind Kind { get; set; }
@@ -31,6 +32,7 @@ namespace GraphqlToTsql.Introspection
         {
             return new GqlType
             {
+                Key = name,
                 Name = name,
                 Description = description,
                 Kind = TypeKind.SCALAR
@@ -41,16 +43,20 @@ namespace GraphqlToTsql.Introspection
         {
             return new GqlType
             {
+                Key = $"{TypeKind.NON_NULL}:{baseType.Key}",
                 Name = null,
                 Kind = TypeKind.NON_NULL,
                 OfType = baseType
             };
+
         }
 
         public static GqlType Object(string name)
         {
+
             return new GqlType
             {
+                Key = name,
                 Name = name,
                 Kind = TypeKind.OBJECT,
                 Fields = new List<GqlField>(),
@@ -62,6 +68,7 @@ namespace GraphqlToTsql.Introspection
         {
             return new GqlType
             {
+                Key = $"{TypeKind.LIST}:{baseType.Key}",
                 Name = null,
                 Kind = TypeKind.LIST,
                 OfType = baseType
@@ -76,6 +83,7 @@ namespace GraphqlToTsql.Introspection
 
             return new GqlType
             {
+                Key = name,
                 Name = name,
                 Kind = TypeKind.ENUM,
                 Fields = new List<GqlField>(),

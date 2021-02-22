@@ -4,28 +4,25 @@ namespace GraphqlToTsql.Introspection
 {
     internal class GqlField
     {
-        public string name { get; set; }
-        public string description { get; set; }
-        public List<GqlInputValue> args { get; set; }
-        public GqlType type { get; set; }
-        public bool isDeprecated { get; set; }
-        public string deprecationReason { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public List<GqlInputValue> Args { get; set; }
+        public GqlType Type { get; set; }
+        public bool IsDeprecated { get; set; }
+        public string DeprecationReason { get; set; }
 
-        public GqlField(string name, GqlType type, bool includedDeprecated = false)
+        public GqlField(string name, GqlType type)
         {
-            this.name = name;
-            this.type = type;
-            args = new List<GqlInputValue>();
+            this.Name = name;
+            this.Type = type;
 
-            if (includedDeprecated)
+            Args = new List<GqlInputValue>();
+            Args.Add(new GqlInputValue
             {
-                args.Add(new GqlInputValue
-                {
-                    Name = "includeDeprecated",
-                    Type = GqlType.Scalar("Boolean", ""),
-                    DefaultValue = "false"
-                });
-            }
+                Name = "includeDeprecated",
+                Type = GqlType.Scalar("Boolean", ""),
+                DefaultValue = "false"
+            });
         }
     }
 }

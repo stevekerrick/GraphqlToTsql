@@ -771,22 +771,79 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
+        public void IntrospectionGqlSchemaTableTest()
+        {
+            const string graphql = "{ __schema { types { name } } }";
+
+            var result = Translate(graphql, null);
+
+            Assert.IsTrue(result.Tsql.Contains("[GqlSchema] AS ("));
+        }
+
+        [Test]
+        public void IntrospectionGqlTypeTableTest()
+        {
+            const string graphql = "{ __schema { types { name } } }";
+
+            var result = Translate(graphql, null);
+
+            Assert.IsTrue(result.Tsql.Contains("[GqlType] AS ("));
+        }
+
+        [Test]
         public void IntrospectionTypeNamesTest()
         {
             const string graphql = "{ __schema { types { name } } }";
 
             var expectedSql = @"
+WITH [GqlSchema] AS (
+  SELECT 'hello' AS UnusedColumn
+)
+
+, [GqlType] AS (
+  SELECT 'String' AS [Key], 'SCALAR' AS Kind, 'String' AS Name, 'The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.' AS Description
+  UNION ALL SELECT 'Int', 'SCALAR', 'Int', 'The `Int` scalar type represents non-fractional signed whole numeric values.'
+  UNION ALL SELECT 'Float', 'SCALAR', 'Float', 'The `Float` scalar type represents numeric values that may have fractional values.'
+  UNION ALL SELECT 'Boolean', 'SCALAR', 'Boolean', 'The `Boolean` scalar type represents `true` or `false`.'
+  UNION ALL SELECT 'ID', 'SCALAR', 'ID', 'The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `""4""`) or integer (such as `4`) input value will be accepted as an ID.'
+  UNION ALL SELECT 'Upload', 'SCALAR', 'Upload', 'The `Upload` scalar type represents a file upload.'
+  UNION ALL SELECT 'Badge', 'OBJECT', 'Badge', null
+  UNION ALL SELECT 'SellerBadge', 'OBJECT', 'SellerBadge', null
+  UNION ALL SELECT 'Seller', 'OBJECT', 'Seller', null
+  UNION ALL SELECT 'SellerTotal', 'OBJECT', 'SellerTotal', null
+  UNION ALL SELECT 'Order', 'OBJECT', 'Order', null
+  UNION ALL SELECT 'OrderDetail', 'OBJECT', 'OrderDetail', null
+  UNION ALL SELECT 'Product', 'OBJECT', 'Product', null
+  UNION ALL SELECT 'SellerProductTotal', 'OBJECT', 'SellerProductTotal', null
+  UNION ALL SELECT '__Directive', 'OBJECT', '__Directive', null
+  UNION ALL SELECT '__InputValue', 'OBJECT', '__InputValue', null
+  UNION ALL SELECT '__Type', 'OBJECT', '__Type', null
+  UNION ALL SELECT '__Field', 'OBJECT', '__Field', null
+  UNION ALL SELECT '__EnumValue', 'OBJECT', '__EnumValue', null
+  UNION ALL SELECT '__Schema', 'OBJECT', '__Schema', null
+  UNION ALL SELECT '__TypeKind', 'ENUM', '__TypeKind', null
+  UNION ALL SELECT '__DirectiveLocation', 'ENUM', '__DirectiveLocation', null
+  UNION ALL SELECT 'CacheControlScope', 'ENUM', 'CacheControlScope', null
+  UNION ALL SELECT 'Query', 'OBJECT', 'Query', null
+)
+
 SELECT
 
   -- __schema (t1)
   JSON_QUERY ((
     SELECT
-      t1.[Name] AS [name]
-    FROM [Seller] t1
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
+
+      -- __schema.types (t2)
+      JSON_QUERY ((
+        SELECT
+          t2.[Name] AS [name]
+        FROM (SELECT * FROM GqlType) t2
+        FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [types]
+    FROM [GqlSchema] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [__schema]
 
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
-".Trim();
+            ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object>();
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);

@@ -28,22 +28,25 @@ namespace GraphqlToTsql.Introspection
         {
             return new List<Field>
             {
+                Field.Column(this, "parentTypeKey", "ParentTypeKey", ValueType.String, IsNullable.No),
                 Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
                 Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
-                Field.Column(this, "typeName", "TypeName", ValueType.String, IsNullable.No),
+                Field.Column(this, "typeKey", "TypeKey", ValueType.String, IsNullable.No),
 
                 Field.Set(GqlInputValueDef.Instance, "args", new Join(
                     () => this.GetField("name"),
                     () => GqlInputValueDef.Instance.GetField("fieldName"))
                 ),
                 Field.Row(GqlTypeDef.Instance, "type", new Join(
-                    () => this.GetField("typeName"),
-                    () => GqlTypeDef.Instance.GetField("name"))
+                    () => this.GetField("typeKey"),
+                    () => GqlTypeDef.Instance.GetField("key"))
                 ),
 
                 Field.Column(this, "isDeprecated", "IsDeprecated", ValueType.Boolean, IsNullable.No),
                 Field.Column(this, "deprecationReason", "DeprecationReason", ValueType.String, IsNullable.Yes)
             };
         }
+
+        public override string SqlDefinition => IntrospectionData.GetFieldsSql();
     }
 }

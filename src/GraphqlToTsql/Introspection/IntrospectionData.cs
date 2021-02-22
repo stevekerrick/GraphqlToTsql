@@ -97,6 +97,8 @@ namespace GraphqlToTsql.Introspection
         private static GqlField ScalarField(Field field)
         {
             var baseType = GetType(field.ValueType.ToString());
+            var key = $"{TypeKind.NON_NULL}:{baseType.Key}";
+            //var type = 
 
             var type = field.IsNullable == IsNullable.Yes
                 ? baseType
@@ -252,20 +254,61 @@ namespace GraphqlToTsql.Introspection
             return sb.ToString().Trim();
         }
 
+        public static string GetFieldsSql()
+        {
+            var sb = new StringBuilder(1024);
+            var isFirstRow = true;
+            foreach (var type in Types)
+            {
+                if (type.Fields != null)
+                {
+                    foreach (var field in type.Fields)
+                    {
+                        AppendFieldRow(sb, isFirstRow, type.Name, field);
+                        isFirstRow = false;
+                    }
+                }
+            }
+
+            return sb.ToString().Trim();
+        }
+
         private static void AppendTypeRow(StringBuilder sb, bool isFirstRow, GqlType type)
         {
             sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");
-            AppendColumn(sb, isFirstRow, true, "kind", type.Kind.ToString());
-            AppendColumn(sb, isFirstRow, false, "name", type.Name);
-            AppendColumn(sb, isFirstRow, false, "description", type.Description);
+            AppendColumn(sb, isFirstRow, true, "[Key]", type.Key);
+            AppendColumn(sb, isFirstRow, false, "Kind", type.Kind.ToString());
+            AppendColumn(sb, isFirstRow, false, "Name", type.Name);
+            AppendColumn(sb, isFirstRow, false, "Description", type.Description);
             sb.AppendLine();
         }
 
-        private static void AppendColumn(StringBuilder sb, bool isFirstRow, bool isFirstColumn, string name, string value)
+        private static void AppendFieldRow(StringBuilder sb, bool isFirstRow, string typeName, GqlField field)
+        {
+            sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");
+            AppendColumn(sb, isFirstRow, true, "ParentTypeKey", typeName);
+            AppendColumn(sb, isFirstRow, false, "Name", field.Name);
+            AppendColumn(sb, isFirstRow, false, "Description", field.Description);
+            AppendColumn(sb, isFirstRow, false, "TypeName", field.Type.Name);
+            AppendColumn(sb, isFirstRow, false, "IsDeprecated", field.IsDeprecated);
+            AppendColumn(sb, isFirstRow, false, "DeprecationReason", field.DeprecationReason);
+
+            sb.AppendLine();
+        }
+
+        private static void AppendColumn(StringBuilder sb, bool isFirstRow, bool isFirstColumn, string name, object value)
         {
             sb.Append(isFirstColumn ? " " : ", ");
 
-            var valueString = value == null ? "null" : $"'{value}'";
+            var valueString = value == null
+                ? "null"
+                : value.GetType().Name == "String"
+                ? $"'{value}'"
+                : value.GetType().Name == "Boolean" && (bool)value == true
+                ? "1"
+                : value.GetType().Name == "Boolean"
+                ? "0"
+                : value.ToString();
             sb.Append(isFirstRow ? $"{valueString} AS {name}" : valueString);
         }
 

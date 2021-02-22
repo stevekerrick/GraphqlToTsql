@@ -34,7 +34,7 @@ namespace GraphqlToTsql.Introspection
     {
         public static GqlTypeDef Instance = new GqlTypeDef();
 
-        public override string Name => "type";
+        public override string Name => "__type";
         public override string DbTableName => "GqlType";
         public override string EntityType => "__Type";
         public override string[] PrimaryKeyFieldNames => throw new Exception("Schema inspection shouldn't need PKs");
@@ -43,13 +43,14 @@ namespace GraphqlToTsql.Introspection
         {
             return new List<Field>
             {
+                Field.Column(this, "key", "Key", ValueType.String, IsNullable.No),
                 Field.Column(this, "kind", "Kind", ValueType.String, IsNullable.No),
                 Field.Column(this, "name", "Name", ValueType.String, IsNullable.Yes),
                 Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
 
                 Field.Set(GqlFieldDef.Instance, "fields", new Join(
-                    () => this.GetField("name"),
-                    () => GqlFieldDef.Instance.GetField("typeName"))
+                    () => this.GetField("key"),
+                    () => GqlFieldDef.Instance.GetField("parentTypeKey"))
                 ),
 
                 Field.CalculatedSet(GqlTypeDef.Instance, "interfaces",
