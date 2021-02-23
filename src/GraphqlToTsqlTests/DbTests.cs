@@ -97,6 +97,36 @@ namespace GraphqlToTsqlTests
         }
 
         [Test]
+        public async Task IntrospectionSchemaTest()
+        {
+            var graphql = @"
+{
+  __schema {
+    types (name: ""Order"") { name }
+    queryType { name }
+    mutationType { name }
+    subscriptionType { name }
+    directives { name }
+  }
+}".Trim();
+
+            var graphqlParameters = new Dictionary<string, object>();
+
+            var expectedObject = new
+            {
+                __schema = new
+                {
+                    types = new[] { new { name = "Order" } },
+                    queryType = new { name = "Query" },
+                    mutationType = (object)null, //not supported
+                    subscriptionType = (object)null, //not supported
+                    directives = (object)null //not supported
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
+        [Test]
         public async Task IntrospectionOfTypeTest()
         {
             // This is a confusing query, but it's a typical Introspection query.

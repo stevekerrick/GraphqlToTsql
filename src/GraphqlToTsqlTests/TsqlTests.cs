@@ -811,6 +811,21 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
+        public void IntrospectionGqlDirectiveTableTest()
+        {
+            var graphql = @"
+{
+  __schema {
+    directives { name }
+  }
+}".Trim();
+
+            var result = Translate(graphql, null);
+
+            Assert.IsTrue(result.Tsql.Contains("[GqlDirective] AS ("));
+        }
+
+        [Test]
         public void IntrospectionTypeNamesTest()
         {
             const string graphql = "{ __schema { types { name } } }";

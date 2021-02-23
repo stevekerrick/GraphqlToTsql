@@ -312,6 +312,17 @@ namespace GraphqlToTsql.Introspection
             return sb.ToString().Trim();
         }
 
+        public static string GetDirectivesSql()
+        {
+            var sb = new StringBuilder(1024);
+
+            sb.AppendLine("SELECT *");
+            sb.AppendLine("FROM (SELECT NULL AS Name, NULL AS Description) AS DirectiveNullRow");
+            sb.AppendLine("WHERE DirectiveNullRow.Name IS NOT NULL");
+
+            return sb.ToString().Trim();
+        }
+
         private static void EnumValuesForOneType(string enumTypeKey, StringBuilder sb, ref bool isFirstRow)
         {
             var enumType = GetType(enumTypeKey);
@@ -348,6 +359,18 @@ namespace GraphqlToTsql.Introspection
         }
 
         private static void AppendEnumValueRow(StringBuilder sb, bool isFirstRow, string enumTypeKey, GqlEnumValue enumValue)
+        {
+            sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");
+            AppendColumn(sb, isFirstRow, true, "EnumTypeKey", enumTypeKey);
+            AppendColumn(sb, isFirstRow, false, "Name", enumValue.Name);
+            AppendColumn(sb, isFirstRow, false, "Description", enumValue.Description);
+            AppendColumn(sb, isFirstRow, false, "IsDeprecated", enumValue.IsDeprecated);
+            AppendColumn(sb, isFirstRow, false, "DeprecationReason", enumValue.DeprecationReason);
+
+            sb.AppendLine();
+        }
+
+        private static void AppendDirectiveRow(StringBuilder sb, bool isFirstRow, string enumTypeKey, GqlEnumValue enumValue)
         {
             sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");
             AppendColumn(sb, isFirstRow, true, "EnumTypeKey", enumTypeKey);

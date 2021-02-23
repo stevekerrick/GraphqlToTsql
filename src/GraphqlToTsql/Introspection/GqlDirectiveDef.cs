@@ -34,11 +34,14 @@ namespace GraphqlToTsql.Introspection
                 //    tableAlias => "TODO"
                 //),
 
+                //TODO: args
                 Field.Set(GqlInputValueDef.Instance, "args", new Join(
                     () => this.GetField("name"),
                     () => GqlInputValueDef.Instance.GetField("directiveName"))
                 )
             };
         }
+
+        public override string SqlDefinition => IntrospectionData.GetDirectivesSql();
     }
 }
