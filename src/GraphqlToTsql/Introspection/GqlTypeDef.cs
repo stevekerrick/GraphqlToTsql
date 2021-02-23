@@ -46,6 +46,7 @@ namespace GraphqlToTsql.Introspection
                 Field.Column(this, "key", "Key", ValueType.String, IsNullable.No),
                 Field.Column(this, "kind", "Kind", ValueType.String, IsNullable.No),
                 Field.Column(this, "name", "Name", ValueType.String, IsNullable.Yes),
+                Field.Column(this, "ofTypeKey", "OfTypeKey", ValueType.String, IsNullable.Yes),
                 Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
 
                 Field.Set(GqlFieldDef.Instance, "fields", new Join(
@@ -66,8 +67,10 @@ namespace GraphqlToTsql.Introspection
                     () => this.GetField("name"),
                     () => GqlInputValueDef.Instance.GetField("inputObjectName"))
                 ),
-                Field.CalculatedRow(GqlTypeDef.Instance, "ofType",
-                    tableAlias => "TODO")
+                Field.Row(GqlTypeDef.Instance, "ofType", new Join(
+                    ()=>this.GetField("ofTypeKey"),
+                    ()=>GqlTypeDef.Instance.GetField("key"))
+                )
             };
         }
 

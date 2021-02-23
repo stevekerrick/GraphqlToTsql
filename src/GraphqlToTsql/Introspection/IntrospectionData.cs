@@ -57,14 +57,14 @@ namespace GraphqlToTsql.Introspection
         private static GqlType EntityType(EntityBase entity)
         {
             // If this type has already been built (or at least initialized) return it
-            var name = entity.EntityType;
-            if (Types.Any(_ => _.Name == name))
+            var key = entity.EntityType;
+            if (IsTypeRegistered(key))
             {
-                return GetType(name);
+                return GetType(key);
             }
 
             // Initialize
-            var type = GqlType.Object(name);
+            var type = GqlType.Object(key);
             Types.Add(type);
 
             // Build fields
@@ -97,12 +97,10 @@ namespace GraphqlToTsql.Introspection
         private static GqlField ScalarField(Field field)
         {
             var baseType = GetType(field.ValueType.ToString());
-            var key = $"{TypeKind.NON_NULL}:{baseType.Key}";
-            //var type = 
 
             var type = field.IsNullable == IsNullable.Yes
                 ? baseType
-                : GqlType.NonNullable(baseType);
+                : NonNullableType(baseType);
 
             return new GqlField(field.Name, type);
         }
@@ -117,13 +115,26 @@ namespace GraphqlToTsql.Introspection
         private static GqlField SetField(Field field)
         {
             var baseType = EntityType(field.Entity);
-            var type = GqlType.List(baseType);
+            var type = SetType(baseType);
 
             return new GqlField(field.Name, type);
         }
 
+        private static GqlType NonNullableType(GqlType baseType)
+        {
+            var type = GqlType.NonNullable(baseType);
+            return LookupOrRegister(type);
+        }
+
+        private static GqlType SetType(GqlType baseType)
+        {
+            var type = GqlType.List(baseType);
+            return LookupOrRegister(type);
+        }
+
         private static void BuildBaseTypes()
         {
+            //TODO
             var stringType = GetType("String");
             var boolType = GetType("Boolean");
 
@@ -232,9 +243,25 @@ namespace GraphqlToTsql.Introspection
             }
         }
 
-        private static GqlType GetType(string name)
+        private static GqlType LookupOrRegister(GqlType type)
         {
-            return Types.Single(t => t.Name == name);
+            if (IsTypeRegistered(type.Key))
+            {
+                return GetType(type.Key);
+            }
+
+            Types.Add(type);
+            return type;
+        }
+
+        private static bool IsTypeRegistered(string key)
+        {
+            return Types.Any(_ => _.Key == key);
+        }
+
+        private static GqlType GetType(string key)
+        {
+            return Types.Single(t => t.Key == key);
         }
 
         #endregion
@@ -279,6 +306,7 @@ namespace GraphqlToTsql.Introspection
             AppendColumn(sb, isFirstRow, true, "[Key]", type.Key);
             AppendColumn(sb, isFirstRow, false, "Kind", type.Kind.ToString());
             AppendColumn(sb, isFirstRow, false, "Name", type.Name);
+            AppendColumn(sb, isFirstRow, false, "OfTypeKey", type.OfType?.Key);
             AppendColumn(sb, isFirstRow, false, "Description", type.Description);
             sb.AppendLine();
         }
@@ -289,7 +317,7 @@ namespace GraphqlToTsql.Introspection
             AppendColumn(sb, isFirstRow, true, "ParentTypeKey", typeName);
             AppendColumn(sb, isFirstRow, false, "Name", field.Name);
             AppendColumn(sb, isFirstRow, false, "Description", field.Description);
-            AppendColumn(sb, isFirstRow, false, "TypeName", field.Type.Name);
+            AppendColumn(sb, isFirstRow, false, "TypeKey", field.Type.Key);
             AppendColumn(sb, isFirstRow, false, "IsDeprecated", field.IsDeprecated);
             AppendColumn(sb, isFirstRow, false, "DeprecationReason", field.DeprecationReason);
 

@@ -292,7 +292,23 @@ typeSystemDirectiveLocation:
     | 'INPUT_FIELD_DEFINITION'
     ;
 
-name: NAME;
+
+//CUSTOMIZATION: This used to be simply "name: NAME;", but that caused errors
+//when GraphQL reserved words like 'type' were used as field names.
+//This broke Introspection, and would likely break client implementations.
+name:
+     NAME
+    | 'enum'
+    | 'extend'
+    | 'extends'
+    | 'implements'
+    | 'input'
+    | 'interface'
+    | 'schema'
+    | 'type'
+    | 'union'
+    ;
+
 
 //Start lexer
 NAME: [_A-Za-z] [_0-9A-Za-z]*;

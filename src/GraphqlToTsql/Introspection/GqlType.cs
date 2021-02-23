@@ -48,12 +48,10 @@ namespace GraphqlToTsql.Introspection
                 Kind = TypeKind.NON_NULL,
                 OfType = baseType
             };
-
         }
 
         public static GqlType Object(string name)
         {
-
             return new GqlType
             {
                 Key = name,

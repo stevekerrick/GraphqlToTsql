@@ -89,7 +89,50 @@ namespace GraphqlToTsqlTests
                     {
                         new { name = "name" },
                         new { name = "isSpecial" },
-                        new { name = "sellerBadges" },
+                        new { name = "sellerBadges" }
+                    }
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
+        [Test]
+        public async Task IntrospectionOfTypeTest()
+        {
+            // This is a confusing query, but it's a typical Introspection query.
+            // (Except that filtering on the fields in not supported in vanilla GraphQL.)
+            // For type __Type, for field named "fields", show the type buildup for it.
+            // __Type.fields is type LIST (NON_NULL (OBJECT) )
+            var graphql = @"
+{
+  __type (name: ""__Type"") {
+    fields (name: ""fields"") {
+      name type { kind name ofType { kind name ofType { kind name ofType { kind name ofType { name } } } } }
+    }
+  }
+}".Trim();
+
+            var graphqlParameters = new Dictionary<string, object>();
+
+            var expectedObject = new
+            {
+                __type = new
+                {
+                    fields = new[]
+                    {
+                        new {
+                            name = "fields",
+                            type = new
+                            {
+                                kind = "LIST",
+                                name = (string)null,
+                                ofType = new {
+                                    kind = "OBJECT",
+                                    name = "__Field",
+                                    ofType = (object)null
+                                }
+                            }
+                        }
                     }
                 }
             };
