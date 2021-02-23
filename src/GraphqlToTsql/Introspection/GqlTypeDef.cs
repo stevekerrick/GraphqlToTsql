@@ -59,13 +59,13 @@ namespace GraphqlToTsql.Introspection
                 Field.CalculatedSet(GqlTypeDef.Instance, "possibleTypes",
                     tableAlias => "SELECT * FROM GqlType WHERE 1 = 0"),
 
-                Field.Set(GqlEnumValueDef.Instance, "enumFields", new Join(
-                    () => this.GetField("name"),
-                    () => GqlEnumValueDef.Instance.GetField("enumName"))
+                Field.Set(GqlEnumValueDef.Instance, "enumValues", new Join(
+                    () => this.GetField("key"),
+                    () => GqlEnumValueDef.Instance.GetField("enumTypeKey"))
                 ),
                 Field.Set(GqlInputValueDef.Instance, "inputFields", new Join(
-                    () => this.GetField("name"),
-                    () => GqlInputValueDef.Instance.GetField("inputObjectName"))
+                    () => this.GetField("key"),
+                    () => GqlInputValueDef.Instance.GetField("inputObjectKey"))
                 ),
                 Field.Row(GqlTypeDef.Instance, "ofType", new Join(
                     ()=>this.GetField("ofTypeKey"),

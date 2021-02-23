@@ -291,13 +291,36 @@ namespace GraphqlToTsql.Introspection
                 {
                     foreach (var field in type.Fields)
                     {
-                        AppendFieldRow(sb, isFirstRow, type.Name, field);
+                        AppendFieldRow(sb, isFirstRow, type.Key, field);
                         isFirstRow = false;
                     }
                 }
             }
 
             return sb.ToString().Trim();
+        }
+
+        public static string GetEnumValuesSql()
+        {
+            var sb = new StringBuilder(1024);
+            var isFirstRow = true;
+
+            EnumValuesForOneType("__TypeKind", sb, ref isFirstRow);
+            EnumValuesForOneType("__DirectiveLocation", sb, ref isFirstRow);
+            EnumValuesForOneType("CacheControlScope", sb, ref isFirstRow);
+
+            return sb.ToString().Trim();
+        }
+
+        private static void EnumValuesForOneType(string enumTypeKey, StringBuilder sb, ref bool isFirstRow)
+        {
+            var enumType = GetType(enumTypeKey);
+
+            foreach(var enumValue in enumType.EnumValues)
+            {
+                AppendEnumValueRow(sb, isFirstRow, enumTypeKey, enumValue);
+                isFirstRow = false;
+            }
         }
 
         private static void AppendTypeRow(StringBuilder sb, bool isFirstRow, GqlType type)
@@ -311,15 +334,27 @@ namespace GraphqlToTsql.Introspection
             sb.AppendLine();
         }
 
-        private static void AppendFieldRow(StringBuilder sb, bool isFirstRow, string typeName, GqlField field)
+        private static void AppendFieldRow(StringBuilder sb, bool isFirstRow, string parentTypeKey, GqlField field)
         {
             sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");
-            AppendColumn(sb, isFirstRow, true, "ParentTypeKey", typeName);
+            AppendColumn(sb, isFirstRow, true, "ParentTypeKey", parentTypeKey);
             AppendColumn(sb, isFirstRow, false, "Name", field.Name);
             AppendColumn(sb, isFirstRow, false, "Description", field.Description);
             AppendColumn(sb, isFirstRow, false, "TypeKey", field.Type.Key);
             AppendColumn(sb, isFirstRow, false, "IsDeprecated", field.IsDeprecated);
             AppendColumn(sb, isFirstRow, false, "DeprecationReason", field.DeprecationReason);
+
+            sb.AppendLine();
+        }
+
+        private static void AppendEnumValueRow(StringBuilder sb, bool isFirstRow, string enumTypeKey, GqlEnumValue enumValue)
+        {
+            sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");
+            AppendColumn(sb, isFirstRow, true, "EnumTypeKey", enumTypeKey);
+            AppendColumn(sb, isFirstRow, false, "Name", enumValue.Name);
+            AppendColumn(sb, isFirstRow, false, "Description", enumValue.Description);
+            AppendColumn(sb, isFirstRow, false, "IsDeprecated", enumValue.IsDeprecated);
+            AppendColumn(sb, isFirstRow, false, "DeprecationReason", enumValue.DeprecationReason);
 
             sb.AppendLine();
         }

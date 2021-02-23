@@ -139,6 +139,38 @@ namespace GraphqlToTsqlTests
             await CheckAsync(graphql, graphqlParameters, expectedObject);
         }
 
+        [Test]
+        public async Task IntrospectionEnumValueTest()
+        {
+            var graphql = @"
+{
+  __type (name: ""__TypeKind"") {
+    enumValues { name }
+  }
+}".Trim();
+
+            var graphqlParameters = new Dictionary<string, object>();
+
+            var expectedObject = new
+            {
+                __type = new
+                {
+                    enumValues = new[]
+                    {
+                        new { name = "SCALAR" },
+                        new { name = "OBJECT" },
+                        new { name = "INTERFACE" },
+                        new { name = "UNION" },
+                        new { name = "ENUM" },
+                        new { name = "INPUT_OBJECT" },
+                        new { name = "LIST" },
+                        new { name = "NON_NULL" }
+                    }
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
         private async Task CheckAsync(string graphql, Dictionary<string, object> graphqlParameters, object expectedObject)
         {
             var runner = GetService<IRunner>();

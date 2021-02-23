@@ -791,6 +791,26 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
+        public void IntrospectionGqlFieldTableTest()
+        {
+            const string graphql = "{ __type (name: \"\") { fields { name } } }";
+
+            var result = Translate(graphql, null);
+
+            Assert.IsTrue(result.Tsql.Contains("[GqlField] AS ("));
+        }
+
+        [Test]
+        public void IntrospectionGqlEnumValueTableTest()
+        {
+            const string graphql = "{ __type (name: \"\") { enumValues { name } } }";
+
+            var result = Translate(graphql, null);
+
+            Assert.IsTrue(result.Tsql.Contains("[GqlEnumValue] AS ("));
+        }
+
+        [Test]
         public void IntrospectionTypeNamesTest()
         {
             const string graphql = "{ __schema { types { name } } }";
@@ -862,7 +882,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
-
 
         private void Check(
             string graphql,
