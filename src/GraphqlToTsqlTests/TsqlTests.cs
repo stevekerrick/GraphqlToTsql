@@ -826,6 +826,24 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
+        public void IntrospectionGqlInputValueTableTest()
+        {
+            var graphql = @"
+{
+  __type (name: ""SellerBadge"") {
+    fields (name: ""badge"") {
+      args { name }
+    }
+  }
+}".Trim();
+
+            var result = Translate(graphql, null);
+
+            Assert.IsTrue(result.Tsql.Contains("[GqlInputValue] AS ("));
+        }
+
+
+        [Test]
         public void IntrospectionTypeNamesTest()
         {
             const string graphql = "{ __schema { types { name } } }";

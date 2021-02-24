@@ -201,6 +201,40 @@ namespace GraphqlToTsqlTests
             await CheckAsync(graphql, graphqlParameters, expectedObject);
         }
 
+        [Test]
+        public async Task IntrospectionInputValueTest()
+        {
+            var graphql = @"
+{
+  __type (name: ""SellerBadge"") {
+    fields (name: ""badge"") {
+      args { name type { name } }
+    }
+  }
+}".Trim();
+
+            var graphqlParameters = new Dictionary<string, object>();
+
+            var expectedObject = new
+            {
+                __type = new
+                {
+                    fields = new[]
+                    {
+                        new
+                        {
+                            args = new[]
+                            {
+                                new { name = "name", type = new { name = "String" } },
+                                new { name = "isSpecial", type = new { name = "Boolean" } }
+                            }
+                        }
+                    }
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
         private async Task CheckAsync(string graphql, Dictionary<string, object> graphqlParameters, object expectedObject)
         {
             var runner = GetService<IRunner>();

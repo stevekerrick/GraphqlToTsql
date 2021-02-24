@@ -55,7 +55,7 @@ namespace GraphqlToTsql.Introspection
                 ),
 
                 Field.CalculatedSet(GqlTypeDef.Instance, "interfaces",
-                    tableAlias => "SELECT * FROM GqlType WHERE 1 = 0"),
+                    tableAlias => "SELECT * FROM GqlType WHERE Kind = 'INTERFACE'"),
                 Field.CalculatedSet(GqlTypeDef.Instance, "possibleTypes",
                     tableAlias => "SELECT * FROM GqlType WHERE 1 = 0"),
 

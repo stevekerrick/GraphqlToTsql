@@ -25,7 +25,7 @@ namespace GraphqlToTsql.Introspection
 
             BuildEntityTypes(entityList);
 
-            BuildBaseTypes();
+            BuildEnums();
 
             BuildQueryTypes(entityList);
         }
@@ -132,12 +132,8 @@ namespace GraphqlToTsql.Introspection
             return LookupOrRegister(type);
         }
 
-        private static void BuildBaseTypes()
+        private static void BuildEnums()
         {
-            //TODO
-            var stringType = GetType("String");
-            var boolType = GetType("Boolean");
-
             // __TypeKind enum
             var typeKindEnum = GqlType.Enum("__TypeKind",
                 "SCALAR", "OBJECT", "INTERFACE", "UNION", "ENUM", "INPUT_OBJECT", "LIST", "NON_NULL");
@@ -153,77 +149,6 @@ namespace GraphqlToTsql.Introspection
             // CacheControlScope enum
             var cacheControlScopeEnum = GqlType.Enum("CacheControlScope", "PUBLIC", "PRIVATE");
             Types.Add(cacheControlScopeEnum);
-
-
-            //// Declare all the types
-            //var directiveType = GqlType.Object("__Directive");
-            //var enumValueType = GqlType.Object("__EnumValue");
-            //var fieldType = GqlType.Object("__Field");
-            //var inputValueType = GqlType.Object("__InputValue");
-            //var schemaType = GqlType.Object("__Schema");
-            //var typeType = GqlType.Object("__Type");
-
-            //// __Directive fields
-            //directiveType.Fields.AddRange(new[] {
-            //    new GqlField("name", GqlType.NonNullable(stringType)),
-            //    new GqlField("description", stringType),
-            //    new GqlField("locations", GqlType.NonNullable(GqlType.List(GqlType.NonNullable(directiveLocationEnum)))),
-            //    new GqlField("args", GqlType.NonNullable(GqlType.List(GqlType.NonNullable(inputValueType))))
-            //});
-            //Types.Add(directiveType);
-
-            //// __EnumValue fields
-            //enumValueType.Fields.AddRange(new[] {
-            //    new GqlField("name", GqlType.NonNullable(stringType)),
-            //    new GqlField("description", stringType),
-            //    new GqlField("isDeprecated", GqlType.NonNullable(boolType)),
-            //    new GqlField("deprecationReason", stringType)
-            //});
-            //Types.Add(enumValueType);
-
-            //// __Field fields
-            //fieldType.Fields.AddRange(new[] {
-            //    new GqlField("name", GqlType.NonNullable(stringType)),
-            //    new GqlField("description", stringType),
-            //    new GqlField("args", GqlType.NonNullable(GqlType.List(GqlType.NonNullable(inputValueType)))),
-            //    new GqlField("type", GqlType.NonNullable(typeType)),
-            //    new GqlField("isDeprecated", GqlType.NonNullable(boolType)),
-            //    new GqlField("deprecationReason", stringType)
-            //});
-            //Types.Add(fieldType);
-
-            //// __InputValue fields
-            //inputValueType.Fields.AddRange(new[] {
-            //    new GqlField("name", GqlType.NonNullable(stringType)),
-            //    new GqlField("description", stringType),
-            //    new GqlField("type", GqlType.NonNullable(typeType)),
-            //    new GqlField("defaultValue", stringType)
-            //});
-            //Types.Add(inputValueType);
-
-            //// __Schema fields
-            //schemaType.Fields.AddRange(new[] {
-            //    new GqlField("types", GqlType.NonNullable(GqlType.List(GqlType.NonNullable(typeType)))),
-            //    new GqlField("queryType", GqlType.NonNullable(typeType)),
-            //    new GqlField("mutationType", typeType),
-            //    new GqlField("subscriptionType", typeType),
-            //    new GqlField("directives", GqlType.NonNullable(GqlType.List(GqlType.NonNullable(directiveType))))
-            //});
-            //Types.Add(schemaType);
-
-            //// __Type fields
-            //typeType.Fields.AddRange(new[] {
-            //    new GqlField("kind", GqlType.NonNullable(typeKindEnum)),
-            //    new GqlField("name", stringType),
-            //    new GqlField("description", stringType),
-            //    new GqlField("fields", GqlType.List(GqlType.NonNullable(fieldType)), includedDeprecated: true),
-            //    new GqlField("interfaces", GqlType.List(GqlType.NonNullable(typeType))),
-            //    new GqlField("possibleTypes", GqlType.List(GqlType.NonNullable(typeType))),
-            //    new GqlField("enumValues", GqlType.List(GqlType.NonNullable(enumValueType)), includedDeprecated: true),
-            //    new GqlField("inputFields", GqlType.List(GqlType.NonNullable(inputValueType))),
-            //    new GqlField("ofType", typeType)
-            //});
-            //Types.Add(typeType);
         }
 
         private static void BuildQueryTypes(List<EntityBase> entityList)
@@ -323,6 +248,50 @@ namespace GraphqlToTsql.Introspection
             return sb.ToString().Trim();
         }
 
+        public static string GetInputValuesSql()
+        {
+            var sb = new StringBuilder(1024);
+            var isFirstRow = true;
+            foreach (var parentType in Types)
+            {
+                if (parentType.Fields != null)
+                {
+                    foreach (var field in parentType.Fields)
+                    {
+                        // Allow input value filters on this field if:
+                        //   * The field's type is OBJECT
+                        //   * The field's type has scalar fields
+                        var fieldType = UnwrappedType(field.Type);
+                        if (fieldType.Kind == TypeKind.OBJECT)
+                        {
+                            foreach(var subfield in fieldType.Fields)
+                            {
+                                var subfieldType = UnwrappedType(subfield.Type);
+                                if (subfieldType.Kind == TypeKind.SCALAR)
+                                {
+                                    AppendInputValueRow(sb, isFirstRow, parentType.Key, field.Name, subfield.Name, subfieldType.Key);
+                                    isFirstRow = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return sb.ToString().Trim();
+        }
+
+        private static GqlType UnwrappedType(GqlType wrappedType)
+        {
+            var type = wrappedType;
+            while (type.OfType != null)
+            {
+                type = type.OfType;
+            }
+            return type;
+        }
+
+
         private static void EnumValuesForOneType(string enumTypeKey, StringBuilder sb, ref bool isFirstRow)
         {
             var enumType = GetType(enumTypeKey);
@@ -370,14 +339,16 @@ namespace GraphqlToTsql.Introspection
             sb.AppendLine();
         }
 
-        private static void AppendDirectiveRow(StringBuilder sb, bool isFirstRow, string enumTypeKey, GqlEnumValue enumValue)
+        private static void AppendInputValueRow(StringBuilder sb, bool isFirstRow, string parentTypeKey, string fieldName, 
+            string name, string typeKey)
         {
             sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");
-            AppendColumn(sb, isFirstRow, true, "EnumTypeKey", enumTypeKey);
-            AppendColumn(sb, isFirstRow, false, "Name", enumValue.Name);
-            AppendColumn(sb, isFirstRow, false, "Description", enumValue.Description);
-            AppendColumn(sb, isFirstRow, false, "IsDeprecated", enumValue.IsDeprecated);
-            AppendColumn(sb, isFirstRow, false, "DeprecationReason", enumValue.DeprecationReason);
+            AppendColumn(sb, isFirstRow, true, "ParentTypeKey", parentTypeKey);
+            AppendColumn(sb, isFirstRow, false, "FieldName", fieldName);
+            AppendColumn(sb, isFirstRow, false, "Name", name);
+            AppendColumn(sb, isFirstRow, false, "Description", null);
+            AppendColumn(sb, isFirstRow, false, "TypeKey", typeKey);
+            AppendColumn(sb, isFirstRow, false, "DefaultValue", null);
 
             sb.AppendLine();
         }
