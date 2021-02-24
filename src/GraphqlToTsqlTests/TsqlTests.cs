@@ -1,4 +1,6 @@
 ﻿using DemoEntities;
+using GraphqlToTsql.Entities;
+using GraphqlToTsql.Introspection;
 using GraphqlToTsql.Translator;
 using GraphqlToTsql.Util;
 using Newtonsoft.Json;
@@ -362,9 +364,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
-
-
-
 
         [Test]
         public void FirstOffsetTest()
@@ -771,6 +770,152 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
+        [Test]
+        public void IntrospectionGqlSchemaTableTest()
+        {
+            const string graphql = "{ __schema { types { name } } }";
+
+            var result = Translate(graphql, null);
+
+            Assert.IsTrue(result.Tsql.Contains("[GqlSchema] AS ("));
+        }
+
+        [Test]
+        public void IntrospectionGqlTypeTableTest()
+        {
+            const string graphql = "{ __schema { types { name } } }";
+
+            var result = Translate(graphql, null);
+
+            Assert.IsTrue(result.Tsql.Contains("[GqlType] AS ("));
+        }
+
+        [Test]
+        public void IntrospectionGqlFieldTableTest()
+        {
+            const string graphql = "{ __type (name: \"\") { fields { name } } }";
+
+            var result = Translate(graphql, null);
+
+            Assert.IsTrue(result.Tsql.Contains("[GqlField] AS ("));
+        }
+
+        [Test]
+        public void IntrospectionGqlEnumValueTableTest()
+        {
+            const string graphql = "{ __type (name: \"\") { enumValues { name } } }";
+
+            var result = Translate(graphql, null);
+
+            Assert.IsTrue(result.Tsql.Contains("[GqlEnumValue] AS ("));
+        }
+
+        [Test]
+        public void IntrospectionGqlDirectiveTableTest()
+        {
+            var graphql = @"
+{
+  __schema {
+    directives { name }
+  }
+}".Trim();
+
+            var result = Translate(graphql, null);
+
+            Assert.IsTrue(result.Tsql.Contains("[GqlDirective] AS ("));
+        }
+
+        [Test]
+        public void IntrospectionGqlInputValueTableTest()
+        {
+            var graphql = @"
+{
+  __type (name: ""SellerBadge"") {
+    fields (name: ""badge"") {
+      args { name }
+    }
+  }
+}".Trim();
+
+            var result = Translate(graphql, null);
+
+            Assert.IsTrue(result.Tsql.Contains("[GqlInputValue] AS ("));
+        }
+
+
+        [Test]
+        public void IntrospectionTypeNamesTest()
+        {
+            const string graphql = "{ __schema { types { name } } }";
+
+            var expectedSql = @"
+WITH [GqlSchema] AS (
+  SELECT 'hello' AS UnusedColumn
+)
+
+, [GqlType] AS (
+  SELECT 'String' AS [Key], 'SCALAR' AS Kind, 'String' AS Name, null AS OfTypeKey, 'The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.' AS Description
+  UNION ALL SELECT 'Int', 'SCALAR', 'Int', null, 'The `Int` scalar type represents non-fractional signed whole numeric values.'
+  UNION ALL SELECT 'Float', 'SCALAR', 'Float', null, 'The `Float` scalar type represents numeric values that may have fractional values.'
+  UNION ALL SELECT 'Boolean', 'SCALAR', 'Boolean', null, 'The `Boolean` scalar type represents `true` or `false`.'
+  UNION ALL SELECT 'ID', 'SCALAR', 'ID', null, 'The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `""4""`) or integer (such as `4`) input value will be accepted as an ID.'
+  UNION ALL SELECT 'Upload', 'SCALAR', 'Upload', null, 'The `Upload` scalar type represents a file upload.'
+  UNION ALL SELECT 'Badge', 'OBJECT', 'Badge', null, null
+  UNION ALL SELECT 'NON_NULL:String', 'NON_NULL', null, 'String', null
+  UNION ALL SELECT 'NON_NULL:Boolean', 'NON_NULL', null, 'Boolean', null
+  UNION ALL SELECT 'SellerBadge', 'OBJECT', 'SellerBadge', null, null
+  UNION ALL SELECT 'Seller', 'OBJECT', 'Seller', null, null
+  UNION ALL SELECT 'SellerTotal', 'OBJECT', 'SellerTotal', null, null
+  UNION ALL SELECT 'NON_NULL:Int', 'NON_NULL', null, 'Int', null
+  UNION ALL SELECT 'NON_NULL:Float', 'NON_NULL', null, 'Float', null
+  UNION ALL SELECT 'LIST:Seller', 'LIST', null, 'Seller', null
+  UNION ALL SELECT 'Order', 'OBJECT', 'Order', null, null
+  UNION ALL SELECT 'OrderDetail', 'OBJECT', 'OrderDetail', null, null
+  UNION ALL SELECT 'Product', 'OBJECT', 'Product', null, null
+  UNION ALL SELECT 'LIST:OrderDetail', 'LIST', null, 'OrderDetail', null
+  UNION ALL SELECT 'SellerProductTotal', 'OBJECT', 'SellerProductTotal', null, null
+  UNION ALL SELECT 'LIST:SellerProductTotal', 'LIST', null, 'SellerProductTotal', null
+  UNION ALL SELECT 'LIST:Order', 'LIST', null, 'Order', null
+  UNION ALL SELECT 'LIST:SellerBadge', 'LIST', null, 'SellerBadge', null
+  UNION ALL SELECT '__Directive', 'OBJECT', '__Directive', null, null
+  UNION ALL SELECT '__InputValue', 'OBJECT', '__InputValue', null, null
+  UNION ALL SELECT '__Type', 'OBJECT', '__Type', null, null
+  UNION ALL SELECT '__Field', 'OBJECT', '__Field', null, null
+  UNION ALL SELECT 'LIST:__InputValue', 'LIST', null, '__InputValue', null
+  UNION ALL SELECT 'LIST:__Field', 'LIST', null, '__Field', null
+  UNION ALL SELECT 'LIST:__Type', 'LIST', null, '__Type', null
+  UNION ALL SELECT '__EnumValue', 'OBJECT', '__EnumValue', null, null
+  UNION ALL SELECT 'LIST:__EnumValue', 'LIST', null, '__EnumValue', null
+  UNION ALL SELECT '__Schema', 'OBJECT', '__Schema', null, null
+  UNION ALL SELECT 'LIST:__Directive', 'LIST', null, '__Directive', null
+  UNION ALL SELECT '__TypeKind', 'ENUM', '__TypeKind', null, null
+  UNION ALL SELECT '__DirectiveLocation', 'ENUM', '__DirectiveLocation', null, null
+  UNION ALL SELECT 'CacheControlScope', 'ENUM', 'CacheControlScope', null, null
+  UNION ALL SELECT 'Query', 'OBJECT', 'Query', null, null
+)
+
+SELECT
+
+  -- __schema (t1)
+  JSON_QUERY ((
+    SELECT
+
+      -- __schema.types (t2)
+      JSON_QUERY ((
+        SELECT
+          t2.[Name] AS [name]
+        FROM (SELECT * FROM GqlType) t2
+        FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [types]
+    FROM [GqlSchema] t1
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [__schema]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+            ".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
+        }
+
         private void Check(
             string graphql,
             Dictionary<string, object> graphqlParameters,
@@ -839,8 +984,13 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
         private TsqlResult Translate(string graphql, Dictionary<string, object> graphqlParameters)
         {
+            var allEntities = new List<EntityBase>();
+            allEntities.AddRange(DemoEntityList.All());
+            allEntities.AddRange(IntrospectionEntityList.All());
+            IntrospectionData.Initialize(allEntities);
+
             var parser = GetService<IParser>();
-            var parseResult = parser.ParseGraphql(graphql, graphqlParameters, DemoEntityList.All());
+            var parseResult = parser.ParseGraphql(graphql, graphqlParameters, allEntities);
             Assert.IsNull(parseResult.ParseError, $"Parse failed: {parseResult.ParseError}");
 
             var tsqlBuilder = GetService<ITsqlBuilder>();

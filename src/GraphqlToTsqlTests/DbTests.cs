@@ -68,6 +68,173 @@ namespace GraphqlToTsqlTests
             await CheckAsync(graphql, graphqlParameters, expectedObject);
         }
 
+        [Test]
+        public async Task IntrospectionTypeNameTest()
+        {
+            var graphql = @"
+{
+  __type (name: ""Badge"") {
+    kind name fields { name }
+  }
+}".Trim();
+            var graphqlParameters = new Dictionary<string, object>();
+
+            var expectedObject = new
+            {
+                __type = new
+                {
+                    kind = "OBJECT",
+                    name = "Badge",
+                    fields = new[]
+                    {
+                        new { name = "name" },
+                        new { name = "isSpecial" },
+                        new { name = "sellerBadges" }
+                    }
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
+        [Test]
+        public async Task IntrospectionSchemaTest()
+        {
+            var graphql = @"
+{
+  __schema {
+    types (name: ""Order"") { name }
+    queryType { name }
+    mutationType { name }
+    subscriptionType { name }
+    directives { name }
+  }
+}".Trim();
+
+            var graphqlParameters = new Dictionary<string, object>();
+
+            var expectedObject = new
+            {
+                __schema = new
+                {
+                    types = new[] { new { name = "Order" } },
+                    queryType = new { name = "Query" },
+                    mutationType = (object)null, //not supported
+                    subscriptionType = (object)null, //not supported
+                    directives = (object)null //not supported
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
+        [Test]
+        public async Task IntrospectionOfTypeTest()
+        {
+            // This is a confusing query, but it's a typical Introspection query.
+            // (Except that filtering on the fields in not supported in vanilla GraphQL.)
+            // For type __Type, for field named "fields", show the type buildup for it.
+            // __Type.fields is type LIST (NON_NULL (OBJECT) )
+            var graphql = @"
+{
+  __type (name: ""__Type"") {
+    fields (name: ""fields"") {
+      name type { kind name ofType { kind name ofType { kind name ofType { kind name ofType { name } } } } }
+    }
+  }
+}".Trim();
+
+            var graphqlParameters = new Dictionary<string, object>();
+
+            var expectedObject = new
+            {
+                __type = new
+                {
+                    fields = new[]
+                    {
+                        new {
+                            name = "fields",
+                            type = new
+                            {
+                                kind = "LIST",
+                                name = (string)null,
+                                ofType = new {
+                                    kind = "OBJECT",
+                                    name = "__Field",
+                                    ofType = (object)null
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
+        [Test]
+        public async Task IntrospectionEnumValueTest()
+        {
+            var graphql = @"
+{
+  __type (name: ""__TypeKind"") {
+    enumValues { name }
+  }
+}".Trim();
+
+            var graphqlParameters = new Dictionary<string, object>();
+
+            var expectedObject = new
+            {
+                __type = new
+                {
+                    enumValues = new[]
+                    {
+                        new { name = "SCALAR" },
+                        new { name = "OBJECT" },
+                        new { name = "INTERFACE" },
+                        new { name = "UNION" },
+                        new { name = "ENUM" },
+                        new { name = "INPUT_OBJECT" },
+                        new { name = "LIST" },
+                        new { name = "NON_NULL" }
+                    }
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
+        [Test]
+        public async Task IntrospectionInputValueTest()
+        {
+            var graphql = @"
+{
+  __type (name: ""SellerBadge"") {
+    fields (name: ""badge"") {
+      args { name type { name } }
+    }
+  }
+}".Trim();
+
+            var graphqlParameters = new Dictionary<string, object>();
+
+            var expectedObject = new
+            {
+                __type = new
+                {
+                    fields = new[]
+                    {
+                        new
+                        {
+                            args = new[]
+                            {
+                                new { name = "name", type = new { name = "String" } },
+                                new { name = "isSpecial", type = new { name = "Boolean" } }
+                            }
+                        }
+                    }
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
         private async Task CheckAsync(string graphql, Dictionary<string, object> graphqlParameters, object expectedObject)
         {
             var runner = GetService<IRunner>();
