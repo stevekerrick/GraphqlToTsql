@@ -41,27 +41,11 @@ namespace GraphqlToTsqlTests
         }
 
         [Test]
-        public void UnsupportedDirectiveTest()
-        {
-            var graphql = @"
-{
-  orders {
-    seller @include(if: true) {
-      name
-    }
-  }
-}
-".Trim();
-
-            ParseShouldFail(graphql, null, "Directives");
-        }
-
-        [Test]
         public void FirstArgumentMustBeIntTest()
         {
             const string graphql = "{ products { orderDetailsConnection (first: \"oops\") { totalCount } } }";
 
-            ParseShouldFail(graphql, null, "first must be an integer");
+            ParseShouldFail(graphql, null, "first must be an Int");
         }
 
         [Test]
@@ -69,7 +53,7 @@ namespace GraphqlToTsqlTests
         {
             const string graphql = "{ products { orderDetailsConnection (offset: \"oops\") { totalCount } } }";
 
-            ParseShouldFail(graphql, null, "offset must be an integer");
+            ParseShouldFail(graphql, null, "offset must be an Int");
         }
 
         [Test]

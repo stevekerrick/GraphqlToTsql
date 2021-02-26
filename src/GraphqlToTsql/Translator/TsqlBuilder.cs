@@ -48,6 +48,12 @@ namespace GraphqlToTsql.Translator
         {
             _fragments = parseResult.Fragments;
 
+            ProcessDirectives(parseResult.TopTerm);
+            foreach(var fragmentTerm in _fragments.Values)
+            {
+                ProcessDirectives(fragmentTerm);
+            }
+
             if (!string.IsNullOrEmpty(parseResult.OperationName))
             {
                 Emit("-------------------------------");
@@ -68,6 +74,41 @@ namespace GraphqlToTsql.Translator
                 Tsql = _sb.ToString(),
                 TsqlParameters = _tsqlParameters
             };
+        }
+
+        // Terms that have Directive as their first child
+        private void ProcessDirectives(Term term)
+        {
+            if (term.Children.Count == 0)
+            {
+                return;
+            }
+
+            var firstChild = term.Children[0];
+            if (firstChild.TermType == TermType.Directive)
+            {
+                var include =
+                    (firstChild.Name == Constants.INCLUDE_DIRECTIVE && firstChild.Arguments.If) ||
+                    (firstChild.Name == Constants.SKIP_DIRECTIVE && !firstChild.Arguments.If);
+
+                // The directive indicates to remove the term and exit
+                if (!include)
+                {
+                    term.Parent.Children.Remove(term);
+                    return;
+                }
+
+                // The directive indicates to keep the term. So we remove just the directive
+                term.Children.Remove(firstChild);
+            }
+
+            // Check the children
+            var children = new List<Term>();
+            children.AddRange(term.Children);
+            foreach (var child in children)
+            {
+                ProcessDirectives(child);
+            }
         }
 
         private void BuildCommonTableExpressions(Term term)

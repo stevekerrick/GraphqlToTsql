@@ -105,6 +105,17 @@ namespace GraphqlToTsql.Translator
             }
         }
 
+        public override void ExitDirectiveName(GqlParser.DirectiveNameContext context)
+        {
+            var name = context.name().GetText();
+            _qt.BeginDirective(name, new Context(context));
+        }
+
+        public override void ExitDirective(GqlParser.DirectiveContext context)
+        {
+            _qt.EndDirective();
+        }
+
 
         // -------------------------------------
         // Fragment stuff
@@ -127,17 +138,11 @@ namespace GraphqlToTsql.Translator
             _qt.UseFragment(name);
         }
 
-
         #region Unsupported GraphQL features
 
         public override void EnterInlineFragment(GqlParser.InlineFragmentContext context)
         {
             throw InvalidRequestException.Unsupported("Inline Fragments", context);
-        }
-
-        public override void EnterDirective(GqlParser.DirectiveContext context)
-        {
-            throw InvalidRequestException.Unsupported("Directives", context);
         }
 
         #endregion

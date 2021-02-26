@@ -176,6 +176,13 @@ namespace GraphqlToTsql.Entities
                 TemplateFunc = (tableAlias) => CursorUtility.TsqlCursorDataFunc(pk.ValueType, tableAlias, entity.DbTableName, pk.DbColumnName)
             };
         }
+
+        internal static Field Directive(string name) => new Field
+        {
+            FieldType = FieldType.Directive,
+            Entity = new DirectiveEntity(name),
+            Name = name
+        };
     }
 
     internal enum FieldType
@@ -187,6 +194,7 @@ namespace GraphqlToTsql.Entities
         TotalCount,
         Edge,
         Node,
-        Cursor
+        Cursor,
+        Directive
     }
 }

@@ -148,7 +148,12 @@ listType: '[' type_ ']';
 
 //https://spec.graphql.org/June2018/#sec-Language.Directives
 directives:  directive+;
-directive: '@' name arguments?;
+directive: directiveName arguments?;
+
+
+// CUSTOMIZATION
+directiveName: '@' name;
+
 
 // https://graphql.github.io/graphql-spec/June2018/#TypeSystemDefinition
 typeSystemDefinition: schemaDefinition

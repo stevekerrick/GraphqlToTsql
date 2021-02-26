@@ -11,5 +11,9 @@
         public const string FIRST_ARGUMENT = "first";
         public const string OFFSET_ARGUMENT = "offset";
         public const string AFTER_ARGUMENT = "after";
+
+        public const string INCLUDE_DIRECTIVE = "include";
+        public const string SKIP_DIRECTIVE = "skip";
+        public const string IF_ARGUMENT = "if";
     }
 }

@@ -235,7 +235,125 @@ namespace GraphqlToTsqlTests
             await CheckAsync(graphql, graphqlParameters, expectedObject);
         }
 
+        [Test]
+        public async Task GraphiqlIntrospectionTest()
+        {
+            // This is the introspection query that Graphiql sends upon start
+            var graphql = @"
+   query IntrospectionQuery {
+      __schema {
+        
+        queryType { name }
+        mutationType { name }
+        subscriptionType { name }
+        types {
+          ...FullType
+        }
+        directives {
+          name
+          description
+          
+          locations
+          args {
+            ...InputValue
+          }
+        }
+      }
+    }
+
+    fragment FullType on __Type {
+      kind
+      name
+      description
+      
+      fields(includeDeprecated: true) {
+        name
+        description
+        args {
+          ...InputValue
+        }
+        type {
+          ...TypeRef
+        }
+        isDeprecated
+        deprecationReason
+      }
+      inputFields {
+        ...InputValue
+      }
+      interfaces {
+        ...TypeRef
+      }
+      enumValues(includeDeprecated: true) {
+        name
+        description
+        isDeprecated
+        deprecationReason
+      }
+      possibleTypes {
+        ...TypeRef
+      }
+    }
+
+    fragment InputValue on __InputValue {
+      name
+      description
+      type { ...TypeRef }
+      defaultValue
+    }
+
+    fragment TypeRef on __Type {
+      kind
+      name
+      ofType {
+        kind
+        name
+        ofType {
+          kind
+          name
+          ofType {
+            kind
+            name
+            ofType {
+              kind
+              name
+              ofType {
+                kind
+                name
+                ofType {
+                  kind
+                  name
+                  ofType {
+                    kind
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+".Trim();
+
+            var graphqlParameters = new Dictionary<string, object>();
+
+            await RunAsync(graphql, graphqlParameters);
+        }
+
         private async Task CheckAsync(string graphql, Dictionary<string, object> graphqlParameters, object expectedObject)
+        {
+            var runnerResult = await RunAsync(graphql, graphqlParameters);
+
+            var dataObj = JsonConvert.DeserializeObject(runnerResult.DataJson);
+            var dataFormattedJson = JsonConvert.SerializeObject(dataObj, Formatting.Indented);
+
+            var expectedFormattedJson = JsonConvert.SerializeObject(expectedObject, Formatting.Indented);
+            Assert.AreEqual(expectedFormattedJson, dataFormattedJson, "Database response does not match expected");
+        }
+
+        private async Task<RunnerResult> RunAsync(string graphql, Dictionary<string, object> graphqlParameters)
         {
             var runner = GetService<IRunner>();
             var runnerResult = await runner.TranslateAndRun(graphql, graphqlParameters, DemoEntityList.All());
@@ -245,13 +363,13 @@ namespace GraphqlToTsqlTests
             Console.WriteLine(JsonConvert.SerializeObject(runnerResult.TsqlParameters, Formatting.Indented));
 
             Assert.IsNull(runnerResult.DbError, $"The database query failed: {runnerResult.DbError}");
+
             var dataObj = JsonConvert.DeserializeObject(runnerResult.DataJson);
             var dataFormattedJson = JsonConvert.SerializeObject(dataObj, Formatting.Indented);
             Console.WriteLine("");
             Console.WriteLine(dataFormattedJson);
 
-            var expectedFormattedJson = JsonConvert.SerializeObject(expectedObject, Formatting.Indented);
-            Assert.AreEqual(expectedFormattedJson, dataFormattedJson, "Database response does not match expected");
+            return runnerResult;
         }
     }
 }

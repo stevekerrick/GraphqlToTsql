@@ -468,6 +468,18 @@ public partial class GqlBaseListener : IGqlListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitDirective([NotNull] GqlParser.DirectiveContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.directiveName"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDirectiveName([NotNull] GqlParser.DirectiveNameContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.directiveName"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDirectiveName([NotNull] GqlParser.DirectiveNameContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.typeSystemDefinition"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

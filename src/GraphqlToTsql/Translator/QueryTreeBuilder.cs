@@ -158,6 +158,25 @@ namespace GraphqlToTsql.Translator
             _parent.Children.Add(_term);
         }
 
+        public void BeginDirective(string name, Context context)
+        {
+            if (name != Constants.INCLUDE_DIRECTIVE && name != Constants.SKIP_DIRECTIVE)
+            {
+                throw new InvalidRequestException($"Unknown type: {name}", context);
+            }
+
+            var field = Entities.Field.Directive(name);
+            _parent = _term;
+            _term = Term.Directive(_parent, field);
+            _parent.Children.Add(_term);
+        }
+
+        public void EndDirective()
+        {
+            _term = _term.Parent;
+            _parent = _term.Parent;
+        }
+
         public void Argument(string name, Value value, Context context)
         {
             _term.AddArgument(name, value, context);

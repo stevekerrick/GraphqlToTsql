@@ -70,6 +70,17 @@ namespace GraphqlToTsql.Translator
             };
         }
 
+        public static Term Directive(Term parent, Field field)
+        {
+            return new Term
+            {
+                Parent = parent,
+                Field = field,
+                Name = field.Name,
+                TermType = TermType.Directive
+            };
+        }
+
         public string TableAlias(AliasSequence aliasSequence)
         {
             // For Edges and Node, the alias is managed by the Connection
@@ -177,6 +188,7 @@ namespace GraphqlToTsql.Translator
         Scalar,
         Item,
         List,
-        Fragment
+        Fragment,
+        Directive
     }
 }

@@ -8,6 +8,8 @@ namespace GraphqlToTsql.Translator
         public long? First { get; set; }
         public long? Offset { get; set; }
         public string After { get; set; }
+        public bool If { get; set; }
+
         public List<Filter> Filters { get; set; }
 
         public Arguments()
@@ -43,6 +45,17 @@ namespace GraphqlToTsql.Translator
                 return;
             }
 
+            if (field.FieldType == FieldType.Directive && name == Constants.IF_ARGUMENT)
+            {
+                If = BoolValue(name, value, context);
+                return;
+            }
+
+            if (field.FieldType == FieldType.Directive)
+            {
+                throw new InvalidRequestException($"Invalid directive argument: {name}", context);
+            }
+
             var argumentField = field.Entity.GetField(name, context);
             var newValue = new Value(argumentField.ValueType, value, () => $"Argument is the wrong type: {field.Entity.EntityType}.{name} is type {argumentField.ValueType}");
             if (newValue.ValueType == ValueType.Null && argumentField.IsNullable == IsNullable.No)
@@ -57,7 +70,7 @@ namespace GraphqlToTsql.Translator
         {
             if (value.ValueType != ValueType.Int)
             {
-                throw new InvalidRequestException($"{name} must be an integer: {value.RawValue}", context);
+                throw new InvalidRequestException($"{name} must be an Int: {value.RawValue}", context);
             }
 
             return (long)value.RawValue;
@@ -71,6 +84,16 @@ namespace GraphqlToTsql.Translator
             }
 
             return (string)value.RawValue;
+        }
+
+        private bool BoolValue(string name, Value value, Context context)
+        {
+            if (value.ValueType != ValueType.Boolean)
+            {
+                throw new InvalidRequestException($"{name} must be a Boolean: {value.RawValue}", context);
+            }
+
+            return (bool)value.RawValue;
         }
 
         public class Filter

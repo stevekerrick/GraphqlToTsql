@@ -392,6 +392,16 @@ public interface IGqlListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitDirective([NotNull] GqlParser.DirectiveContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GqlParser.directiveName"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDirectiveName([NotNull] GqlParser.DirectiveNameContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GqlParser.directiveName"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDirectiveName([NotNull] GqlParser.DirectiveNameContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GqlParser.typeSystemDefinition"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace GraphqlToTsql
 {
     /// <summary>
-    /// Parse the source GraogQL, generate TSQL, and run the query
+    /// Parse the source GraghQL, generate TSQL, and run the query
     /// </summary>
     public interface IRunner
     {
