@@ -4,10 +4,10 @@ namespace GraphqlToTsql.Introspection
 {
     internal class GqlDirective
     {
-        public string name { get; set; }
-        public string description { get; set; }
-        public List<DirectiveLocation> locations { get; set; }
-        public List<GqlInputValue> args { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public List<DirectiveLocation> Locations { get; set; }
+        public List<GqlInputValue> Args { get; set; }
     }
 
     internal enum DirectiveLocation

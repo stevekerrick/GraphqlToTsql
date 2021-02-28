@@ -120,7 +120,7 @@ namespace GraphqlToTsqlTests
                     queryType = new { name = "Query" },
                     mutationType = (object)null, //not supported
                     subscriptionType = (object)null, //not supported
-                    directives = (object)null //not supported
+                    directives = new[] { new { name = "include" }, new { name = "skip" } }
                 }
             };
             await CheckAsync(graphql, graphqlParameters, expectedObject);

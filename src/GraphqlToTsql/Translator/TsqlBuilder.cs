@@ -49,7 +49,7 @@ namespace GraphqlToTsql.Translator
             _fragments = parseResult.Fragments;
 
             ProcessDirectives(parseResult.TopTerm);
-            foreach(var fragmentTerm in _fragments.Values)
+            foreach (var fragmentTerm in _fragments.Values)
             {
                 ProcessDirectives(fragmentTerm);
             }
@@ -63,6 +63,10 @@ namespace GraphqlToTsql.Translator
             }
 
             BuildCommonTableExpressions(parseResult.TopTerm);
+            foreach (var fragmentTerm in _fragments.Values)
+            {
+                BuildCommonTableExpressions(fragmentTerm);
+            }
 
             BuildSelectClause(parseResult.TopTerm);
 

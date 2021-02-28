@@ -132,7 +132,11 @@ namespace GraphqlToTsql.Translator
             {
                 // The GraphQL for edges have no arguments -- they appear on the Connection.
                 // But when the TSQL is formed those arguments apply to the edge.
-                return Field.FieldType == FieldType.Edge ? Parent.Arguments : _arguments;
+                if (Field != null && Field.FieldType == FieldType.Edge)
+                {
+                    return Parent.Arguments;
+                }
+                return _arguments;
             }
             private set
             {

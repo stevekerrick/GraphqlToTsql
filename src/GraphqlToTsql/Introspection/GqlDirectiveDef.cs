@@ -28,16 +28,14 @@ namespace GraphqlToTsql.Introspection
             {
                 Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
                 Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
+                Field.Column(this, "locationsJson", "LocationsJson", ValueType.String, IsNullable.No),
 
-                // TODO: locations
-                //Field.CalculatedSet(???.Instance, "locations", 
-                //    tableAlias => "TODO"
-                //),
+                Field.CalculatedField(this, "locations", ValueType.String, IsNullable.No,
+                    tableAlias => $"JSON_QUERY({tableAlias}.LocationsJson)"
+                ),
 
-                //TODO: args
-                Field.Set(GqlInputValueDef.Instance, "args", new Join(
-                    () => this.GetField("name"),
-                    () => GqlInputValueDef.Instance.GetField("directiveName"))
+                Field.CalculatedSet(GqlInputValueDef.Instance, "args",
+                    tableAlias => $"SELECT * FROM GqlInputValue WHERE ParentTypeKey = '{Constants.DIRECTIVE_TYPE_KEY}' AND FieldName = {tableAlias}.Name"
                 )
             };
         }

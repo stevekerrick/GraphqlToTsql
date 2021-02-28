@@ -8,6 +8,7 @@ namespace GraphqlToTsql.Translator
         public long? First { get; set; }
         public long? Offset { get; set; }
         public string After { get; set; }
+        public bool IncludeDeprecated { get; set; }
         public bool If { get; set; }
 
         public List<Filter> Filters { get; set; }
@@ -42,6 +43,12 @@ namespace GraphqlToTsql.Translator
                 {
                     throw new InvalidRequestException("You can't use 'offset' and 'after' at the same time", context);
                 }
+                return;
+            }
+
+            if (name == Constants.INCLUDE_DEPCRECATED_ARGUMENT)
+            {
+                IncludeDeprecated = BoolValue(name, value, context);
                 return;
             }
 

@@ -1,5 +1,6 @@
 ﻿using GraphqlToTsql.Entities;
 using GraphqlToTsql.Translator;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace GraphqlToTsql.Introspection
     internal static class IntrospectionData
     {
         private static List<GqlType> Types { get; set; }
-
+        private static List<GqlDirective> Directives { get; set; }
 
         #region Build data structures for type system
 
@@ -28,6 +29,8 @@ namespace GraphqlToTsql.Introspection
             BuildEnums();
 
             BuildQueryTypes(entityList);
+
+            BuildDirectives();
         }
 
         private static void BuildScalarTypes()
@@ -168,6 +171,27 @@ namespace GraphqlToTsql.Introspection
             }
         }
 
+        private static void BuildDirectives()
+        {
+            var boolType = GetType("Boolean");
+
+            Directives = new List<GqlDirective>();
+
+            Directives.Add(new GqlDirective
+            {
+                Name = "include",
+                Locations = new List<DirectiveLocation> { DirectiveLocation.FIELD },
+                Args = new List<GqlInputValue> { new GqlInputValue { Name = "if", Type = boolType } }
+            });
+
+            Directives.Add(new GqlDirective
+            {
+                Name = "skip",
+                Locations = new List<DirectiveLocation> { DirectiveLocation.FIELD },
+                Args = new List<GqlInputValue> { new GqlInputValue { Name = "if", Type = boolType } }
+            });
+        }
+
         private static GqlType LookupOrRegister(GqlType type)
         {
             if (IsTypeRegistered(type.Key))
@@ -240,10 +264,14 @@ namespace GraphqlToTsql.Introspection
         public static string GetDirectivesSql()
         {
             var sb = new StringBuilder(1024);
+            var isFirstRow = true;
 
-            sb.AppendLine("SELECT *");
-            sb.AppendLine("FROM (SELECT NULL AS Name, NULL AS Description) AS DirectiveNullRow");
-            sb.AppendLine("WHERE DirectiveNullRow.Name IS NOT NULL");
+            foreach (var directive in Directives)
+            {
+                var locationsJson = JsonConvert.SerializeObject(directive.Locations);
+                AppendDirectiveRow(sb, isFirstRow, directive.Name, locationsJson);
+                isFirstRow = false;
+            }
 
             return sb.ToString().Trim();
         }
@@ -252,21 +280,32 @@ namespace GraphqlToTsql.Introspection
         {
             var sb = new StringBuilder(1024);
             var isFirstRow = true;
+
+            // InputValues for row/set filtering
             foreach (var parentType in Types)
             {
                 if (parentType.Fields != null)
                 {
                     foreach (var field in parentType.Fields)
                     {
+                        var unwrappedFieldType = UnwrapType(field.Type);
+
+                        // The type has input values on each of its scalar fields
+                        if (field.Type.Kind == TypeKind.SCALAR ||
+                            (field.Type.Kind == TypeKind.NON_NULL && field.Type.OfType.Kind == TypeKind.SCALAR))
+                        {
+                            AppendInputValueRow(sb, isFirstRow, parentType.Key, null, field.Name, unwrappedFieldType.Key);
+                            isFirstRow = false;
+                        }
+
                         // Allow input value filters on this field if:
                         //   * The field's type is OBJECT
                         //   * The field's type has scalar fields
-                        var fieldType = UnwrappedType(field.Type);
-                        if (fieldType.Kind == TypeKind.OBJECT)
+                        if (unwrappedFieldType.Kind == TypeKind.OBJECT)
                         {
-                            foreach(var subfield in fieldType.Fields)
+                            foreach (var subfield in unwrappedFieldType.Fields)
                             {
-                                var subfieldType = UnwrappedType(subfield.Type);
+                                var subfieldType = UnwrapType(subfield.Type);
                                 if (subfieldType.Kind == TypeKind.SCALAR)
                                 {
                                     AppendInputValueRow(sb, isFirstRow, parentType.Key, field.Name, subfield.Name, subfieldType.Key);
@@ -278,10 +317,20 @@ namespace GraphqlToTsql.Introspection
                 }
             }
 
+            // InputValues for directives
+            foreach (var directive in Directives)
+            {
+                foreach (var arg in directive.Args)
+                {
+                    AppendInputValueRow(sb, isFirstRow, Constants.DIRECTIVE_TYPE_KEY, directive.Name, arg.Name, arg.Type.Key);
+                    isFirstRow = false;
+                }
+            }
+
             return sb.ToString().Trim();
         }
 
-        private static GqlType UnwrappedType(GqlType wrappedType)
+        private static GqlType UnwrapType(GqlType wrappedType)
         {
             var type = wrappedType;
             while (type.OfType != null)
@@ -291,12 +340,11 @@ namespace GraphqlToTsql.Introspection
             return type;
         }
 
-
         private static void EnumValuesForOneType(string enumTypeKey, StringBuilder sb, ref bool isFirstRow)
         {
             var enumType = GetType(enumTypeKey);
 
-            foreach(var enumValue in enumType.EnumValues)
+            foreach (var enumValue in enumType.EnumValues)
             {
                 AppendEnumValueRow(sb, isFirstRow, enumTypeKey, enumValue);
                 isFirstRow = false;
@@ -339,7 +387,17 @@ namespace GraphqlToTsql.Introspection
             sb.AppendLine();
         }
 
-        private static void AppendInputValueRow(StringBuilder sb, bool isFirstRow, string parentTypeKey, string fieldName, 
+        private static void AppendDirectiveRow(StringBuilder sb, bool isFirstRow, string name, string locationsJson)
+        {
+            sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");
+            AppendColumn(sb, isFirstRow, true, "Name", name);
+            AppendColumn(sb, isFirstRow, false, "Description", null);
+            AppendColumn(sb, isFirstRow, false, "LocationsJson", locationsJson);
+
+            sb.AppendLine();
+        }
+
+        private static void AppendInputValueRow(StringBuilder sb, bool isFirstRow, string parentTypeKey, string fieldName,
             string name, string typeKey)
         {
             sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");

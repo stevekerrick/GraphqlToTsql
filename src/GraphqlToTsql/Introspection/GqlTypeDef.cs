@@ -63,9 +63,8 @@ namespace GraphqlToTsql.Introspection
                     () => this.GetField("key"),
                     () => GqlEnumValueDef.Instance.GetField("enumTypeKey"))
                 ),
-                Field.Set(GqlInputValueDef.Instance, "inputFields", new Join(
-                    () => this.GetField("key"),
-                    () => GqlInputValueDef.Instance.GetField("inputObjectKey"))
+                Field.CalculatedSet(GqlInputValueDef.Instance, "inputFields",
+                    tableAlias => $"SELECT * FROM GqlInputValue iv WHERE iv.ParentTypeKey = {tableAlias}.[Key] AND iv.FieldName IS NULL"
                 ),
                 Field.Row(GqlTypeDef.Instance, "ofType", new Join(
                     ()=>this.GetField("ofTypeKey"),
