@@ -34,26 +34,26 @@ namespace DemoEntities
                     (tableAlias) => $"SELECT s.* FROM tvf_AllAncestors({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name AND s.DistributorName IS NULL"
                 ),
 
-                Field.Set(this, "recruits", new Join(
+                Field.Set(this, "recruits", IsNullable.Yes, new Join(
                     ()=>this.GetField("name"),
                     ()=>this.GetField("distributorName"))
                 ),
-                Field.Set(OrderDef.Instance, "orders", new Join(
+                Field.Set(OrderDef.Instance, "orders", IsNullable.Yes, new Join(
                     ()=>this.GetField("name"),
                     ()=>OrderDef.Instance.GetField("sellerName"))
                 ),
-                Field.Set(SellerBadgeDef.Instance, "sellerBadges", new Join(
+                Field.Set(SellerBadgeDef.Instance, "sellerBadges", IsNullable.No, new Join(
                     ()=>this.GetField("name"),
                     ()=>SellerBadgeDef.Instance.GetField("sellerName"))
                 ),
-                Field.Set(SellerProductTotalDef.Instance, "sellerProductTotals", new Join(
+                Field.Set(SellerProductTotalDef.Instance, "sellerProductTotals", IsNullable.Yes, new Join(
                     ()=>this.GetField("name"),
                     ()=>SellerBadgeDef.Instance.GetField("sellerName"))
                 ),
-                Field.CalculatedSet(this, "descendants",
+                Field.CalculatedSet(this, "descendants", IsNullable.Yes,
                     (tableAlias) => $"SELECT s.* FROM tvf_AllDescendants({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name"
                 ),
-                Field.CalculatedSet(this, "ancestors",
+                Field.CalculatedSet(this, "ancestors", IsNullable.Yes,
                     (tableAlias) => $"SELECT s.* FROM tvf_AllAncestors({tableAlias}.Name) a INNER JOIN Seller s ON a.Name = s.Name"
                 )
             };

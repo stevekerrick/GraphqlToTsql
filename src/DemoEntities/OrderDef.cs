@@ -27,7 +27,7 @@ namespace DemoEntities
                     ()=>SellerDef.Instance.GetField("name"))
                 ),
 
-                Field.Set(OrderDetailDef.Instance, "orderDetails", new Join(
+                Field.Set(OrderDetailDef.Instance, "orderDetails", IsNullable.No, new Join(
                     ()=>this.GetField("id"),
                     ()=>OrderDetailDef.Instance.GetField("orderId"))
                 )

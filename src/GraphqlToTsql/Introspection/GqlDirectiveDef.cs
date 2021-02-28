@@ -34,7 +34,7 @@ namespace GraphqlToTsql.Introspection
                     tableAlias => $"JSON_QUERY({tableAlias}.LocationsJson)"
                 ),
 
-                Field.CalculatedSet(GqlInputValueDef.Instance, "args",
+                Field.CalculatedSet(GqlInputValueDef.Instance, "args", IsNullable.No,
                     tableAlias => $"SELECT * FROM GqlInputValue WHERE ParentTypeKey = '{Constants.DIRECTIVE_TYPE_KEY}' AND FieldName = {tableAlias}.Name"
                 )
             };

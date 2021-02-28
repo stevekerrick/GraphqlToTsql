@@ -69,6 +69,22 @@ namespace GraphqlToTsqlTests
         }
 
         [Test]
+        public async Task NonNullableListTest()
+        {
+            const string graphql = "{ seller (name: \"Zeus\") { name sellerBadges { badgeName } } }";
+            var graphqlParameters = new Dictionary<string, object>();
+
+            var expectedObject = new
+            {
+                seller = new {
+                    name = "Zeus",
+                    sellerBadges = new object[0]
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
+        [Test]
         public async Task IntrospectionTypeNameTest()
         {
             var graphql = @"

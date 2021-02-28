@@ -256,6 +256,39 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
+        public void NonNullListTest()
+        {
+            const string graphql = "{ seller (name: \"Zeus\") { name sellerBadges { badgeName } } }";
+
+            var expectedSql = @"
+SELECT
+
+  -- seller (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Name] AS [name]
+
+      -- seller.sellerBadges (t2)
+    , ISNULL (JSON_QUERY ((
+        SELECT
+          t2.[BadgeName] AS [badgeName]
+        FROM [SellerBadge] t2
+        WHERE t1.[Name] = t2.[SellerName]
+        FOR JSON PATH, INCLUDE_NULL_VALUES)), '[]') AS [sellerBadges]
+    FROM [Seller] t1
+    WHERE t1.[Name] = @name
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [seller]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object> { { "name", "Zeus" } };
+
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
+        }
+
+
+
+        [Test]
         public void ComplicatedQueryTest()
         {
             var graphql = @"
@@ -953,9 +986,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
-
-
-
 
         [Test]
         public void IntrospectionGqlSchemaTableTest()

@@ -89,11 +89,12 @@ namespace GraphqlToTsql.Entities
         /// <param name="entity">Tne entity of the children</param>
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="join">Join criteria between the parent and child entities</param>
-        public static Field Set(EntityBase entity, string name, Join join) => new Field
+        public static Field Set(EntityBase entity, string name, IsNullable isNullable, Join join) => new Field
         {
             FieldType = FieldType.Set,
             Entity = entity,
             Name = name,
+            IsNullable = isNullable,
             Join = join
         };
 
@@ -118,12 +119,13 @@ namespace GraphqlToTsql.Entities
         /// <param name="entity">Tne entity of the child</param>
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child set</param>
-        public static Field CalculatedSet(EntityBase entity, string name,
+        public static Field CalculatedSet(EntityBase entity, string name, IsNullable isNullable,
             Func<string, string> templateFunc) => new Field
             {
                 FieldType = FieldType.Set,
                 Entity = entity,
                 Name = name,
+                IsNullable = isNullable,
                 TemplateFunc = templateFunc
             };
 

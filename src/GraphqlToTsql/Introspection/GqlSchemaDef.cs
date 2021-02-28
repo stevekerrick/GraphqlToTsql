@@ -1,4 +1,5 @@
 ﻿using GraphqlToTsql.Entities;
+using GraphqlToTsql.Translator;
 using System;
 using System.Collections.Generic;
 
@@ -25,7 +26,7 @@ namespace GraphqlToTsql.Introspection
         {
             return new List<Field>
             {
-                Field.CalculatedSet(GqlTypeDef.Instance, "types",
+                Field.CalculatedSet(GqlTypeDef.Instance, "types", IsNullable.No,
                     tableAlias => "SELECT * FROM GqlType"),
 
                 Field.CalculatedRow(GqlTypeDef.Instance, "queryType",
@@ -35,7 +36,7 @@ namespace GraphqlToTsql.Introspection
                 Field.CalculatedRow(GqlTypeDef.Instance, "subscriptionType",
                     tableAlias => "SELECT * FROM GqlType WHERE name = 'Subscription'"),
 
-                Field.CalculatedSet(GqlDirectiveDef.Instance, "directives",
+                Field.CalculatedSet(GqlDirectiveDef.Instance, "directives", IsNullable.No,
                     tableAlias => "SELECT * FROM GqlDirective")
             };
         }

@@ -33,7 +33,7 @@ namespace GraphqlToTsql.Introspection
                 Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
                 Field.Column(this, "typeKey", "TypeKey", ValueType.String, IsNullable.No),
 
-                Field.CalculatedSet(GqlInputValueDef.Instance, "args",
+                Field.CalculatedSet(GqlInputValueDef.Instance, "args", IsNullable.No,
                     tableAlias => $"SELECT * FROM GqlInputValue iv WHERE iv.ParentTypeKey = {tableAlias}.ParentTypeKey AND iv.FieldName = {tableAlias}.Name"
                 ),
                 Field.Row(GqlTypeDef.Instance, "type", new Join(

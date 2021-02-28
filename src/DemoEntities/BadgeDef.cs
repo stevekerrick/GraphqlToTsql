@@ -19,7 +19,7 @@ namespace DemoEntities
                 Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
                 Field.Column(this, "isSpecial", "IsSpecial", ValueType.Boolean, IsNullable.No),
 
-                Field.Set(SellerBadgeDef.Instance, "sellerBadges", new Join(
+                Field.Set(SellerBadgeDef.Instance, "sellerBadges", IsNullable.Yes, new Join(
                     ()=>this.GetField("name"),
                     ()=>SellerBadgeDef.Instance.GetField("badgeName"))
                 )

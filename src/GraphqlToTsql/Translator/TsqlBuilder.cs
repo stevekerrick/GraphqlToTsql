@@ -156,11 +156,16 @@ namespace GraphqlToTsql.Translator
                 }
             }
 
+            // Decide whether to add logic for non-nullable lists (by default TSQL returns these as NULL instead of [])
+            var wrapNonNullableList = term.TermType == TermType.List && term.Field.IsNullable == IsNullable.No;
+            var nonNullableListPrefix = wrapNonNullableList ? "ISNULL (" : "";
+            var nonNullableListSuffix = wrapNonNullableList ? ", '[]')" : "";
+
             // Wrap the subquery in a JSON_QUERY
             var separator = term.IsFirstChild ? TAB : COMMA_TAB;
             Emit("");
             Emit(TAB, $"-- {term.FullPath()} ({term.TableAlias(_aliasSequence)})");
-            Emit(separator, "JSON_QUERY ((");
+            Emit(separator, $"{nonNullableListPrefix}JSON_QUERY ((");
             Indent();
 
             // Build the SQL for the subquery
@@ -174,7 +179,7 @@ namespace GraphqlToTsql.Translator
             }
 
             // Unwrap the JSON_QUERY
-            Emit($"{FOR_JSON}{(term.TermType == TermType.Item ? UNWRAP_ITEM : "")})) AS [{term.Name}]");
+            Emit($"{FOR_JSON}{(term.TermType == TermType.Item ? UNWRAP_ITEM : "")})){nonNullableListSuffix} AS [{term.Name}]");
             Outdent();
         }
 
