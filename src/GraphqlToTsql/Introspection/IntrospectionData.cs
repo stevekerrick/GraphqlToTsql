@@ -112,13 +112,29 @@ namespace GraphqlToTsql.Introspection
         {
             var type = EntityType(field.Entity);
 
+            if (field.IsNullable == IsNullable.No)
+            {
+                type = NonNullableType(type);
+            }
+
             return new GqlField(field.Name, type);
         }
 
         private static GqlField SetField(Field field)
         {
-            var baseType = EntityType(field.Entity);
-            var type = SetType(baseType);
+            var type = EntityType(field.Entity);
+
+            if (field.IsNonEmptyList == ListCanBeEmpty.No)
+            {
+                type = NonNullableType(type);
+            }
+
+            type = SetType(type);
+
+            if (field.IsNullable == IsNullable.No)
+            {
+                type = NonNullableType(type);
+            }
 
             return new GqlField(field.Name, type);
         }
@@ -165,7 +181,7 @@ namespace GraphqlToTsql.Introspection
                 var rowField = new GqlField(entity.Name, type);
                 queryType.Fields.Add(rowField);
 
-                var listType = GqlType.List(type);
+                var listType = SetType(type);
                 var setField = new GqlField(entity.PluralName, listType);
                 queryType.Fields.Add(setField);
             }

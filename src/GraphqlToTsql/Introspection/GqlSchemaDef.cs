@@ -27,17 +27,20 @@ namespace GraphqlToTsql.Introspection
             return new List<Field>
             {
                 Field.CalculatedSet(GqlTypeDef.Instance, "types", IsNullable.No,
-                    tableAlias => "SELECT * FROM GqlType"),
+                    tableAlias => "SELECT * FROM GqlType WHERE name IS NOT NULL",
+                    ListCanBeEmpty.No),
 
                 Field.CalculatedRow(GqlTypeDef.Instance, "queryType",
-                    tableAlias => "SELECT * FROM GqlType WHERE name = 'Query'"),
+                    tableAlias => "SELECT * FROM GqlType WHERE name = 'Query'",
+                    IsNullable.No),
                 Field.CalculatedRow(GqlTypeDef.Instance, "mutationType",
                     tableAlias => "SELECT * FROM GqlType WHERE name = 'Mutation'"),
                 Field.CalculatedRow(GqlTypeDef.Instance, "subscriptionType",
                     tableAlias => "SELECT * FROM GqlType WHERE name = 'Subscription'"),
 
                 Field.CalculatedSet(GqlDirectiveDef.Instance, "directives", IsNullable.No,
-                    tableAlias => "SELECT * FROM GqlDirective")
+                    tableAlias => "SELECT * FROM GqlDirective",
+                    ListCanBeEmpty.No)
             };
         }
 

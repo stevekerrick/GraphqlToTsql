@@ -173,9 +173,13 @@ namespace GraphqlToTsqlTests
                                 kind = "LIST",
                                 name = (string)null,
                                 ofType = new {
-                                    kind = "OBJECT",
-                                    name = "__Field",
-                                    ofType = (object)null
+                                    kind = "NON_NULL",
+                                    name = (string)null,
+                                    ofType = new {
+                                        kind = "OBJECT",
+                                        name = "__Field",
+                                        ofType = (object)null
+                                    }
                                 }
                             }
                         }

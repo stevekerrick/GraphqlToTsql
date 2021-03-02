@@ -21,6 +21,7 @@ namespace GraphqlToTsql.Entities
         internal string DbColumnName { get; private set; }
         internal ValueType ValueType { get; private set; }
         internal IsNullable? IsNullable { get; private set; }
+        internal ListCanBeEmpty? IsNonEmptyList { get; private set; }
         internal Join Join { get; private set; }
         internal Func<string, string> TemplateFunc { get; private set; }
         internal Func<string, string> MutatorFunc { get; private set; }
@@ -75,12 +76,14 @@ namespace GraphqlToTsql.Entities
         /// <param name="entity">Tne entity of the child</param>
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="join">Join criteria between the parent and child entities</param>
-        public static Field Row(EntityBase entity, string name, Join join) => new Field
+        /// <param name="isNullable">Can the field be null? This setting is usually only used on the system types used for introspection.</param>
+        public static Field Row(EntityBase entity, string name, Join join, IsNullable isNullable = Translator.IsNullable.Yes) => new Field
         {
             FieldType = FieldType.Row,
             Entity = entity,
             Name = name,
-            Join = join
+            Join = join,
+            IsNullable = isNullable
         };
 
         /// <summary>
@@ -89,12 +92,14 @@ namespace GraphqlToTsql.Entities
         /// <param name="entity">Tne entity of the children</param>
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="join">Join criteria between the parent and child entities</param>
-        public static Field Set(EntityBase entity, string name, IsNullable isNullable, Join join) => new Field
+        /// <param name="isNonEmptyList">Can the list be empty?  This setting is usually only used on the system types used for introspection.</param>
+        public static Field Set(EntityBase entity, string name, IsNullable isNullable, Join join, ListCanBeEmpty? isNonEmptyList = null) => new Field
         {
             FieldType = FieldType.Set,
             Entity = entity,
             Name = name,
             IsNullable = isNullable,
+            IsNonEmptyList = isNonEmptyList,
             Join = join
         };
 
@@ -104,13 +109,15 @@ namespace GraphqlToTsql.Entities
         /// <param name="entity">Tne entity of the child</param>
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child row</param>
+        /// <param name="isNullable">Can the field be null? This setting is usually only used on the system types used for introspection.</param>
         public static Field CalculatedRow(EntityBase entity, string name,
-            Func<string, string> templateFunc) => new Field
+            Func<string, string> templateFunc, IsNullable isNullable = Translator.IsNullable.Yes) => new Field
             {
                 FieldType = FieldType.Row,
                 Entity = entity,
                 Name = name,
-                TemplateFunc = templateFunc
+                TemplateFunc = templateFunc,
+                IsNullable = isNullable
             };
 
         /// <summary>
@@ -119,13 +126,15 @@ namespace GraphqlToTsql.Entities
         /// <param name="entity">Tne entity of the child</param>
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child set</param>
+        /// <param name="isNonEmptyList">Can the list be empty?  This setting is usually only used on the system types used for introspection.</param>
         public static Field CalculatedSet(EntityBase entity, string name, IsNullable isNullable,
-            Func<string, string> templateFunc) => new Field
+            Func<string, string> templateFunc, ListCanBeEmpty? isNonEmptyList = null) => new Field
             {
                 FieldType = FieldType.Set,
                 Entity = entity,
                 Name = name,
                 IsNullable = isNullable,
+                IsNonEmptyList = isNonEmptyList,
                 TemplateFunc = templateFunc
             };
 

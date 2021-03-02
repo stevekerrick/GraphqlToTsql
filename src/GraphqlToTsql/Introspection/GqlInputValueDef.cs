@@ -34,7 +34,8 @@ namespace GraphqlToTsql.Introspection
 
                 Field.Row(GqlTypeDef.Instance, "type", new Join(
                     () => this.GetField("typeKey"),
-                    () => GqlTypeDef.Instance.GetField("key"))
+                    () => GqlTypeDef.Instance.GetField("key")),
+                    IsNullable.No
                 ),
 
                 Field.Column(this, "defaultValue", "DefaultValue", ValueType.String, IsNullable.Yes)

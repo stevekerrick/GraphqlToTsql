@@ -34,11 +34,13 @@ namespace GraphqlToTsql.Introspection
                 Field.Column(this, "typeKey", "TypeKey", ValueType.String, IsNullable.No),
 
                 Field.CalculatedSet(GqlInputValueDef.Instance, "args", IsNullable.No,
-                    tableAlias => $"SELECT * FROM GqlInputValue iv WHERE iv.ParentTypeKey = {tableAlias}.ParentTypeKey AND iv.FieldName = {tableAlias}.Name"
+                    tableAlias => $"SELECT * FROM GqlInputValue iv WHERE iv.ParentTypeKey = {tableAlias}.ParentTypeKey AND iv.FieldName = {tableAlias}.Name",
+                    ListCanBeEmpty.No
                 ),
                 Field.Row(GqlTypeDef.Instance, "type", new Join(
                     () => this.GetField("typeKey"),
-                    () => GqlTypeDef.Instance.GetField("key"))
+                    () => GqlTypeDef.Instance.GetField("key")),
+                    IsNullable.No
                 ),
 
                 Field.Column(this, "isDeprecated", "IsDeprecated", ValueType.Boolean, IsNullable.No),

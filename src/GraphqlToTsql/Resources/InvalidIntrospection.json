@@ -12,7 +12,7 @@
         "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.",
         "fields": null,
         "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -22,7 +22,7 @@
         "description": "The `Int` scalar type represents non-fractional signed whole numeric values.",
         "fields": null,
         "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -32,7 +32,7 @@
         "description": "The `Float` scalar type represents numeric values that may have fractional values.",
         "fields": null,
         "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -42,7 +42,7 @@
         "description": "The `Boolean` scalar type represents `true` or `false`.",
         "fields": null,
         "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -52,7 +52,7 @@
         "description": "The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `\"4\"`) or integer (such as `4`) input value will be accepted as an ID.",
         "fields": null,
         "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -62,7 +62,7 @@
         "description": "The `Upload` scalar type represents a file upload.",
         "fields": null,
         "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -74,7 +74,7 @@
           {
             "name": "name",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -90,7 +90,7 @@
           {
             "name": "isSpecial",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -173,27 +173,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "NON_NULL",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "NON_NULL",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -205,7 +185,7 @@
           {
             "name": "sellerName",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -221,7 +201,7 @@
           {
             "name": "badgeName",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -237,7 +217,7 @@
           {
             "name": "dateAwarded",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -379,7 +359,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -391,7 +371,7 @@
           {
             "name": "name",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -407,7 +387,7 @@
           {
             "name": "distributorName",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -419,7 +399,7 @@
           {
             "name": "city",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -431,7 +411,7 @@
           {
             "name": "state",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -443,7 +423,7 @@
           {
             "name": "postalCode",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -791,12 +771,16 @@
               }
             ],
             "type": {
-              "kind": "LIST",
+              "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "SellerBadge",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "SellerBadge",
+                  "ofType": null
+                }
               }
             },
             "isDeprecated": 0,
@@ -1046,7 +1030,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -1058,7 +1042,7 @@
           {
             "name": "sellerName",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1074,7 +1058,7 @@
           {
             "name": "totalOrders",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1090,7 +1074,7 @@
           {
             "name": "totalQuantity",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1106,7 +1090,7 @@
           {
             "name": "totalAmount",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1225,37 +1209,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "NON_NULL",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "NON_NULL",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "LIST",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -1267,7 +1221,7 @@
           {
             "name": "id",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1283,7 +1237,7 @@
           {
             "name": "sellerName",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1299,7 +1253,7 @@
           {
             "name": "date",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1315,7 +1269,7 @@
           {
             "name": "shipping",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1427,12 +1381,16 @@
               }
             ],
             "type": {
-              "kind": "LIST",
+              "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "OrderDetail",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "OrderDetail",
+                  "ofType": null
+                }
               }
             },
             "isDeprecated": 0,
@@ -1481,7 +1439,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -1493,7 +1451,7 @@
           {
             "name": "orderId",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1509,7 +1467,7 @@
           {
             "name": "productName",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1525,7 +1483,7 @@
           {
             "name": "quantity",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1677,7 +1635,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -1689,7 +1647,7 @@
           {
             "name": "name",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1705,7 +1663,7 @@
           {
             "name": "description",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -1717,7 +1675,7 @@
           {
             "name": "price",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1733,7 +1691,7 @@
           {
             "name": "totalRevenue",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1893,17 +1851,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "LIST",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -1915,7 +1863,7 @@
           {
             "name": "sellerName",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1931,7 +1879,7 @@
           {
             "name": "productName",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1947,7 +1895,7 @@
           {
             "name": "totalQuantity",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1963,7 +1911,7 @@
           {
             "name": "totalAmount",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -2135,37 +2083,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "LIST",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "LIST",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "LIST",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -2177,7 +2095,7 @@
           {
             "name": "name",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -2193,7 +2111,7 @@
           {
             "name": "description",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -2205,7 +2123,7 @@
           {
             "name": "locationsJson",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -2221,7 +2139,7 @@
           {
             "name": "locations",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -2300,12 +2218,20 @@
               }
             ],
             "type": {
-              "kind": "LIST",
+              "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "__InputValue",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "__InputValue",
+                    "ofType": null
+                  }
+                }
               }
             },
             "isDeprecated": 0,
@@ -2354,7 +2280,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -2366,7 +2292,7 @@
           {
             "name": "parentTypeKey",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -2382,7 +2308,7 @@
           {
             "name": "fieldName",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -2398,7 +2324,7 @@
           {
             "name": "name",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -2414,7 +2340,7 @@
           {
             "name": "description",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -2426,7 +2352,7 @@
           {
             "name": "typeKey",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -2495,9 +2421,13 @@
               }
             ],
             "type": {
-              "kind": "OBJECT",
-              "name": "__Type",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "__Type",
+                "ofType": null
+              }
             },
             "isDeprecated": 0,
             "deprecationReason": null
@@ -2505,7 +2435,7 @@
           {
             "name": "defaultValue",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -2577,7 +2507,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -2589,7 +2519,7 @@
           {
             "name": "key",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -2605,7 +2535,7 @@
           {
             "name": "kind",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -2621,7 +2551,7 @@
           {
             "name": "name",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -2633,7 +2563,7 @@
           {
             "name": "ofTypeKey",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -2645,7 +2575,7 @@
           {
             "name": "description",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -2723,9 +2653,13 @@
               "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "__Field",
-                "ofType": null
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "__Field",
+                  "ofType": null
+                }
               }
             },
             "isDeprecated": 0,
@@ -2787,12 +2721,20 @@
               }
             ],
             "type": {
-              "kind": "LIST",
+              "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "__Type",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "__Type",
+                    "ofType": null
+                  }
+                }
               }
             },
             "isDeprecated": 0,
@@ -2857,9 +2799,13 @@
               "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "__Type",
-                "ofType": null
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "__Type",
+                  "ofType": null
+                }
               }
             },
             "isDeprecated": 0,
@@ -2924,9 +2870,13 @@
               "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "__EnumValue",
-                "ofType": null
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "__EnumValue",
+                  "ofType": null
+                }
               }
             },
             "isDeprecated": 0,
@@ -3001,9 +2951,13 @@
               "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "__InputValue",
-                "ofType": null
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "__InputValue",
+                  "ofType": null
+                }
               }
             },
             "isDeprecated": 0,
@@ -3125,7 +3079,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -3137,7 +3091,7 @@
           {
             "name": "parentTypeKey",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -3153,7 +3107,7 @@
           {
             "name": "name",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -3169,7 +3123,7 @@
           {
             "name": "description",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -3181,7 +3135,7 @@
           {
             "name": "typeKey",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -3260,12 +3214,20 @@
               }
             ],
             "type": {
-              "kind": "LIST",
+              "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "__InputValue",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "__InputValue",
+                    "ofType": null
+                  }
+                }
               }
             },
             "isDeprecated": 0,
@@ -3327,9 +3289,13 @@
               }
             ],
             "type": {
-              "kind": "OBJECT",
-              "name": "__Type",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "__Type",
+                "ofType": null
+              }
             },
             "isDeprecated": 0,
             "deprecationReason": null
@@ -3337,7 +3303,7 @@
           {
             "name": "isDeprecated",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -3353,7 +3319,7 @@
           {
             "name": "deprecationReason",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -3425,37 +3391,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "LIST",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "LIST",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "LIST",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -3467,7 +3403,7 @@
           {
             "name": "enumTypeKey",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -3483,7 +3419,7 @@
           {
             "name": "name",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -3499,7 +3435,7 @@
           {
             "name": "description",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -3511,7 +3447,7 @@
           {
             "name": "isDeprecated",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -3527,7 +3463,7 @@
           {
             "name": "deprecationReason",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -3589,17 +3525,7 @@
             "defaultValue": null
           }
         ],
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "LIST",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -3664,12 +3590,20 @@
               }
             ],
             "type": {
-              "kind": "LIST",
+              "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "__Type",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "__Type",
+                    "ofType": null
+                  }
+                }
               }
             },
             "isDeprecated": 0,
@@ -3731,9 +3665,13 @@
               }
             ],
             "type": {
-              "kind": "OBJECT",
-              "name": "__Type",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "__Type",
+                "ofType": null
+              }
             },
             "isDeprecated": 0,
             "deprecationReason": null
@@ -3910,12 +3848,20 @@
               }
             ],
             "type": {
-              "kind": "LIST",
+              "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "__Directive",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "__Directive",
+                    "ofType": null
+                  }
+                }
               }
             },
             "isDeprecated": 0,
@@ -3923,17 +3869,7 @@
           }
         ],
         "inputFields": null,
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "LIST",
-        "name": null,
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -3943,7 +3879,7 @@
         "description": null,
         "fields": null,
         "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": [
           {
             "name": "SCALAR",
@@ -4002,7 +3938,7 @@
         "description": null,
         "fields": null,
         "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": [
           {
             "name": "QUERY",
@@ -4127,7 +4063,7 @@
         "description": null,
         "fields": null,
         "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": [
           {
             "name": "PUBLIC",
@@ -5043,15 +4979,7 @@
                 "defaultValue": null
               }
             ],
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "__Directive",
-                "ofType": null
-              }
-            },
+            "type": null,
             "isDeprecated": 0,
             "deprecationReason": null
           },
@@ -5173,15 +5101,7 @@
                 "defaultValue": null
               }
             ],
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "__EnumValue",
-                "ofType": null
-              }
-            },
+            "type": null,
             "isDeprecated": 0,
             "deprecationReason": null
           },
@@ -5323,15 +5243,7 @@
                 "defaultValue": null
               }
             ],
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "__Field",
-                "ofType": null
-              }
-            },
+            "type": null,
             "isDeprecated": 0,
             "deprecationReason": null
           },
@@ -5473,22 +5385,14 @@
                 "defaultValue": null
               }
             ],
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "__InputValue",
-                "ofType": null
-              }
-            },
+            "type": null,
             "isDeprecated": 0,
             "deprecationReason": null
           },
           {
             "name": "__schema",
             "description": null,
-            "args": null,
+            "args": [],
             "type": {
               "kind": "OBJECT",
               "name": "__Schema",
@@ -5500,7 +5404,7 @@
           {
             "name": "__schemas",
             "description": null,
-            "args": null,
+            "args": [],
             "type": null,
             "isDeprecated": 0,
             "deprecationReason": null
@@ -5623,21 +5527,13 @@
                 "defaultValue": null
               }
             ],
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "__Type",
-                "ofType": null
-              }
-            },
+            "type": null,
             "isDeprecated": 0,
             "deprecationReason": null
           }
         ],
         "inputFields": null,
-        "interfaces": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       }
@@ -5684,4 +5580,3 @@
     ]
   }
 }
-

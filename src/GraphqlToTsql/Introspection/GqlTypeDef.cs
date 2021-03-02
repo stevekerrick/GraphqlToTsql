@@ -51,20 +51,25 @@ namespace GraphqlToTsql.Introspection
 
                 Field.Set(GqlFieldDef.Instance, "fields", IsNullable.Yes, new Join(
                     () => this.GetField("key"),
-                    () => GqlFieldDef.Instance.GetField("parentTypeKey"))
+                    () => GqlFieldDef.Instance.GetField("parentTypeKey")),
+                    ListCanBeEmpty.No
                 ),
 
-                Field.CalculatedSet(GqlTypeDef.Instance, "interfaces", IsNullable.Yes,
-                    tableAlias => "SELECT * FROM GqlType WHERE Kind = 'INTERFACE'"),
+                Field.CalculatedSet(GqlTypeDef.Instance, "interfaces", IsNullable.No,
+                    tableAlias => "SELECT * FROM GqlType WHERE Kind = 'INTERFACE'",
+                    ListCanBeEmpty.No),
                 Field.CalculatedSet(GqlTypeDef.Instance, "possibleTypes", IsNullable.Yes,
-                    tableAlias => "SELECT * FROM GqlType WHERE 1 = 0"),
+                    tableAlias => "SELECT * FROM GqlType WHERE 1 = 0",
+                    ListCanBeEmpty.No),
 
                 Field.Set(GqlEnumValueDef.Instance, "enumValues", IsNullable.Yes, new Join(
                     () => this.GetField("key"),
-                    () => GqlEnumValueDef.Instance.GetField("enumTypeKey"))
+                    () => GqlEnumValueDef.Instance.GetField("enumTypeKey")),
+                    ListCanBeEmpty.No
                 ),
                 Field.CalculatedSet(GqlInputValueDef.Instance, "inputFields", IsNullable.Yes,
-                    tableAlias => $"SELECT * FROM GqlInputValue iv WHERE iv.ParentTypeKey = {tableAlias}.[Key] AND iv.FieldName IS NULL"
+                    tableAlias => $"SELECT * FROM GqlInputValue iv WHERE iv.ParentTypeKey = {tableAlias}.[Key] AND iv.FieldName IS NULL",
+                    ListCanBeEmpty.No
                 ),
                 Field.Row(GqlTypeDef.Instance, "ofType", new Join(
                     ()=>this.GetField("ofTypeKey"),

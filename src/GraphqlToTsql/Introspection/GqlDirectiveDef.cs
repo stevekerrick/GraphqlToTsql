@@ -35,7 +35,8 @@ namespace GraphqlToTsql.Introspection
                 ),
 
                 Field.CalculatedSet(GqlInputValueDef.Instance, "args", IsNullable.No,
-                    tableAlias => $"SELECT * FROM GqlInputValue WHERE ParentTypeKey = '{Constants.DIRECTIVE_TYPE_KEY}' AND FieldName = {tableAlias}.Name"
+                    tableAlias => $"SELECT * FROM GqlInputValue WHERE ParentTypeKey = '{Constants.DIRECTIVE_TYPE_KEY}' AND FieldName = {tableAlias}.Name",
+                    ListCanBeEmpty.No
                 )
             };
         }
