@@ -73,6 +73,11 @@ namespace GraphqlToTsql.Introspection
             // Build fields
             foreach (var field in entity.Fields)
             {
+                if (field.Visibility == Visibility.Hidden)
+                {
+                    continue;
+                }
+
                 switch (field.FieldType)
                 {
                     case FieldType.Column:

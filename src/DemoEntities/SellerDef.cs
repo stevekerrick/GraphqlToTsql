@@ -17,7 +17,7 @@ namespace DemoEntities
             return new List<Field>
             {
                 Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
-                Field.Column(this, "distributorName", "DistributorName", ValueType.String, IsNullable.Yes),
+                Field.Column(this, "distributorName", "DistributorName", ValueType.String, IsNullable.Yes, Visibility.Hidden),
                 Field.Column(this, "city", "City", ValueType.String, IsNullable.Yes),
                 Field.Column(this, "state", "State", ValueType.String, IsNullable.Yes),
                 Field.Column(this, "postalCode", "PostalCode", ValueType.String, IsNullable.Yes),

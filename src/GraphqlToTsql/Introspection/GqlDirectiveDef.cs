@@ -27,7 +27,7 @@ namespace GraphqlToTsql.Introspection
             {
                 Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
                 Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
-                Field.Column(this, "locationsJson", "LocationsJson", ValueType.String, IsNullable.No),
+                Field.Column(this, "locationsJson", "LocationsJson", ValueType.String, IsNullable.No, Visibility.Hidden),
 
                 Field.CalculatedField(this, "locations", ValueType.String, IsNullable.No,
                     tableAlias => $"JSON_QUERY({tableAlias}.LocationsJson)"

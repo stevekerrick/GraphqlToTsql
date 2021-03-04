@@ -44,7 +44,7 @@ namespace GraphqlToTsqlTests
             var graphql = @"
 {
   orders (first: 10, date: ""2020-01-29"") {
-    id date seller { name sellerBadges(first: 1) { badgeName dateAwarded } }
+    id date seller { name sellerBadges(first: 1) { badge { name } dateAwarded } }
   }
 }".Trim();
             var graphqlParameters = new Dictionary<string, object>();
@@ -59,7 +59,7 @@ namespace GraphqlToTsqlTests
                         seller = new {
                             name = "Bill",
                             sellerBadges = new[] {
-                                new { badgeName = "Diamond", dateAwarded = "2020-04-07" }
+                                new { badge = new { name = "Diamond" }, dateAwarded = "2020-04-07" }
                             }
                         }
                     }
@@ -71,7 +71,7 @@ namespace GraphqlToTsqlTests
         [Test]
         public async Task NonNullableListTest()
         {
-            const string graphql = "{ seller (name: \"Zeus\") { name sellerBadges { badgeName } } }";
+            const string graphql = "{ seller (name: \"Zeus\") { name sellerBadges { badge { name } } } }";
             var graphqlParameters = new Dictionary<string, object>();
 
             var expectedObject = new
@@ -249,6 +249,35 @@ namespace GraphqlToTsqlTests
                                 new { name = "isSpecial", type = new { name = "Boolean" } }
                             }
                         }
+                    }
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
+        [Test]
+        public async Task IntrospectionHiddenFieldTest()
+        {
+            var graphql = @"
+{
+  __type (name: ""SellerBadge"") {
+    kind name fields { name }
+  }
+}".Trim();
+            var graphqlParameters = new Dictionary<string, object>();
+
+            // Notice that SellerName and BadgeName are hidden
+            var expectedObject = new
+            {
+                __type = new
+                {
+                    kind = "OBJECT",
+                    name = "SellerBadge",
+                    fields = new[]
+                    {
+                        new { name = "dateAwarded" },
+                        new { name = "seller" },
+                        new { name = "badge" }
                     }
                 }
             };

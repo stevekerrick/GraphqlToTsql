@@ -20,6 +20,7 @@ namespace GraphqlToTsql.Entities
         internal ValueType ValueType { get; private set; }
         internal IsNullable? IsNullable { get; private set; }
         internal ListCanBeEmpty? IsNonEmptyList { get; private set; }
+        internal Visibility Visibility { get; private set; }
         internal Join Join { get; private set; }
         internal Func<string, string> TemplateFunc { get; private set; }
         internal Func<string, string> MutatorFunc { get; private set; }
@@ -34,15 +35,24 @@ namespace GraphqlToTsql.Entities
         /// <param name="dbColumnName">The column name in the database</param>
         /// <param name="valueType">Data type of the column. One of: String, Int, Float, Boolean.</param>
         /// <param name="isNullable">Is the database column nullable?</param>
-        public static Field Column(EntityBase entity, string name, string dbColumnName, ValueType valueType, IsNullable isNullable) => new Field
-        {
-            FieldType = FieldType.Column,
-            Entity = entity,
-            Name = name,
-            DbColumnName = dbColumnName,
-            ValueType = valueType,
-            IsNullable = isNullable
-        };
+        /// <param name="visibility">Mark the field as "Hidden" if you don't want to expose it to GraphQL
+        /// queries. This is useful to hide Primary Key fields that are needed for joins.</param>
+        public static Field Column(
+            EntityBase entity,
+            string name,
+            string dbColumnName,
+            ValueType valueType,
+            IsNullable isNullable,
+            Visibility visibility = Visibility.Normal) => new Field
+            {
+                FieldType = FieldType.Column,
+                Entity = entity,
+                Name = name,
+                DbColumnName = dbColumnName,
+                ValueType = valueType,
+                IsNullable = isNullable,
+                Visibility = visibility
+            };
 
         /// <summary>
         /// Builds a field that uses custom SQL. Use this to create a GraphQL field that doesn't map
@@ -57,15 +67,21 @@ namespace GraphqlToTsql.Entities
         /// <code>(tableAlias) => $"SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName"</code>
         /// </example>
         /// </param>
-        public static Field CalculatedField(EntityBase entity, string name, ValueType valueType, IsNullable isNullable,
-            Func<string, string> templateFunc) => new Field
+        /// <param name="visibility">Mark the field as "Hidden" if you don't want to expose it to GraphQL queries</param>
+        public static Field CalculatedField(EntityBase entity,
+            string name,
+            ValueType valueType,
+            IsNullable isNullable,
+            Func<string, string> templateFunc,
+            Visibility visibility = Visibility.Normal) => new Field
             {
                 FieldType = FieldType.Column,
                 Entity = entity,
                 Name = name,
                 ValueType = valueType,
                 IsNullable = isNullable,
-                TemplateFunc = templateFunc
+                TemplateFunc = templateFunc,
+                Visibility = visibility
             };
 
         /// <summary>
@@ -75,14 +91,21 @@ namespace GraphqlToTsql.Entities
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="join">Join criteria between the parent and child entities</param>
         /// <param name="isNullable">Can the field be null? This setting is usually only used on the system types used for introspection.</param>
-        public static Field Row(EntityBase entity, string name, Join join, IsNullable isNullable = Entities.IsNullable.Yes) => new Field
-        {
-            FieldType = FieldType.Row,
-            Entity = entity,
-            Name = name,
-            Join = join,
-            IsNullable = isNullable
-        };
+        /// <param name="visibility">Mark the row as "Hidden" if you don't want to expose it to GraphQL queries</param>
+        public static Field Row(
+            EntityBase entity,
+            string name,
+            Join join,
+            IsNullable isNullable = Entities.IsNullable.Yes,
+            Visibility visibility = Visibility.Normal) => new Field
+            {
+                FieldType = FieldType.Row,
+                Entity = entity,
+                Name = name,
+                Join = join,
+                IsNullable = isNullable,
+                Visibility = visibility
+            };
 
         /// <summary>
         /// Builds a field for one-to-many set.
@@ -91,15 +114,23 @@ namespace GraphqlToTsql.Entities
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="join">Join criteria between the parent and child entities</param>
         /// <param name="isNonEmptyList">Can the list be empty?  This setting is usually only used on the system types used for introspection.</param>
-        public static Field Set(EntityBase entity, string name, IsNullable isNullable, Join join, ListCanBeEmpty? isNonEmptyList = null) => new Field
-        {
-            FieldType = FieldType.Set,
-            Entity = entity,
-            Name = name,
-            IsNullable = isNullable,
-            IsNonEmptyList = isNonEmptyList,
-            Join = join
-        };
+        /// <param name="visibility">Mark the set as "Hidden" if you don't want to expose it to GraphQL queries</param>
+        public static Field Set(
+            EntityBase entity,
+            string name,
+            IsNullable isNullable,
+            Join join,
+            ListCanBeEmpty? isNonEmptyList = null,
+            Visibility visibility = Visibility.Normal) => new Field
+            {
+                FieldType = FieldType.Set,
+                Entity = entity,
+                Name = name,
+                IsNullable = isNullable,
+                IsNonEmptyList = isNonEmptyList,
+                Join = join,
+                Visibility = visibility
+            };
 
         /// <summary>
         /// Builds a field for a child entity, where custom SQL is used to retrieve the child row.
@@ -108,14 +139,20 @@ namespace GraphqlToTsql.Entities
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child row</param>
         /// <param name="isNullable">Can the field be null? This setting is usually only used on the system types used for introspection.</param>
-        public static Field CalculatedRow(EntityBase entity, string name,
-            Func<string, string> templateFunc, IsNullable isNullable = Entities.IsNullable.Yes) => new Field
+        /// <param name="visibility">Mark the row as "Hidden" if you don't want to expose it to GraphQL queries</param>
+        public static Field CalculatedRow(
+            EntityBase entity,
+            string name,
+            Func<string, string> templateFunc,
+            IsNullable isNullable = Entities.IsNullable.Yes,
+            Visibility visibility = Visibility.Normal) => new Field
             {
                 FieldType = FieldType.Row,
                 Entity = entity,
                 Name = name,
                 TemplateFunc = templateFunc,
-                IsNullable = isNullable
+                IsNullable = isNullable,
+                Visibility = visibility
             };
 
         /// <summary>
@@ -125,15 +162,22 @@ namespace GraphqlToTsql.Entities
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child set</param>
         /// <param name="isNonEmptyList">Can the list be empty?  This setting is usually only used on the system types used for introspection.</param>
-        public static Field CalculatedSet(EntityBase entity, string name, IsNullable isNullable,
-            Func<string, string> templateFunc, ListCanBeEmpty? isNonEmptyList = null) => new Field
+        /// <param name="visibility">Mark the set as "Hidden" if you don't want to expose it to GraphQL queries</param>
+        public static Field CalculatedSet(
+            EntityBase entity,
+            string name,
+            IsNullable isNullable,
+            Func<string, string> templateFunc,
+            ListCanBeEmpty? isNonEmptyList = null,
+            Visibility visibility = Visibility.Normal) => new Field
             {
                 FieldType = FieldType.Set,
                 Entity = entity,
                 Name = name,
                 IsNullable = isNullable,
                 IsNonEmptyList = isNonEmptyList,
-                TemplateFunc = templateFunc
+                TemplateFunc = templateFunc,
+                Visibility = visibility
             };
 
         internal static Field Connection(Field setField) => new Field
@@ -141,7 +185,8 @@ namespace GraphqlToTsql.Entities
             FieldType = FieldType.Connection,
             Entity = new ConnectionEntity(setField),
             Name = $"{setField.Name}{Constants.CONNECTION}",
-            Join = setField.Join
+            Join = setField.Join,
+            Visibility = setField.Visibility
         };
 
         internal static Field TotalCount(Field setField) => new Field
@@ -151,7 +196,8 @@ namespace GraphqlToTsql.Entities
             Name = Constants.TOTAL_COUNT,
             ValueType = ValueType.Int,
             IsNullable = Entities.IsNullable.No,
-            Join = setField.Join
+            Join = setField.Join,
+            Visibility = setField.Visibility
         };
 
         internal static Field Edges(Field setField) => new Field
@@ -159,14 +205,17 @@ namespace GraphqlToTsql.Entities
             FieldType = FieldType.Edge,
             Entity = new EdgeEntity(setField),
             Name = Constants.EDGES,
-            Join = setField.Join
+            Join = setField.Join,
+            Visibility = setField.Visibility
         };
 
         internal static Field Node(Field setField) => new Field
         {
             FieldType = FieldType.Node,
             Entity = new NodeEntity(setField),
-            Name = Constants.NODE
+            Name = Constants.NODE,
+            Visibility = setField.Visibility
+
         };
 
         internal static Field Cursor(Field setField)
@@ -182,7 +231,8 @@ namespace GraphqlToTsql.Entities
                 ValueType = ValueType.String,
                 IsNullable = Entities.IsNullable.No,
                 MutatorFunc = CursorUtility.CreateCursor,
-                TemplateFunc = (tableAlias) => CursorUtility.TsqlCursorDataFunc(pk.ValueType, tableAlias, entity.DbTableName, pk.DbColumnName)
+                TemplateFunc = (tableAlias) => CursorUtility.TsqlCursorDataFunc(pk.ValueType, tableAlias, entity.DbTableName, pk.DbColumnName),
+                Visibility = setField.Visibility
             };
         }
 

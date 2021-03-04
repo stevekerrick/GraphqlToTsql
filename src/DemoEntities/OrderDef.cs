@@ -18,7 +18,7 @@ namespace DemoEntities
             return new List<Field>
             {
                 Field.Column(this, "id", "Id", ValueType.Int, IsNullable.No),
-                Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No),
+                Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No, Visibility.Hidden),
                 Field.Column(this, "date", "Date", ValueType.String, IsNullable.No),
                 Field.Column(this, "shipping", "Shipping", ValueType.Float, IsNullable.No),
 

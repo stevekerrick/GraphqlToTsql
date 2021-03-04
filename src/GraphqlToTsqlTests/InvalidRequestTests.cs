@@ -218,6 +218,14 @@ fragment frag on Seller { name }
             ParseShouldFail(graphql, graphqlParameters, "Invalid null value: Variable $name is not nullable");
         }
 
+        [Test]
+        public void HiddenFieldTest()
+        {
+            const string graphql = "{ sellerBadges { sellerName } }";
+
+            ParseShouldFail(graphql, null, "Unknown field: sellerBadge.sellerName");
+        }
+
         // The QueryBuilder is also exercised in the Parse step, and that's really where most of the errors are being found
         private void ParseShouldFail(
             string graphql,

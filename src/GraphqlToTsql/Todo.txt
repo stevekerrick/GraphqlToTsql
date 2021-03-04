@@ -1,5 +1,4 @@
-﻿* Mark field as "Private"
-
+﻿
 
 Validate nullability of values. See Value.cs:194
 Add a Timestamp column and test it

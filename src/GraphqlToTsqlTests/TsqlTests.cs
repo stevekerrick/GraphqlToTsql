@@ -258,7 +258,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void NonNullListTest()
         {
-            const string graphql = "{ seller (name: \"Zeus\") { name sellerBadges { badgeName } } }";
+            const string graphql = "{ seller (name: \"Zeus\") { name sellerBadges { dateAwarded } } }";
 
             var expectedSql = @"
 SELECT
@@ -271,7 +271,7 @@ SELECT
       -- seller.sellerBadges (t2)
     , ISNULL (JSON_QUERY ((
         SELECT
-          t2.[BadgeName] AS [badgeName]
+          t2.[DateAwarded] AS [dateAwarded]
         FROM [SellerBadge] t2
         WHERE t1.[Name] = t2.[SellerName]
         FOR JSON PATH, INCLUDE_NULL_VALUES)), '[]') AS [sellerBadges]
@@ -285,8 +285,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
-
-
 
         [Test]
         public void ComplicatedQueryTest()
@@ -426,7 +424,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void FirstOffsetCompositeKeyTest()
         {
-            const string graphql = "{ sellerBadges (offset: 10, first: 2) { badgeName } }";
+            const string graphql = "{ sellerBadges (offset: 10, first: 2) { dateAwarded } }";
 
             var expectedSql = @"
 SELECT
@@ -434,7 +432,7 @@ SELECT
   -- sellerBadges (t1)
   JSON_QUERY ((
     SELECT
-      t1.[BadgeName] AS [badgeName]
+      t1.[DateAwarded] AS [dateAwarded]
     FROM [SellerBadge] t1
     ORDER BY t1.[SellerName], t1.[BadgeName]
     OFFSET 10 ROWS
@@ -615,7 +613,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void FirstOffsetWithFilterTest()
         {
-            const string graphql = "{ sellers (offset: 10, first: 2, city: \"Kona\") { distributorName } }";
+            const string graphql = "{ sellers (offset: 10, first: 2, city: \"Kona\") { name } }";
 
             var expectedSql = @"
 SELECT
@@ -623,7 +621,7 @@ SELECT
   -- sellers (t1)
   JSON_QUERY ((
     SELECT
-      t1.[DistributorName] AS [distributorName]
+      t1.[Name] AS [name]
     FROM [Seller] t1
     WHERE t1.[City] = @city
     ORDER BY t1.[Name]
@@ -962,7 +960,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 {
   orders (first: 10) { id ... frag }
 }
-fragment frag on Order { sellerName date @include(if: false) shipping }
+fragment frag on Order { date @include(if: false) shipping }
 ".Trim();
 
             var expectedSql = @"
@@ -972,7 +970,6 @@ SELECT
   JSON_QUERY ((
     SELECT
       t1.[Id] AS [id]
-    , t1.[SellerName] AS [sellerName]
     , t1.[Shipping] AS [shipping]
     FROM [Order] t1
     ORDER BY t1.[Id]

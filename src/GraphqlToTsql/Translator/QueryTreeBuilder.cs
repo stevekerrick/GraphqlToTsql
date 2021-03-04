@@ -143,7 +143,7 @@ namespace GraphqlToTsql.Translator
             else
             {
                 field = _parent.Field.Entity.GetField(name);
-                if (field == null)
+                if (field == null || field.Visibility == Visibility.Hidden)
                 {
                     throw new InvalidRequestException($"Unknown field: {_parent.Field.Entity.Name}.{name}", context);
                 }

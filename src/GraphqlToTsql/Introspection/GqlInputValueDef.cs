@@ -25,11 +25,11 @@ namespace GraphqlToTsql.Introspection
         {
             return new List<Field>
             {
-                Field.Column(this, "parentTypeKey", "ParentTypeKey", ValueType.String, IsNullable.No),
-                Field.Column(this, "fieldName", "FieldName", ValueType.String, IsNullable.No),
+                Field.Column(this, "parentTypeKey", "ParentTypeKey", ValueType.String, IsNullable.No, Visibility.Hidden),
+                Field.Column(this, "fieldName", "FieldName", ValueType.String, IsNullable.No, Visibility.Hidden),
                 Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
                 Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
-                Field.Column(this, "typeKey", "TypeKey", ValueType.String, IsNullable.No),
+                Field.Column(this, "typeKey", "TypeKey", ValueType.String, IsNullable.No, Visibility.Hidden),
 
                 Field.Row(GqlTypeDef.Instance, "type", new Join(
                     () => this.GetField("typeKey"),

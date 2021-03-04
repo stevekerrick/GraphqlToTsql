@@ -29,8 +29,8 @@ GROUP BY o.SellerName, od.ProductName
         {
             return new List<Field>
             {
-                Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No),
-                Field.Column(this, "productName", "ProductName", ValueType.String, IsNullable.No),
+                Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No, Visibility.Hidden),
+                Field.Column(this, "productName", "ProductName", ValueType.String, IsNullable.No, Visibility.Hidden),
                 Field.Column(this, "totalQuantity", "TotalQuantity", ValueType.Int, IsNullable.No),
                 Field.Column(this, "totalAmount", "TotalAmount", ValueType.Float, IsNullable.No),
 
