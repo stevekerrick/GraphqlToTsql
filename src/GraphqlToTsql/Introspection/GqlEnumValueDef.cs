@@ -1,8 +1,7 @@
 ﻿using GraphqlToTsql.Entities;
-using GraphqlToTsql.Translator;
 using System;
 using System.Collections.Generic;
-using ValueType = GraphqlToTsql.Translator.ValueType;
+using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Introspection
 {

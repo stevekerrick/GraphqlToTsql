@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using ValueType = GraphqlToTsql.Translator.ValueType;
+using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsqlTests
 {

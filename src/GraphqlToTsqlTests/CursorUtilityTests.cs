@@ -3,7 +3,6 @@ using GraphqlToTsql.Translator;
 using GraphqlToTsql.Util;
 using NUnit.Framework;
 using System;
-using ValueType = GraphqlToTsql.Translator.ValueType;
 
 namespace GraphqlToTsqlTests
 {

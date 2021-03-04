@@ -2,6 +2,7 @@ using GraphqlToTsql.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Translator
 {

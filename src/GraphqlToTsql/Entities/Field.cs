@@ -1,8 +1,6 @@
-﻿using GraphqlToTsql.Translator;
-using GraphqlToTsql.Util;
+﻿using GraphqlToTsql.Util;
 using System;
 using System.Diagnostics;
-using ValueType = GraphqlToTsql.Translator.ValueType;
 
 namespace GraphqlToTsql.Entities
 {
@@ -77,7 +75,7 @@ namespace GraphqlToTsql.Entities
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="join">Join criteria between the parent and child entities</param>
         /// <param name="isNullable">Can the field be null? This setting is usually only used on the system types used for introspection.</param>
-        public static Field Row(EntityBase entity, string name, Join join, IsNullable isNullable = Translator.IsNullable.Yes) => new Field
+        public static Field Row(EntityBase entity, string name, Join join, IsNullable isNullable = Entities.IsNullable.Yes) => new Field
         {
             FieldType = FieldType.Row,
             Entity = entity,
@@ -111,7 +109,7 @@ namespace GraphqlToTsql.Entities
         /// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child row</param>
         /// <param name="isNullable">Can the field be null? This setting is usually only used on the system types used for introspection.</param>
         public static Field CalculatedRow(EntityBase entity, string name,
-            Func<string, string> templateFunc, IsNullable isNullable = Translator.IsNullable.Yes) => new Field
+            Func<string, string> templateFunc, IsNullable isNullable = Entities.IsNullable.Yes) => new Field
             {
                 FieldType = FieldType.Row,
                 Entity = entity,
@@ -152,7 +150,7 @@ namespace GraphqlToTsql.Entities
             Entity = setField.Entity,
             Name = Constants.TOTAL_COUNT,
             ValueType = ValueType.Int,
-            IsNullable = Translator.IsNullable.No,
+            IsNullable = Entities.IsNullable.No,
             Join = setField.Join
         };
 
@@ -182,7 +180,7 @@ namespace GraphqlToTsql.Entities
                 Entity = new NodeEntity(setField),
                 Name = Constants.CURSOR,
                 ValueType = ValueType.String,
-                IsNullable = Translator.IsNullable.No,
+                IsNullable = Entities.IsNullable.No,
                 MutatorFunc = CursorUtility.CreateCursor,
                 TemplateFunc = (tableAlias) => CursorUtility.TsqlCursorDataFunc(pk.ValueType, tableAlias, entity.DbTableName, pk.DbColumnName)
             };

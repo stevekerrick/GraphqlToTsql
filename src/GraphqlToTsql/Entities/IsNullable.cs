@@ -1,4 +1,4 @@
-﻿namespace GraphqlToTsql.Translator
+﻿namespace GraphqlToTsql.Entities
 {
     public enum IsNullable
     {

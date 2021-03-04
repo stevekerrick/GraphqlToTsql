@@ -1,7 +1,6 @@
 ﻿using GraphqlToTsql.Translator;
 using System;
-using System.Text;
-using ValueType = GraphqlToTsql.Translator.ValueType;
+using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Util
 {

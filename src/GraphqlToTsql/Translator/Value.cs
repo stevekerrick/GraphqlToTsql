@@ -1,5 +1,6 @@
 using GraphqlToTsql.CodeGen;
 using System;
+using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Translator
 {
