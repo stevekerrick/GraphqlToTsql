@@ -17,12 +17,12 @@ namespace GraphqlToTsqlTests
         public void NoMutationsNeededRetnamesOriginalDataJsonTest()
         {
             // Build up the term tree
-            var topTerm = Term.TopLevel();
+            var rootTerm = Term.RootTerm();
             var product = ProductDef.Instance;
 
             var productField = Field.Row(product, "product", null);
-            var productTerm = new Term(topTerm, productField, "product");
-            topTerm.Children.Add(productTerm);
+            var productTerm = new Term(rootTerm, productField, "product");
+            rootTerm.Children.Add(productTerm);
 
             var nameField = product.GetField("name");
             var nameTerm = new Term(productTerm, nameField, "name");
@@ -31,7 +31,7 @@ namespace GraphqlToTsqlTests
             // Act
             var dataJson = "{foo: 1}";
             var dataMutator = new DataMutator();
-            var mutatedJson = dataMutator.Mutate(dataJson, topTerm);
+            var mutatedJson = dataMutator.Mutate(dataJson, rootTerm);
 
             // The original DataJson object should have been retnameed
             Assert.AreSame(dataJson, mutatedJson);
@@ -50,12 +50,12 @@ namespace GraphqlToTsqlTests
             var cursor2 = CursorUtility.CreateCursor(cursorData2);
 
             // Build up the term tree
-            var topTerm = Term.TopLevel();
+            var rootTerm = Term.RootTerm();
             var seller = SellerDef.Instance;
 
             var sellerField = Field.Row(seller, "seller", null);
-            var sellerTerm = new Term(topTerm, sellerField, "seller");
-            topTerm.Children.Add(sellerTerm);
+            var sellerTerm = new Term(rootTerm, sellerField, "seller");
+            rootTerm.Children.Add(sellerTerm);
 
             var nameField = seller.GetField("name");
             var nameTerm = new Term(sellerTerm, nameField, "name");
@@ -119,7 +119,7 @@ namespace GraphqlToTsqlTests
 
             // Act
             var dataMutator = new DataMutator();
-            var mutatedJson = dataMutator.Mutate(startingDataJson, topTerm);
+            var mutatedJson = dataMutator.Mutate(startingDataJson, rootTerm);
 
             Assert.AreEqual(expectedDataJson, mutatedJson);
         }

@@ -3,7 +3,6 @@
 Validate nullability of values. See Value.cs:194
 Add a Timestamp column and test it
 Provide method to do DI registrations
-Rename top-level to root
 Support arrays
 
 

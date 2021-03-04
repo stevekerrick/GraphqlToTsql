@@ -7,7 +7,7 @@ namespace GraphqlToTsql.Translator
 {
     public interface IDataMutator
     {
-        string Mutate(string dataJson, Term topTerm);
+        string Mutate(string dataJson, Term rootTerm);
     }
 
     public class DataMutator : IDataMutator
@@ -17,18 +17,18 @@ namespace GraphqlToTsql.Translator
         /// Term structure from the parse.
         /// </summary>
         /// <returns>Updated DataJson</returns>
-        public string Mutate(string dataJson, Term topTerm)
+        public string Mutate(string dataJson, Term rootTerm)
         {
             // Walking and mutating the DataJson is kind of expensive,
             // so exit early if no mutations are needed
-            if (!QueryHasMutations(topTerm))
+            if (!QueryHasMutations(rootTerm))
             {
                 return dataJson;
             }
 
             // Walk the dataJson and do mutations
             var data = (JObject)JsonConvert.DeserializeObject(dataJson);
-            MutateObject(data, topTerm);
+            MutateObject(data, rootTerm);
 
             return JsonConvert.SerializeObject(data);
         }

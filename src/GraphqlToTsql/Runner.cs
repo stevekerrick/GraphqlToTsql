@@ -82,7 +82,7 @@ namespace GraphqlToTsql
             if (dbResult.DbError == null)
             {
                 sw.Restart();
-                dbResult.DataJson = _dataMutator.Mutate(dbResult.DataJson, parseResult.TopTerm);
+                dbResult.DataJson = _dataMutator.Mutate(dbResult.DataJson, parseResult.RootTerm);
                 mutationsElapsedTime = sw.ElapsedMilliseconds;
             }
 

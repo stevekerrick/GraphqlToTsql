@@ -14,13 +14,12 @@ namespace GraphqlToTsql.Entities
         private List<Field> _fields;
 
         /// <summary>
-        /// The name to use for the entity in GraphQL queries (singlular). This is mainly used for the top-level
-        /// query.
+        /// The name to use for the entity in GraphQL queries (singlular). This is mainly used for the root query.
         /// </summary>
         public abstract string Name { get; }
 
         /// <summary>
-        /// The plural name to use for the entity in GraphQL queries. This is mainly used for the top-level query.
+        /// The plural name to use for the entity in GraphQL queries. This is mainly used for the root query.
         /// </summary>
         public virtual string PluralName => $"{Name}s";
 

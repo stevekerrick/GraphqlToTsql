@@ -48,7 +48,7 @@ namespace GraphqlToTsql.Translator
         {
             _fragments = parseResult.Fragments;
 
-            ProcessDirectives(parseResult.TopTerm);
+            ProcessDirectives(parseResult.RootTerm);
             foreach (var fragmentTerm in _fragments.Values)
             {
                 ProcessDirectives(fragmentTerm);
@@ -62,13 +62,13 @@ namespace GraphqlToTsql.Translator
                 Emit("");
             }
 
-            BuildCommonTableExpressions(parseResult.TopTerm);
+            BuildCommonTableExpressions(parseResult.RootTerm);
             foreach (var fragmentTerm in _fragments.Values)
             {
                 BuildCommonTableExpressions(fragmentTerm);
             }
 
-            BuildSelectClause(parseResult.TopTerm);
+            BuildSelectClause(parseResult.RootTerm);
 
             Emit("");
             Emit($"{FOR_JSON}{UNWRAP_ITEM};");

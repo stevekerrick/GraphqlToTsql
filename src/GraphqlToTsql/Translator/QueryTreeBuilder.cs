@@ -32,7 +32,7 @@ namespace GraphqlToTsql.Translator
 
         private string _operationName;
         private Dictionary<string, Term> _fragments;
-        private Term _topTerm;
+        private Term _rootTerm;
 
         public QueryTreeBuilder()
         {
@@ -52,7 +52,7 @@ namespace GraphqlToTsql.Translator
             {
                 OperationName = _operationName,
                 Fragments = _fragments,
-                TopTerm = _topTerm
+                RootTerm = _rootTerm
             };
         }
 
@@ -97,8 +97,8 @@ namespace GraphqlToTsql.Translator
         {
             if (_parent == null)
             {
-                _parent = Term.TopLevel();
-                _topTerm = _parent;
+                _parent = Term.RootTerm();
+                _rootTerm = _parent;
             }
             else
             {
@@ -110,7 +110,7 @@ namespace GraphqlToTsql.Translator
 
         public void EndQuery()
         {
-            if (_parent.TermType != TermType.TopLevel)
+            if (_parent.TermType != TermType.Root)
             {
                 _term = _parent;
                 _parent = _term.Parent;
@@ -121,7 +121,7 @@ namespace GraphqlToTsql.Translator
         {
             var field = LookupType(type, context);
 
-            _parent = Term.TopLevel();
+            _parent = Term.RootTerm();
             _term = new Term(_parent, field, type);
             _parent.Children.Add(_term);
 
@@ -132,7 +132,7 @@ namespace GraphqlToTsql.Translator
         {
             Field field;
 
-            if (_parent.TermType == TermType.TopLevel)
+            if (_parent.TermType == TermType.Root)
             {
                 field = LookupEntity(name);
                 if (field == null)

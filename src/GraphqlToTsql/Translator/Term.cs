@@ -24,12 +24,12 @@ namespace GraphqlToTsql.Translator
             Arguments = new Arguments();
         }
 
-        public static Term TopLevel()
+        public static Term RootTerm()
         {
             return new Term
             {
                 Name = "query",
-                TermType = TermType.TopLevel,
+                TermType = TermType.Root,
             };
         }
 
@@ -118,7 +118,7 @@ namespace GraphqlToTsql.Translator
         {
             var path = Name;
             var parent = Parent;
-            while (parent.TermType != TermType.TopLevel)
+            while (parent.TermType != TermType.Root)
             {
                 path = parent.Name + "." + path;
                 parent = parent.Parent;
@@ -188,7 +188,7 @@ namespace GraphqlToTsql.Translator
 
     public enum TermType
     {
-        TopLevel,
+        Root,
         Scalar,
         Item,
         List,
