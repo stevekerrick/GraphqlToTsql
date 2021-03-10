@@ -13,12 +13,12 @@ namespace GraphqlToTsql.Translator
 
     public class Listener : GqlBaseListener, IListener
     {
-        private readonly QueryTreeBuilder _qt;
+        private readonly IQueryTreeBuilder _qt;
         private string _fragmentName;
 
-        public Listener()
+        public Listener(IQueryTreeBuilder queryTreeBuilder)
         {
-            _qt = new QueryTreeBuilder();
+            _qt = queryTreeBuilder;
         }
 
         public void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
@@ -115,7 +115,6 @@ namespace GraphqlToTsql.Translator
         {
             _qt.EndDirective();
         }
-
 
         // -------------------------------------
         // Fragment stuff

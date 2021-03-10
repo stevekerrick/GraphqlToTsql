@@ -1,12 +1,10 @@
-﻿using DemoEntities;
-using GraphqlToTsql;
+﻿using GraphqlToTsql;
 using GraphqlToTsql.Database;
 using GraphqlToTsql.Translator;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 
 namespace GraphqlToTsqlTests
 {
@@ -28,7 +26,7 @@ namespace GraphqlToTsqlTests
                 .AddTransient<IListener, Listener>()
                 .AddTransient<IParser, Parser>()
                 .AddTransient<IQueryTreeBuilder, QueryTreeBuilder>()
-                .AddTransient<IRunner, Runner>()
+                .AddTransient<IGraphqlActions, GraphqlActions>()
                 .AddTransient<ITsqlBuilder, TsqlBuilder>()
                 .AddTransient<IDataMutator, DataMutator>();
 

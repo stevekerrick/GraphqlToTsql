@@ -3,7 +3,6 @@ using GraphqlToTsql.Database;
 using GraphqlToTsql.Translator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,7 +30,7 @@ namespace DemoApp
                 .AddScoped<IConnectionStringProvider, DemoConnectionStringProvider>()
                 .AddScoped<IDataMutator, DataMutator>()
                 .AddScoped<IDbAccess, DbAccess>()
-                .AddScoped<IRunner, Runner>()
+                .AddScoped<IGraphqlActions, GraphqlActions>()
                 .AddScoped<IListener, Listener>()
                 .AddScoped<IParser, Parser>()
                 .AddScoped<IQueryTreeBuilder, QueryTreeBuilder>()

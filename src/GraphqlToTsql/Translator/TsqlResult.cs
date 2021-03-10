@@ -6,6 +6,6 @@ namespace GraphqlToTsql.Translator
     {
         public string Tsql { get; set; }
         public Dictionary<string, object> TsqlParameters { get; set; }
-        public string TsqlError { get; set; }
+        public string Error { get; set; }
     }
 }

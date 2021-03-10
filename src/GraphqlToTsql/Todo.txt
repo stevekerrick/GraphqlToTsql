@@ -1,9 +1,7 @@
 ﻿
 
-Validate nullability of values. See Value.cs:194
-Add a Timestamp column and test it
 Provide method to do DI registrations
-Support arrays
+Support arrays (where?)
 
 
 Documentation

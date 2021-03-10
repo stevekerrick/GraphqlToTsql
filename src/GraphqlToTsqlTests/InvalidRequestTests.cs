@@ -252,9 +252,9 @@ fragment frag on Seller { name }
 
             var tsqlBuilder = GetService<ITsqlBuilder>();
             var tsqlResult = tsqlBuilder.Build(parseResult);
-            Assert.IsNotNull(tsqlResult.TsqlError, "Expected TSQL generation to fail, but it succeeded");
-            Assert.IsTrue(tsqlResult.TsqlError.Contains(partialErrorMessage),
-                $"Unexpected error message. Expected [{partialErrorMessage}] but found [{tsqlResult.TsqlError}]");
+            Assert.IsNotNull(tsqlResult.Error, "Expected TSQL generation to fail, but it succeeded");
+            Assert.IsTrue(tsqlResult.Error.Contains(partialErrorMessage),
+                $"Unexpected error message. Expected [{partialErrorMessage}] but found [{tsqlResult.Error}]");
         }
     }
 }

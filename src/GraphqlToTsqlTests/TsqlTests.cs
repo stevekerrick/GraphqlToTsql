@@ -1135,7 +1135,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
             var tsqlBuilder = GetService<ITsqlBuilder>();
             var tsqlResult = tsqlBuilder.Build(parseResult);
-            Assert.IsNull(tsqlResult.TsqlError, $"TSQL generation failed: {tsqlResult.TsqlError}");
+            Assert.IsNull(tsqlResult.Error, $"TSQL generation failed: {tsqlResult.Error}");
 
             return tsqlResult;
         }

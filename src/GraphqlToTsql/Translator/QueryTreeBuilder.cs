@@ -10,16 +10,17 @@ namespace GraphqlToTsql.Translator
     {
         void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
         ParseResult GetResult();
-
-        void Argument(string name, string variableName, Context context);
-        void Argument(string name, Value value, Context context);
-        void BeginFragment(string name, string type, Context context);
+        void SetOperationName(string name);
+        void Variable(string name, string type, bool typeIsNullable, Value value, Context context);
         void BeginQuery();
         void EndQuery();
+        void BeginFragment(string name, string type, Context context);
         void Field(string alias, string name, Context context);
-        void SetOperationName(string name);
         void UseFragment(string name);
-        void Variable(string name, string type, bool typeIsNullable, Value value, Context context);
+        void BeginDirective(string name, Context context);
+        void EndDirective();
+        void Argument(string name, Value value, Context context);
+        void Argument(string name, string variableName, Context context);
     }
 
     public class QueryTreeBuilder : IQueryTreeBuilder
@@ -81,7 +82,7 @@ namespace GraphqlToTsql.Translator
             }
 
             // Make sure the value's type matches the declared type
-            var coercedValue = new Value(valueType, value, ()=> $"Variable value is the wrong type: ${name} is type {valueType}");
+            var coercedValue = new Value(valueType, value, () => $"Variable value is the wrong type: ${name} is type {valueType}");
 
             // Disallow null values on non-nullable Variables
             if (!typeIsNullable && coercedValue.ValueType == ValueType.Null)

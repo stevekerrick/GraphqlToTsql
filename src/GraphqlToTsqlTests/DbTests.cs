@@ -393,32 +393,32 @@ namespace GraphqlToTsqlTests
 
         private async Task CheckAsync(string graphql, Dictionary<string, object> graphqlParameters, object expectedObject)
         {
-            var runnerResult = await RunAsync(graphql, graphqlParameters);
+            var queryResult = await RunAsync(graphql, graphqlParameters);
 
-            var dataObj = JsonConvert.DeserializeObject(runnerResult.DataJson);
+            var dataObj = JsonConvert.DeserializeObject(queryResult.DataJson);
             var dataFormattedJson = JsonConvert.SerializeObject(dataObj, Formatting.Indented);
 
             var expectedFormattedJson = JsonConvert.SerializeObject(expectedObject, Formatting.Indented);
             Assert.AreEqual(expectedFormattedJson, dataFormattedJson, "Database response does not match expected");
         }
 
-        private async Task<RunnerResult> RunAsync(string graphql, Dictionary<string, object> graphqlParameters)
+        private async Task<QueryResult> RunAsync(string graphql, Dictionary<string, object> graphqlParameters)
         {
-            var runner = GetService<IRunner>();
-            var runnerResult = await runner.TranslateAndRun(graphql, graphqlParameters, DemoEntityList.All());
+            var graphqlActions = GetService<IGraphqlActions>();
+            var queryResult = await graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, DemoEntityList.All());
 
-            Assert.IsNull(runnerResult.ParseError, $"The parse failed: {runnerResult.ParseError}");
-            Console.WriteLine(runnerResult.Tsql);
-            Console.WriteLine(JsonConvert.SerializeObject(runnerResult.TsqlParameters, Formatting.Indented));
+            Assert.IsNull(queryResult.TranslationError, $"The parse failed: {queryResult.TranslationError}");
+            Console.WriteLine(queryResult.Tsql);
+            Console.WriteLine(JsonConvert.SerializeObject(queryResult.TsqlParameters, Formatting.Indented));
 
-            Assert.IsNull(runnerResult.DbError, $"The database query failed: {runnerResult.DbError}");
+            Assert.IsNull(queryResult.DbError, $"The database query failed: {queryResult.DbError}");
 
-            var dataObj = JsonConvert.DeserializeObject(runnerResult.DataJson);
+            var dataObj = JsonConvert.DeserializeObject(queryResult.DataJson);
             var dataFormattedJson = JsonConvert.SerializeObject(dataObj, Formatting.Indented);
             Console.WriteLine("");
             Console.WriteLine(dataFormattedJson);
 
-            return runnerResult;
+            return queryResult;
         }
     }
 }

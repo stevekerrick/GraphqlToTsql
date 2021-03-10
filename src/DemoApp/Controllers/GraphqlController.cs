@@ -11,12 +11,12 @@ namespace DemoApp.Controllers
     [ApiController]
     public class GraphqlController : ControllerBase
     {
-        private readonly IRunner _runner;
+        private readonly IGraphqlActions _graphqlActions;
 
         public GraphqlController(
-            IRunner runner)
+            IGraphqlActions graphqlActions)
         {
-            _runner = runner;
+            _graphqlActions = graphqlActions;
         }
 
         [HttpPost]
@@ -48,20 +48,20 @@ namespace DemoApp.Controllers
                 ? null
                 : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.Variables);
 
-            var runnerResult = await _runner.TranslateAndRun(graphql, graphqlParameters, DemoEntityList.All());
+            var queryResult = await _graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, DemoEntityList.All());
 
             var errors =
-                runnerResult.ParseError != null ? new[] { runnerResult.ParseError }
-                : runnerResult.DbError != null ? new[] { runnerResult.DbError }
+                queryResult.TranslationError != null ? new[] { queryResult.TranslationError }
+                : queryResult.DbError != null ? new[] { queryResult.DbError }
                 : null;
 
             return new QueryResponse
             {
-                Data = Deserialize(runnerResult.DataJson),
+                Data = Deserialize(queryResult.DataJson),
                 Errors = errors,
-                Tsql = runnerResult.Tsql,
-                TsqlParameters = runnerResult.TsqlParameters,
-                Statistics = runnerResult.Statistics
+                Tsql = queryResult.Tsql,
+                TsqlParameters = queryResult.TsqlParameters,
+                Statistics = queryResult.Statistics
             };
         }
 

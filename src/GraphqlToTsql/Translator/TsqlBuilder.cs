@@ -39,7 +39,7 @@ namespace GraphqlToTsql.Translator
             {
                 return new TsqlResult
                 {
-                    TsqlError = e.Message
+                    Error = e.Message
                 };
             }
         }
