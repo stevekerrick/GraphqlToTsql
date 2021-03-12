@@ -1,6 +1,7 @@
 ﻿using DemoEntities;
 using GraphqlToTsql;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,11 +12,14 @@ namespace DemoApp.Controllers
     [ApiController]
     public class GraphqlController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly IGraphqlActions _graphqlActions;
 
         public GraphqlController(
+            IConfiguration configuration,
             IGraphqlActions graphqlActions)
         {
+            _configuration = configuration; ;
             _graphqlActions = graphqlActions;
         }
 
@@ -48,7 +52,14 @@ namespace DemoApp.Controllers
                 ? null
                 : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.Variables);
 
-            var queryResult = await _graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, DemoEntityList.All());
+            var settings = new GraphqlActionSettings
+            {
+                AllowIntrospection = true,
+                EntityList = DemoEntityList.All(),
+                ConnectionString = _configuration["ConnectionString"]
+            };
+
+            var queryResult = await _graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, settings);
 
             var errors =
                 queryResult.TranslationError != null ? new[] { queryResult.TranslationError }

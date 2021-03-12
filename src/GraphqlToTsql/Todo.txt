@@ -1,7 +1,8 @@
 ﻿
 
-Provide method to do DI registrations
+Error codes
 Support arrays (where?)
+Fix IntrospectionData
 
 
 Documentation

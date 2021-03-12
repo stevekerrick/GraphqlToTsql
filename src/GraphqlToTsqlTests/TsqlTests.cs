@@ -1,4 +1,5 @@
 ﻿using DemoEntities;
+using GraphqlToTsql;
 using GraphqlToTsql.Entities;
 using GraphqlToTsql.Introspection;
 using GraphqlToTsql.Translator;

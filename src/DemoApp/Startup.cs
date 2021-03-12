@@ -27,14 +27,7 @@ namespace DemoApp
                 .AddNewtonsoftJson();
 
             services
-                .AddScoped<IConnectionStringProvider, DemoConnectionStringProvider>()
-                .AddScoped<IDataMutator, DataMutator>()
-                .AddScoped<IDbAccess, DbAccess>()
-                .AddScoped<IGraphqlActions, GraphqlActions>()
-                .AddScoped<IListener, Listener>()
-                .AddScoped<IParser, Parser>()
-                .AddScoped<IQueryTreeBuilder, QueryTreeBuilder>()
-                .AddScoped<ITsqlBuilder, TsqlBuilder>();
+                .AddScoped<IGraphqlActions, GraphqlActions>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

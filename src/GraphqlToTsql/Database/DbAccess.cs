@@ -25,10 +25,9 @@ namespace GraphqlToTsql.Database
     {
         private readonly string _connectionString;
 
-        public DbAccess(
-            IConnectionStringProvider connectionStringProvider)
+        public DbAccess(string connectionString)
         {
-            _connectionString = connectionStringProvider.Get();
+            _connectionString = connectionString;
         }
 
         public async Task<DbResult> QueryAsync(

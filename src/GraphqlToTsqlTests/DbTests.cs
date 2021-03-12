@@ -405,7 +405,14 @@ namespace GraphqlToTsqlTests
         private async Task<QueryResult> RunAsync(string graphql, Dictionary<string, object> graphqlParameters)
         {
             var graphqlActions = GetService<IGraphqlActions>();
-            var queryResult = await graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, DemoEntityList.All());
+
+            var settings = new GraphqlActionSettings
+            {
+                AllowIntrospection = true,
+                EntityList = DemoEntityList.All(),
+                ConnectionString = GetConnectionString()
+            };
+            var queryResult = await graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, settings);
 
             Assert.IsNull(queryResult.TranslationError, $"The parse failed: {queryResult.TranslationError}");
             Console.WriteLine(queryResult.Tsql);

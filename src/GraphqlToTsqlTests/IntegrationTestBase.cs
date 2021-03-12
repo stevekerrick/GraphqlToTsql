@@ -21,7 +21,6 @@ namespace GraphqlToTsqlTests
 
             serviceCollection
                 .AddSingleton((IConfiguration)configuration)
-                .AddTransient<IConnectionStringProvider, TestConnectionStringProvider>()
                 .AddTransient<IDbAccess, DbAccess>()
                 .AddTransient<IListener, Listener>()
                 .AddTransient<IParser, Parser>()
@@ -36,6 +35,12 @@ namespace GraphqlToTsqlTests
         protected T GetService<T>()
         {
             return _services.GetService<T>();
+        }
+
+        protected string GetConnectionString()
+        {
+            var configuration = GetService<IConfiguration>();
+            return configuration["ConnectionString"];
         }
 
         private IConfigurationRoot GetIConfigurationRoot(string outputPath)
