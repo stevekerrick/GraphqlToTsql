@@ -43,11 +43,9 @@ namespace GraphqlToTsql.Entities
         /// <summary>
         /// Sometimes you want to map a GraphQL entity to a SQL SELECT statement rather than an actual
         /// database table. To do that, put your SELECT statement here.
-        /// When you use this entity in one of your queries, GraphqlToTsqpl puts uses your SELECT as a
+        /// When you use this entity in one of your queries, GraphqlToTsql uses your SELECT statement as a
         /// Common Table Expression, so regular CTE limitations apply (e.g. you aren't allowed to
         /// use an ORDER BY clause).
-        /// 
-        /// When using SqlDefinition, set DbTableName to the name for the CTE.
         /// </summary>
         public virtual string SqlDefinition { get; }
 
