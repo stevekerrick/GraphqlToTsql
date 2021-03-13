@@ -4,7 +4,7 @@ using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Util
 {
-    public static class CursorUtility
+    internal static class CursorUtility
     {
         /// <summary>
         /// Func that generates a TSQL expression for the "decodedCursor".
@@ -98,7 +98,7 @@ namespace GraphqlToTsql.Util
         }
     }
 
-    public class CursorData
+    internal class CursorData
     {
         public string DbTableName { get; set; }
         public Value Value { get; set; }

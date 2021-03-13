@@ -12,7 +12,7 @@ namespace GraphqlToTsql.Introspection
     //  deprecationReason: String
     //}
 
-    public class GqlEnumValueDef : EntityBase
+    internal class GqlEnumValueDef : EntityBase
     {
         public static GqlEnumValueDef Instance = new GqlEnumValueDef();
 

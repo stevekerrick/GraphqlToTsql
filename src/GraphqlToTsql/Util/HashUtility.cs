@@ -5,7 +5,7 @@ namespace GraphqlToTsql.Util
     /// <summary>
     /// Create short hash of a string.
     /// </summary>
-    public static class HashUtility
+    internal static class HashUtility
     {
         public static string Hash(string str)
         {

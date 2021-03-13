@@ -1,10 +1,9 @@
 ﻿using Antlr4.Runtime;
-using GraphqlToTsql.Translator;
 using System;
 
 namespace GraphqlToTsql.Translator
 {
-    public class InvalidRequestException : Exception
+    internal class InvalidRequestException : Exception
     {
         public InvalidRequestException(string message) : base(message)
         {

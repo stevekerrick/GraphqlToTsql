@@ -10,7 +10,7 @@ namespace GraphqlToTsql.Database
     /// <summary>
     /// Execute a SQL query
     /// </summary>
-    public interface IDbAccess
+    internal interface IDbAccess
     {
         /// <summary>
         /// Perform the database query
@@ -21,7 +21,7 @@ namespace GraphqlToTsql.Database
         Task<DbResult> QueryAsync(string tsql, Dictionary<string, object> tsqlParameters);
     }
 
-    public class DbAccess : IDbAccess
+    internal class DbAccess : IDbAccess
     {
         private readonly string _connectionString;
 

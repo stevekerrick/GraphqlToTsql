@@ -1,6 +1,6 @@
 namespace GraphqlToTsql.Translator
 {
-    public class AliasSequence
+    internal class AliasSequence
     {
         private int _seq;
 

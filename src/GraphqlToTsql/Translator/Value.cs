@@ -4,7 +4,7 @@ using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Translator
 {
-    public class Value
+    internal class Value
     {
         public string VariableName { get; set; }
         public ValueType ValueType { get; }

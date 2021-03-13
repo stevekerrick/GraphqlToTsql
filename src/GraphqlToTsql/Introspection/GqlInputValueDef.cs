@@ -12,7 +12,7 @@ namespace GraphqlToTsql.Introspection
     //  defaultValue: String
     //}
 
-    public class GqlInputValueDef : EntityBase
+    internal class GqlInputValueDef : EntityBase
     {
         public static GqlInputValueDef Instance = new GqlInputValueDef();
 

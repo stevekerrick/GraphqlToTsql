@@ -12,7 +12,7 @@ namespace GraphqlToTsql.Introspection
     //  args: [__InputValue!]!
     //}
 
-    public class GqlDirectiveDef : EntityBase
+    internal class GqlDirectiveDef : EntityBase
     {
         public static GqlDirectiveDef Instance = new GqlDirectiveDef();
 

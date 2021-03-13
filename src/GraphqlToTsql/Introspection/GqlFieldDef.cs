@@ -14,7 +14,7 @@ namespace GraphqlToTsql.Introspection
     //  deprecationReason: String
     //}
 
-    public class GqlFieldDef : EntityBase
+    internal class GqlFieldDef : EntityBase
     {
         public static GqlFieldDef Instance = new GqlFieldDef();
 

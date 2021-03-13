@@ -6,7 +6,7 @@ using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Translator
 {
-    public interface IQueryTreeBuilder
+    internal interface IQueryTreeBuilder
     {
         void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
         ParseResult GetResult();
@@ -23,7 +23,7 @@ namespace GraphqlToTsql.Translator
         void Argument(string name, string variableName, Context context);
     }
 
-    public class QueryTreeBuilder : IQueryTreeBuilder
+    internal class QueryTreeBuilder : IQueryTreeBuilder
     {
         private Dictionary<string, object> _graphqlParameters;
         private List<EntityBase> _entityList;

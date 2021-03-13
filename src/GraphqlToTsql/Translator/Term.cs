@@ -7,7 +7,7 @@ using System.Linq;
 namespace GraphqlToTsql.Translator
 {
     [DebuggerDisplay("{Name,nq}")]
-    public class Term
+    internal class Term
     {
         public Term Parent { get; private set; }
         public List<Term> Children { get; private set; }

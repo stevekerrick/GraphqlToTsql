@@ -29,7 +29,7 @@ namespace GraphqlToTsql.Introspection
     //  ofType: __Type
     //}
 
-    public class GqlTypeDef : EntityBase
+    internal class GqlTypeDef : EntityBase
     {
         public static GqlTypeDef Instance = new GqlTypeDef();
 

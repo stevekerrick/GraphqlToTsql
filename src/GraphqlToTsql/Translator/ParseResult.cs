@@ -2,7 +2,7 @@
 
 namespace GraphqlToTsql.Translator
 {
-    public class ParseResult
+    internal class ParseResult
     {
         public string OperationName { get; set; }
         public Dictionary<string, Term> Fragments { get; set; }

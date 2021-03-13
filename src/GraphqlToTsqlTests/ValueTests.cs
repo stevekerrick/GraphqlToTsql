@@ -76,8 +76,9 @@ namespace GraphqlToTsqlTests
         #region ValueType + Value constructor tests
 
         [TestCaseSource(nameof(ValueTypePlusValueTestCases))]
-        public void ValueTypePlusValueTest(ValueType valueType, Value value, ValueType expectedValueType, object expectedRawValue)
+        public void ValueTypePlusValueTest(ValueType valueType, object rawValue, ValueType expectedValueType, object expectedRawValue)
         {
+            var value = new Value(rawValue);
             var actualValue = new Value(valueType, value, () => "unexpected error");
 
             Assert.AreEqual(expectedValueType, actualValue.ValueType);
@@ -89,23 +90,20 @@ namespace GraphqlToTsqlTests
             get
             {
                 // Case 1: Either type is null
-                yield return new TestCaseData(ValueType.Int, new Value(null), ValueType.Null, null);
-                yield return new TestCaseData(ValueType.Null, new Value(100), ValueType.Int, 100L);
+                yield return new TestCaseData(ValueType.Int, null, ValueType.Null, null);
+                yield return new TestCaseData(ValueType.Null, 100, ValueType.Int, 100L);
 
                 // Case 2: Type matches expected
-                yield return new TestCaseData(ValueType.Int, new Value(200), ValueType.Int, 200L);
-                yield return new TestCaseData(ValueType.Float, new Value(300.1), ValueType.Float, 300.1M);
-                yield return new TestCaseData(ValueType.String, new Value("beta"), ValueType.String, "beta");
-                yield return new TestCaseData(ValueType.Boolean, new Value(true), ValueType.Boolean, true);
+                yield return new TestCaseData(ValueType.Int, 200, ValueType.Int, 200L);
+                yield return new TestCaseData(ValueType.Float, 300.1, ValueType.Float, 300.1M);
+                yield return new TestCaseData(ValueType.String, "beta", ValueType.String, "beta");
+                yield return new TestCaseData(ValueType.Boolean, true, ValueType.Boolean, true);
 
                 // Case 3: Int can auto-promote to Float
-                yield return new TestCaseData(ValueType.Float, new Value(400), ValueType.Float, 400M);
+                yield return new TestCaseData(ValueType.Float, 400, ValueType.Float, 400M);
             }
         }
 
         #endregion
-
-
-
     }
 }

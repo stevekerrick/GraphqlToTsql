@@ -8,12 +8,12 @@ using System.Text;
 
 namespace GraphqlToTsql.Translator
 {
-    public interface ITsqlBuilder
+    internal interface ITsqlBuilder
     {
         TsqlResult Build(ParseResult parseResult);
     }
 
-    public class TsqlBuilder : ITsqlBuilder
+    internal class TsqlBuilder : ITsqlBuilder
     {
         private List<EntityBase> _entityList;
         private readonly StringBuilder _sb;

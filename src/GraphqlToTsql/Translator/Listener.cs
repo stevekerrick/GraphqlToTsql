@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace GraphqlToTsql.Translator
 {
-    public interface IListener : IParseTreeListener
+    internal interface IListener : IParseTreeListener
     {
         void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
         ParseResult GetResult();
     }
 
-    public class Listener : GqlBaseListener, IListener
+    internal class Listener : GqlBaseListener, IListener
     {
         private readonly IQueryTreeBuilder _qt;
         private string _fragmentName;

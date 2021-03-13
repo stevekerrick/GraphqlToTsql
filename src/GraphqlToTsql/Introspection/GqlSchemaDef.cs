@@ -13,7 +13,7 @@ namespace GraphqlToTsql.Introspection
     //  directives: [__Directive!]!
     //}
 
-    public class GqlSchemaDef : EntityBase
+    internal class GqlSchemaDef : EntityBase
     {
         public static GqlSchemaDef Instance = new GqlSchemaDef();
 

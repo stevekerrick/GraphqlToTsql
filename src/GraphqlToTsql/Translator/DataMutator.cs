@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace GraphqlToTsql.Translator
 {
-    public interface IDataMutator
+    internal interface IDataMutator
     {
         string Mutate(string dataJson, Term rootTerm);
     }
 
-    public class DataMutator : IDataMutator
+    internal class DataMutator : IDataMutator
     {
         /// <summary>
         /// Go through the DataJson, and replace values according to the

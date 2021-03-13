@@ -37,7 +37,7 @@ namespace GraphqlToTsqlTests
             return _services.GetService<T>();
         }
 
-        protected static ITsqlBuilder GetTsqlBuilder(List<EntityBase> allEntities)
+        internal static ITsqlBuilder GetTsqlBuilder(List<EntityBase> allEntities)
         {
             var tsqlBuilder = new TsqlBuilder(allEntities);
             return tsqlBuilder;

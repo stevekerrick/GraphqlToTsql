@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace GraphqlToTsql.Translator
 {
-    public class Arguments
+    internal class Arguments
     {
         public long? First { get; set; }
         public long? Offset { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace GraphqlToTsql.Database
 {
-    public class DbResult
+    internal class DbResult
     {
         public string DataJson { get; set; }
         public string DbError { get; set; }

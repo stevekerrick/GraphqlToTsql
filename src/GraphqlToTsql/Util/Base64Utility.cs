@@ -3,7 +3,7 @@ using System.Text;
 
 namespace GraphqlToTsql.Util
 {
-    public static class Base64Utility
+    internal static class Base64Utility
     {
         public static string Encode(string s)
         {
