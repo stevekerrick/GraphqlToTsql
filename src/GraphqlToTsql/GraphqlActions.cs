@@ -57,16 +57,8 @@ namespace GraphqlToTsql
                 return new TsqlResult { Error = parseResult.ParseError };
             }
 
-            // Build the data structures needed for Introspection.
-            // TODO: Only do this if the query actually uses Introspection
-            // TODO: Bug: using different EntityLists would cause problems
-            if (settings.AllowIntrospection)
-            {
-                IntrospectionData.Initialize(allEntities);
-            }
-
             // Create TSQL
-            var tsqlBuilder = GetTsqlBuilder();
+            var tsqlBuilder = GetTsqlBuilder(allEntities);
             var tsqlResult = tsqlBuilder.Build(parseResult);
             return tsqlResult;
         }
@@ -92,17 +84,9 @@ namespace GraphqlToTsql
             }
             var parseElapsedTime = sw.ElapsedMilliseconds;
 
-            // Build the data structures needed for Introspection.
-            // TODO: Only do this if the query actually uses Introspection
-            // TODO: Bug: using different EntityLists would cause problems
-            if (settings.AllowIntrospection)
-            {
-                IntrospectionData.Initialize(allEntities);
-            }
-
             // Create TSQL
             sw.Restart();
-            var tsqlBuilder = GetTsqlBuilder();
+            var tsqlBuilder = GetTsqlBuilder(allEntities);
             var tsqlResult = tsqlBuilder.Build(parseResult);
             if (tsqlResult.Error != null)
             {
@@ -186,9 +170,9 @@ namespace GraphqlToTsql
             return parser;
         }
 
-        private static ITsqlBuilder GetTsqlBuilder()
+        private static ITsqlBuilder GetTsqlBuilder(List<EntityBase> allEntities)
         {
-            var tsqlBuilder = new TsqlBuilder();
+            var tsqlBuilder = new TsqlBuilder(allEntities);
             return tsqlBuilder;
         }
 

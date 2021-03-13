@@ -1,10 +1,12 @@
 ﻿using GraphqlToTsql;
 using GraphqlToTsql.Database;
+using GraphqlToTsql.Entities;
 using GraphqlToTsql.Translator;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 
 namespace GraphqlToTsqlTests
 {
@@ -21,12 +23,10 @@ namespace GraphqlToTsqlTests
 
             serviceCollection
                 .AddSingleton((IConfiguration)configuration)
-                .AddTransient<IDbAccess, DbAccess>()
                 .AddTransient<IListener, Listener>()
                 .AddTransient<IParser, Parser>()
                 .AddTransient<IQueryTreeBuilder, QueryTreeBuilder>()
                 .AddTransient<IGraphqlActions, GraphqlActions>()
-                .AddTransient<ITsqlBuilder, TsqlBuilder>()
                 .AddTransient<IDataMutator, DataMutator>();
 
             _services = serviceCollection.BuildServiceProvider();
@@ -35,6 +35,12 @@ namespace GraphqlToTsqlTests
         protected T GetService<T>()
         {
             return _services.GetService<T>();
+        }
+
+        protected static ITsqlBuilder GetTsqlBuilder(List<EntityBase> allEntities)
+        {
+            var tsqlBuilder = new TsqlBuilder(allEntities);
+            return tsqlBuilder;
         }
 
         protected string GetConnectionString()

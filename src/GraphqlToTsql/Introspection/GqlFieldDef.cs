@@ -46,7 +46,5 @@ namespace GraphqlToTsql.Introspection
                 Field.Column(this, "deprecationReason", "DeprecationReason", ValueType.String, IsNullable.Yes)
             };
         }
-
-        public override string SqlDefinition => IntrospectionData.GetFieldsSql();
     }
 }

@@ -246,11 +246,13 @@ fragment frag on Seller { name }
             Dictionary<string, object> graphqlParameters,
             string partialErrorMessage)
         {
+            var allEntities = DemoEntityList.All();
+
             var parser = GetService<IParser>();
-            var parseResult = parser.ParseGraphql(graphql, graphqlParameters, DemoEntityList.All());
+            var parseResult = parser.ParseGraphql(graphql, graphqlParameters, allEntities);
             Assert.IsNull(parseResult.ParseError, $"Parse failed: {parseResult.ParseError}");
 
-            var tsqlBuilder = GetService<ITsqlBuilder>();
+            var tsqlBuilder = GetTsqlBuilder(allEntities);
             var tsqlResult = tsqlBuilder.Build(parseResult);
             Assert.IsNotNull(tsqlResult.Error, "Expected TSQL generation to fail, but it succeeded");
             Assert.IsTrue(tsqlResult.Error.Contains(partialErrorMessage),

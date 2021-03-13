@@ -1,16 +1,17 @@
 ﻿using GraphqlToTsql.Entities;
-using GraphqlToTsql.Translator;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Introspection
 {
-    internal static class IntrospectionData
+    internal class IntrospectionData
     {
-        private static List<GqlType> Types { get; set; }
-        private static List<GqlDirective> Directives { get; set; }
+        private List<GqlType> Types { get; set; }
+        private List<GqlDirective> Directives { get; set; }
 
         #region Build data structures for type system
 
@@ -18,7 +19,7 @@ namespace GraphqlToTsql.Introspection
         /// Construct introspection type data
         /// </summary>
         /// <param name="entityList">List of entities INCLUDING the Gql entities</param>
-        public static void Initialize(List<EntityBase> entityList)
+        public IntrospectionData(List<EntityBase> entityList)
         {
             Types = new List<GqlType>();
 
@@ -33,7 +34,7 @@ namespace GraphqlToTsql.Introspection
             BuildDirectives();
         }
 
-        private static void BuildScalarTypes()
+        private void BuildScalarTypes()
         {
             BuildScalarType(ValueType.String.ToString(), "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.");
             BuildScalarType(ValueType.Int.ToString(), "The `Int` scalar type represents non-fractional signed whole numeric values.");
@@ -43,13 +44,13 @@ namespace GraphqlToTsql.Introspection
             BuildScalarType("Upload", "The `Upload` scalar type represents a file upload.");
         }
 
-        private static void BuildScalarType(string name, string description)
+        private void BuildScalarType(string name, string description)
         {
             var type = GqlType.Scalar(name, description);
             Types.Add(type);
         }
 
-        private static void BuildEntityTypes(List<EntityBase> entityList)
+        private void BuildEntityTypes(List<EntityBase> entityList)
         {
             foreach (var entity in entityList)
             {
@@ -57,7 +58,7 @@ namespace GraphqlToTsql.Introspection
             }
         }
 
-        private static GqlType EntityType(EntityBase entity)
+        private GqlType EntityType(EntityBase entity)
         {
             // If this type has already been built (or at least initialized) return it
             var key = entity.EntityType;
@@ -102,7 +103,7 @@ namespace GraphqlToTsql.Introspection
             return type;
         }
 
-        private static GqlField ScalarField(Field field)
+        private GqlField ScalarField(Field field)
         {
             var baseType = GetType(field.ValueType.ToString());
 
@@ -113,7 +114,7 @@ namespace GraphqlToTsql.Introspection
             return new GqlField(field.Name, type);
         }
 
-        private static GqlField RowField(Field field)
+        private GqlField RowField(Field field)
         {
             var type = EntityType(field.Entity);
 
@@ -125,7 +126,7 @@ namespace GraphqlToTsql.Introspection
             return new GqlField(field.Name, type);
         }
 
-        private static GqlField SetField(Field field)
+        private GqlField SetField(Field field)
         {
             var type = EntityType(field.Entity);
 
@@ -144,19 +145,19 @@ namespace GraphqlToTsql.Introspection
             return new GqlField(field.Name, type);
         }
 
-        private static GqlType NonNullableType(GqlType baseType)
+        private GqlType NonNullableType(GqlType baseType)
         {
             var type = GqlType.NonNullable(baseType);
             return LookupOrRegister(type);
         }
 
-        private static GqlType SetType(GqlType baseType)
+        private GqlType SetType(GqlType baseType)
         {
             var type = GqlType.List(baseType);
             return LookupOrRegister(type);
         }
 
-        private static void BuildEnums()
+        private void BuildEnums()
         {
             // __TypeKind enum
             var typeKindEnum = GqlType.Enum("__TypeKind",
@@ -175,7 +176,7 @@ namespace GraphqlToTsql.Introspection
             Types.Add(cacheControlScopeEnum);
         }
 
-        private static void BuildQueryTypes(List<EntityBase> entityList)
+        private void BuildQueryTypes(List<EntityBase> entityList)
         {
             var queryType = GqlType.Object("Query");
             Types.Add(queryType);
@@ -192,7 +193,7 @@ namespace GraphqlToTsql.Introspection
             }
         }
 
-        private static void BuildDirectives()
+        private void BuildDirectives()
         {
             var boolType = GetType("Boolean");
 
@@ -213,7 +214,7 @@ namespace GraphqlToTsql.Introspection
             });
         }
 
-        private static GqlType LookupOrRegister(GqlType type)
+        private GqlType LookupOrRegister(GqlType type)
         {
             if (IsTypeRegistered(type.Key))
             {
@@ -224,12 +225,12 @@ namespace GraphqlToTsql.Introspection
             return type;
         }
 
-        private static bool IsTypeRegistered(string key)
+        private bool IsTypeRegistered(string key)
         {
             return Types.Any(_ => _.Key == key);
         }
 
-        private static GqlType GetType(string key)
+        private GqlType GetType(string key)
         {
             return Types.Single(t => t.Key == key);
         }
@@ -238,7 +239,33 @@ namespace GraphqlToTsql.Introspection
 
         #region SQL generation
 
-        public static string GetTypesSql()
+        public string GetCteSql(string name)
+        {
+            if (name == GqlTypeDef.Instance.Name)
+            {
+                return GetTypesSql();
+            }
+            if (name == GqlFieldDef.Instance.Name)
+            {
+                return GetFieldsSql();
+            }
+            if (name == GqlEnumValueDef.Instance.Name)
+            {
+                return GetEnumValuesSql();
+            }
+            if (name == GqlDirectiveDef.Instance.Name)
+            {
+                return GetDirectivesSql();
+            }
+            if (name == GqlInputValueDef.Instance.Name)
+            {
+                return GetInputValuesSql();
+            }
+
+            throw new Exception($"Unsupported Introspection type: {name}");
+        }
+ 
+        private string GetTypesSql()
         {
             var sb = new StringBuilder(1024);
             var isFirstRow = true;
@@ -251,7 +278,7 @@ namespace GraphqlToTsql.Introspection
             return sb.ToString().Trim();
         }
 
-        public static string GetFieldsSql()
+        private string GetFieldsSql()
         {
             var sb = new StringBuilder(1024);
             var isFirstRow = true;
@@ -270,7 +297,7 @@ namespace GraphqlToTsql.Introspection
             return sb.ToString().Trim();
         }
 
-        public static string GetEnumValuesSql()
+        private string GetEnumValuesSql()
         {
             var sb = new StringBuilder(1024);
             var isFirstRow = true;
@@ -282,7 +309,7 @@ namespace GraphqlToTsql.Introspection
             return sb.ToString().Trim();
         }
 
-        public static string GetDirectivesSql()
+        private string GetDirectivesSql()
         {
             var sb = new StringBuilder(1024);
             var isFirstRow = true;
@@ -297,7 +324,7 @@ namespace GraphqlToTsql.Introspection
             return sb.ToString().Trim();
         }
 
-        public static string GetInputValuesSql()
+        private string GetInputValuesSql()
         {
             var sb = new StringBuilder(1024);
             var isFirstRow = true;
@@ -361,7 +388,7 @@ namespace GraphqlToTsql.Introspection
             return type;
         }
 
-        private static void EnumValuesForOneType(string enumTypeKey, StringBuilder sb, ref bool isFirstRow)
+        private void EnumValuesForOneType(string enumTypeKey, StringBuilder sb, ref bool isFirstRow)
         {
             var enumType = GetType(enumTypeKey);
 
@@ -372,7 +399,7 @@ namespace GraphqlToTsql.Introspection
             }
         }
 
-        private static void AppendTypeRow(StringBuilder sb, bool isFirstRow, GqlType type)
+        private void AppendTypeRow(StringBuilder sb, bool isFirstRow, GqlType type)
         {
             sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");
             AppendColumn(sb, isFirstRow, true, "[Key]", type.Key);
@@ -383,7 +410,7 @@ namespace GraphqlToTsql.Introspection
             sb.AppendLine();
         }
 
-        private static void AppendFieldRow(StringBuilder sb, bool isFirstRow, string parentTypeKey, GqlField field)
+        private void AppendFieldRow(StringBuilder sb, bool isFirstRow, string parentTypeKey, GqlField field)
         {
             sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");
             AppendColumn(sb, isFirstRow, true, "ParentTypeKey", parentTypeKey);
@@ -396,7 +423,7 @@ namespace GraphqlToTsql.Introspection
             sb.AppendLine();
         }
 
-        private static void AppendEnumValueRow(StringBuilder sb, bool isFirstRow, string enumTypeKey, GqlEnumValue enumValue)
+        private void AppendEnumValueRow(StringBuilder sb, bool isFirstRow, string enumTypeKey, GqlEnumValue enumValue)
         {
             sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");
             AppendColumn(sb, isFirstRow, true, "EnumTypeKey", enumTypeKey);
@@ -408,7 +435,7 @@ namespace GraphqlToTsql.Introspection
             sb.AppendLine();
         }
 
-        private static void AppendDirectiveRow(StringBuilder sb, bool isFirstRow, string name, string locationsJson)
+        private void AppendDirectiveRow(StringBuilder sb, bool isFirstRow, string name, string locationsJson)
         {
             sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");
             AppendColumn(sb, isFirstRow, true, "Name", name);
@@ -418,7 +445,7 @@ namespace GraphqlToTsql.Introspection
             sb.AppendLine();
         }
 
-        private static void AppendInputValueRow(StringBuilder sb, bool isFirstRow, string parentTypeKey, string fieldName,
+        private void AppendInputValueRow(StringBuilder sb, bool isFirstRow, string parentTypeKey, string fieldName,
             string name, string typeKey)
         {
             sb.Append(isFirstRow ? "SELECT" : "UNION ALL SELECT");

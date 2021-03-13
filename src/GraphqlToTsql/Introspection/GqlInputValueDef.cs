@@ -40,7 +40,5 @@ namespace GraphqlToTsql.Introspection
                 Field.Column(this, "defaultValue", "DefaultValue", ValueType.String, IsNullable.Yes)
             };
         }
-
-        public override string SqlDefinition => IntrospectionData.GetInputValuesSql();
     }
 }

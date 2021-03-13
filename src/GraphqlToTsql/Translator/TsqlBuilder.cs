@@ -1,4 +1,5 @@
 using GraphqlToTsql.Entities;
+using GraphqlToTsql.Introspection;
 using GraphqlToTsql.Util;
 using System;
 using System.Collections.Generic;
@@ -14,19 +15,23 @@ namespace GraphqlToTsql.Translator
 
     public class TsqlBuilder : ITsqlBuilder
     {
+        private List<EntityBase> _entityList;
         private readonly StringBuilder _sb;
         private int _indent;
         private AliasSequence _aliasSequence;
         private Dictionary<string, Term> _fragments;
         private Dictionary<string, object> _tsqlParameters;
-        private List<string> _ctes;
+        private List<string> _typesCheckedForCte;
+        private bool _hasCte;
+        private IntrospectionData _introspectionData;
 
-        public TsqlBuilder()
+        public TsqlBuilder(List<EntityBase> entityList)
         {
+            _entityList = entityList;
             _sb = new StringBuilder(2048);
             _aliasSequence = new AliasSequence();
             _tsqlParameters = new Dictionary<string, object>();
-            _ctes = new List<string>();
+            _typesCheckedForCte = new List<string>();
         }
 
         public TsqlResult Build(ParseResult parseResult)
@@ -118,26 +123,46 @@ namespace GraphqlToTsql.Translator
         private void BuildCommonTableExpressions(Term term)
         {
             var entity = term.Field?.Entity;
-            if (entity != null && entity.SqlDefinition != null && !_ctes.Contains(entity.Name))
+            if (entity != null && !_typesCheckedForCte.Contains(entity.Name))
             {
-                var cteAnnouncement = _ctes.Count == 0 ? "WITH" : ",";
-                var sqlLines = entity.SqlDefinition.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                _typesCheckedForCte.Add(entity.Name);
 
-                Emit($"{cteAnnouncement} [{entity.DbTableName}] AS (");
-                foreach (var sqlLine in sqlLines)
+                if (entity.SqlDefinition != null)
                 {
-                    Emit(TAB, sqlLine);
+                    // The entity has a hardcoded CTE Select statement
+                    EmitCte(entity.DbTableName, entity.SqlDefinition);
                 }
-                Emit(")");
-                Emit("");
-
-                _ctes.Add(entity.Name);
+                else if (IntrospectionEntityList.All().Contains(entity))
+                {
+                    // Introspection types always use custom SQL
+                    if (_introspectionData == null)
+                    {
+                        _introspectionData = new IntrospectionData(_entityList);
+                    }
+                    EmitCte(entity.DbTableName, _introspectionData.GetCteSql(entity.Name));
+                }
             }
 
             foreach (var child in term.Children)
             {
                 BuildCommonTableExpressions(child);
             }
+        }
+
+        private void EmitCte(string tableName, string sqlDefinition)
+        {
+            var cteAnnouncement = _hasCte ? "," : "WITH";
+            var sqlLines = sqlDefinition.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+
+            Emit($"{cteAnnouncement} [{tableName}] AS (");
+            foreach (var sqlLine in sqlLines)
+            {
+                Emit(TAB, sqlLine);
+            }
+            Emit(")");
+            Emit("");
+
+            _hasCte = true;
         }
 
         private void BuildSubquery(Term term)

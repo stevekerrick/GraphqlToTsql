@@ -76,7 +76,5 @@ namespace GraphqlToTsql.Introspection
                 )
             };
         }
-
-        public override string SqlDefinition => IntrospectionData.GetTypesSql();
     }
 }

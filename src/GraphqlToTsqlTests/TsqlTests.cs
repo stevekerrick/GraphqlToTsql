@@ -1128,14 +1128,15 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             var allEntities = new List<EntityBase>();
             allEntities.AddRange(DemoEntityList.All());
             allEntities.AddRange(IntrospectionEntityList.All());
-            IntrospectionData.Initialize(allEntities);
 
-            var parser = GetService<IParser>();
-            var parseResult = parser.ParseGraphql(graphql, graphqlParameters, allEntities);
-            Assert.IsNull(parseResult.ParseError, $"Parse failed: {parseResult.ParseError}");
+            var settings = new GraphqlActionSettings {
+                AllowIntrospection = true,
+                EntityList = DemoEntityList.All()
+            };
 
-            var tsqlBuilder = GetService<ITsqlBuilder>();
-            var tsqlResult = tsqlBuilder.Build(parseResult);
+            var actions = new GraphqlActions();
+            var tsqlResult = actions.TranslateToTsql(graphql, graphqlParameters, settings);
+
             Assert.IsNull(tsqlResult.Error, $"TSQL generation failed: {tsqlResult.Error}");
 
             return tsqlResult;
