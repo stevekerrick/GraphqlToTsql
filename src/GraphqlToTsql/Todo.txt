@@ -1,11 +1,4 @@
-﻿
-
-Error codes
-Support arrays (where?)
-Fix IntrospectionData
-
-
-Documentation
+﻿Documentation
 * Add github readme notes
 * Write survey of competing projects
 * Improve DemoApp so that it links to documentation
@@ -15,3 +8,4 @@ Post-MVP
 * Support multi-tenant
 * Sorting
 * non-equality filters
+* Support arrays (where?)

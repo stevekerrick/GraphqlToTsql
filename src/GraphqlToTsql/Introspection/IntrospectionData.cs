@@ -183,6 +183,11 @@ namespace GraphqlToTsql.Introspection
 
             foreach (var entity in entityList)
             {
+                if (entity.Name.StartsWith("__"))
+                {
+                    continue;
+                }
+
                 var type = GetType(entity.EntityType);
                 var rowField = new GqlField(entity.Name, type);
                 queryType.Fields.Add(rowField);
