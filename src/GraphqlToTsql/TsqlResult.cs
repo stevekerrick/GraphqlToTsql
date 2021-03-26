@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using GraphqlToTsql.Translator;
+using System.Collections.Generic;
 
 namespace GraphqlToTsql
 {
@@ -22,5 +23,10 @@ namespace GraphqlToTsql
         /// Error that occurred during translation. This is always a problem in the source GraphQL and its parameters.
         /// </summary>
         public string Error { get; set; }
+
+        /// <summary>
+        /// Error code.
+        /// </summary>
+        public ErrorCode ErrorCode { get; set; }
     }
 }

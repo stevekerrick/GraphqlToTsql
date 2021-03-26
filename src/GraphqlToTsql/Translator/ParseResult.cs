@@ -8,5 +8,6 @@ namespace GraphqlToTsql.Translator
         public Dictionary<string, Term> Fragments { get; set; }
         public Term RootTerm { get; set; }
         public string ParseError { get; set; }
+        public ErrorCode ErrorCode { get; set; }
     }
 }

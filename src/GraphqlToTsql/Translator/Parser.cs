@@ -30,7 +30,11 @@ namespace GraphqlToTsql.Translator
         {
             if (string.IsNullOrEmpty(graphql))
             {
-                return new ParseResult { ParseError = "Empty GraphQL query received" };
+                return new ParseResult
+                {
+                    ParseError = "Empty GraphQL query received",
+                    ErrorCode = ErrorCode.V29
+                };
             }
 
             // Set up code-generated GqlParser
@@ -56,7 +60,11 @@ namespace GraphqlToTsql.Translator
                     var errorMessage = errorSb.ToString();
                     if (!string.IsNullOrEmpty(errorMessage))
                     {
-                        return new ParseResult { ParseError = errorMessage };
+                        return new ParseResult
+                        {
+                            ParseError = errorMessage,
+                            ErrorCode = ErrorCode.V29
+                        };
                     }
 
                     // We don't know how ParseOutput is used, so bail out if we see some
@@ -72,7 +80,11 @@ namespace GraphqlToTsql.Translator
                 }
                 catch (InvalidRequestException e)
                 {
-                    return new ParseResult { ParseError = e.Message };
+                    return new ParseResult
+                    {
+                        ParseError = e.Message,
+                        ErrorCode = e.ErrorCode
+                    };
                 }
             }
         }

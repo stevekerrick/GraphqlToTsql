@@ -67,7 +67,7 @@ namespace GraphqlToTsql.Translator
             // Get the variable's ValueType
             if (!Enum.TryParse<ValueType>(type, out var valueType))
             {
-                throw new InvalidRequestException($"Unsupported type: {type}", context);
+                throw new InvalidRequestException(ErrorCode.V04, $"Unsupported type: {type}", context);
             }
 
             // The value parameter is usually null, but can be the default value for the Variable
@@ -78,7 +78,7 @@ namespace GraphqlToTsql.Translator
             }
             if (value == null)
             {
-                throw new InvalidRequestException($"Variable ${name} is used in the query, but doesn't have a value", context);
+                throw new InvalidRequestException(ErrorCode.V05, $"Variable ${name} is used in the query, but doesn't have a value", context);
             }
 
             // Make sure the value's type matches the declared type
@@ -87,7 +87,7 @@ namespace GraphqlToTsql.Translator
             // Disallow null values on non-nullable Variables
             if (!typeIsNullable && coercedValue.ValueType == ValueType.Null)
             {
-                throw new InvalidRequestException($"Invalid null value: Variable ${name} is not nullable", context);
+                throw new InvalidRequestException(ErrorCode.V05, $"Invalid null value: Variable ${name} is not nullable", context);
             }
 
             coercedValue.VariableName = name;
@@ -138,7 +138,7 @@ namespace GraphqlToTsql.Translator
                 field = LookupEntity(name);
                 if (field == null)
                 {
-                    throw new InvalidRequestException($"Unknown entity: {name}", context);
+                    throw new InvalidRequestException(ErrorCode.V06, $"Unknown entity: {name}", context);
                 }
             }
             else
@@ -146,7 +146,7 @@ namespace GraphqlToTsql.Translator
                 field = _parent.Field.Entity.GetField(name);
                 if (field == null || field.Visibility == Visibility.Hidden)
                 {
-                    throw new InvalidRequestException($"Unknown field: {_parent.Field.Entity.Name}.{name}", context);
+                    throw new InvalidRequestException(ErrorCode.V07, $"Unknown field: {_parent.Field.Entity.Name}.{name}", context);
                 }
             }
 
@@ -164,7 +164,7 @@ namespace GraphqlToTsql.Translator
         {
             if (name != Constants.INCLUDE_DIRECTIVE && name != Constants.SKIP_DIRECTIVE)
             {
-                throw new InvalidRequestException($"Unknown type: {name}", context);
+                throw new InvalidRequestException(ErrorCode.V08, $"Unknown directive: {name}", context);
             }
 
             var field = Entities.Field.Directive(name);
@@ -188,7 +188,7 @@ namespace GraphqlToTsql.Translator
         {
             if (!_variables.ContainsKey(variableName))
             {
-                throw new InvalidRequestException($"Variable [${variableName}] is not declared", context);
+                throw new InvalidRequestException(ErrorCode.V09, $"Variable [${variableName}] is not declared", context);
             }
 
             _term.AddArgument(name, _variables[variableName], context);
@@ -199,7 +199,7 @@ namespace GraphqlToTsql.Translator
             var entity = _entityList.FirstOrDefault(_ => _.EntityType == type);
             if (entity == null)
             {
-                throw new InvalidRequestException($"Unknown type: {type}", context);
+                throw new InvalidRequestException(ErrorCode.V10, $"Unknown type: {type}", context);
             }
 
             return Entities.Field.Row(entity, entity.Name, null);

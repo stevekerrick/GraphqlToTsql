@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using GraphqlToTsql.Translator;
+using System.Collections.Generic;
 
 namespace GraphqlToTsql
 {
@@ -33,6 +34,11 @@ namespace GraphqlToTsql
         /// Error that occurred executing the TSQL command. Can by caused by incorrect entity mapping, or database error.
         /// </summary>
         public string DbError { get; set; }
+
+        /// <summary>
+        /// Error code.
+        /// </summary>
+        public ErrorCode ErrorCode { get; set; }
 
         /// <summary>
         /// Was the action successful? If true then read the results are in DataJson. If false then look at

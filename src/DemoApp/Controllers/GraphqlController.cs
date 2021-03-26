@@ -1,5 +1,6 @@
 ﻿using DemoEntities;
 using GraphqlToTsql;
+using GraphqlToTsql.Translator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -35,7 +36,7 @@ namespace DemoApp.Controllers
             }
             else if (result.Errors != null)
             {
-                response = new { result.Errors };
+                response = new { result.Errors, ErrorCode = result.ErrorCode.ToString() };
             }
             else
             {
@@ -72,7 +73,8 @@ namespace DemoApp.Controllers
                 Errors = errors,
                 Tsql = queryResult.Tsql,
                 TsqlParameters = queryResult.TsqlParameters,
-                Statistics = queryResult.Statistics
+                Statistics = queryResult.Statistics,
+                ErrorCode = queryResult.ErrorCode.ToString()
             };
         }
 
@@ -103,5 +105,6 @@ namespace DemoApp.Controllers
         public string Tsql { get; set; }
         public Dictionary<string, object> TsqlParameters { get; set; }
         public List<Statistic> Statistics { get; set; }
+        public string ErrorCode { get; set; }
     }
 }

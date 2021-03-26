@@ -31,7 +31,7 @@ namespace GraphqlToTsql.Translator
                 Offset = IntValue(name, value, context);
                 if (Offset != null && After != null)
                 {
-                    throw new InvalidRequestException("You can't use 'offset' and 'after' at the same time", context);
+                    throw new InvalidRequestException(ErrorCode.V17, "You can't use 'offset' and 'after' at the same time", context);
                 }
                 return;
             }
@@ -41,7 +41,7 @@ namespace GraphqlToTsql.Translator
                 After = StringValue(name, value, context);
                 if (Offset != null && After != null)
                 {
-                    throw new InvalidRequestException("You can't use 'offset' and 'after' at the same time", context);
+                    throw new InvalidRequestException(ErrorCode.V17, "You can't use 'offset' and 'after' at the same time", context);
                 }
                 return;
             }
@@ -60,14 +60,14 @@ namespace GraphqlToTsql.Translator
 
             if (field.FieldType == FieldType.Directive)
             {
-                throw new InvalidRequestException($"Invalid directive argument: {name}", context);
+                throw new InvalidRequestException(ErrorCode.V18, $"Invalid directive argument: {name}", context);
             }
 
             var argumentField = field.Entity.GetField(name, context);
             var newValue = new Value(argumentField.ValueType, value, () => $"Argument is the wrong type: {field.Entity.EntityType}.{name} is type {argumentField.ValueType}");
             if (newValue.ValueType == ValueType.Null && argumentField.IsNullable == IsNullable.No)
             {
-                throw new InvalidRequestException($"{field.Entity.EntityType}.{name} can not be null", context);
+                throw new InvalidRequestException(ErrorCode.V19, $"{field.Entity.EntityType}.{name} can not be null", context);
             }
 
             Filters.Add(new Filter(argumentField, newValue));
@@ -77,7 +77,7 @@ namespace GraphqlToTsql.Translator
         {
             if (value.ValueType != ValueType.Int)
             {
-                throw new InvalidRequestException($"{name} must be an Int: {value.RawValue}", context);
+                throw new InvalidRequestException(ErrorCode.V20, $"{name} must be an Int: {value.RawValue}", context);
             }
 
             return (long)value.RawValue;
@@ -87,7 +87,7 @@ namespace GraphqlToTsql.Translator
         {
             if (value.ValueType != ValueType.String)
             {
-                throw new InvalidRequestException($"{name} must be a string: {value.RawValue}", context);
+                throw new InvalidRequestException(ErrorCode.V21, $"{name} must be a string: {value.RawValue}", context);
             }
 
             return (string)value.RawValue;
@@ -97,7 +97,7 @@ namespace GraphqlToTsql.Translator
         {
             if (value.ValueType != ValueType.Boolean)
             {
-                throw new InvalidRequestException($"{name} must be a Boolean: {value.RawValue}", context);
+                throw new InvalidRequestException(ErrorCode.V22, $"{name} must be a Boolean: {value.RawValue}", context);
             }
 
             return (bool)value.RawValue;

@@ -38,7 +38,7 @@ namespace GraphqlToTsql.Translator
             var typeContext = context.type_();
             if (typeContext.listType() != null)
             {
-                throw InvalidRequestException.Unsupported("Array values", context);
+                throw InvalidRequestException.Unsupported(ErrorCode.V03, "Array values", context);
             }
             var type = typeContext.namedType().GetText();
 
@@ -81,7 +81,7 @@ namespace GraphqlToTsql.Translator
             var valueOrVariableContext = context.value();
             if (valueOrVariableContext == null)
             {
-                throw new InvalidRequestException($"Arguments should be formed like (id: 1)", new Context(context));
+                throw new InvalidRequestException(ErrorCode.V01, $"Arguments should be formed like (id: 1)", new Context(context));
             }
 
             if (valueOrVariableContext.variable() != null)
@@ -141,7 +141,7 @@ namespace GraphqlToTsql.Translator
 
         public override void EnterInlineFragment(GqlParser.InlineFragmentContext context)
         {
-            throw InvalidRequestException.Unsupported("Inline Fragments", context);
+            throw InvalidRequestException.Unsupported(ErrorCode.V02, "Inline Fragments", context);
         }
 
         #endregion

@@ -44,7 +44,8 @@ namespace GraphqlToTsql.Translator
             {
                 return new TsqlResult
                 {
-                    Error = e.Message
+                    Error = e.Message,
+                    ErrorCode = e.ErrorCode
                 };
             }
         }
@@ -173,11 +174,11 @@ namespace GraphqlToTsql.Translator
                 var max = term.Field.Entity.MaxPageSize.Value;
                 if (term.Arguments.First == null)
                 {
-                    throw new InvalidRequestException($"Paging is required with {term.Name}. Use argument 'first: {max}' for the initial page, and 'first'/'offset' or 'first'/'after' for subsequent pages.");
+                    throw new InvalidRequestException(ErrorCode.V23, $"Paging is required with {term.Name}. Use argument 'first: {max}' for the initial page, and 'first'/'offset' or 'first'/'after' for subsequent pages.");
                 }
                 if (term.Arguments.First.Value > max)
                 {
-                    throw new InvalidRequestException($"The max page size for {term.Name} is {max}");
+                    throw new InvalidRequestException(ErrorCode.V24, $"The max page size for {term.Name} is {max}");
                 }
             }
 
@@ -260,14 +261,14 @@ namespace GraphqlToTsql.Translator
             var fragmentName = term.Name;
             if (!_fragments.ContainsKey(fragmentName))
             {
-                throw new InvalidRequestException($"Fragment is not defined: {fragmentName}");
+                throw new InvalidRequestException(ErrorCode.V25, $"Fragment is not defined: {fragmentName}");
             }
             var fragment = _fragments[fragmentName];
 
             // Type check
             if (fragment.Field.Entity != parent.Field.Entity)
             {
-                throw new InvalidRequestException($"Fragment {fragmentName} is defined for {fragment.Field.Entity.EntityType}, not {parent.Field.Entity.EntityType}");
+                throw new InvalidRequestException(ErrorCode.V26, $"Fragment {fragmentName} is defined for {fragment.Field.Entity.EntityType}, not {parent.Field.Entity.EntityType}");
             }
 
             // Copy the fragment subquery because Terms have state

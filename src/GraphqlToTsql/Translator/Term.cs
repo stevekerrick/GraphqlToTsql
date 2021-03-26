@@ -148,7 +148,7 @@ namespace GraphqlToTsql.Translator
         {
             if (Field.FieldType == FieldType.Edge || Field.FieldType == FieldType.Node || TermType == TermType.Scalar)
             {
-                throw new InvalidRequestException($"Arguments are not allowed on [{Name}]", context);
+                throw new InvalidRequestException(ErrorCode.V16, $"Arguments are not allowed on [{Name}]", context);
             }
 
             Arguments.Add(Field, name, value, context);

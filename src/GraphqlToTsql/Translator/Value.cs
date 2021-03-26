@@ -91,22 +91,22 @@ namespace GraphqlToTsql.Translator
             var listValueContext = valueContext.listValue();
             if (listValueContext != null)
             {
-                throw new InvalidRequestException("List values are not supported", new Context(valueContext));
+                throw new InvalidRequestException(ErrorCode.V11, "List values are not supported", new Context(valueContext));
             }
 
             var objectValueContext = valueContext.objectValue();
             if (objectValueContext != null)
             {
-                throw new InvalidRequestException("Object values are not supported", new Context(valueContext));
+                throw new InvalidRequestException(ErrorCode.V12, "Object values are not supported", new Context(valueContext));
             }
 
             var enumValueContext = valueContext.enumValue();
             if (enumValueContext != null)
             {
-                throw new InvalidRequestException("Enum values are not supported", new Context(valueContext));
+                throw new InvalidRequestException(ErrorCode.V13, "Enum values are not supported", new Context(valueContext));
             }
 
-            throw new InvalidRequestException("Unexpected value type", new Context(valueContext));
+            throw new InvalidRequestException(ErrorCode.V14, "Unexpected value type", new Context(valueContext));
         }
 
         public Value(object rawValue)
@@ -160,7 +160,7 @@ namespace GraphqlToTsql.Translator
                     break;
 
                 default:
-                    throw new InvalidRequestException($"Unsupported value type, value=[{rawValue}], type=[{typeName}]");
+                    throw new InvalidRequestException(ErrorCode.V14, $"Unsupported value type, value=[{rawValue}], type=[{typeName}]");
             }
         }
 
@@ -214,7 +214,7 @@ namespace GraphqlToTsql.Translator
             }
 
             var errorMessage = errorMessageFunc();
-            throw new InvalidRequestException(errorMessage);
+            throw new InvalidRequestException(ErrorCode.V15, errorMessage);
         }
     }
 }

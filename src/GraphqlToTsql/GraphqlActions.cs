@@ -54,7 +54,11 @@ namespace GraphqlToTsql
             var parseResult = parser.ParseGraphql(graphql, graphqlParameters, allEntities);
             if (parseResult.ParseError != null)
             {
-                return new TsqlResult { Error = parseResult.ParseError };
+                return new TsqlResult
+                {
+                    Error = parseResult.ParseError,
+                    ErrorCode = parseResult.ErrorCode
+                };
             }
 
             // Create TSQL
@@ -80,7 +84,11 @@ namespace GraphqlToTsql
             var parseResult = parser.ParseGraphql(graphql, graphqlParameters, allEntities);
             if (parseResult.ParseError != null)
             {
-                return new QueryResult { TranslationError = parseResult.ParseError };
+                return new QueryResult
+                {
+                    TranslationError = parseResult.ParseError,
+                    ErrorCode = parseResult.ErrorCode
+                };
             }
             var parseElapsedTime = sw.ElapsedMilliseconds;
 
@@ -90,7 +98,11 @@ namespace GraphqlToTsql
             var tsqlResult = tsqlBuilder.Build(parseResult);
             if (tsqlResult.Error != null)
             {
-                return new QueryResult { TranslationError = tsqlResult.Error };
+                return new QueryResult
+                {
+                    TranslationError = tsqlResult.Error,
+                    ErrorCode = tsqlResult.ErrorCode
+                };
             }
             var tsqlElapsedTime = sw.ElapsedMilliseconds;
 
@@ -128,6 +140,7 @@ namespace GraphqlToTsql
                 TsqlParameters = tsqlResult.TsqlParameters,
                 DataJson = dbResult.DataJson,
                 DbError = dbResult.DbError,
+                ErrorCode = dbResult.DbError == null ? ErrorCode.NoError : ErrorCode.E01,
                 Statistics = statistics
             };
         }

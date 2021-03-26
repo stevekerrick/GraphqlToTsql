@@ -43,14 +43,14 @@ namespace GraphqlToTsql.Util
         {
             if (string.IsNullOrEmpty(cursor))
             {
-                throw new InvalidRequestException("Empty cursor is not allowed");
+                throw new InvalidRequestException(ErrorCode.V28, "Empty cursor is not allowed");
             }
 
             // Separate the cursor into the encoded cursor data and hash
             var cursorParts = cursor.Split('.');
             if (cursorParts.Length != 2)
             {
-                throw new InvalidRequestException($"Cursor is invalid: {cursor}");
+                throw new InvalidRequestException(ErrorCode.V28, $"Cursor is invalid: {cursor}");
             }
             var encodedCursorData = cursorParts[0];
             var actualHash = cursorParts[1];
@@ -59,7 +59,7 @@ namespace GraphqlToTsql.Util
             var expectedHash = HashUtility.Hash(encodedCursorData);
             if (actualHash != expectedHash)
             {
-                throw new InvalidRequestException($"Cursor is invalid: {cursor}");
+                throw new InvalidRequestException(ErrorCode.V28, $"Cursor is invalid: {cursor}");
             }
 
             // Decode the CursorData. EncodedCursorData is base64(CursorData).
@@ -70,14 +70,14 @@ namespace GraphqlToTsql.Util
             }
             catch
             {
-                throw new InvalidRequestException($"Cursor is invalid: {cursor}");
+                throw new InvalidRequestException(ErrorCode.V28, $"Cursor is invalid: {cursor}");
             }
 
             // Separate the decodedCursor into valueType, idValue, and dbTableName
             var cursorDataParts = decodedCursor.Split('|');
             if (cursorDataParts.Length != 3)
             {
-                throw new InvalidRequestException($"Cursor is invalid: {cursor}");
+                throw new InvalidRequestException(ErrorCode.V28, $"Cursor is invalid: {cursor}");
             }
             var valueType = (ValueType)int.Parse(cursorDataParts[0]);
             var idValue = cursorDataParts[1];
@@ -86,7 +86,7 @@ namespace GraphqlToTsql.Util
             // Verify the DbTableName
             if (actualDbTableName != dbTableName)
             {
-                throw new InvalidRequestException($"Cursor is invalid: {cursor}");
+                throw new InvalidRequestException(ErrorCode.V28, $"Cursor is invalid: {cursor}");
             }
 
             // Return the value

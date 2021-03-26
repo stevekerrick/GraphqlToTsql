@@ -102,7 +102,7 @@ namespace GraphqlToTsql.Entities
                 return nodeField.Entity.GetField(name, context);
             }
 
-            throw new InvalidRequestException($"Unknown field: {EntityType}.{name}", context);
+            throw new InvalidRequestException(ErrorCode.V07, $"Unknown field: {EntityType}.{name}", context);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace GraphqlToTsql.Entities
                 var pks = PrimaryKeyFields;
                 if (pks.Count > 1)
                 {
-                    throw new InvalidRequestException($"Cursor-based paging can not be used for {Name}. Try paging with First/Offset instead.");
+                    throw new InvalidRequestException(ErrorCode.V06, $"Cursor-based paging can not be used for {Name}. Try paging with First/Offset instead.");
                 }
                 return pks[0];
             }
