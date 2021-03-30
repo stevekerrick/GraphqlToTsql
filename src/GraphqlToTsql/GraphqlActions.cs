@@ -131,7 +131,7 @@ namespace GraphqlToTsql
                 new Statistic(" . . . Actual Database Time (ms)", dbResult.DatabaseQueryTime),
                 new Statistic(" . . . Query Size (chars)", tsqlResult.Tsql.Length),
                 new Statistic(" . . . Result Size (chars)", dbResult.DataJson?.Length),
-                new Statistic("4. Tweak Result (ms)", mutationsElapsedTime)
+                new Statistic("4. Post Processing (ms)", mutationsElapsedTime)
             };
 
             return new QueryResult

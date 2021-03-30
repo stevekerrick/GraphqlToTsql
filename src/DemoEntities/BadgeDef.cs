@@ -1,5 +1,4 @@
 ﻿using GraphqlToTsql.Entities;
-using GraphqlToTsql.Translator;
 using System.Collections.Generic;
 
 namespace DemoEntities

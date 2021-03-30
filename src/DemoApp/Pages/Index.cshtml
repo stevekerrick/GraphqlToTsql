@@ -14,7 +14,7 @@
                  class="pbq px-1 pb-1 mx-1"
                  :class="{selected: pbq == selectedPrebuiltQuery}"
                  v-on:click="selectPrebuiltQuery(pbq)">
-                 <span v-tooltip="pbq.description">{{pbq.name}}</span>
+                <span>{{pbq.name}}</span>
             </div>
         </div>
         <div class="col-8">
@@ -49,22 +49,22 @@
         <div class="col-8 h-100">
             <ul class="nav nav-tabs">
                 <li v-for="(tab, index) in resultTabs" :key="tab" class="nav-item">
-                    <a class="nav-link" :class="{ active: index === resultTab, disabled: (index === 5 && result && !result.error) || (index === 6 && result && !result.statistics) }" href="#" v-on:click="selectResultTab(index)">{{ tab }}</a>
+                    <a class="nav-link" :class="{ active: index === resultTab, disabled: (index === 6 && result && !result.error) || (index === 1 && result && !result.statistics) }" href="#" v-on:click="selectResultTab(index)">{{ tab }}</a>
                 </li>
             </ul>
             <div class="result-text-container">
-                <textarea readonly v-model="result.graphql" v-show="resultTab === 0"></textarea>
-                <textarea readonly v-model="result.graphqlParameters" v-show="resultTab === 1"></textarea>
-                <textarea readonly v-model="result.tsql" v-show="resultTab === 2"></textarea>
-                <textarea readonly v-model="result.tsqlParameters" v-show="resultTab === 3"></textarea>
-                <textarea readonly v-model="result.data" v-show="resultTab === 4"></textarea>
-                <textarea readonly v-model="result.error" v-show="resultTab === 5"></textarea>
-                <div class="statistics scroll-panel p-1" v-show="resultTab === 6">
+                <textarea readonly v-model="result.data" v-show="resultTab === 0"></textarea>
+                <div class="statistics scroll-panel p-1" v-show="resultTab === 1">
                     <div v-for="stat in result.statistics" :key="stat.name" class="statistic">
                         <div>{{stat.name}}</div>
                         <div>{{stat.value}}</div>
                     </div>
                 </div>
+                <textarea readonly v-model="result.tsql" v-show="resultTab === 2"></textarea>
+                <textarea readonly v-model="result.tsqlParameters" v-show="resultTab === 3"></textarea>
+                <textarea readonly v-model="result.graphql" v-show="resultTab === 4"></textarea>
+                <textarea readonly v-model="result.graphqlParameters" v-show="resultTab === 5"></textarea>
+                <textarea readonly v-model="result.error" v-show="resultTab === 6"></textarea>
             </div>
         </div>
     </div>
@@ -82,32 +82,155 @@
     name
   }
 }`;
-    var productTotalsQuery = `query ProductTotals {
+    var customSqlFieldQuery = `#The totalRevenue field uses custom SQL:
+#    Field.CalculatedField(this, "totalRevenue", ValueType.Float, IsNullable.No,
+#        (tableAlias) => $"SELECT (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName) * {tableAlias}.Price"
+#    )
+#
+query ProductTotals {
   products {
     name description price totalRevenue
   }
 }`;
-    var sellerDescendantsQuery = `query SellerDescendants ($name: String) {
+    var tvfQuery = `#The descendants field mapps to a table-valued-function:
+#    Field.CalculatedSet(this, "descendants", IsNullable.Yes,
+#        (tableAlias) => $"SELECT s.* FROM tvf_AllDescendants({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name"
+#    )
+#
+query SellerDescendants ($name: String) {
   seller (name: $name) {
     name city state descendants {
       name city state
     }
   }
 }`;
-    var sellerTotalsQuery = `query SellerTotals ($name: String) {
+    var customSqlForEntityQuery = `#Custom SQL is used for the sellerTotal table
+#    public override string SqlDefinition => @@"
+#       SELECT
+#         s.[Name] AS SellerName
+#       , COUNT(DISTINCT o.Id) AS TotalOrders
+#       , SUM(od.Quantity) AS TotalQuantity
+#       , SUM(od.Quantity * p.Price) AS TotalAmount
+#       FROM Seller s
+#       INNER JOIN [Order] o
+#         ON s.Name = o.SellerName
+#       INNER JOIN OrderDetail od
+#         ON o.Id = od.OrderId
+#       INNER JOIN Product p
+#         ON od.ProductName = p.[Name]
+#       GROUP BY s.[Name]
+#    ".Trim();
+#
+query SellerTotals ($name: String) {
   seller (name: $name) {
     name city state
-    sellerTotal { sellerName totalOrders totalQuantity totalAmount }
-    sellerProductTotals { productName totalQuantity totalAmount}
+    sellerTotal { totalOrders totalQuantity totalAmount }
   }
 }`;
+    var introspectionQuery = `#This is the introspection query used by graphiql:
+#
+query IntrospectionQuery {
+      __schema {
+
+        queryType { name }
+        mutationType { name }
+        subscriptionType { name }
+        types {
+          ...FullType
+        }
+        directives {
+          name
+          description
+
+          locations
+          args {
+            ...InputValue
+          }
+        }
+      }
+    }
+
+    fragment FullType on __Type {
+      kind
+      name
+      description
+
+      fields(includeDeprecated: true) {
+        name
+        description
+        args {
+          ...InputValue
+        }
+        type {
+          ...TypeRef
+        }
+        isDeprecated
+        deprecationReason
+      }
+      inputFields {
+        ...InputValue
+      }
+      interfaces {
+        ...TypeRef
+      }
+      enumValues(includeDeprecated: true) {
+        name
+        description
+        isDeprecated
+        deprecationReason
+      }
+      possibleTypes {
+        ...TypeRef
+      }
+    }
+
+    fragment InputValue on __InputValue {
+      name
+      description
+      type { ...TypeRef }
+      defaultValue
+    }
+
+    fragment TypeRef on __Type {
+      kind
+      name
+      ofType {
+        kind
+        name
+        ofType {
+          kind
+          name
+          ofType {
+            kind
+            name
+            ofType {
+              kind
+              name
+              ofType {
+                kind
+                name
+                ofType {
+                  kind
+                  name
+                  ofType {
+                    kind
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+`;
 
     var prebuiltQueries = [
-        { name: "empty", description: "clears the workspace", graphql: "", graphqlParameters: "" },
-        { name: "simple", description: "simplest possible query", graphql: simpleQuery, graphqlParameters: "" },
-        { name: "product totals", description: "highlights: computed column", graphql: productTotalsQuery, graphqlParameters: '{ }' },
-        { name: "seller descendants", description: "highlights: uses tvf", graphql: sellerDescendantsQuery, graphqlParameters: '{ name: "Bill" }' },
-        { name: "seller totals", description: "highlights: uses virtual tables", graphql: sellerTotalsQuery, graphqlParameters: '{ name: "Bill" }' }
+        { name: "simple query", graphql: simpleQuery, graphqlParameters: "" },
+        { name: "custom SQL for field", graphql: customSqlFieldQuery, graphqlParameters: '{ }' },
+        { name: "mapping a TVF", graphql: tvfQuery, graphqlParameters: '{ name: "Bill" }' },
+        { name: "custom SQL for entity", graphql: customSqlForEntityQuery, graphqlParameters: '{ name: "Bill" }' },
+        { name: "introspection", graphql: introspectionQuery, graphqlParameters: '' }
     ];
 
 </script>
@@ -127,7 +250,7 @@
             results: [],
             result: null,
             inputTab: 0,
-            resultTabs: ["GraphQL", "Params", "TSQL", "Tsql Params", "Data", "Error", "Stats"],
+            resultTabs: ["Data", "Stats", "TSQL", "Tsql Params", "GraphQL", "Params", "Error"],
             resultTab: 0
         },
         methods: {
@@ -164,7 +287,7 @@
                     }
                     vm.result = result;
                     vm.results.unshift(result);
-                    vm.resultTab = result.error? 5 : 4;
+                    vm.resultTab = result.error? 6 : 0;
                 }
 
                 function errorResult(error) {
@@ -177,7 +300,7 @@
                     };
                     vm.result = result;
                     vm.results.unshift(result);
-                    vm.resultTab = 5;
+                    vm.resultTab = 6;
                 }
 
                 var antiForgeryToken = $('input:hidden[name="__RequestVerificationToken"]').val();
@@ -236,7 +359,7 @@
         padding: .5em;
         border-color: lightgray;
     }
-    .pbqs { margin-top: 4em; }
+/*    .pbqs { margin-top: 4em; } */
     .pbq { 
         display: inline-block; 
         border: 1px solid grey; 
@@ -279,100 +402,6 @@
     .statistic div {
         display: inline-block;
         width: 15em;
-    }
-</style>
-<style>
-    .tooltip {
-      display: block !important;
-      z-index: 10000;
-    }
-
-    .tooltip .tooltip-inner {
-      background: black;
-      color: white;
-      border-radius: 16px;
-      padding: 5px 10px 4px;
-    }
-
-    .tooltip .tooltip-arrow {
-      width: 0;
-      height: 0;
-      border-style: solid;
-      position: absolute;
-      margin: 5px;
-      border-color: black;
-    }
-
-    .tooltip[x-placement^="top"] {
-      margin-bottom: 10px;
-    }
-
-    .tooltip[x-placement^="top"] .tooltip-arrow {
-      border-width: 5px 5px 0 5px;
-      border-left-color: transparent !important;
-      border-right-color: transparent !important;
-      border-bottom-color: transparent !important;
-      bottom: -5px;
-      left: calc(50% - 5px);
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-
-    .tooltip[x-placement^="bottom"] {
-      margin-top: 5px;
-    }
-
-    .tooltip[x-placement^="bottom"] .tooltip-arrow {
-      border-width: 0 5px 5px 5px;
-      border-left-color: transparent !important;
-      border-right-color: transparent !important;
-      border-top-color: transparent !important;
-      top: -5px;
-      left: calc(50% - 5px);
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-
-    .tooltip[x-placement^="right"] {
-      margin-left: 5px;
-    }
-
-    .tooltip[x-placement^="right"] .tooltip-arrow {
-      border-width: 5px 5px 5px 0;
-      border-left-color: transparent !important;
-      border-top-color: transparent !important;
-      border-bottom-color: transparent !important;
-      left: -5px;
-      top: calc(50% - 5px);
-      margin-left: 0;
-      margin-right: 0;
-    }
-
-    .tooltip[x-placement^="left"] {
-      margin-right: 5px;
-    }
-
-    .tooltip[x-placement^="left"] .tooltip-arrow {
-      border-width: 5px 0 5px 5px;
-      border-top-color: transparent !important;
-      border-right-color: transparent !important;
-      border-bottom-color: transparent !important;
-      right: -5px;
-      top: calc(50% - 5px);
-      margin-left: 0;
-      margin-right: 0;
-    }
-
-    .tooltip[aria-hidden='true'] {
-      visibility: hidden;
-      opacity: 0;
-      transition: opacity .15s, visibility .15s;
-    }
-
-    .tooltip[aria-hidden='false'] {
-      visibility: visible;
-      opacity: 1;
-      transition: opacity .15s;
     }
 </style>
 }
