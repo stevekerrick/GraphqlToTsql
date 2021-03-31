@@ -25,10 +25,14 @@
                 <li class="nav-item">
                     <a class="nav-link" :class="{ active: inputTab === 1 }" href="#" v-on:click="selectInputTab(1)">Params</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" :class="{ active: inputTab === 2 }" href="#" v-on:click="selectInputTab(2)">Notes</a>
+                </li>
             </ul>
             <div class="input-controls">
                 <textarea v-model="graphql" v-show="inputTab === 0"></textarea>
                 <textarea v-model="graphqlParameters" v-show="inputTab === 1"></textarea>
+                <div class="scrollPanel" v-html="notes" v-show="inputTab === 2"></div>
             </div>
         </div>
     </div>
@@ -40,7 +44,7 @@
         </div>
     </div>
 
-    <div class="row mt-3 pt-3 results-row" v-if="results.length > 0">
+    <div class="row results-row" v-if="results.length > 0">
         <div class="col-4 scroll-panel">
             <div v-for="r in results" :key="r.key" class="result-card p-1 mt-2" :class="{selected: r === result, error: r.error}" v-on:click="selectResult(r)">
                 {{r.error || r.oneLineGraphql}}
@@ -76,60 +80,53 @@
 <script src="https://unpkg.com/v-tooltip@2.0.2"></script>
 
 <script>
-    // Prebuilt queries
-    var simpleQuery = `{
+    var prebuiltQueries = [
+        {
+            name: 'simple query',
+            graphql: `{
   product (name: "Hammer") {
     name
   }
-}`;
-    var customSqlFieldQuery = `#The totalRevenue field uses custom SQL:
-#    Field.CalculatedField(this, "totalRevenue", ValueType.Float, IsNullable.No,
-#        (tableAlias) => $"SELECT (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName) * {tableAlias}.Price"
-#    )
-#
-query ProductTotals {
+}`,
+            graphqlParameters: '',
+            notes: ``
+        },
+        {
+            name: 'custom SQL for field',
+            graphql: `query ProductTotals {
   products {
     name description price totalRevenue
   }
-}`;
-    var tvfQuery = `#The descendants field mapps to a table-valued-function:
-#    Field.CalculatedSet(this, "descendants", IsNullable.Yes,
-#        (tableAlias) => $"SELECT s.* FROM tvf_AllDescendants({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name"
-#    )
-#
-query SellerDescendants ($name: String) {
+}`,
+            graphqlParameters: '{ }',
+            notes: `<p>The totalRevenue field uses custom SQL</p>`
+        },
+        {
+            name: 'mapping a TVF',
+            graphql: `query SellerDescendants ($name: String) {
   seller (name: $name) {
     name city state descendants {
       name city state
     }
   }
-}`;
-    var customSqlForEntityQuery = `#Custom SQL is used for the sellerTotal table
-#    public override string SqlDefinition => @@"
-#       SELECT
-#         s.[Name] AS SellerName
-#       , COUNT(DISTINCT o.Id) AS TotalOrders
-#       , SUM(od.Quantity) AS TotalQuantity
-#       , SUM(od.Quantity * p.Price) AS TotalAmount
-#       FROM Seller s
-#       INNER JOIN [Order] o
-#         ON s.Name = o.SellerName
-#       INNER JOIN OrderDetail od
-#         ON o.Id = od.OrderId
-#       INNER JOIN Product p
-#         ON od.ProductName = p.[Name]
-#       GROUP BY s.[Name]
-#    ".Trim();
-#
-query SellerTotals ($name: String) {
+}`,
+            graphqlParameters: '{ name: "Bill" }',
+            notes: `<p>The descendants field maps to a table-valued-function</p>`
+        },
+        {
+            name: 'custom SQL for entity',
+            graphql: `query SellerTotals ($name: String) {
   seller (name: $name) {
     name city state
     sellerTotal { totalOrders totalQuantity totalAmount }
   }
-}`;
-    var introspectionQuery = `#This is the introspection query used by graphiql:
-#
-query IntrospectionQuery {
+}`,
+            graphqlParameters: '{ name: "Bill" }',
+            notes: `<p>Custom SQL is used for the sellerTotal table</p>`
+        },
+        {
+            name: 'introspection',
+            graphql: `query IntrospectionQuery {
       __schema {
 
         queryType { name }
@@ -223,14 +220,10 @@ query IntrospectionQuery {
         }
       }
     }
-`;
-
-    var prebuiltQueries = [
-        { name: "simple query", graphql: simpleQuery, graphqlParameters: "" },
-        { name: "custom SQL for field", graphql: customSqlFieldQuery, graphqlParameters: '{ }' },
-        { name: "mapping a TVF", graphql: tvfQuery, graphqlParameters: '{ name: "Bill" }' },
-        { name: "custom SQL for entity", graphql: customSqlForEntityQuery, graphqlParameters: '{ name: "Bill" }' },
-        { name: "introspection", graphql: introspectionQuery, graphqlParameters: '' }
+`,
+            graphqlParameters: '',
+            notes: `<p>This is the introspection query used by graphiql</p>`
+        }
     ];
 
 </script>
@@ -247,6 +240,7 @@ query IntrospectionQuery {
             selectedPrebuiltQuery: null,
             graphql: "",
             graphqlParameters: "",
+            notes: "",
             results: [],
             result: null,
             inputTab: 0,
@@ -334,6 +328,7 @@ query IntrospectionQuery {
                 this.selectedPrebuiltQuery = pbq;
                 this.graphql = pbq.graphql;
                 this.graphqlParameters = pbq.graphqlParameters;
+                this.notes = pbq.notes;
             }
         },
         mounted: function () {
@@ -350,7 +345,7 @@ query IntrospectionQuery {
         display: none
     }
     body { background-color: whitesmoke; }
-    textarea {
+    textarea, .scrollPanel {
         min-height: 100%;
         width: 100%;
         resize: none;
@@ -359,7 +354,8 @@ query IntrospectionQuery {
         padding: .5em;
         border-color: lightgray;
     }
-/*    .pbqs { margin-top: 4em; } */
+    .scrollPanel { background-color: white; border: 1px solid lightgray; }
+    .pbqs { margin-top: 2em; } 
     .pbq { 
         display: inline-block; 
         border: 1px solid grey; 
@@ -369,11 +365,11 @@ query IntrospectionQuery {
         font-size: smaller;
     }
     .pbq.selected { background-color: white; }
-    .input-row { height: calc(48% - 1em); }
+    .input-row { height: 45%; }
+    .input-button-row { height: 50px; }
+    .results-row { height: calc(55% - 50px); background-color: lightgray; }
     .input-controls { height: calc(100% - 37px); }
-    .input-button-row { height: 2em; }
     .nav-tabs { height: 37px; overflow: hidden; }
-    .results-row { height: calc(48% - 1em); background-color: lightgray; }
     .result-text-container { height: calc(100% - 37px); }
 
     a.command-link:hover {
