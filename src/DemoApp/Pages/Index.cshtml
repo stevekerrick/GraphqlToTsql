@@ -40,7 +40,10 @@
     <div class="row input-button-row">
         <div class="col-4"></div>
         <div class="col-8 mt-1">
-            <button class="btn btn-sm btn-primary" v-on:click="run">Run Query</button>
+            <button v-if="!waiting" class="btn btn-sm btn-primary" v-on:click="run">Run Query</button>
+            <div v-if="waiting" class="spinner-border text-secondary ml-4" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
         </div>
     </div>
 
@@ -241,6 +244,7 @@
             graphql: "",
             graphqlParameters: "",
             notes: "",
+            waiting: false,
             results: [],
             result: null,
             inputTab: 0,
@@ -250,6 +254,7 @@
         methods: {
             run: function () {
                 var vm = this;
+                vm.waiting = true;
 
                 function formatObject(objectString) {
                     if (!objectString) return objectString;
@@ -310,9 +315,11 @@
                 .then(response => response.json())
                 .then(data => {
                     regularResult(data);
+                    vm.waiting = false;
                 })
                 .catch((error) => {
                     errorResult(error);
+                    vm.waiting = false;
                 });
             },
             selectInputTab: function (index) {
