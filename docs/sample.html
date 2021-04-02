@@ -2,6 +2,14 @@
 layout: page
 ---
 
+<ul>
+    {% for topic in site.topics %}
+      <li>
+          {{ topic.content }}
+      </li>
+    {% endfor %}
+    </ul>
+
 {% include_relative topics/test1.md %}
 
 {% include_relative topics/test2.md %}
