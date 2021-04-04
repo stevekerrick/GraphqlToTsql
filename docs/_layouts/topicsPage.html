@@ -4,19 +4,22 @@
 {% include head.html %}
 <style>
   section.hidden { display: none; }
-  .topic-links { display: inline-block; width: 30%; }
-  .topic-contents { display: inline-block; width: 70%; }
+  .topic-container { display: flex; }
+  .topic-links { flex-grow: 1; }
+  .topic-contents { flex-grow: 3; }
 </style>
 
 <body>
   {% include page-header.html %}
 
   <section class="main-content hidden">
-    <div class="topic-links">
-    </div>
-    <div class="topic-contents">
-      {{ content }}
-    </div>
+    <div class="topic-container">
+      <div class="topic-links">
+      </div>
+      <div class="topic-contents">
+        {{ content }}
+      </div>
+      </div>
   </section>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
