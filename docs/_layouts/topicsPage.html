@@ -3,11 +3,28 @@
 
 {% include head.html %}
 <style>
-  section.hidden { display: none; }
-  .my-main-content { padding: 0 2rem; }
-  .topic-container { display: flex; }
-  .topic-links { flex: 0 0 auto; width: 30%; padding-top: .67em; }
-  .topic-contents { flex: 1 1; }
+  section.hidden {
+    display: none;
+  }
+
+  .my-main-content {
+    padding: 0 2rem;
+  }
+
+  .topic-container {
+    display: flex;
+  }
+
+  .topic-links {
+    flex: 0 0 auto;
+    width: 30%;
+    padding-top: .67em;
+    background-color: #f8f8f8
+  }
+
+  .topic-contents {
+    flex: 1 1;
+  }
 </style>
 
 <body>
@@ -20,7 +37,7 @@
       <div class="topic-contents">
         {{ content }}
       </div>
-      </div>
+    </div>
   </section>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
@@ -28,7 +45,28 @@
     crossorigin="anonymous"></script>
 
   <script>
-    $(".topic-links").append("hi steve");
+    var selectedH1;
+
+    $("h1").each(function () {
+      var $h1 = this;
+      $h1.hide();
+
+      // Build topic element for the left-side menu
+      var $topic = $("<div></div>", {
+        text: $h1.text()
+      });
+      $(".topic-links").append($topic);
+
+      $topic.click(function () {
+        if (selectedH1) {
+          selectedH1.$h1.hide();
+        }
+
+        $h1.show();
+        selectedH1 = { $h1, $topic };
+      });
+    });
+
     $(".my-main-content").removeClass("hidden");
 
   </script>
