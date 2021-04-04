@@ -3,14 +3,15 @@
 
 {% include head.html %}
 <style>
-  .topic-links { width: 30%; }
-  .topic-contents { width: 70%; }
+  section.hidden { display: none; }
+  .topic-links { display: inline-block; width: 30%; }
+  .topic-contents { display: inline-block; width: 70%; }
 </style>
 
 <body>
   {% include page-header.html %}
 
-  <section class="main-content" style="display: none;">
+  <section class="main-content hidden">
     <div class="topic-links">
     </div>
     <div class="topic-contents">
@@ -24,7 +25,7 @@
 
   <script>
     $(".topic-links").append("hi steve");
-    $(".main-content").show();
+    $(".main-content").removeClass("hidden");
 
   </script>
 </body>
