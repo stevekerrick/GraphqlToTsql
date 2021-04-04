@@ -4,6 +4,7 @@
 {% include head.html %}
 <style>
   section.hidden { display: none; }
+  .my-main-content { padding: 2rem; }
   .topic-container { display: flex; }
   .topic-links { width: 30%; flex: 0 0 auto; }
   .topic-contents { flex: 1 1; }
@@ -12,7 +13,7 @@
 <body>
   {% include page-header.html %}
 
-  <section class="main-content hidden">
+  <section class="my-main-content hidden">
     <div class="topic-container">
       <div class="topic-links">
       </div>
@@ -28,7 +29,7 @@
 
   <script>
     $(".topic-links").append("hi steve");
-    $(".main-content").removeClass("hidden");
+    $(".my-main-content").removeClass("hidden");
 
   </script>
 </body>
