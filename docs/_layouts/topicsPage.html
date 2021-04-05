@@ -36,11 +36,8 @@
     cursor: pointer;
   }
 
+  .topic-links>div.selected,
   .topic-links>div:hover {
-    border: 1px solid gray;
-  }
-
-  .topic-links>div.selected {
     background-color: white;
   }
 
@@ -103,7 +100,7 @@
 
       // If this is the first topic, click on it
       if (!selectedTopic) {
-        if (!startWith || $h1.text() === startWith) {
+        if (!startWith || $h1.attr("id") === startWith) {
           $topic.click();
         }
       }
