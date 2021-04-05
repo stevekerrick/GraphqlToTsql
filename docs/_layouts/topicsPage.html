@@ -48,7 +48,7 @@
     var selectedH1;
 
     $("h1").each(function () {
-      var $h1 = $(this);
+      var $h1 = $(this).parent();
       $h1.hide();
 
       // Build topic element for the left-side menu
