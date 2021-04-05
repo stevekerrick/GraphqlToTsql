@@ -29,11 +29,15 @@
   }
 
   .topic-links>div {
-    padding: .2em;
+    padding: .4em;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     cursor: pointer;
+  }
+
+  .topic-links>div:hover {
+    border: 1px solid gray;
   }
 
   .topic-links>div.selected {
@@ -41,6 +45,7 @@
   }
 
   .topic-contents {
+    padding-left: 1em;
     flex: 1 1;
   }
 </style>
@@ -63,9 +68,16 @@
     crossorigin="anonymous"></script>
 
   <script>
-    var selectedTopic;
+
+    // See if the url tells us which topic to start with
+    var startWith;
+    var searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.has("topic")) {
+      startWith = searchParams.get("topic");
+    }
 
     // Fill in the topic links on the left-side
+    var selectedTopic;
     $("h1").each(function () {
       var $h1 = $(this);
       var $h1Parent = $h1.parent();
@@ -91,16 +103,11 @@
 
       // If this is the first topic, click on it
       if (!selectedTopic) {
-        $topic.click();
+        if (!startWith || $h1.text() === startWith) {
+          $topic.click();
+        }
       }
     });
-
-    // // Start with the first topic selected (unless one was in the url)
-    // var searchParams = new URLSearchParams(window.location.search);
-    // if (searchParams.has("topic")){
-
-    // }
-
 
     $(".my-main-content").removeClass("hidden");
 
