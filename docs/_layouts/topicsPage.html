@@ -124,10 +124,10 @@
       });
       $h1Parent.append($topicFooter);
       if ($priorTopic) {
-        $topicFooter.append("<div class='back'>Back</div>");
+        $topicFooter.append(`<div class="back">&lt; ${$priorTopic.text()}</div>`);
       }
       if ($priorTopicFooter) {
-        $priorTopicFooter.append("<div class='next'>Next</div>");
+        $priorTopicFooter.append(`<div class="next">${$topic.text()} &gt;</div>`);
       }
       $priorTopic = $topic;
       $priorTopicFooter = $topicFooter;
