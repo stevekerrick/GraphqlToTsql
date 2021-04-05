@@ -1,5 +1,6 @@
 ---
 layout: topicsPage
+name: Documentation
 ---
 
 <div markdown="1">
