@@ -47,8 +47,8 @@
   <script>
     var selectedH1;
 
-    $("h1").each(function (a, b, c, d, e, f, $h1) {
-      //var $h1 = this;
+    $("h1").each(function () {
+      var $h1 = $(this);
       $h1.hide();
 
       // Build topic element for the left-side menu
