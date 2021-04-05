@@ -9,6 +9,10 @@
     background-image: linear-gradient(120deg, #155799, #159957);
   } */
 
+  body {
+    overflow-y: scroll;
+  }
+
   section.hidden {
     display: none;
   }
@@ -41,6 +45,8 @@
     background-color: white;
   }
 
+  .topic-header { font-weight: bold; }
+
   .topic-contents {
     padding-left: 1em;
     flex: 1 1;
@@ -53,7 +59,7 @@
   <section class="my-main-content hidden">
     <div class="topic-container">
       <div class="topic-links">
-        <h2>{{page.name}}</h2>
+        <div class="topic-header">{{page.topicHeader}}</div>
       </div>
       <div class="topic-contents">
         {{ content }}
