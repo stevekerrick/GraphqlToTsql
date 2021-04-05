@@ -22,6 +22,18 @@
     background-color: #f8f8f8
   }
 
+  .topic-links>div {
+    padding: .2em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  .topic-links.selected>div {
+    background-color: white;
+  }
+
   .topic-contents {
     flex: 1 1;
   }
@@ -45,11 +57,13 @@
     crossorigin="anonymous"></script>
 
   <script>
-    var selectedH1;
+    var selectedTopic;
 
+    // Fill in the topic links on the left-side
     $("h1").each(function () {
-      var $h1 = $(this).parent();
-      $h1.hide();
+      var $h1 = $(this);
+      var $h1Parent = $h1.parent();
+      $h1Parent.hide();
 
       // Build topic element for the left-side menu
       var $topic = $("<div></div>", {
@@ -57,15 +71,30 @@
       });
       $(".topic-links").append($topic);
 
+      // Make it clickable
       $topic.click(function () {
-        if (selectedH1) {
-          selectedH1.$h1.hide();
+        if (selectedTopic) {
+          selectedTopic.$h1Parent.hide();
+          selectedTopic.$topic.removeClass("selected");
         }
 
-        $h1.show();
-        selectedH1 = { $h1, $topic };
+        $h1Parent.show();
+        $topic.addClass("selected");
+        selectedTopic = { $h1Parent, $topic };
       });
+
+      // If this is the first topic, click on it
+      if (!selectedTopic) {
+        $topic.click();
+      }
     });
+
+    // // Start with the first topic selected (unless one was in the url)
+    // var searchParams = new URLSearchParams(window.location.search);
+    // if (searchParams.has("topic")){
+
+    // }
+
 
     $(".my-main-content").removeClass("hidden");
 
