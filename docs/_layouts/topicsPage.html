@@ -51,6 +51,17 @@
     padding-left: 1em;
     flex: 1 1;
   }
+
+  .topic-footer {
+    margin-top: 1em;
+    width: 100%;
+  }
+  .topic-footer .back {
+    float: left;
+  }
+  .topic-footer .next {
+    float: right;
+  }
 </style>
 
 <body>
@@ -80,8 +91,10 @@
       startWith = searchParams.get("topic");
     }
 
-    // Fill in the topic links on the left-side
+    // Process each of the topics
     var selectedTopic;
+    var $priorTopic;
+    var $priorTopicFooter;
     $("h1").each(function () {
       var $h1 = $(this);
       var $h1Parent = $h1.parent();
@@ -104,6 +117,20 @@
         $topic.addClass("selected");
         selectedTopic = { $h1Parent, $topic };
       });
+
+      // In the content, add a footer with arrows Back and Next
+      var $topicFooter = $("<div></div>", {
+        class: "topic-footer"
+      });
+      $h1Parent.append($topicFooter);
+      if ($priorTopic) {
+        $topicFooter.append("<div class='back'>Back</div>");
+      }
+      if ($priorTopicFooter) {
+        priorTopicFooter.append("<div class='next'>Next</div>");
+      }
+      $priorTopic = $topic;
+      $priorTopicFooter = $topicFooter;
 
       // If this is the first topic, click on it
       if (!selectedTopic) {
