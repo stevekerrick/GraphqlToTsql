@@ -12,11 +12,12 @@ GO
 
 
 CREATE TABLE Seller (
-    [Name]        VARCHAR(64) NOT NULL PRIMARY KEY CLUSTERED
-,   DistributorName VARCHAR(64) NULL
+    [Name]        NVARCHAR(64) NOT NULL PRIMARY KEY CLUSTERED
+,   DistributorName NVARCHAR(64) NULL
 ,   City          VARCHAR(64) NULL
 ,   [State]       VARCHAR(64) NULL
 ,   PostalCode    VARCHAR(15) NULL
+,   CONSTRAINT FK_Seller_Seller FOREIGN KEY (DistributorName) REFERENCES Seller ([Name])
 );
 
 CREATE TABLE Product (
@@ -30,6 +31,7 @@ CREATE TABLE [Order] (
 ,   SellerName    NVARCHAR(64) NOT NULL
 ,   [Date]        DATE NOT NULL
 ,   Shipping      DECIMAL(5,2) NOT NULL
+,   CONSTRAINT FK_Order_Seller FOREIGN KEY (SellerName) REFERENCES Seller ([Name])
 );
 
 CREATE TABLE OrderDetail (
@@ -37,6 +39,8 @@ CREATE TABLE OrderDetail (
 ,   ProductName   NVARCHAR(64) NOT NULL
 ,   Quantity      INT NOT NULL
 ,   CONSTRAINT PK_OrderDetail PRIMARY KEY NONCLUSTERED (OrderId, ProductName)
+,   CONSTRAINT FK_OrderDetail_Order FOREIGN KEY (OrderId) REFERENCES [Order] (Id)
+,   CONSTRAINT FK_OrderDetail_Product FOREIGN KEY (ProductName) REFERENCES Product ([Name])
 );
 
 CREATE TABLE Badge (
@@ -45,10 +49,12 @@ CREATE TABLE Badge (
 );
 
 CREATE TABLE SellerBadge (
-    SellerName    VARCHAR(64) NOT NULL REFERENCES Seller ([Name])
-,   BadgeName     VARCHAR(64) NOT NULL REFERENCES Badge ([Name])
+    SellerName    NVARCHAR(64) NOT NULL
+,   BadgeName     VARCHAR(64) NOT NULL
 ,   DateAwarded   DATE NOT NULL
 ,   CONSTRAINT PK_SellerBadge PRIMARY KEY NONCLUSTERED (SellerName, BadgeName)
+,   CONSTRAINT FK_SellerBadge_Seller FOREIGN KEY (SellerName) REFERENCES Seller ([Name])
+,   CONSTRAINT FK_SellerBadge_Badge FOREIGN KEY (BadgeName) REFERENCES Badge ([Name])
 );
 GO
 
@@ -144,9 +150,6 @@ VALUES
 ,(@yvette,    @xavier,        'Petersburg',  'VA',   '23803')
 ,(@zeus,      @xavier,        'Dublin',      'GA',   '31021')
 ;
-
-ALTER TABLE Seller
-  ADD CONSTRAINT FK_Seller_Distributor FOREIGN KEY (DistributorName) REFERENCES Seller([Name]);
 
 
 PRINT 'Populating: Product';
