@@ -16,14 +16,14 @@ to one of your projects.
 ### Option 2
 If you are using .Net Framework, use the `nuget.exe` CLI to download the package:
 
-```
+```shell
 nuget install Newtonsoft.Json -OutputDirectory packages
 ```
 
 ### Option 3
 If you are using .Net Core, use the `dotnet.exe` CLI to download the package:
 
-```
+```shell
 dotnet add package GraphqlToTsql
 ```
 
