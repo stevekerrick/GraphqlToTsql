@@ -3,11 +3,19 @@
 
 {% include head.html %}
 <style>
-  /* html {
+  html {
+    background-color: #159957;
+    background-image: linear-gradient(120deg, #155799, #159957);
+  }
+
+  /* .page-header {
     color: #fff;
+    text-align: center;
     background-color: #159957;
     background-image: linear-gradient(120deg, #155799, #159957);
   } */
+
+
 
   body {
     overflow-y: scroll;
@@ -29,7 +37,7 @@
     flex: 0 0 auto;
     width: 30%;
     padding-top: .67em;
-    background-color: #f0f0f0
+    /* background-color: #f0f0f0 */
   }
 
   .topic-links>div {
@@ -50,6 +58,7 @@
   }
 
   .topic-contents {
+    background-color: white;
     padding-left: 1em;
     flex: 1 1;
   }
@@ -150,12 +159,12 @@
       });
       $h1Parent.append($topicFooter);
       if ($priorTopic) {
-        var back = $(`<button class="back">&lt; ${$priorTopic.text()}</button>`)
+        var back = $(`<button class="back">&larr; ${$priorTopic.text()}</button>`)
           .click($priorClick)
           .appendTo($topicFooter);
       }
       if ($priorTopicFooter) {
-        var next = $(`<button class="next">${$topic.text()} &gt;</button>`)
+        var next = $(`<button class="next">${$topic.text()} &rarr;</button>`)
           .click(click)
           .appendTo($priorTopicFooter);
       }
