@@ -151,7 +151,7 @@
       $h1Parent.append($topicFooter);
       if ($priorTopic) {
         var back = $(`<button class="back">&lt; ${$priorTopic.text()}</button>`)
-          .click(priorClick)
+          .click($priorClick)
           .appendTo($topicFooter);
       }
       if ($priorTopicFooter) {
