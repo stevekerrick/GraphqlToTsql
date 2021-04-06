@@ -46,7 +46,7 @@ Register the main `GraphqlToTsql` component, which is named `GraphqlActions`, wi
 For example, if you are using AspNetCore you could register `GraphqlActions` in the `ConfigureServices`
 method of `Startup`.
 
-```java
+```csharp
 public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
