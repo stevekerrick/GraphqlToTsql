@@ -4,26 +4,70 @@ title: Getting Started
 ---
 
 <div markdown="1">
-# aaa
+# Download GraphqlToTsql
+Get the code one of three ways.
 
-Isn't this nice?
+## Get the NuGet Package
+
+### Option 1
+Use Visual Studio's `Manage NuGet Packages for Solution` GUI to add GraphqlToTsql
+to one of your projects.
+
+### Option 2
+If your project uses the .Net Framework, you can use the Package Manager Console 
+(or another command line) to install GraphqlToTsql:
+`nuget install Newtonsoft.Json -OutputDirectory packages`
+
+### Option 3
+If your project uses .Net Core, `dotnet add package GraphqlToTsql`
+
+## Or Download the Code
+Clone the [repo](https://github.com/stevekerrick/GraphqlToTsql),
+and include the `GraphqlToTsql` project in your solution.
 </div>
 
 <div markdown="1">
-# bbb
+# Create Entity Mapping
+TODO
 
-Also nice
+
 </div>
 
 <div markdown="1">
-# ccc
+# Register GraphqlActions
+Register the main `GraphqlToTsql` component, which is named `GraphqlActions`, with your DI container.
 
-* bullet 1
-* bullet 2
+For example, if you are using AspNetCore you could register `GraphqlActions` in the `ConfigureServices`
+method of `Startup`.
+
+```C#
+public class Startup
+{
+    ...
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        ...
+
+        services
+            .AddScoped<IGraphqlActions, GraphqlActions>();
+    }
+
+    ...
+}
+```
 </div>
 
 <div markdown="1">
-# ddd
+# Wire up the Database
+TODO
 
-adsf
+
+</div>
+
+<div markdown="1">
+# Wire up the API
+TODO
+
+
 </div>
