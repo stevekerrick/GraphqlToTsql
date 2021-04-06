@@ -45,7 +45,9 @@
     background-color: white;
   }
 
-  .topic-header { font-weight: bold; }
+  .topic-header {
+    font-weight: bold;
+  }
 
   .topic-contents {
     padding-left: 1em;
@@ -57,15 +59,24 @@
     width: 100%;
     height: 2rem;
     color: #606c71;
-    font-size: 0.8;
   }
+
   .topic-footer .back {
     float: left;
   }
+
   .topic-footer .next {
     float: right;
   }
-  .topic-footer button { background-color: white; border-radius: .25em; }
+
+  .topic-footer button {
+    color: rgba(255, 255, 255, 0.7);
+    background-color: white;
+    border-radius: .25em;
+    font-size: smaller;
+    margin: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: .3rem;
+  }
 </style>
 
 <body>
@@ -128,13 +139,13 @@
       });
       $h1Parent.append($topicFooter);
       if ($priorTopic) {
-        var back = $(`<button class="btn back">&lt; ${$priorTopic.text()}</button>`)
-          .click(function(){ priorTopic.click(); })
+        var back = $(`<button class="back">&lt; ${$priorTopic.text()}</button>`)
+          .click(function () { priorTopic.click(); })
           .appendTo($topicFooter);
       }
       if ($priorTopicFooter) {
-        var next = $(`<button class="btn next">${$topic.text()} &gt;</button>`)
-          .click(function(){ topic.click(); })
+        var next = $(`<button class="next">${$topic.text()} &gt;</button>`)
+          .click(function () { topic.click(); })
           .appendTo($priorTopicFooter);
       }
       $priorTopic = $topic;
