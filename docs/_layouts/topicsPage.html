@@ -143,14 +143,13 @@
       });
       $h1Parent.append($topicFooter);
       if ($priorTopic) {
-        var $priorTopic2 = $priorTopic;
-        var back = $(`<button class="back">&lt; ${$priorTopic2.text()}</button>`)
-          .click(function () { $priorTopic2.click(); })
+        var back = $(`<button class="back">&lt; ${$priorTopic.text()}</button>`)
+          .click($priorTopic.click)
           .appendTo($topicFooter);
       }
       if ($priorTopicFooter) {
         var next = $(`<button class="next">${$topic.text()} &gt;</button>`)
-          .click(function () { $topic.click(); })
+          .click($topic.click)
           .appendTo($priorTopicFooter);
       }
       $priorTopic = $topic;
