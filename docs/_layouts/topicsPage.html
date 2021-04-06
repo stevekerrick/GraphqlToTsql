@@ -13,10 +13,12 @@
 
   .my-main-content {
     padding: 0 2rem;
+    min-height: 100%;
   }
 
   .topic-container {
     display: flex;
+    min-height: 100%;
   }
 
   .topic-links {
@@ -30,17 +32,19 @@
 
   .topic-links>div {
     padding: .4em;
+    margin-right: .5em;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     cursor: pointer;
+    border: 1px solid gray;
+    border-radius: .25em;
   }
 
   .topic-links>div.selected,
   .topic-links>div:hover {
     background-color: white;
-    border: 1px solid gray;
-    border-radius: .25em;
+    border-color: gray;
   }
 
   .topic-header {
@@ -89,7 +93,7 @@
   <section class="my-main-content hidden">
     <div class="topic-container">
       <div class="topic-links">
-        <div class="topic-header">{{page.title}}</div>
+        <section class="topic-header">{{page.title}}</section>
       </div>
       <div class="topic-contents">
         {{ content }}
