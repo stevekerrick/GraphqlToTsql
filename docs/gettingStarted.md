@@ -49,7 +49,7 @@ by a foreign key named ProductName.
 
 You could map the Product table to a GraphQL entity named Product using an Entity Mapping like this:
 
-```csharp=
+```csharp
 using GraphqlToTsql.Entities;
 using System.Collections.Generic;
 
@@ -121,7 +121,7 @@ including how to report errors.
 The `GraphqlToTsql` repo has a reference AspNetCore project that follows the spec. Here is the controller that exposes
 the endpoint `/api/graphql`.
 
-```csharp=
+```csharp
 using DemoEntities;
 using GraphqlToTsql;
 using Microsoft.AspNetCore.Mvc;
