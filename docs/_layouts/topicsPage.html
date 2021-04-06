@@ -124,12 +124,12 @@
       });
       $h1Parent.append($topicFooter);
       if ($priorTopic) {
-        var back = $(`<a class="btn back">&lt; ${$priorTopic.text()}</a>`)
+        var back = $(`<button class="btn back">&lt; ${$priorTopic.text()}</button>`)
           .click(function(){ priorTopic.click(); })
           .appendTo($topicFooter);
       }
       if ($priorTopicFooter) {
-        var next = $(`<a class="btn next">${$topic.text()} &gt;</a>`)
+        var next = $(`<button class="btn next">${$topic.text()} &gt;</button>`)
           .click(function(){ topic.click(); })
           .appendTo($priorTopicFooter);
       }
