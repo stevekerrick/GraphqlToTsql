@@ -124,10 +124,14 @@
       });
       $h1Parent.append($topicFooter);
       if ($priorTopic) {
-        $topicFooter.append(`<div class="back">&lt; ${$priorTopic.text()}</div>`);
+        var back = $(`<a class="btn back">&lt; ${$priorTopic.text()}</a>`)
+          .click(function(){ priorTopic.click(); })
+          .appendTo($topicFooter);
       }
       if ($priorTopicFooter) {
-        $priorTopicFooter.append(`<div class="next">${$topic.text()} &gt;</div>`);
+        var next = $(`<a class="btn next">${$topic.text()} &gt;</a>`)
+          .click(function(){ topic.click(); })
+          .appendTo($priorTopicFooter);
       }
       $priorTopic = $topic;
       $priorTopicFooter = $topicFooter;
