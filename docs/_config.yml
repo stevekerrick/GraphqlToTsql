@@ -1,3 +1,5 @@
 theme: jekyll-theme-cayman
 title: GraphQL to TSQL
 tagline: This is my funny Tagline
+markdown_extensions:
+  - codehilite
