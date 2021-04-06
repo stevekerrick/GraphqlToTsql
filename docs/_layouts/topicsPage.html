@@ -112,6 +112,7 @@
 
     // Process each of the topics
     var selectedTopic;
+    var priorClick;
     var $priorTopic;
     var $priorTopicFooter;
     $("h1").each(function () {
@@ -126,7 +127,7 @@
       $(".topic-links").append($topic);
 
       // Make it clickable
-      $topic.click(function () {
+      var click = () => {
         if (selectedTopic) {
           selectedTopic.$h1Parent.hide();
           selectedTopic.$topic.removeClass("selected");
@@ -135,7 +136,9 @@
         $h1Parent.show();
         $topic.addClass("selected");
         selectedTopic = { $h1Parent, $topic };
-      });
+      };
+
+      $topic.click(click);
 
       // In the content, add a footer with arrows Back and Next
       var $topicFooter = $("<div></div>", {
@@ -144,14 +147,15 @@
       $h1Parent.append($topicFooter);
       if ($priorTopic) {
         var back = $(`<button class="back">&lt; ${$priorTopic.text()}</button>`)
-          .click($priorTopic.click)
+          .click(priorClick)
           .appendTo($topicFooter);
       }
       if ($priorTopicFooter) {
         var next = $(`<button class="next">${$topic.text()} &gt;</button>`)
-          .click($topic.click)
+          .click(click)
           .appendTo($priorTopicFooter);
       }
+      $priorClick = click;
       $priorTopic = $topic;
       $priorTopicFooter = $topicFooter;
 
