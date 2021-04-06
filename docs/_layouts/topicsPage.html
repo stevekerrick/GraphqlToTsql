@@ -103,6 +103,21 @@
 
   <script>
 
+    // Use a closure to create a topic "click" handler
+    var selectedTopic;
+    function makeClick($h1Parent, $topic) {
+      return () => {
+        if (selectedTopic) {
+          selectedTopic.$h1Parent.hide();
+          selectedTopic.$topic.removeClass("selected");
+        }
+
+        $h1Parent.show();
+        $topic.addClass("selected");
+        selectedTopic = { $h1Parent, $topic };
+      };
+    }
+
     // See if the url tells us which topic to start with
     var startWith;
     var searchParams = new URLSearchParams(window.location.search);
@@ -111,7 +126,6 @@
     }
 
     // Process each of the topics
-    var selectedTopic;
     var priorClick;
     var $priorTopic;
     var $priorTopicFooter;
@@ -127,17 +141,7 @@
       $(".topic-links").append($topic);
 
       // Make it clickable
-      var click = () => {
-        if (selectedTopic) {
-          selectedTopic.$h1Parent.hide();
-          selectedTopic.$topic.removeClass("selected");
-        }
-
-        $h1Parent.show();
-        $topic.addClass("selected");
-        selectedTopic = { $h1Parent, $topic };
-      };
-
+      var click = makeClick($h1Parent, $topic);
       $topic.click(click);
 
       // In the content, add a footer with arrows Back and Next
