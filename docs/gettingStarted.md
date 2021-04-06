@@ -14,13 +14,12 @@ Use Visual Studio's `Manage NuGet Packages for Solution` GUI to add GraphqlToTsq
 to one of your projects.
 
 ### Option 2
-If your project uses .Net Framework, you can use the Package Manager Console 
-(or another command line) to install GraphqlToTsql:
-    `nuget install Newtonsoft.Json -OutputDirectory packages`
+If you are using .Net Framework, use the `nuget.exe` CLI to download the package:
+```nuget install Newtonsoft.Json -OutputDirectory packages```
 
 ### Option 3
-If your project uses .Net Core,
-    `dotnet add package GraphqlToTsql`
+If you are using .Net Core, use the `dotnet.exe` CLI to download the package:
+```dotnet add package GraphqlToTsql```
 
 ## Or Download the Code
 Clone the [repo](https://github.com/stevekerrick/GraphqlToTsql),
