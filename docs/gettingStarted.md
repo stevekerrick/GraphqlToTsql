@@ -42,47 +42,42 @@ and include project `GraphqlToTsql` in your solution.
 that will be accessible in the GraphQL, and to map them to tables and columns in the
 database.
 
-For example, suppose you have a table named Product, which is related to the OrderDetail table
-by a foreign key named ProductName.
+For example, suppose you have a table named `Product`, which is related to the `OrderDetail` table
+by a foreign key column named `ProductName`.
 
-![](images/productSchema.png)
+    ![](images/productSchema.png)
 
-You could map the Product table to a GraphQL entity named Product using an Entity Mapping like this:
+You could map the `Product` table to a GraphQL entity named `Product` using an Entity Mapping like this:
 
 ```csharp
-    using GraphqlToTsql.Entities;
-    using System.Collections.Generic;
+public class ProductDef : EntityBase
+{
+    public static ProductDef Instance = new ProductDef();
 
-    namespace DemoEntities
+    public override string Name => "product";
+    public override string DbTableName => "Product";
+    public override string[] PrimaryKeyFieldNames => new[] { "name" };
+
+    protected override List<Field> BuildFieldList()
     {
-        public class ProductDef : EntityBase
+        return new List<Field>
         {
-            public static ProductDef Instance = new ProductDef();
+            Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
+            Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
+            Field.Column(this, "price", "Price", ValueType.Float, IsNullable.No),
 
-            public override string Name => "product";
-            public override string DbTableName => "Product";
-            public override string[] PrimaryKeyFieldNames => new[] { "name" };
-
-            protected override List<Field> BuildFieldList()
-            {
-                return new List<Field>
-                {
-                    Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
-                    Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
-                    Field.Column(this, "price", "Price", ValueType.Float, IsNullable.No),
-
-                    Field.Set(OrderDetailDef.Instance, "orderDetails", IsNullable.Yes, new Join(
-                        ()=>this.GetField("name"),
-                        ()=>OrderDetailDef.Instance.GetField("productName"))
-                    )
-                };
-            }
-        }
+            Field.Set(OrderDetailDef.Instance, "orderDetails", IsNullable.Yes, new Join(
+                ()=>this.GetField("name"),
+                ()=>OrderDetailDef.Instance.GetField("productName"))
+            )
+        };
     }
+}
 ```
 
-* There is a lot of flexability in the mapping: calculated fields, custom join criteria,
+* There is a lot of flexibility in the mapping: calculated fields, custom join criteria,
 using Table Valued Functions, virtual tables, and more. See: [GraphqlToTsql Documentation](/documentation)
+* For more examples, there is a reference application. See: [Demo Entities](https://github.com/stevekerrick/GraphqlToTsql/tree/main/src/DemoEntities)
 
 </div>
 
