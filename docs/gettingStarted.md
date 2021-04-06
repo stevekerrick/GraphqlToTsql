@@ -29,13 +29,55 @@ dotnet add package GraphqlToTsql
 
 ## Or Download the Code
 Clone the [repo](https://github.com/stevekerrick/GraphqlToTsql),
-and include the `GraphqlToTsql` project in your solution.
+and include project `GraphqlToTsql` in your solution.
 </div>
 
 <div markdown="1">
 # Create Entity Mapping
-TODO
+`GraphqlToTsql` uses a pattern called "Entity Mapping" to define the types and fields
+that will be accessible in the GraphQL, and how those types and fields look in the
+database.
 
+For example, suppose you have a table named Product, which is related to the OrderDetail table
+by a foreign key named ProductName.
+
+![](images/productSchema.png)
+
+You could map the Product table to a GraphQL entity named Product using an Entity Mapping like this:
+
+```csharp
+using GraphqlToTsql.Entities;
+using System.Collections.Generic;
+
+namespace DemoEntities
+{
+    public class ProductDef : EntityBase
+    {
+        public static ProductDef Instance = new ProductDef();
+
+        public override string Name => "product";
+        public override string DbTableName => "Product";
+        public override string[] PrimaryKeyFieldNames => new[] { "name" };
+
+        protected override List<Field> BuildFieldList()
+        {
+            return new List<Field>
+            {
+                Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
+                Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
+                Field.Column(this, "price", "Price", ValueType.Float, IsNullable.No),
+
+                Field.Set(OrderDetailDef.Instance, "orderDetails", IsNullable.Yes, new Join(
+                    ()=>this.GetField("name"),
+                    ()=>OrderDetailDef.Instance.GetField("productName"))
+                )
+            };
+        }
+    }
+}
+```
+
+* See: [GraphqlToTsql Documentation](/documentation)
 
 </div>
 
