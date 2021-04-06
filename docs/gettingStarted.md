@@ -50,35 +50,35 @@ by a foreign key named ProductName.
 You could map the Product table to a GraphQL entity named Product using an Entity Mapping like this:
 
 ```csharp
-using GraphqlToTsql.Entities;
-using System.Collections.Generic;
+    using GraphqlToTsql.Entities;
+    using System.Collections.Generic;
 
-namespace DemoEntities
-{
-    public class ProductDef : EntityBase
+    namespace DemoEntities
     {
-        public static ProductDef Instance = new ProductDef();
-
-        public override string Name => "product";
-        public override string DbTableName => "Product";
-        public override string[] PrimaryKeyFieldNames => new[] { "name" };
-
-        protected override List<Field> BuildFieldList()
+        public class ProductDef : EntityBase
         {
-            return new List<Field>
-            {
-                Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
-                Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
-                Field.Column(this, "price", "Price", ValueType.Float, IsNullable.No),
+            public static ProductDef Instance = new ProductDef();
 
-                Field.Set(OrderDetailDef.Instance, "orderDetails", IsNullable.Yes, new Join(
-                    ()=>this.GetField("name"),
-                    ()=>OrderDetailDef.Instance.GetField("productName"))
-                )
-            };
+            public override string Name => "product";
+            public override string DbTableName => "Product";
+            public override string[] PrimaryKeyFieldNames => new[] { "name" };
+
+            protected override List<Field> BuildFieldList()
+            {
+                return new List<Field>
+                {
+                    Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
+                    Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
+                    Field.Column(this, "price", "Price", ValueType.Float, IsNullable.No),
+
+                    Field.Set(OrderDetailDef.Instance, "orderDetails", IsNullable.Yes, new Join(
+                        ()=>this.GetField("name"),
+                        ()=>OrderDetailDef.Instance.GetField("productName"))
+                    )
+                };
+            }
         }
     }
-}
 ```
 
 * See: [GraphqlToTsql Documentation](/documentation)
