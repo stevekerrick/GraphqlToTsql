@@ -15,11 +15,17 @@ to one of your projects.
 
 ### Option 2
 If you are using .Net Framework, use the `nuget.exe` CLI to download the package:
-```nuget install Newtonsoft.Json -OutputDirectory packages```
+
+```
+nuget install Newtonsoft.Json -OutputDirectory packages
+```
 
 ### Option 3
 If you are using .Net Core, use the `dotnet.exe` CLI to download the package:
-```dotnet add package GraphqlToTsql```
+
+```
+dotnet add package GraphqlToTsql
+```
 
 ## Or Download the Code
 Clone the [repo](https://github.com/stevekerrick/GraphqlToTsql),
@@ -43,17 +49,17 @@ method of `Startup`.
 ```C#
 public class Startup
 {
-    ...
+    //...
 
     public void ConfigureServices(IServiceCollection services)
     {
-        ...
+        //...
 
         services
             .AddScoped<IGraphqlActions, GraphqlActions>();
     }
 
-    ...
+    //...
 }
 ```
 </div>
