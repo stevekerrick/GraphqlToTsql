@@ -81,7 +81,8 @@ You could map the Product table to a GraphQL entity named Product using an Entit
     }
 ```
 
-* See: [GraphqlToTsql Documentation](/documentation)
+* There is a lot of flexability in the mapping: calculated fields, custom join criteria,
+using Table Valued Functions, virtual tables, and more. See: [GraphqlToTsql Documentation](/documentation)
 
 </div>
 
@@ -89,8 +90,10 @@ You could map the Product table to a GraphQL entity named Product using an Entit
 
 # Register GraphqlActions
 
+Most applications use a DI container (such as AspNetCore's [IServiceCollection](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/dependency-injection?view=aspnetcore-5.0)). If your application doesn't, you can skip this section.
+
 The main class in `GraphqlToTsql` is named `GraphqlActions`, and it impelements interface `IGraphqlActions`.
-If your application uses a DI container, you need to register the class.
+You need to register that class.
 
 For example, if you are using AspNetCore you could register `GraphqlActions` in the `ConfigureServices`
 method of `Startup`.
