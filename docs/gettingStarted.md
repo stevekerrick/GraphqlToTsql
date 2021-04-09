@@ -45,7 +45,7 @@ database.
 For example, suppose you have a table named `Product`, which is related to the `OrderDetail` table
 by a foreign key column named `ProductName`.
 
-    ![](images/productSchema.png)
+![](images/productSchema.png)
 
 You could map the `Product` table to a GraphQL entity named `Product` using an Entity Mapping like this:
 
