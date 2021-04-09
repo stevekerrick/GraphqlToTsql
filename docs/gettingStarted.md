@@ -7,29 +7,30 @@ title: Getting Started
 
 # Get GraphqlToTsql
 
-Two easy ways to get `GraphqlToTsql`.
+There are two ways to get `GraphqlToTsql`.
 
 ## Get the NuGet Package
 
-### Option 1
 Use Visual Studio's `Manage NuGet Packages for Solution` GUI to add GraphqlToTsql
 to one of your projects.
 
-### Option 2
+OR
+
 If you are using .Net Framework, use the `nuget.exe` CLI to download the package:
 
 ```shell
 nuget install Newtonsoft.Json -OutputDirectory packages
 ```
 
-### Option 3
+OR
+
 If you are using .Net Core, use the `dotnet.exe` CLI to download the package:
 
 ```shell
 dotnet add package GraphqlToTsql
 ```
 
-## Or Download the Code
+## Clone the GitHub Repository
 Clone the [repo](https://github.com/stevekerrick/GraphqlToTsql),
 and include project `GraphqlToTsql` in your solution.
 </div>
@@ -38,7 +39,7 @@ and include project `GraphqlToTsql` in your solution.
 
 # Create Entity Mapping
 
-`GraphqlToTsql` uses a pattern called "Entity Mapping" to define the types and fields
+`GraphqlToTsql` uses the "Entity Mapping" pattern to define the types and fields
 that will be accessible in the GraphQL, and to map them to tables and columns in the
 database.
 
@@ -47,7 +48,7 @@ by a foreign key column named `ProductName`.
 
 ![](images/productSchema.png)
 
-You could map the `Product` table to a GraphQL entity named `Product` using an Entity Mapping like this:
+The Entity for the `Product` table could look like this:
 
 ```csharp
 public class ProductDef : EntityBase
@@ -75,7 +76,7 @@ public class ProductDef : EntityBase
 }
 ```
 
-* There is a lot of flexibility in the mapping: calculated fields, custom join criteria,
+* The mapping allows a lot of flexibility: calculated fields, custom join criteria,
 using Table Valued Functions, virtual tables, and more. See: [GraphqlToTsql Documentation](/documentation)
 * For more examples, there is a reference application. See: [Demo Entities](https://github.com/stevekerrick/GraphqlToTsql/tree/main/src/DemoEntities)
 
@@ -243,13 +244,38 @@ namespace DemoApp.Controllers
 
 <div markdown="1">
 
-# Advanced: Use Custom Database Access
+# Optional: Wire up DB
 
-The goal of `GraphqlToTsql` is to translate a GraphQL query into a TSQL query. Optionally, `GraphqlToTsql` can also
-send the TSQL to the database and fetch the resulting JSON. You just supply a connection string.
+`GraphqlToTsql` is meant to be a flexible component of your .NET API.
 
-If you prefer to wire up your own database access, use `GraphqlActions.TranslateToTsql()` to get the
-TSQL plus parameters, then use your favorite SQL Connection tool to submit the query.
+`GraphqlToTsql` is happy to execute the query. You simply supply the connection string, and call `TranslateAndRunQuery`.
+
+```csharp
+var settings = new GraphqlActionSettings
+{
+    AllowIntrospection = false,
+    EntityList = DemoEntityList.All(),
+    ConnectionString = _configuration.GetConnectionString("DemoDB")
+};
+
+var queryResult = await _graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, settings);
+```
+
+If you prefer to have more control over the database access you can use `GraphqlToTsql` to create the TSQL
+query.
+
+```csharp
+var settings = new GraphqlActionSettings
+{
+    AllowIntrospection = false,
+    EntityList = DemoEntityList.All()
+};
+
+var tsqlResult = await _graphqlActions.TranslateToTsql(graphql, graphqlParameters, settings);
+```
+
+If you choose to execute the TSQL yourself you'll find [DbAccess](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Database/DbAccess.cs)
+helpful. 
 
 * See: [IGraphqlActions interface](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/GraphqlActions.cs)
 * See: The [DbAccess](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Database/DbAccess.cs)
