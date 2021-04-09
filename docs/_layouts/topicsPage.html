@@ -7,6 +7,10 @@
     overflow-y: scroll;
   }
 
+  body.hasIframe {
+    overflow-y: hidden;
+  }
+
   section.hidden {
     display: none;
   }
@@ -15,7 +19,7 @@
     padding: 0 2rem;
   }
 
-  .my-main-content.hasIframe {
+  .hasIframe .my-main-content {
     padding-right: 0;
   }
 
@@ -104,13 +108,13 @@
 
   @media screen and (min-width: 64em) {
     .iframeWrapper {
-      height: calc(100vh - 130px);
+      height: calc(100vh - 7.125em);
     }
   }
 
-  @media screen and (min-width: 42em) {
+  @media screen and (max-width: 64em) {
     .iframeWrapper {
-      height: calc(100vh - 106px);
+      height: calc(100vh - 7.52em);
     }
   }
 </style>
@@ -146,9 +150,9 @@
 
         // Adjust the CSS for topic content that's an iframe
         if (iframeUrl) {
-          $(".my-main-content").addClass("hasIframe");
+          $("body").addClass("hasIframe");
         } else {
-          $(".my-main-content").removeClass("hasIframe");
+          $("body").removeClass("hasIframe");
         }
 
         $h1Parent.show();
