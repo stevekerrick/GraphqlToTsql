@@ -9,20 +9,20 @@ title: Getting Started
 
 There are two ways to get `GraphqlToTsql`.
 
-## Get the NuGet Package
+## Method 1: Get the NuGet Package
 
 Use Visual Studio's `Manage NuGet Packages for Solution` GUI to add GraphqlToTsql
 to one of your projects.
 
-OR
+    OR
 
 If you are using .Net Framework, use the `nuget.exe` CLI to download the package:
 
 ```shell
-nuget install Newtonsoft.Json -OutputDirectory packages
+nuget install GraphqlToTsql -OutputDirectory packages
 ```
 
-OR
+    OR
 
 If you are using .Net Core, use the `dotnet.exe` CLI to download the package:
 
@@ -30,7 +30,7 @@ If you are using .Net Core, use the `dotnet.exe` CLI to download the package:
 dotnet add package GraphqlToTsql
 ```
 
-## Clone the GitHub Repository
+## Method 2: Clone the GitHub Repository
 Clone the [repo](https://github.com/stevekerrick/GraphqlToTsql),
 and include project `GraphqlToTsql` in your solution.
 </div>
@@ -76,9 +76,11 @@ public class ProductDef : EntityBase
 }
 ```
 
-* The mapping allows a lot of flexibility: calculated fields, custom join criteria,
-using Table Valued Functions, virtual tables, and more. See: [GraphqlToTsql Documentation](/documentation)
-* For more examples, there is a reference application. See: [Demo Entities](https://github.com/stevekerrick/GraphqlToTsql/tree/main/src/DemoEntities)
+* See: [GraphqlToTsql Documentation](/documentation) for guidance on mapping. `GraphqlToTsql` 
+is flexible, allowing calculated fields, custom join criteria,
+using Table Valued Functions, virtual tables, and more.
+* See: [Demo Entities](https://github.com/stevekerrick/GraphqlToTsql/tree/main/src/DemoEntities), the reference application,
+for more examples.
 
 </div>
 
@@ -110,12 +112,12 @@ public class Startup
 
 # Wire up the API
 
-The goal of `GraphqlToTsql` is to translate a GraphQL query into a TSQL query, and to execute the query for you.
-You provide the web service, write the controller, and do authentication/authorization.
+The goal of `GraphqlToTsql` is to translate a *GraphQL* query into a *TSQL* query, and to execute the query for you.
+*You* provide the web service/controller, and do authentication/authorization.
 
 One thing to keep in mind: if you want to use the GraphQL query language with any of the standard tools in the GraphQL ecosystem,
 such as [Apollo Client](https://www.apollographql.com/docs/react/), your API endpoint will need to comply with the standard,
-including how to report errors.
+including how errors are reported.
 
 The `GraphqlToTsql` repo has a reference AspNetCore project that follows the spec. Here is the controller that exposes
 the endpoint `/api/graphql`.
@@ -186,7 +188,7 @@ namespace DemoApp.Controllers
             {
                 AllowIntrospection = true,
                 EntityList = DemoEntityList.All(),
-                ConnectionString = _configuration.GetConnectionString("DemoDB")
+                ConnectionString = connectionString
             };
 
             var queryResult = await _graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, settings);
@@ -239,7 +241,6 @@ namespace DemoApp.Controllers
 }
 ```
 
-
 </div>
 
 <div markdown="1">
@@ -261,7 +262,7 @@ var settings = new GraphqlActionSettings
 var queryResult = await _graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, settings);
 ```
 
-If you prefer to have more control over the database access you can use `GraphqlToTsql` to create the TSQL
+If you prefer to have more control over the database access you can use `TranslateToTsql` to create the TSQL
 query.
 
 ```csharp
