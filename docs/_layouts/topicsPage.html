@@ -15,13 +15,17 @@
     padding: 0 2rem;
   }
 
+  .my-main-content.hasIframe {
+    padding-right: 0;
+  }
+
   .topic-container {
     display: flex;
   }
 
   .topic-links {
     flex: 0 0 auto;
-    width: 30%;
+    width: 15em;
     padding-top: .67em;
   }
 
@@ -133,11 +137,18 @@
 
     // Use a closure to create a topic "click" handler
     var selectedTopic;
-    function makeClick($h1Parent, $topic) {
+    function makeClick($h1Parent, $topic, iframeUrl) {
       return () => {
         if (selectedTopic) {
           selectedTopic.$h1Parent.hide();
           selectedTopic.$topic.removeClass("selected");
+        }
+
+        // Adjust the CSS for topic content that's an iframe
+        if (iframeUrl) {
+          $(".my-main-content").addClass("hasIframe");
+        } else {
+          $(".my-main-content").removeClass("hasIframe");
         }
 
         $h1Parent.show();
@@ -179,7 +190,7 @@
       $(".topic-links").append($topic);
 
       // Make it clickable
-      var click = makeClick($h1Parent, $topic);
+      var click = makeClick($h1Parent, $topic, iframeUrl);
       $topic.click(click);
 
       // In the content, add a footer with arrows Back and Next
