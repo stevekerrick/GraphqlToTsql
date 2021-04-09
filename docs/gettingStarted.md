@@ -9,12 +9,12 @@ title: Getting Started
 
 There are two ways to get `GraphqlToTsql`.
 
-## Method 1: Get the NuGet Package
+## Method 1: NuGet
 
 Use Visual Studio's `Manage NuGet Packages for Solution` GUI to add GraphqlToTsql
 to one of your projects.
 
-    OR
+> OR
 
 If you are using .Net Framework, use the `nuget.exe` CLI to download the package:
 
@@ -22,7 +22,7 @@ If you are using .Net Framework, use the `nuget.exe` CLI to download the package
 nuget install GraphqlToTsql -OutputDirectory packages
 ```
 
-    OR
+> OR
 
 If you are using .Net Core, use the `dotnet.exe` CLI to download the package:
 
@@ -43,7 +43,7 @@ and include project `GraphqlToTsql` in your solution.
 that will be accessible in the GraphQL, and to map them to tables and columns in the
 database.
 
-For example, suppose you have a table named `Product`, which is related to the `OrderDetail` table
+Suppose you have a table named `Product`, which is related to the `OrderDetail` table
 by a foreign key column named `ProductName`.
 
 ![](images/productSchema.png)
@@ -88,7 +88,7 @@ for more examples.
 
 # Register GraphqlActions
 
-Most applications use a DI container (such as AspNetCore's [IServiceCollection](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/dependency-injection?view=aspnetcore-5.0)). If your application doesn't, you can skip this section.
+If your application uses a DI container (such as AspNetCore's [IServiceCollection](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/dependency-injection?view=aspnetcore-5.0)), there is one class to register.
 
 The main class in `GraphqlToTsql` is named `GraphqlActions`, and it impelements interface `IGraphqlActions`.
 You need to register that class.
@@ -249,7 +249,7 @@ namespace DemoApp.Controllers
 
 `GraphqlToTsql` is meant to be a flexible component of your .NET API.
 
-`GraphqlToTsql` is happy to execute the query. You simply supply the connection string, and call `TranslateAndRunQuery`.
+`GraphqlToTsql` is happy to execute the query -- simply supply the connection string, and call `TranslateAndRunQuery`.
 
 ```csharp
 var settings = new GraphqlActionSettings
@@ -275,11 +275,8 @@ var settings = new GraphqlActionSettings
 var tsqlResult = await _graphqlActions.TranslateToTsql(graphql, graphqlParameters, settings);
 ```
 
-If you choose to execute the TSQL yourself you'll find [DbAccess](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Database/DbAccess.cs)
-helpful. 
-
 * See: [IGraphqlActions interface](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/GraphqlActions.cs)
 * See: The [DbAccess](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Database/DbAccess.cs)
-is how `GraphqlToTsql` access the database using [Dapper](https://github.com/StackExchange/Dapper)
+class is how `GraphqlToTsql` access the database using [Dapper](https://github.com/StackExchange/Dapper)
 
 </div>
