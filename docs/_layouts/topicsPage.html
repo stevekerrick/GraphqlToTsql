@@ -13,21 +13,16 @@
 
   .my-main-content {
     padding: 0 2rem;
-    /* min-height: 100%; */
   }
 
   .topic-container {
     display: flex;
-    /* min-height: 100%; */
   }
 
   .topic-links {
     flex: 0 0 auto;
     width: 30%;
     padding-top: .67em;
-    /* background-color: #d0d0d0; */
-    /* min-height: 100%; */
-    /* border-right: 1px solid white; */
   }
 
   .topic-links>div {
@@ -43,7 +38,6 @@
 
   .topic-links>div.selected,
   .topic-links>div:hover {
-    /* background-color: white; */
     border-color: gray;
   }
 
@@ -87,6 +81,33 @@
 
   .topic-footer button:hover {
     background-color: #f0f0f0;
+  }
+
+  .iframeWrapper {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  @media screen and (min-width: 64em) {
+    .iframeWrapper {
+      height: calc(100% - 130px);
+    }
+  }
+
+  @media screen and (min-width: 42em) {
+    .iframeWrapper {
+      height: calc(100% - 106px);
+    }
   }
 </style>
 
@@ -142,9 +163,18 @@
       var $h1Parent = $h1.parent();
       $h1Parent.hide();
 
+      // Parse the H1 text. Iframes are formatted like text|url
+      var topicText = $h1.text();
+      var iframeUrl = null;
+      var pipe = topicText.indexOf('|');
+      if (pipe > 0) {
+        iframeUrl = topicText.substring(pipe + 1);
+        topicText = topicText.substring(0, pipe);
+      }
+
       // Build topic element for the left-side menu
       var $topic = $("<div></div>", {
-        text: $h1.text()
+        text: topicText
       });
       $(".topic-links").append($topic);
 
@@ -153,23 +183,40 @@
       $topic.click(click);
 
       // In the content, add a footer with arrows Back and Next
-      var $topicFooter = $("<div></div>", {
-        class: "topic-footer"
-      });
-      $h1Parent.append($topicFooter);
-      if ($priorTopic) {
-        var back = $(`<button class="back">&larr; ${$priorTopic.text()}</button>`)
-          .click($priorClick)
-          .appendTo($topicFooter);
+      // (Don't do this for iframe topics)
+      if (!iframeUrl) {
+        var $topicFooter = $("<div></div>", {
+          class: "topic-footer"
+        });
+        $h1Parent.append($topicFooter);
+        if ($priorTopic) {
+          var back = $(`<button class="back">&larr; ${$priorTopic.text()}</button>`)
+            .click($priorClick)
+            .appendTo($topicFooter);
+        }
+        if ($priorTopicFooter) {
+          var next = $(`<button class="next">${$topic.text()} &rarr;</button>`)
+            .click(click)
+            .appendTo($priorTopicFooter);
+        }
+        $priorClick = click;
+        $priorTopic = $topic;
+        $priorTopicFooter = $topicFooter;
       }
-      if ($priorTopicFooter) {
-        var next = $(`<button class="next">${$topic.text()} &rarr;</button>`)
-          .click(click)
-          .appendTo($priorTopicFooter);
+
+      // Build the iframe
+      // (Only do this for iframe topics)
+      if (iframeUrl) {
+        $h1Parent.empty();
+        $h1Parent.append($(`
+          <section class="iframeWrapper">
+            <iframe
+              title="${topicText}"
+              src="${iframeUrl}">
+            </iframe>
+          </section>
+        `));
       }
-      $priorClick = click;
-      $priorTopic = $topic;
-      $priorTopicFooter = $topicFooter;
 
       // If this is the first topic, click on it
       if (!selectedTopic) {
