@@ -9,14 +9,14 @@ namespace DemoEntities
         {
             return new List<EntityBase>
             {
-                BadgeDef.Instance,
-                OrderDef.Instance,
-                OrderDetailDef.Instance,
-                ProductDef.Instance,
-                SellerDef.Instance,
-                SellerBadgeDef.Instance,
-                SellerProductTotalDef.Instance,
-                SellerTotalDef.Instance
+                BadgeEntity.Instance,
+                OrderEntity.Instance,
+                OrderDetailEntity.Instance,
+                ProductEntity.Instance,
+                SellerEntity.Instance,
+                SellerBadgeEntity.Instance,
+                SellerProductTotalEntity.Instance,
+                SellerTotalEntity.Instance
             };
         }
     }

@@ -18,7 +18,7 @@ namespace GraphqlToTsqlTests
         {
             // Build up the term tree
             var rootTerm = Term.RootTerm();
-            var product = ProductDef.Instance;
+            var product = ProductEntity.Instance;
 
             var productField = Field.Row(product, "product", null);
             var productTerm = new Term(rootTerm, productField, "product");
@@ -51,7 +51,7 @@ namespace GraphqlToTsqlTests
 
             // Build up the term tree
             var rootTerm = Term.RootTerm();
-            var seller = SellerDef.Instance;
+            var seller = SellerEntity.Instance;
 
             var sellerField = Field.Row(seller, "seller", null);
             var sellerTerm = new Term(rootTerm, sellerField, "seller");

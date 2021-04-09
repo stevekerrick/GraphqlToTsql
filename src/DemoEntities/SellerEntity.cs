@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace DemoEntities
 {
-    public class SellerDef : EntityBase
+    public class SellerEntity : EntityBase
     {
-        public static SellerDef Instance = new SellerDef();
+        public static SellerEntity Instance = new SellerEntity();
 
         public override string Name => "seller";
         public override string DbTableName => "Seller";
@@ -25,9 +25,9 @@ namespace DemoEntities
                     ()=>this.GetField("distributorName"),
                     ()=>Instance.GetField("name"))
                 ),
-                Field.Row(SellerTotalDef.Instance, "sellerTotal", new Join(
+                Field.Row(SellerTotalEntity.Instance, "sellerTotal", new Join(
                     ()=>this.GetField("name"),
-                    ()=>SellerTotalDef.Instance.GetField("sellerName"))
+                    ()=>SellerTotalEntity.Instance.GetField("sellerName"))
                 ),
                 Field.CalculatedRow(this, "apexDistributor",
                     (tableAlias) => $"SELECT s.* FROM tvf_AllAncestors({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name AND s.DistributorName IS NULL"
@@ -37,17 +37,17 @@ namespace DemoEntities
                     ()=>this.GetField("name"),
                     ()=>this.GetField("distributorName"))
                 ),
-                Field.Set(OrderDef.Instance, "orders", IsNullable.Yes, new Join(
+                Field.Set(OrderEntity.Instance, "orders", IsNullable.Yes, new Join(
                     ()=>this.GetField("name"),
-                    ()=>OrderDef.Instance.GetField("sellerName"))
+                    ()=>OrderEntity.Instance.GetField("sellerName"))
                 ),
-                Field.Set(SellerBadgeDef.Instance, "sellerBadges", IsNullable.No, new Join(
+                Field.Set(SellerBadgeEntity.Instance, "sellerBadges", IsNullable.No, new Join(
                     ()=>this.GetField("name"),
-                    ()=>SellerBadgeDef.Instance.GetField("sellerName"))
+                    ()=>SellerBadgeEntity.Instance.GetField("sellerName"))
                 ),
-                Field.Set(SellerProductTotalDef.Instance, "sellerProductTotals", IsNullable.Yes, new Join(
+                Field.Set(SellerProductTotalEntity.Instance, "sellerProductTotals", IsNullable.Yes, new Join(
                     ()=>this.GetField("name"),
-                    ()=>SellerBadgeDef.Instance.GetField("sellerName"))
+                    ()=>SellerBadgeEntity.Instance.GetField("sellerName"))
                 ),
                 Field.CalculatedSet(this, "descendants", IsNullable.Yes,
                     (tableAlias) => $"SELECT s.* FROM tvf_AllDescendants({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name"

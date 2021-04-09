@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace DemoEntities
 {
-    public class OrderDetailDef : EntityBase
+    public class OrderDetailEntity : EntityBase
     {
-        public static OrderDetailDef Instance = new OrderDetailDef();
+        public static OrderDetailEntity Instance = new OrderDetailEntity();
 
         public override string Name => "orderDetail";
         public override string DbTableName => "OrderDetail";
@@ -19,13 +19,13 @@ namespace DemoEntities
                 Field.Column(this, "productName", "ProductName", ValueType.String, IsNullable.No, Visibility.Hidden),
                 Field.Column(this, "quantity", "Quantity", ValueType.Int, IsNullable.No),
 
-                Field.Row(OrderDef.Instance, "order", new Join(
+                Field.Row(OrderEntity.Instance, "order", new Join(
                     ()=>this.GetField("orderId"),
-                    ()=>OrderDef.Instance.GetField("id"))
+                    ()=>OrderEntity.Instance.GetField("id"))
                 ),
-                Field.Row(ProductDef.Instance, "product", new Join(
+                Field.Row(ProductEntity.Instance, "product", new Join(
                     ()=>this.GetField("productName"),
-                    ()=>ProductDef.Instance.GetField("name"))
+                    ()=>ProductEntity.Instance.GetField("name"))
                 )
             };
         }

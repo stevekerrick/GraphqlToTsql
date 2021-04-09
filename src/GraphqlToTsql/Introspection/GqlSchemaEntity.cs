@@ -13,9 +13,9 @@ namespace GraphqlToTsql.Introspection
     //  directives: [__Directive!]!
     //}
 
-    internal class GqlSchemaDef : EntityBase
+    internal class GqlSchemaEntity : EntityBase
     {
-        public static GqlSchemaDef Instance = new GqlSchemaDef();
+        public static GqlSchemaEntity Instance = new GqlSchemaEntity();
 
         public override string Name => "__schema";
         public override string DbTableName => "GqlSchema";
@@ -26,19 +26,19 @@ namespace GraphqlToTsql.Introspection
         {
             return new List<Field>
             {
-                Field.CalculatedSet(GqlTypeDef.Instance, "types", IsNullable.No,
+                Field.CalculatedSet(GqlTypeEntity.Instance, "types", IsNullable.No,
                     tableAlias => "SELECT * FROM GqlType WHERE name IS NOT NULL",
                     ListCanBeEmpty.No),
 
-                Field.CalculatedRow(GqlTypeDef.Instance, "queryType",
+                Field.CalculatedRow(GqlTypeEntity.Instance, "queryType",
                     tableAlias => "SELECT * FROM GqlType WHERE name = 'Query'",
                     IsNullable.No),
-                Field.CalculatedRow(GqlTypeDef.Instance, "mutationType",
+                Field.CalculatedRow(GqlTypeEntity.Instance, "mutationType",
                     tableAlias => "SELECT * FROM GqlType WHERE name = 'Mutation'"),
-                Field.CalculatedRow(GqlTypeDef.Instance, "subscriptionType",
+                Field.CalculatedRow(GqlTypeEntity.Instance, "subscriptionType",
                     tableAlias => "SELECT * FROM GqlType WHERE name = 'Subscription'"),
 
-                Field.CalculatedSet(GqlDirectiveDef.Instance, "directives", IsNullable.No,
+                Field.CalculatedSet(GqlDirectiveEntity.Instance, "directives", IsNullable.No,
                     tableAlias => "SELECT * FROM GqlDirective",
                     ListCanBeEmpty.No)
             };

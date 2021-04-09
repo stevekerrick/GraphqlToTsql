@@ -14,9 +14,9 @@ namespace GraphqlToTsql.Introspection
     //  deprecationReason: String
     //}
 
-    internal class GqlFieldDef : EntityBase
+    internal class GqlFieldEntity : EntityBase
     {
-        public static GqlFieldDef Instance = new GqlFieldDef();
+        public static GqlFieldEntity Instance = new GqlFieldEntity();
 
         public override string Name => "field";
         public override string DbTableName => "GqlField";
@@ -32,13 +32,13 @@ namespace GraphqlToTsql.Introspection
                 Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
                 Field.Column(this, "typeKey", "TypeKey", ValueType.String, IsNullable.No, Visibility.Hidden),
 
-                Field.CalculatedSet(GqlInputValueDef.Instance, "args", IsNullable.No,
+                Field.CalculatedSet(GqlInputValueEntity.Instance, "args", IsNullable.No,
                     tableAlias => $"SELECT * FROM GqlInputValue iv WHERE iv.ParentTypeKey = {tableAlias}.ParentTypeKey AND iv.FieldName = {tableAlias}.Name",
                     ListCanBeEmpty.No
                 ),
-                Field.Row(GqlTypeDef.Instance, "type", new Join(
+                Field.Row(GqlTypeEntity.Instance, "type", new Join(
                     () => this.GetField("typeKey"),
-                    () => GqlTypeDef.Instance.GetField("key")),
+                    () => GqlTypeEntity.Instance.GetField("key")),
                     IsNullable.No
                 ),
 

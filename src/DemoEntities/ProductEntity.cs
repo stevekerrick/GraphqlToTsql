@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace DemoEntities
 {
-    public class ProductDef : EntityBase
+    public class ProductEntity : EntityBase
     {
-        public static ProductDef Instance = new ProductDef();
+        public static ProductEntity Instance = new ProductEntity();
 
         public override string Name => "product";
         public override string DbTableName => "Product";
@@ -23,13 +23,13 @@ namespace DemoEntities
                     (tableAlias) => $"SELECT (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName) * {tableAlias}.Price"
                 ),
 
-                Field.Set(OrderDetailDef.Instance, "orderDetails", IsNullable.Yes, new Join(
+                Field.Set(OrderDetailEntity.Instance, "orderDetails", IsNullable.Yes, new Join(
                     ()=>this.GetField("name"),
-                    ()=>OrderDetailDef.Instance.GetField("productName"))
+                    ()=>OrderDetailEntity.Instance.GetField("productName"))
                 ),
-                Field.Set(SellerProductTotalDef.Instance, "sellerProductTotals", IsNullable.Yes, new Join(
+                Field.Set(SellerProductTotalEntity.Instance, "sellerProductTotals", IsNullable.Yes, new Join(
                     ()=>this.GetField("name"),
-                    ()=>OrderDetailDef.Instance.GetField("productName"))
+                    ()=>OrderDetailEntity.Instance.GetField("productName"))
                 )
             };
         }

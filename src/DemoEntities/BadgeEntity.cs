@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace DemoEntities
 {
-    public class BadgeDef : EntityBase
+    public class BadgeEntity : EntityBase
     {
-        public static BadgeDef Instance = new BadgeDef();
+        public static BadgeEntity Instance = new BadgeEntity();
 
         public override string Name => "badge";
         public override string DbTableName => "Badge";
@@ -18,9 +18,9 @@ namespace DemoEntities
                 Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
                 Field.Column(this, "isSpecial", "IsSpecial", ValueType.Boolean, IsNullable.No),
 
-                Field.Set(SellerBadgeDef.Instance, "sellerBadges", IsNullable.Yes, new Join(
+                Field.Set(SellerBadgeEntity.Instance, "sellerBadges", IsNullable.Yes, new Join(
                     ()=>this.GetField("name"),
-                    ()=>SellerBadgeDef.Instance.GetField("badgeName"))
+                    ()=>SellerBadgeEntity.Instance.GetField("badgeName"))
                 )
             };
         }

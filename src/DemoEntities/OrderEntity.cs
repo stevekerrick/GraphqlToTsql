@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace DemoEntities
 {
-    public class OrderDef : EntityBase
+    public class OrderEntity : EntityBase
     {
-        public static OrderDef Instance = new OrderDef();
+        public static OrderEntity Instance = new OrderEntity();
 
         public override string Name => "order";
         public override string DbTableName => "Order";
@@ -21,14 +21,14 @@ namespace DemoEntities
                 Field.Column(this, "date", "Date", ValueType.String, IsNullable.No),
                 Field.Column(this, "shipping", "Shipping", ValueType.Float, IsNullable.No),
 
-                Field.Row(SellerDef.Instance, "seller", new Join(
+                Field.Row(SellerEntity.Instance, "seller", new Join(
                     ()=>this.GetField("sellerName"),
-                    ()=>SellerDef.Instance.GetField("name"))
+                    ()=>SellerEntity.Instance.GetField("name"))
                 ),
 
-                Field.Set(OrderDetailDef.Instance, "orderDetails", IsNullable.No, new Join(
+                Field.Set(OrderDetailEntity.Instance, "orderDetails", IsNullable.No, new Join(
                     ()=>this.GetField("id"),
-                    ()=>OrderDetailDef.Instance.GetField("orderId"))
+                    ()=>OrderDetailEntity.Instance.GetField("orderId"))
                 )
             };
         }

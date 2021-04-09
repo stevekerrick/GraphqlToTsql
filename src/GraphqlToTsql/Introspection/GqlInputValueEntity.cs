@@ -12,9 +12,9 @@ namespace GraphqlToTsql.Introspection
     //  defaultValue: String
     //}
 
-    internal class GqlInputValueDef : EntityBase
+    internal class GqlInputValueEntity : EntityBase
     {
-        public static GqlInputValueDef Instance = new GqlInputValueDef();
+        public static GqlInputValueEntity Instance = new GqlInputValueEntity();
 
         public override string Name => "inputValue";
         public override string DbTableName => "GqlInputValue";
@@ -31,9 +31,9 @@ namespace GraphqlToTsql.Introspection
                 Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
                 Field.Column(this, "typeKey", "TypeKey", ValueType.String, IsNullable.No, Visibility.Hidden),
 
-                Field.Row(GqlTypeDef.Instance, "type", new Join(
+                Field.Row(GqlTypeEntity.Instance, "type", new Join(
                     () => this.GetField("typeKey"),
-                    () => GqlTypeDef.Instance.GetField("key")),
+                    () => GqlTypeEntity.Instance.GetField("key")),
                     IsNullable.No
                 ),
 

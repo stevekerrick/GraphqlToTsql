@@ -246,23 +246,23 @@ namespace GraphqlToTsql.Introspection
 
         public string GetCteSql(string name)
         {
-            if (name == GqlTypeDef.Instance.Name)
+            if (name == GqlTypeEntity.Instance.Name)
             {
                 return GetTypesSql();
             }
-            if (name == GqlFieldDef.Instance.Name)
+            if (name == GqlFieldEntity.Instance.Name)
             {
                 return GetFieldsSql();
             }
-            if (name == GqlEnumValueDef.Instance.Name)
+            if (name == GqlEnumValueEntity.Instance.Name)
             {
                 return GetEnumValuesSql();
             }
-            if (name == GqlDirectiveDef.Instance.Name)
+            if (name == GqlDirectiveEntity.Instance.Name)
             {
                 return GetDirectivesSql();
             }
-            if (name == GqlInputValueDef.Instance.Name)
+            if (name == GqlInputValueEntity.Instance.Name)
             {
                 return GetInputValuesSql();
             }

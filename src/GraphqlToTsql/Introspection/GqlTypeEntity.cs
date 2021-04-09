@@ -29,9 +29,9 @@ namespace GraphqlToTsql.Introspection
     //  ofType: __Type
     //}
 
-    internal class GqlTypeDef : EntityBase
+    internal class GqlTypeEntity : EntityBase
     {
-        public static GqlTypeDef Instance = new GqlTypeDef();
+        public static GqlTypeEntity Instance = new GqlTypeEntity();
 
         public override string Name => "__type";
         public override string DbTableName => "GqlType";
@@ -48,31 +48,31 @@ namespace GraphqlToTsql.Introspection
                 Field.Column(this, "ofTypeKey", "OfTypeKey", ValueType.String, IsNullable.Yes, Visibility.Hidden),
                 Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
 
-                Field.Set(GqlFieldDef.Instance, "fields", IsNullable.Yes, new Join(
+                Field.Set(GqlFieldEntity.Instance, "fields", IsNullable.Yes, new Join(
                     () => this.GetField("key"),
-                    () => GqlFieldDef.Instance.GetField("parentTypeKey")),
+                    () => GqlFieldEntity.Instance.GetField("parentTypeKey")),
                     ListCanBeEmpty.No
                 ),
 
-                Field.CalculatedSet(GqlTypeDef.Instance, "interfaces", IsNullable.No,
+                Field.CalculatedSet(GqlTypeEntity.Instance, "interfaces", IsNullable.No,
                     tableAlias => "SELECT * FROM GqlType WHERE Kind = 'INTERFACE'",
                     ListCanBeEmpty.No),
-                Field.CalculatedSet(GqlTypeDef.Instance, "possibleTypes", IsNullable.Yes,
+                Field.CalculatedSet(GqlTypeEntity.Instance, "possibleTypes", IsNullable.Yes,
                     tableAlias => "SELECT * FROM GqlType WHERE 1 = 0",
                     ListCanBeEmpty.No),
 
-                Field.Set(GqlEnumValueDef.Instance, "enumValues", IsNullable.Yes, new Join(
+                Field.Set(GqlEnumValueEntity.Instance, "enumValues", IsNullable.Yes, new Join(
                     () => this.GetField("key"),
-                    () => GqlEnumValueDef.Instance.GetField("enumTypeKey")),
+                    () => GqlEnumValueEntity.Instance.GetField("enumTypeKey")),
                     ListCanBeEmpty.No
                 ),
-                Field.CalculatedSet(GqlInputValueDef.Instance, "inputFields", IsNullable.Yes,
+                Field.CalculatedSet(GqlInputValueEntity.Instance, "inputFields", IsNullable.Yes,
                     tableAlias => $"SELECT * FROM GqlInputValue iv WHERE iv.ParentTypeKey = {tableAlias}.[Key] AND iv.FieldName IS NULL",
                     ListCanBeEmpty.No
                 ),
-                Field.Row(GqlTypeDef.Instance, "ofType", new Join(
+                Field.Row(GqlTypeEntity.Instance, "ofType", new Join(
                     ()=>this.GetField("ofTypeKey"),
-                    ()=>GqlTypeDef.Instance.GetField("key"))
+                    ()=>GqlTypeEntity.Instance.GetField("key"))
                 )
             };
         }

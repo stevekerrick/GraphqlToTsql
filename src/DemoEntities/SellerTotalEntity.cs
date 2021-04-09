@@ -4,9 +4,9 @@ using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace DemoEntities
 {
-    public class SellerTotalDef : EntityBase
+    public class SellerTotalEntity : EntityBase
     {
-        public static SellerTotalDef Instance = new SellerTotalDef();
+        public static SellerTotalEntity Instance = new SellerTotalEntity();
 
         public override string Name => "sellerTotal";
         public override string DbTableName => "SellerTotal";
@@ -36,9 +36,9 @@ GROUP BY s.[Name]
                 Field.Column(this, "totalQuantity", "TotalQuantity", ValueType.Int, IsNullable.No),
                 Field.Column(this, "totalAmount", "TotalAmount", ValueType.Float, IsNullable.No),
 
-                Field.Row(SellerDef.Instance, "seller", new Join(
+                Field.Row(SellerEntity.Instance, "seller", new Join(
                     ()=>this.GetField("sellerName"),
-                    ()=>SellerDef.Instance.GetField("name"))
+                    ()=>SellerEntity.Instance.GetField("name"))
                 )
             };
         }

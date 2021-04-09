@@ -18,18 +18,6 @@ namespace DemoApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddCors(options =>
-            //{
-            //    options.AddDefaultPolicy(
-            //        builder =>
-            //        {
-            //            builder
-            //                .AllowAnyOrigin()
-            //                .AllowAnyHeader()
-            //                .AllowAnyMethod();
-            //        });
-            //});
-
             services.AddRazorPages();
 
             services
@@ -51,15 +39,7 @@ namespace DemoApp
 
             app.UseRouting();
 
-            //app.UseCors();
-
             app.UseAuthorization();
-
-            //app.Use(async (context, next) =>
-            //{
-            //    context.Response.Headers.Add("X-Frame-Options", "ALLOW-FROM https://stevekerrick.github.io/");
-            //    await next();
-            //});
 
             app.UseEndpoints(endpoints =>
             {

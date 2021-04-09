@@ -9,12 +9,12 @@ namespace GraphqlToTsql.Introspection
         {
             return new List<EntityBase>
             {
-                GqlDirectiveDef.Instance,
-                GqlEnumValueDef.Instance,
-                GqlFieldDef.Instance,
-                GqlInputValueDef.Instance,
-                GqlSchemaDef.Instance,
-                GqlTypeDef.Instance
+                GqlDirectiveEntity.Instance,
+                GqlEnumValueEntity.Instance,
+                GqlFieldEntity.Instance,
+                GqlInputValueEntity.Instance,
+                GqlSchemaEntity.Instance,
+                GqlTypeEntity.Instance
             };
         }
     }
