@@ -183,6 +183,7 @@
 
       // Parse the H1 text. Iframes are formatted like text|url
       var topicText = $h1.text();
+      var topicId = $h1.attr("id");
       var iframeUrl = null;
       var pipe = topicText.indexOf('|');
       if (pipe > 0) {
@@ -238,7 +239,7 @@
 
       // If this is the first topic, click on it
       if (!selectedTopic) {
-        if (!startWith || $h1.attr("id") === startWith) {
+        if (!startWith || topicId === startWith) {
           $topic.click();
         }
       }
