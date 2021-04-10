@@ -138,8 +138,11 @@
     crossorigin="anonymous"></script>
 
   <script>
+    // Highlight the matching menu button
+    $("a:contains('{{page.title}}')")
+      .addClass("selected");
+
     console.log("page title: {{page.title}}");
-    console.log(`page title: ${page.title}`);
 
     // Use a closure to create a topic "click" handler
     var selectedTopic;
