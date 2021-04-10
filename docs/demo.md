@@ -16,9 +16,8 @@ There are two web pages that demonstrate the capabilities of `GraphqlToTsql`.
 
 * [GraphiQL]({{ 'demo?topic=graphiql' | relative_url }})[^1] - A graphical interactive in-browser GraphQL IDE
 
-[^1]: For those of you new to the GraphQL community, `GraphiQL` is an open-source
-IDE for composing and testing GraphQL queries. 
-* See: [GraphiQL](https://github.com/graphql/graphiql/blob/main/packages/graphiql/README.md) introduction
+[^1]: [GraphiQL](https://github.com/graphql/graphiql/blob/main/packages/graphiql/README.md)
+is an open-source IDE for composing and testing GraphQL queries.
 
 </div>
 
