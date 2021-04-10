@@ -183,12 +183,13 @@
 
       // Parse the H1 text. Iframes are formatted like text|url
       var topicText = $h1.text();
-      var topicId = $h1.attr("id").substring(0, topicText.length);
+      var topicId = $h1.attr("id");
       var iframeUrl = null;
       var pipe = topicText.indexOf('|');
       if (pipe > 0) {
         iframeUrl = topicText.substring(pipe + 1);
         topicText = topicText.substring(0, pipe);
+        topicId = topicId.substring(0, pipe);
       }
 
       // Build topic element for the left-side menu
