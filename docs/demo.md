@@ -9,11 +9,13 @@ title: Demo
 
 There are two web pages that demonstrate the capabilities of `GraphqlToTsql`.
 
-* Sample Queries - Wide range of sample queries, and the user can modify them
+* Sample Queries - A UI showing a wide assortment of sample queries. The user can modify them
     or create one of their own. After a query is run, the page shows the
     resulting data, the TSQL that was generated, and some runtime statistics.
 
-* GraphiQL - The standard `graphiQL` web page
+* [GraphiQL]({{ 'demo?topic=GraphiQL' | relative_url }}) - A graphical interactive in-browser GraphQL IDE
+
+* See: [GraphiQL](https://github.com/graphql/graphiql/blob/main/packages/graphiql/README.md) introduction
 
 </div>
 

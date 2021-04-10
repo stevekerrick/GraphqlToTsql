@@ -91,7 +91,7 @@ in the project repository for more examples.
 `GraphqlToTsql` needs an instance of each of your Entities. When you execute a `GraphqlToTsql` Action, 
 the entity list is set on a `GraphqlActionSettings` object.
 
-Here is the entity list in the [Reference Application](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/DemoEntities/DemoEntityList.cs):
+The [Reference Application](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/DemoEntities/DemoEntityList.cs) uses a static class named `DemoEntityList` for this:
 
 ```csharp
 public static class DemoEntityList
@@ -119,8 +119,8 @@ public static class DemoEntityList
 
 # Register GraphqlActions
 
-If your application uses a DI container (such as AspNetCore's [IServiceCollection](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/dependency-injection?view=aspnetcore-5.0)), there is one class to register --
-`GraphqlActions` impelements interface `IGraphqlActions`.
+If your application uses a DI container (such as AspNetCore's [IServiceCollection](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/dependency-injection?view=aspnetcore-5.0)) there is one class to register.
+* `GraphqlActions` implements interface `IGraphqlActions`.
 
 For example:
 
@@ -147,10 +147,11 @@ and to execute the query for you.
 The request/response models are therefore under your control.
 But if you want your GraphQL endpoint to "play nice" with other components in the
 GraphQL ecosphere, such as the [ReactJs Apollo Client](https://www.apollographql.com/docs/react/),
-you need to follow the [GraphQL spec](https://graphql.org/learn/serving-over-http/).
-The spec dictates the request/response objects, including how errors are reported.
+you need to follow the [GraphQL spec](https://graphql.org/learn/serving-over-http/),
+which dictates the shapes of the request/response objects.
 
-The `GraphqlToTsql` repo has a reference AspNetCore project that follows the spec. 
+The `GraphqlToTsql` reference application has an AspNetCore project that follows the spec,
+though the response object includes some extra properties.
 Here is the controller that exposes the endpoint `/api/graphql`.
 
 ```csharp
@@ -310,6 +311,6 @@ var tsqlResult = await _graphqlActions.TranslateToTsql(graphql, graphqlParameter
 
 * See: [IGraphqlActions interface](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/GraphqlActions.cs)
 * See: [DbAccess](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Database/DbAccess.cs),
-the class in `GraphqlToTsql` that runs queries in the database. It uses the Micro ORM [Dapper](https://github.com/StackExchange/Dapper)
+the class in `GraphqlToTsql` that sends queries to the database. It uses the Micro ORM [Dapper](https://github.com/StackExchange/Dapper)
 
 </div>
