@@ -142,8 +142,6 @@
     $("a:contains('{{page.title}}')")
       .addClass("selected");
 
-    console.log("page title: {{page.title}}");
-
     // Use a closure to create a topic "click" handler
     var selectedTopic;
     function makeClick($h1Parent, $topic, iframeUrl) {

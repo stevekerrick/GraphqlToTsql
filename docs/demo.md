@@ -8,9 +8,11 @@ title: Demo
 # Demo Pages
 
 There are two web pages that demonstrate the capabilities of `GraphqlToTsql`.
+
 * Sample Queries - Wide range of sample queries, and the user can modify them
     or create one of their own. After a query is run, the page shows the
     resulting data, the TSQL that was generated, and some runtime statistics.
+
 * GraphiQL - The standard `graphiQL` web page
 
 </div>
