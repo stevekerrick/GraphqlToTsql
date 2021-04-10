@@ -14,12 +14,12 @@ a wide assortment of sample queries. The user can modify them
 or create one of their own. After a query is run, the page shows the
 resulting data, the TSQL that was generated, and some runtime statistics.
 
-* [GraphiQL]({{ 'demo?topic=graphiql' | relative_url }}) - An in-browser IDE
+* [GraphiQL]({{ 'demo?topic=graphiql' | relative_url }}) - An open source in-browser IDE
 for composing and testing GraphQL queries.
 
-Important note: The demo database and website are hosted in Azure using
-the least-expensive options. (The App Service is F1 (Free) and the database is Basic).
-So performance is very uneven.
+Important note: The demo website and database are hosted in Azure using
+the least expensive options possible. (The App Service is F1 (Free) and the database is Basic).
+Expect uneven performance.
 
 </div>
 
