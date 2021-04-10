@@ -183,7 +183,7 @@
 
       // Parse the H1 text. Iframes are formatted like text|url
       var topicText = $h1.text();
-      var topicId = $h1.attr("id");
+      var topicId = $h1.attr("id").substring(0, topicText.length);
       var iframeUrl = null;
       var pipe = topicText.indexOf('|');
       if (pipe > 0) {
