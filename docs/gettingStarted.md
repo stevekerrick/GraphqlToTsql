@@ -76,11 +76,42 @@ public class ProductDef : EntityBase
 }
 ```
 
-* See: [GraphqlToTsql Documentation](/documentation) for guidance on mapping. `GraphqlToTsql` 
+* See: The [Documentation page](/documentation) for guidance on mapping. `GraphqlToTsql` 
 is flexible, allowing calculated fields, custom join criteria,
 using Table Valued Functions, virtual tables, and more.
-* See: [Demo Entities](https://github.com/stevekerrick/GraphqlToTsql/tree/main/src/DemoEntities), the reference application,
-for more examples.
+* See: [Demo Entities](https://github.com/stevekerrick/GraphqlToTsql/tree/main/src/DemoEntities)
+in the project repository for more examples.
+
+</div>
+
+<div markdown="1">
+
+# Create Entity List
+
+`GraphqlToTsql` needs an instance of each of your Entities. When you execute a `GraphqlToTsql` Action, 
+the entity list is set on a `GraphqlActionSettings` object.
+
+Here is the entity list in the [Reference Application](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/DemoEntities/DemoEntityList.cs):
+
+```csharp
+public static class DemoEntityList
+{
+    public static List<EntityBase> All()
+    {
+        return new List<EntityBase>
+        {
+            BadgeEntity.Instance,
+            OrderEntity.Instance,
+            OrderDetailEntity.Instance,
+            ProductEntity.Instance,
+            SellerEntity.Instance,
+            SellerBadgeEntity.Instance,
+            SellerProductTotalEntity.Instance,
+            SellerTotalEntity.Instance
+        };
+    }
+}
+```
 
 </div>
 
@@ -88,13 +119,10 @@ for more examples.
 
 # Register GraphqlActions
 
-If your application uses a DI container (such as AspNetCore's [IServiceCollection](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/dependency-injection?view=aspnetcore-5.0)), there is one class to register.
+If your application uses a DI container (such as AspNetCore's [IServiceCollection](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/dependency-injection?view=aspnetcore-5.0)), there is one class to register --
+`GraphqlActions` impelements interface `IGraphqlActions`.
 
-The main class in `GraphqlToTsql` is named `GraphqlActions`, and it impelements interface `IGraphqlActions`.
-You need to register that class.
-
-For example, if you are using AspNetCore you could register `GraphqlActions` in the `ConfigureServices`
-method of `Startup`.
+For example:
 
 ```csharp
 public class Startup
@@ -110,17 +138,20 @@ public class Startup
 
 <div markdown="1">
 
-# Wire up the API
+# Wire Up the API
 
-The goal of `GraphqlToTsql` is to translate a *GraphQL* query into a *TSQL* query, and to execute the query for you.
-*You* provide the web service/controller, and do authentication/authorization.
+`GraphqlToTsql` is a component to translate a *GraphQL* query into a *TSQL* query, 
+and to execute the query for you.
+*You* provide the web service/controller, however.
 
-One thing to keep in mind: if you want to use the GraphQL query language with any of the standard tools in the GraphQL ecosystem,
-such as [Apollo Client](https://www.apollographql.com/docs/react/), your API endpoint will need to comply with the standard,
-including how errors are reported.
+The request/response models are therefore under your control.
+But if you want your GraphQL endpoint to "play nice" with other components in the
+GraphQL ecosphere, such as the [ReactJs Apollo Client](https://www.apollographql.com/docs/react/),
+you need to follow the [GraphQL spec](https://graphql.org/learn/serving-over-http/).
+The spec dictates the request/response objects, including how errors are reported.
 
-The `GraphqlToTsql` repo has a reference AspNetCore project that follows the spec. Here is the controller that exposes
-the endpoint `/api/graphql`.
+The `GraphqlToTsql` repo has a reference AspNetCore project that follows the spec. 
+Here is the controller that exposes the endpoint `/api/graphql`.
 
 ```csharp
 using DemoEntities;
@@ -245,11 +276,11 @@ namespace DemoApp.Controllers
 
 <div markdown="1">
 
-# Optional: Wire up DB
+# Optional: Wire Up the DB
 
 `GraphqlToTsql` is meant to be a flexible component of your .NET API.
-
-`GraphqlToTsql` is happy to execute the query -- simply supply the connection string, and call `TranslateAndRunQuery`.
+It is happy to execute the GraphQL query -- simply supply the database connection string, 
+and call `TranslateAndRunQuery`.
 
 ```csharp
 var settings = new GraphqlActionSettings
@@ -263,7 +294,7 @@ var queryResult = await _graphqlActions.TranslateAndRunQuery(graphql, graphqlPar
 ```
 
 If you prefer to have more control over the database access you can use `TranslateToTsql` to create the TSQL
-query.
+query (and associated TSQL Parameters), then submit the query to the database yourself.
 
 ```csharp
 var settings = new GraphqlActionSettings
@@ -273,10 +304,12 @@ var settings = new GraphqlActionSettings
 };
 
 var tsqlResult = await _graphqlActions.TranslateToTsql(graphql, graphqlParameters, settings);
+// If tsqlResult.Error is not null it means the query was faulty
+// Otherwise, the results are in tsqlResult.Tsql and tsqlResult.TsqlParameters
 ```
 
 * See: [IGraphqlActions interface](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/GraphqlActions.cs)
-* See: The [DbAccess](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Database/DbAccess.cs)
-class is how `GraphqlToTsql` access the database using [Dapper](https://github.com/StackExchange/Dapper)
+* See: [DbAccess](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Database/DbAccess.cs),
+the class in `GraphqlToTsql` that runs queries in the database. It uses the Micro ORM [Dapper](https://github.com/StackExchange/Dapper)
 
 </div>

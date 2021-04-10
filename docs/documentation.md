@@ -4,7 +4,7 @@ title: Documentation
 ---
 
 <div markdown="1">
-# Mapping a Table Valued Function
+# Mapping a TVF
 
 `Field.CalculatedSet` can be used to map a database Table-Valued Function (TVF).
 
