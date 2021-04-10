@@ -17,6 +17,10 @@ resulting data, the TSQL that was generated, and some runtime statistics.
 * [GraphiQL]({{ 'demo?topic=graphiql' | relative_url }}) - An in-browser IDE
 for composing and testing GraphQL queries.
 
+Important note: The demo database and website are hosted in Azure using
+the least-expensive options. (The App Service is F1 (Free) and the database is Basic).
+So performance is very uneven.
+
 </div>
 
 <div markdown="1">
@@ -24,7 +28,7 @@ for composing and testing GraphQL queries.
 # Database Schema
 
 The demo database has six tables. To keep things interesting, some of the tables
-have auto-incrementing ID's, some have natural keys, and two have compound keys.
+have auto-incrementing ID's, some have natural keys, and some have compound keys.
 
 The `Seller` table is self-referencing.
 
