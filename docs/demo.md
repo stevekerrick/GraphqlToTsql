@@ -14,10 +14,10 @@ There are two web pages that demonstrate the capabilities of `GraphqlToTsql`.
     or create one of their own. After a query is run, the page shows the
     resulting data, the TSQL that was generated, and some runtime statistics.
 
-* [GraphiQL]({{ 'demo?topic=graphiql' | relative_url }})[^1] - A graphical interactive in-browser GraphQL IDE
+* [GraphiQL]({{ 'demo?topic=graphiql' | relative_url }}) - A graphical interactive in-browser GraphQL IDE
 
-[^1]: [GraphiQL](https://github.com/graphql/graphiql/blob/main/packages/graphiql/README.md)
-is an open-source IDE for composing and testing GraphQL queries.
+(Note: [GraphiQL](https://github.com/graphql/graphiql/blob/main/packages/graphiql/README.md)
+is an open-source IDE for composing and testing GraphQL queries.)
 
 </div>
 
