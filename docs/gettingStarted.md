@@ -150,9 +150,9 @@ GraphQL ecosphere, such as the [ReactJs Apollo Client](https://www.apollographql
 you need to follow the [GraphQL spec](https://graphql.org/learn/serving-over-http/),
 which dictates the shapes of the request/response objects.
 
-The `GraphqlToTsql` reference application has an AspNetCore project that follows the spec,
-though the response object includes some extra properties.
-Here is the controller that exposes the endpoint `/api/graphql`.
+The `GraphqlToTsql` [Reference Application](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/DemoEntities/DemoEntityList.cs)
+has an AspNetCore project that follows the spec.
+Here is a slightly simplified version of the controller that exposes the endpoint `/api/graphql`.
 
 ```csharp
 using DemoEntities;
@@ -182,24 +182,11 @@ namespace DemoApp.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> Post([FromBody] QueryRequest query, bool? showStatistics)
+        public async Task<JsonResult> Post([FromBody] QueryRequest query)
         {
             var result = await RunQuery(query);
 
-            object response;
-            if (showStatistics.GetValueOrDefault())
-            {
-                response = result;
-            }
-            else if (result.Errors != null)
-            {
-                response = new { result.Errors, ErrorCode = result.ErrorCode.ToString() };
-            }
-            else
-            {
-                response = new { result.Data };
-            }
-
+            var response = new { result.Data, result.Errors };
             return new JsonResult(response);
         }
 
@@ -210,17 +197,11 @@ namespace DemoApp.Controllers
                 ? null
                 : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.Variables);
 
-            var connectionString = _configuration.GetConnectionString("DemoDB");
-            if (string.IsNullOrEmpty(connectionString) || connectionString == "set in azure")
-            {
-                throw new Exception("Database connection string is not set");
-            }
-
             var settings = new GraphqlActionSettings
             {
-                AllowIntrospection = true,
+                AllowIntrospection = false,
                 EntityList = DemoEntityList.All(),
-                ConnectionString = connectionString
+                ConnectionString = _configuration.GetConnectionString("DemoDB")
             };
 
             var queryResult = await _graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, settings);
@@ -233,11 +214,7 @@ namespace DemoApp.Controllers
             return new QueryResponse
             {
                 Data = Deserialize(queryResult.DataJson),
-                Errors = errors,
-                Tsql = queryResult.Tsql,
-                TsqlParameters = queryResult.TsqlParameters,
-                Statistics = queryResult.Statistics,
-                ErrorCode = queryResult.ErrorCode.ToString()
+                Errors = errors
             };
         }
 
@@ -258,17 +235,11 @@ namespace DemoApp.Controllers
         public string Variables { get; set; }
     }
 
+    // The shape of the QueryResponse is dictated by the GraphQL standard
     public class QueryResponse
     {
-        // These parts are dictated by the GraphQL standard
         public object Data { get; set; }
         public string[] Errors { get; set; }
-
-        // These parts are extra
-        public string Tsql { get; set; }
-        public Dictionary<string, object> TsqlParameters { get; set; }
-        public List<Statistic> Statistics { get; set; }
-        public string ErrorCode { get; set; }
     }
 }
 ```

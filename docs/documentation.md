@@ -21,6 +21,57 @@ The main setup steps are covered on the [Getting Started page]({{ 'gettingStarte
 * [Wire Up the API]({{ 'gettingStarted?topic=wire-up-the-api' | relative_url }})
 * [Optional: Wire Up the DB]({{ 'gettingStarted?topic=optional-wire-up-the-db' | relative_url }})
 
+## GraphqlActionSettings
+
+`IGraphqlActions` has two methods, `TranslateAndRunQuery` and `TranslateToTsql`,
+and both methods require an instance of `GraphqlActionSettings`. `GraphqlActionSettings`
+has three properties:
+
+### AllowIntrospection
+
+```csharp
+public bool AllowIntrospection { get; set; }
+```
+
+An important part of `GraphQL` is [Introspection](https://graphql.org/learn/introspection/).
+Introspection is a way of making `GraphQL` queries to discover the kinds of data
+that is available. For example, this Introspection query finds all the Types (a.k.a. entities)
+and the names and types of all their fields.
+
+```graphql
+{
+  __schema {
+    types {
+      name
+      fields {
+      name
+      type {
+          name
+          kind
+      }
+    }
+  }
+}
+```
+
+`GraphqlToTsql` supports Introspection queries, but you might not want to allow them
+* Introspection queries are kind of slow (adds an extra second or two)
+* Best Practice is to allow Introspection in test environments but not in Production
+
+### ConnectionString
+
+```csharp
+public string ConnectionString { get; set; }
+```
+
+### EntityList
+
+```csharp
+public List<EntityBase> EntityList { get; set; }
+```
+
+
+
 ## Entity Mappings
 
 The remainder of this Documentation page explores the different ways to map entities
@@ -30,107 +81,17 @@ to your database.
 
 
 
-Hmm, somehow this Controller will be useful...
 
-```csharp
-using DemoEntities;
-using GraphqlToTsql;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace DemoApp.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
-    public class GraphqlController : ControllerBase
-    {
-        private readonly IConfiguration _configuration;
-        private readonly IGraphqlActions _graphqlActions;
 
-        public GraphqlController(
-            IConfiguration configuration,
-            IGraphqlActions graphqlActions)
-        {
-            _configuration = configuration; ;
-            _graphqlActions = graphqlActions;
-        }
+</div>
 
-        [HttpPost]
-        public async Task<JsonResult> Post([FromBody] QueryRequest query)
-        {
-            var result = await RunQuery(query);
+<div markdown="1">
 
-            var response = new { result.Data, result.Errors };
-            return new JsonResult(response);
-        }
+# Options/settings
 
-        private async Task<QueryResponse> RunQuery(QueryRequest query)
-        {
-            var graphql = query.Query;
-            var graphqlParameters = string.IsNullOrEmpty(query.Variables)
-                ? null
-                : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.Variables);
 
-            var settings = new GraphqlActionSettings
-            {
-                AllowIntrospection = false,
-                EntityList = DemoEntityList.All(),
-                ConnectionString = _configuration.GetConnectionString("DemoDB")
-            };
 
-            var queryResult = await _graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, settings);
-
-            var errors =
-                queryResult.TranslationError != null ? new[] { queryResult.TranslationError }
-                : queryResult.DbError != null ? new[] { queryResult.DbError }
-                : null;
-
-            return new QueryResponse
-            {
-                Data = Deserialize(queryResult.DataJson),
-                Errors = errors,
-                Tsql = queryResult.Tsql,
-                TsqlParameters = queryResult.TsqlParameters,
-                Statistics = queryResult.Statistics,
-                ErrorCode = queryResult.ErrorCode.ToString()
-            };
-        }
-
-        private static object Deserialize(string json)
-        {
-            if (json == null) return null;
-            return JsonConvert.DeserializeObject(json);
-        }
-    }
-
-    // The shape of the QueryRequest is dictated by the GraphQL standard
-    public class QueryRequest
-    {
-        // The GraphQL query
-        public string Query { get; set; }
-
-        // The GraphQL variable values, in JSON format
-        public string Variables { get; set; }
-    }
-
-    public class QueryResponse
-    {
-        // These parts are dictated by the GraphQL standard
-        public object Data { get; set; }
-        public string[] Errors { get; set; }
-
-        // These parts are extra
-        public string Tsql { get; set; }
-        public Dictionary<string, object> TsqlParameters { get; set; }
-        public List<Statistic> Statistics { get; set; }
-        public string ErrorCode { get; set; }
-    }
-}
-```
 
 </div>
 
