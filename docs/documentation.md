@@ -108,25 +108,10 @@ public abstract class EntityBase
 
     public abstract string[] PrimaryKeyFieldNames { get; }
 
-    /// <summary>
-    /// Sometimes you want to map a GraphQL entity to a SQL SELECT statement rather than an actual
-    /// database table. To do that, put your SELECT statement here.
-    /// When you use this entity in one of your queries, GraphqlToTsql uses your SELECT statement as a
-    /// Common Table Expression, so regular CTE limitations apply (e.g. you aren't allowed to
-    /// use an ORDER BY clause).
-    /// </summary>
     public virtual string SqlDefinition { get; }
 
-    /// <summary>
-    /// If you set a MaxPageSize, users are forced to access lists of thei entity using paging.
-    /// </summary>
     public virtual long? MaxPageSize { get; }
 
-    /// <summary>
-    /// You must implement this method to populate the list of entity fields.
-    /// This is the hardest part of your entity mapping. You'll use the static Field
-    /// factory methods.
-    /// </summary>
     protected abstract List<Field> BuildFieldList();
 }
 ```
@@ -203,14 +188,50 @@ public override string[] PrimaryKeyFieldNames => new[] { "butterflyId" };
 
 See: [??? Paging]({{ 'documentation?topic=???' | relative_url }})
 
-### SqlDefinition
+### SqlDefinition (Optional)
 
+You'll probably use `SqlDefinition` only a handful of times. It's used when
+your entity is not mapped to a database table, but to a SQL SELECT statement.
 
-### MaxPageSize
+This documentation page has a topic with detailed instructions.
 
+See: [??? Virtual Table]({{ 'documentation?topic=???' | relative_url }})
+
+### MaxPageSize (Optional)
+
+`GraphqlToTsql` supports paged queries, but normally doesn't require paging to be used.
+You can require some lists of entities to be paged.
+
+For example, if you want to limit the number of `Customer` rows that can be returned
+in a single query to 100:
+
+```csharp
+public override long? MaxPageSize => 100L;
+```
+
+The `GraphQL` will then be required to use paging for all `Customer` lists:
+
+```
+{ 
+  customers (offset: 900, first: 100) { name } 
+  regions { name customers (first: 100) { name } }
+}
+```
+
+`GraphqlToSql` also supports cursor-based paging.
+
+See: [??? Paging]({{ 'documentation?topic=???' | relative_url }})
 
 ### BuildFieldList()
 
+
+
+
+    /// <summary>
+    /// You must implement this method to populate the list of entity fields.
+    /// This is the hardest part of your entity mapping. You'll use the static Field
+    /// factory methods.
+    /// </summary>
 
 
 </div>
