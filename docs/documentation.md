@@ -24,7 +24,7 @@ The main setup steps are covered on the [Getting Started page]({{ 'gettingStarte
 ## GraphqlActionSettings
 
 `IGraphqlActions` has two methods, `TranslateAndRunQuery` and `TranslateToTsql`,
-and both methods require an instance of `GraphqlActionSettings`. `GraphqlActionSettings`
+and both require an instance of `GraphqlActionSettings`. That Settings class
 has three properties:
 
 ### AllowIntrospection
@@ -34,8 +34,8 @@ public bool AllowIntrospection { get; set; }
 ```
 
 An important part of `GraphQL` is [Introspection](https://graphql.org/learn/introspection/).
-Introspection is a way of making `GraphQL` queries to discover the kinds of data
-that is available. For example, this Introspection query finds all the Types (a.k.a. entities)
+Introspection is a way of using `GraphQL` queries to discover the kinds of data
+that is available. For example, the Introspection query below finds all the Types (a.k.a. entities)
 and the names and types of all their fields.
 
 ```graphql
@@ -64,31 +64,32 @@ and the names and types of all their fields.
 public string ConnectionString { get; set; }
 ```
 
+The connection string to your SQL Server or Azure SQL database.
+
 ### EntityList
 
 ```csharp
 public List<EntityBase> EntityList { get; set; }
 ```
 
+The list of entities that are mapped to your database.
 
+Each entity in the list is an *Instance* of an entity. The typical pattern
+is described in
+[Create Entity List]({{ 'gettingStarted?topic=create-entity-list' | relative_url }})
 
 ## Entity Mappings
 
 The remainder of this Documentation page explores the different ways to map entities
 to your database.
 
-
-
-
-
-
-
-
 </div>
 
 <div markdown="1">
 
-# Options/settings
+# Entity Mapping Basics
+
+what ho!
 
 
 
