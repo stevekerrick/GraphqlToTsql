@@ -89,8 +89,127 @@ to your database.
 
 # Entity Mapping Basics
 
-what ho!
+Each of your Entities will inherit from [EntityBase.cs](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Entities/EntityBase.cs).
 
+## EntityBase
+
+Here are the parts of EntityBase that you need to care about.
+
+```csharp
+public abstract class EntityBase
+{
+    public abstract string Name { get; }
+
+    public virtual string PluralName => $"{Name}s";
+
+    public abstract string DbTableName { get; }
+
+    public virtual string EntityType => DbTableName;
+
+    public abstract string[] PrimaryKeyFieldNames { get; }
+
+    /// <summary>
+    /// Sometimes you want to map a GraphQL entity to a SQL SELECT statement rather than an actual
+    /// database table. To do that, put your SELECT statement here.
+    /// When you use this entity in one of your queries, GraphqlToTsql uses your SELECT statement as a
+    /// Common Table Expression, so regular CTE limitations apply (e.g. you aren't allowed to
+    /// use an ORDER BY clause).
+    /// </summary>
+    public virtual string SqlDefinition { get; }
+
+    /// <summary>
+    /// If you set a MaxPageSize, users are forced to access lists of thei entity using paging.
+    /// </summary>
+    public virtual long? MaxPageSize { get; }
+
+    /// <summary>
+    /// You must implement this method to populate the list of entity fields.
+    /// This is the hardest part of your entity mapping. You'll use the static Field
+    /// factory methods.
+    /// </summary>
+    protected abstract List<Field> BuildFieldList();
+}
+```
+
+### Name
+
+The `Name` to use for this entity in the `GraphQL` queries. Must be singular,
+and start with a lower-case character.
+It is common to give your entity the same name as the underlying database table
+(but lower-cased). For example, `butterfly`.
+
+It would appear in a `GraphQL` query like this:
+```graphql
+query { butterfly (id: "Monarch") { genus species } }
+```
+
+### PluralName (Optional)
+
+When querying a list of items, `GraphqlToTsql` needs a plural form of the
+`Name`. By default `GraphqlToSql` appends an "s" to the `Name`. For `Name`s
+where that doesn't work, you need to supply the `PluralName`.
+
+For example:
+```csharp
+public override string Name => "butterfly";
+public override string PluralName => "butterflies";
+```
+
+```graphql
+query { butterflies { genus species } }
+```
+
+### DbTableName
+
+The name of the database table this entity maps to.
+
+Sometimes you will want to expose an entity in the `GraphQL` that maps
+to a SQL query, not to a physical table. You still need to supply
+a `DbTableName`, but you can make up any name you want.
+See: [???]({{ 'documentation?topic=???' | relative_url }})
+
+### EntityType (Optional)
+
+The `GraphQL` Type name for the entity. This is the name that's returned
+in Introspection queries, in error messages if a query on the type is
+faulty, and in [Fragments](https://graphql.org/learn/queries/#fragments).
+
+The `EntityType` defaults to be the same as the `DbTableName`, which is
+nearly always what you want.
+
+```csharp
+public override string EntityType => "ButterflyType";
+```
+
+```graphql
+{
+  b1: butterfly (id: "Monarch") { ... butterflyFrag }
+  b2: butterfly (id: "Black Swallowtail") { ... butterflyFrag }
+}
+
+fragment butterflyFrag on ButterflyType { genus species }
+```
+
+### PrimaryKeyFieldNames
+
+The names of the Primary Key fields. Use the GraphQL names, not the SQL column names.
+
+You must provide a non-empty array of field names. It is used when the
+`GraphQL` query uses paging.
+
+```csharp
+public override string[] PrimaryKeyFieldNames => new[] { "butterflyId" };
+```
+
+See: [??? Paging]({{ 'documentation?topic=???' | relative_url }})
+
+### SqlDefinition
+
+
+### MaxPageSize
+
+
+### BuildFieldList()
 
 
 
