@@ -84,7 +84,18 @@
 }
 
 
-pre.highlight { background-color: #cfffcf; padding: 1em; box-shadow: 0 0 5px teal; position: relative; left: -5px; }
+pre.highlight { 
+    background-color: #cfffcf;
+    padding: 1em;
+    /* box-shadow: 0 0 5px teal; */
+    position: relative;
+    left: -5px;
+    border: 1px solid teal;
+    border-radius: .3rem;
+}
+
+/* border-color: rgba(255, 255, 255, 0.2); border-style: solid; border-width: 1px; border-radius: 0.3rem; transition: color 0.2s, background-color 0.2s, border-color 0.2s; } */
+
 
 * { box-sizing: border-box; }
 
