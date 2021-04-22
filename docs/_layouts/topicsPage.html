@@ -155,7 +155,7 @@
     // --------------------------------------------------------------
 
     function addLanguageIndicator($pre, lang) {
-      $pre.insert(`<div class="language-indicator">${lang}</div>`);
+      $pre.prepend(`<div class="language-indicator">${lang}</div>`);
     }
 
     $("div.language-csharp pre.highlight").each(function(){
