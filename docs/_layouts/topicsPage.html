@@ -91,6 +91,14 @@
     background-color: #f0f0f0;
   }
 
+  .language-indicator {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  .language-indicator > span { float: right; }
+
   .iframeWrapper {
     position: relative;
     overflow: hidden;
@@ -141,6 +149,25 @@
     // Highlight the matching menu button
     $("a:contains('{{page.title}}')")
       .addClass("selected");
+
+
+    // --------------------------------------------------------------
+    // Add the language of each code block
+    // --------------------------------------------------------------
+
+    function addLanguageIndicator($pre, lang) {
+      $pre.before(`<div class="language-indicator"><div>${lang}</div></div>`);
+    }
+
+    $("div.language-csharp pre.highlight").each(function(){
+      var $pre = $(this);
+      addLanguageIndicator($pre, "C#");
+    });
+
+
+    // --------------------------------------------------------------
+    // Process Topics
+    // --------------------------------------------------------------
 
     // Use a closure to create a topic "click" handler
     var selectedTopic;
