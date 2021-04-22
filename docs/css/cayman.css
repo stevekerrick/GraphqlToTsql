@@ -96,11 +96,11 @@ pre.highlight {
   border-radius: .3rem;
 }
 
-.language-graphql pre.highlight, .language-graphql .language-indicator > div {
+.language-graphql pre.highlight, .language-graphql .language-indicator {
   background-color: #cfffcf;
 }
 
-.language-csharp pre.highlight, .language-graphql .language-indicator > div {
+.language-csharp pre.highlight, .language-graphql .language-indicator {
   background-color: #dfdfff;
 }
 
