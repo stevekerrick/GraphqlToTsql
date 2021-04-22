@@ -85,22 +85,19 @@
 
 
 pre.highlight { 
-    background-color: #cfcfcf;
+    background-color: #dfdfdf;
     padding: 1em;
     position: relative;
     left: -5px;
-    border: 1px solid lightgray;
     border-radius: .3rem;
 }
 
 .language-graphql pre.highlight {
     background-color: #cfffcf;
-    border-color: lightgreen;
 }
 
 .language-csharp pre.highlight {
-    background-color: #cfcfff;
-    border-color: lightblue;
+    background-color: #dfdfff;
 }
 
 
