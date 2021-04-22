@@ -84,6 +84,7 @@
 }
 
 
+pre.highlight { background-color: #cfffcf; padding: 1em; box-shadow: 0 0 5px teal; position: relative; left: -5px; }
 
 * { box-sizing: border-box; }
 
