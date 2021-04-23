@@ -177,6 +177,11 @@
       addLanguageIndicator($pre, "C#", "language-csharp");
     });
 
+    $("div.language-graphql pre.highlight").each(function(){
+      var $pre = $(this);
+      addLanguageIndicator($pre, "GraphQL", "language-graphql");
+    });
+
 
     // --------------------------------------------------------------
     // Process Topics
