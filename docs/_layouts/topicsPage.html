@@ -93,16 +93,16 @@
 
   .language-indicator {
     width: 100%;
-    z-index: 10;
   }
   .language-indicator > div {
     position: relative;
     float: right;
   }
-  .language-indicator > div > div {
+  .language-pill {
     position: absolute;
     top: -.75em;
     left: -2.5em;
+    z-index: 10;
   }
   .language-indicator pre {
     clear: right;
@@ -166,9 +166,7 @@
 
     function addLanguageIndicator($pre, lang) {
       var $fieldset = $("<fieldset></fieldset>");
-      // $pre.wrap($fieldset);
-      // $pre.parent().prepend(`<legend>${lang}</legend>`);
-      $pre.parent().prepend(`<div class="language-indicator"><div><div>${lang}</div></div></div>`);
+      $pre.parent().prepend(`<div class="language-indicator"><div><div class="language-pill">${lang}</div></div></div>`);
     }
 
     $("div.language-csharp pre.highlight").each(function(){
