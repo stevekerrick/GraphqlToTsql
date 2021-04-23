@@ -164,14 +164,14 @@
     // Add the language of each code block
     // --------------------------------------------------------------
 
-    function addLanguageIndicator($pre, lang) {
+    function addLanguageIndicator($pre, lang, css) {
       var $fieldset = $("<fieldset></fieldset>");
-      $pre.parent().prepend(`<div class="language-indicator"><div><div class="language-pill">${lang}</div></div></div>`);
+      $pre.parent().prepend(`<div class="language-indicator"><div><div class="${css} language-pill">${lang}</div></div></div>`);
     }
 
     $("div.language-csharp pre.highlight").each(function(){
       var $pre = $(this);
-      addLanguageIndicator($pre, "C#");
+      addLanguageIndicator($pre, "C#", "language-csharp");
     });
 
 
