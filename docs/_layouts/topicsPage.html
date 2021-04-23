@@ -94,13 +94,18 @@
   .language-indicator {
     width: 100%;
     z-index: 10;
-    position: relative;
   }
   .language-indicator > div {
-    float: right;
     position: relative;
-    top: -.5em;
-    left: -2em;
+    float: right;
+  }
+  .language-indicator > div > div {
+    position: absolute;
+    top: -.75em;
+    left: -2.5em;
+  }
+  .language-indicator pre {
+    clear: right;
   }
 
   .iframeWrapper {
@@ -163,7 +168,7 @@
       var $fieldset = $("<fieldset></fieldset>");
       // $pre.wrap($fieldset);
       // $pre.parent().prepend(`<legend>${lang}</legend>`);
-      $pre.parent().prepend(`<div class="language-indicator"><div>${lang}</div></div>`);
+      $pre.parent().prepend(`<div class="language-indicator"><div><div>${lang}</div></div></div>`);
     }
 
     $("div.language-csharp pre.highlight").each(function(){
