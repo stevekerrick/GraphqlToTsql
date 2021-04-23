@@ -156,9 +156,9 @@
 
     function addLanguageIndicator($pre, lang) {
       var $fieldset = $("<fieldset></fieldset>");
-      $pre.wrap($fieldset);
-      $pre.parent().prepend(`<legend>${lang}</legend>`);
-      //$pre.prepend(`<div class="language-indicator">${lang}</div>`);
+      // $pre.wrap($fieldset);
+      // $pre.parent().prepend(`<legend>${lang}</legend>`);
+      $pre.parent().prepend(`<div class="language-indicator"><div>${lang}</div></div>`);
     }
 
     $("div.language-csharp pre.highlight").each(function(){
