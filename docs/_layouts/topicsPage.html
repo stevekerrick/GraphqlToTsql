@@ -155,9 +155,9 @@
     // --------------------------------------------------------------
 
     function addLanguageIndicator($pre, lang) {
-      var $fieldset = $("<fieldset><fieldset>");
+      var $fieldset = $("<fieldset></fieldset>");
       $pre.wrap($fieldset);
-      $fieldset.prepend(`<legend>${lang}</legend>`);
+      $pre.parent.prepend(`<legend>${lang}</legend>`);
       //$pre.prepend(`<div class="language-indicator">${lang}</div>`);
     }
 
