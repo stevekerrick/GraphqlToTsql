@@ -100,7 +100,7 @@ pre.highlight {
   background-color: #cfffcf;
 }
 
-.language-csharp pre.highlight, .language-graphql.language-pill {
+.language-csharp pre.highlight, .language-csharp.language-pill {
   background-color: #dfdfff;
 }
 
