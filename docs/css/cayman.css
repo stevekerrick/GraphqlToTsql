@@ -120,8 +120,8 @@ a:hover { text-decoration: underline; }
 @media screen and (max-width: 64em) { .btn { padding: 0.6rem 0.9rem; font-size: 0.9rem; } }
 
 .logo { position: relative; }
-@media screen and (min-width: 64em) { .logo { width: 3em; height: 3em; } }
-@media screen and (max-width: 64em) { .logo { width: 2.7em; height: 2.7em; } }
+@media screen and (min-width: 64em) { .logo { height: 3em; } }
+@media screen and (max-width: 64em) { .logo { height: 2.7em; } }
 
 .page-header { color: #fff; text-align: center; background-color: #159957; background-image: linear-gradient(120deg, #155799, #159957); }
 @media screen and (min-width: 64em) { .page-header { padding: 2rem 2rem; } }
