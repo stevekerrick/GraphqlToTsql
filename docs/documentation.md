@@ -211,7 +211,7 @@ public override long? MaxPageSize => 100L;
 
 The `GraphQL` will then be required to use paging for all `Customer` lists:
 
-```
+```graphql
 { 
   customers (offset: 900, first: 100) { name } 
   regions { name customers (first: 100) { name } }

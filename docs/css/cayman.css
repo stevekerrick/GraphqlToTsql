@@ -104,6 +104,9 @@ pre.highlight {
   background-color: #dfdfff;
 }
 
+.language-shell.language-pill, .language-sql.language-pill {
+  background-color: #dfdfdf;
+}
 
 
 * { box-sizing: border-box; }

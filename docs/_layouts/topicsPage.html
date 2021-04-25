@@ -115,7 +115,7 @@
     left: -8em;
     border: 1px solid teal;
   }
-  .language-shell.language-pill {
+  .language-shell.language-pill, .language-sql.language-pill {
     left: -8em;
     border: 1px solid gray;
   }
@@ -197,6 +197,11 @@
     $("div.language-shell pre.highlight").each(function(){
       var $pre = $(this);
       addLanguageIndicator($pre, "Shell", "language-shell");
+    });
+
+    $("div.language-sql pre.highlight").each(function(){
+      var $pre = $(this);
+      addLanguageIndicator($pre, "SQL", "language-sql");
     });
 
 
