@@ -7,7 +7,7 @@ title: Documentation
 
 # How to Use GraphqlToTsql
 
-GraphqlToTsql is a component that translates a GraphQL query into a
+`GraphqlToTsql` is a component that translates a GraphQL query into a
 monolithic TSQL query, and (optionally) sends it to a SQL Server or
 AzureSQL database.
 
@@ -23,9 +23,12 @@ The main setup steps are covered on the [Getting Started page]({{ 'gettingStarte
 
 ## GraphqlActionSettings
 
-`IGraphqlActions` has two methods, `TranslateAndRunQuery` and `TranslateToTsql`,
-and both require an instance of `GraphqlActionSettings`. That Settings class
-has three properties:
+To process a GraphQL query, you will call either `GraphqlActions.TranslateAndRunQuery(...)` or 
+`GraphqlActions.TranslateToTsql(...)`. Both have a required parameter of type
+`GraphqlActionSettings`. It has three properties:
+* AllowIntrospection
+* ConnectionString
+* EntityList
 
 ### AllowIntrospection
 
@@ -33,9 +36,9 @@ has three properties:
 public bool AllowIntrospection { get; set; }
 ```
 
-An important part of `GraphQL` is [Introspection](https://graphql.org/learn/introspection/).
-Introspection is a way of using `GraphQL` queries to discover the kinds of data
-that is available. For example, the Introspection query below finds all the Types (a.k.a. entities)
+[Introspection](https://graphql.org/learn/introspection/) is an important part of `GraphQL`.
+It is a way of using `GraphQL` queries to discover the *kind* of data
+that is available. For example, the Introspection query below finds all the Types (entities)
 and the names and types of all their fields.
 
 ```graphql
@@ -54,9 +57,10 @@ and the names and types of all their fields.
 }
 ```
 
-`GraphqlToTsql` supports Introspection queries, but you might not want to allow them
-* Introspection queries are kind of slow (adds an extra second or two)
-* Best Practice is to allow Introspection in test environments but not in Production
+`GraphqlToTsql` supports Introspection queries, but you might not want to allow them because:
+* They add overhead.
+* A "Best Practice" is to allow Introspection in test environments so that people can
+experiment with your API using a tool like GraphiQL, but not to allow Introspection in Production.
 
 ### ConnectionString
 
@@ -99,19 +103,12 @@ Here are the parts of EntityBase that you need to care about.
 public abstract class EntityBase
 {
     public abstract string Name { get; }
-
     public virtual string PluralName => $"{Name}s";
-
     public abstract string DbTableName { get; }
-
     public virtual string EntityType => DbTableName;
-
     public abstract string[] PrimaryKeyFieldNames { get; }
-
     public virtual string SqlDefinition { get; }
-
     public virtual long? MaxPageSize { get; }
-
     protected abstract List<Field> BuildFieldList();
 }
 ```
