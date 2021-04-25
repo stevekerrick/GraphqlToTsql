@@ -1,6 +1,6 @@
 ---
 layout: topicsPage
-title: Documentation
+title: About
 ---
 
 <div markdown="1">

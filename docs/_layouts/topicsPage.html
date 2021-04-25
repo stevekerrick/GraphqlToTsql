@@ -115,6 +115,10 @@
     left: -8em;
     border: 1px solid teal;
   }
+  .language-graphql.language-shell {
+    left: -8em;
+    border: 1px solid gray;
+  }
   .language-indicator pre {
     clear: right;
   }
@@ -188,6 +192,11 @@
     $("div.language-graphql pre.highlight").each(function(){
       var $pre = $(this);
       addLanguageIndicator($pre, "GraphQL", "language-graphql");
+    });
+
+    $("div.language-shell pre.highlight").each(function(){
+      var $pre = $(this);
+      addLanguageIndicator($pre, "Shell", "language-shell");
     });
 
 
