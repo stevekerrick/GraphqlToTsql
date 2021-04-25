@@ -116,11 +116,11 @@ public abstract class EntityBase
 ### Name
 
 The `Name` to use for this entity in the `GraphQL` queries. Must be singular,
-and start with a lower-case character.
+and start with a lower-case letter.
 It is common to give your entity the same name as the underlying database table
 (but lower-cased). For example, `butterfly`.
 
-It would appear in a `GraphQL` query like this:
+It would be used in a `GraphQL` query like this:
 ```graphql
 query { butterfly (id: "Monarch") { genus species } }
 ```
@@ -145,25 +145,29 @@ query { butterflies { genus species } }
 
 The name of the database table this entity maps to.
 
-Sometimes you will want to expose an entity in the `GraphQL` that maps
-to a SQL query, not to a physical table. You still need to supply
-a `DbTableName`, but you can make up any name you want.
+Sometimes you might want an entity that maps
+to a SQL query, not to a physical table. You still need to set
+a `DbTableName`, but you can choose up any name you want (as long as
+it is a valid SQL name).
 See: [???]({{ 'documentation?topic=???' | relative_url }})
 
 ### EntityType (Optional)
 
-The `GraphQL` Type name for the entity. This is the name that's returned
-in Introspection queries, in error messages if a query on the type is
-faulty, and in [Fragments](https://graphql.org/learn/queries/#fragments).
+The `GraphQL` Type name for the entity. This is the name 
+you will use in [Fragments](https://graphql.org/learn/queries/#fragments).
+It is also the name you will see if you're doing Introspection queries.
 
-The `EntityType` defaults to be the same as the `DbTableName`, which is
-nearly always what you want.
+If you choose not to set `EntityType`, it defaults to the same as the `DbTableName`.
 
 ```csharp
 public override string EntityType => "ButterflyType";
 ```
 
 ```graphql
+# This GraphQL query shows how to query using a GraphQL fragment.
+# The ... is the GraphQL syntax for "use fragment".
+# Notice that the fragment is strongly typed.
+
 {
   b1: butterfly (id: "Monarch") { ... butterflyFrag }
   b2: butterfly (id: "Black Swallowtail") { ... butterflyFrag }
@@ -176,8 +180,8 @@ fragment butterflyFrag on ButterflyType { genus species }
 
 The names of the Primary Key fields. Use the GraphQL names, not the SQL column names.
 
-You must provide a non-empty array of field names. It is used when the
-`GraphQL` query uses paging.
+You must provide a non-empty array of field names. It is used for
+`GraphQL` queries that use paging.
 
 ```csharp
 public override string[] PrimaryKeyFieldNames => new[] { "butterflyId" };
@@ -187,17 +191,17 @@ See: [??? Paging]({{ 'documentation?topic=???' | relative_url }})
 
 ### SqlDefinition (Optional)
 
-You'll probably use `SqlDefinition` only a handful of times. It's used when
-your entity is not mapped to a database table, but to a SQL SELECT statement.
+You'll probably use `SqlDefinition` only a handful of times. It's used to map
+an entity to a SQL SELECT statement rather than a table.
 
-This documentation page has a topic with detailed instructions.
-
-See: [??? Virtual Table]({{ 'documentation?topic=???' | relative_url }})
+For detailed instructions, see: 
+[??? Virtual Table]({{ 'documentation?topic=???' | relative_url }})
 
 ### MaxPageSize (Optional)
 
-`GraphqlToTsql` supports paged queries, but normally doesn't require paging to be used.
-You can require some lists of entities to be paged.
+`GraphqlToTsql` supports, but normally doesn't require, paged queries.
+By setting `MaxPageSize` on an entity, you force queries to use paging
+for the entity.
 
 For example, if you want to limit the number of `Customer` rows that can be returned
 in a single query to 100:
@@ -209,28 +213,27 @@ public override long? MaxPageSize => 100L;
 The `GraphQL` will then be required to use paging for all `Customer` lists:
 
 ```graphql
+# These queries use "offset paging" to receive only 100 rows at a time
 { 
   customers (offset: 900, first: 100) { name } 
   regions { name customers (first: 100) { name } }
 }
 ```
 
-`GraphqlToSql` also supports cursor-based paging.
+`GraphqlToSql` also supports cursor-based paging. Details are shown in the
+Paging section.
 
 See: [??? Paging]({{ 'documentation?topic=???' | relative_url }})
 
 ### BuildFieldList()
 
+You must implement the `BuildFieldList` method to define all the
+fields in your entity.
 
+Each field is defined by calling a static factory method on
+the `Field` class.
 
-
-
-    /// <summary>
-    /// You must implement this method to populate the list of entity fields.
-    /// This is the hardest part of your entity mapping. You'll use the static Field
-    /// factory methods.
-    /// </summary>
-
+TODO
 
 </div>
 
