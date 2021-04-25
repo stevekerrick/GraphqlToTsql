@@ -23,9 +23,13 @@ The main setup steps are covered on the [Getting Started page]({{ 'gettingStarte
 
 ## GraphqlActionSettings
 
-To process a GraphQL query, you will call either `GraphqlActions.TranslateAndRunQuery(...)` or 
-`GraphqlActions.TranslateToTsql(...)`. Both have a required parameter of type
-`GraphqlActionSettings`. It has three properties:
+The `GraphqlActions` class is the top-level `GraphqlToTsql` class.
+It has two public methods you can use to process a GraphQL query:
+* `TranslateAndRunQuery`
+* `TranslateToTsql`
+
+Both methods have a required parameter of type
+`GraphqlActionSettings` which has three properties:
 * AllowIntrospection
 * ConnectionString
 * EntityList
