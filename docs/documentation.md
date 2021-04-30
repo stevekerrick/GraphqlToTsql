@@ -93,7 +93,11 @@ is described in
 
 # Entity Mapping Basics
 
-We'll start with a sample entity mapping. This `OrderEntity` class
+A GraphQL query operates on interconnected *types*, each of which has
+a set of strongly-typed *fields*. In `GraphqlToTsql` you create an
+*Entity* for each GraphQL *type*.
+
+Have a look at the sample `OrderEntity` class, which
 maps to a database table named `Order`.
 
 ```csharp
@@ -295,6 +299,7 @@ TODO
 
 
 <div markdown="1">
+
 # Mapping a TVF
 
 `Field.CalculatedSet` can be used to map a database Table-Valued Function (TVF).
