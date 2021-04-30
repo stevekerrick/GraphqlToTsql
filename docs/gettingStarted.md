@@ -85,7 +85,7 @@ public class ProductDef : EntityBase
 }
 ```
 
-* See: The [Documentation page](/documentation)
+* See: The [Documentation page](/documentation) for detailed guidance.
 * See: [Demo Entities](https://github.com/stevekerrick/GraphqlToTsql/tree/main/src/DemoEntities)
 in the project repository for more examples.
 

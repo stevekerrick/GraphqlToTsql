@@ -8,18 +8,19 @@ title: Documentation
 # How to Use GraphqlToTsql
 
 `GraphqlToTsql` is a component that translates a GraphQL query into a
-monolithic TSQL query, and (optionally) sends it to a SQL Server or
+comprehensive TSQL query, and (optionally) sends it to a SQL Server or
 AzureSQL database.
 
 ## Setup
 
-The main setup steps are covered on the [Getting Started page]({{ 'gettingStarted' | relative_url }}):
+The main setup steps are covered on the [Getting Started page]({{ 'gettingStarted' | relative_url }}).
+If you haven't yet visited that page, take a minute and skim its topics:
 * [Get GraphqlToTsql]({{ 'gettingStarted?topic=get-graphqltotsql' | relative_url }})
 * [Create Entity Mapping]({{ 'gettingStarted?topic=create-entity-mapping' | relative_url }})
 * [Create Entity List]({{ 'gettingStarted?topic=create-entity-list' | relative_url }})
 * [Register GraphqlActions]({{ 'gettingStarted?topic=register-graphqlactions' | relative_url }})
 * [Wire Up the API]({{ 'gettingStarted?topic=wire-up-the-api' | relative_url }})
-* [Optional: Wire Up the DB]({{ 'gettingStarted?topic=optional-wire-up-the-db' | relative_url }})
+* [Two Ways to Run a Query]({{ 'gettingStarted?topic=two-ways-to-run-a-query' | relative_url }})
 
 ## GraphqlActionSettings
 
