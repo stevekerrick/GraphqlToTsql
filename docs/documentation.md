@@ -87,20 +87,51 @@ Each entity in the list is an *Instance* of an entity. The typical pattern
 is described in
 [Create Entity List]({{ 'gettingStarted?topic=create-entity-list' | relative_url }})
 
-## Entity Mappings
-
-The remainder of this Documentation page explores the different ways to map entities
-to your database.
-
 </div>
 
 <div markdown="1">
 
 # Entity Mapping Basics
 
-Each of your Entities will inherit from [EntityBase.cs](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Entities/EntityBase.cs).
+We'll start with a sample entity mapping. This `OrderEntity` class
+maps to a database table named `Order`.
+
+```csharp
+public class OrderEntity : EntityBase
+{
+    public static OrderEntity Instance = new OrderEntity();
+
+    public override string Name => "order";
+    public override string DbTableName => "Order";
+    public override string[] PrimaryKeyFieldNames => new[] { "id" };
+    public override long? MaxPageSize => 1000L;
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "id", "Id", ValueType.Int, IsNullable.No),
+            Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No, Visibility.Hidden),
+            Field.Column(this, "date", "Date", ValueType.String, IsNullable.No),
+            Field.Column(this, "shipping", "Shipping", ValueType.Float, IsNullable.No),
+
+            Field.Row(SellerEntity.Instance, "seller", new Join(
+                ()=>this.GetField("sellerName"),
+                ()=>SellerEntity.Instance.GetField("name"))
+            ),
+
+            Field.Set(OrderDetailEntity.Instance, "orderDetails", IsNullable.No, new Join(
+                ()=>this.GetField("id"),
+                ()=>OrderDetailEntity.Instance.GetField("orderId"))
+            )
+        };
+    }
+}
+```
 
 ## EntityBase
+
+Each of your Entities will inherit from [EntityBase.cs](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Entities/EntityBase.cs).
 
 Here are the parts of EntityBase that you need to care about.
 
@@ -118,16 +149,19 @@ public abstract class EntityBase
 }
 ```
 
-### Name
+### Name (Required)
 
 The `Name` to use for this entity in the `GraphQL` queries. Must be singular,
 and start with a lower-case letter.
 It is common to give your entity the same name as the underlying database table
-(but lower-cased). For example, `butterfly`.
+(but lower-cased).
 
-It would be used in a `GraphQL` query like this:
+```csharp
+public override string Name => "order";
+```
+
 ```graphql
-query { butterfly (id: "Monarch") { genus species } }
+query { order (id: 100023) { id date } }
 ```
 
 ### PluralName (Optional)
@@ -136,25 +170,27 @@ When querying a list of items, `GraphqlToTsql` needs a plural form of the
 `Name`. By default `GraphqlToSql` appends an "s" to the `Name`. For `Name`s
 where that doesn't work, you need to supply the `PluralName`.
 
-For example:
 ```csharp
 public override string Name => "butterfly";
 public override string PluralName => "butterflies";
 ```
 
 ```graphql
-query { butterflies { genus species } }
+{ butterflies { genus species } }
 ```
 
-### DbTableName
+### DbTableName (Required)
 
 The name of the database table this entity maps to.
 
-Sometimes you might want an entity that maps
-to a SQL query, not to a physical table. You still need to set
-a `DbTableName`, but you can choose up any name you want (as long as
-it is a valid SQL name).
-See: [???]({{ 'documentation?topic=???' | relative_url }})
+```csharp
+public override string DbTableName => "Order";
+```
+
+Note: sometimes you might want an entity that maps
+to a SQL query, not to a physical table. You are still required
+a `DbTableName`, but you can choose up any name you want.
+See: [Advanced Mappings]({{ 'documentation?topic=advanced-mappings' | relative_url }})
 
 ### EntityType (Optional)
 
@@ -244,7 +280,7 @@ TODO
 
 <div markdown="1">
 
-# Mapping a Column
+# Advanced Mappings
 
 
 ```graphql
