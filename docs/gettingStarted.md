@@ -7,7 +7,9 @@ title: Getting Started
 
 # Get GraphqlToTsql
 
-There are two ways to get `GraphqlToTsql`.
+`GraphqlToTsql` is a component that you can use in your existing application
+to support read-only GraphQL queries. To get started, the first step is to
+download the component. There are a couple ways of doing that.
 
 ## Method 1: NuGet
 
@@ -32,7 +34,8 @@ dotnet add package GraphqlToTsql
 
 ## Method 2: Clone the GitHub Repository
 Clone the [repo](https://github.com/stevekerrick/GraphqlToTsql),
-and include project `GraphqlToTsql` in your solution.
+and copy project `GraphqlToTsql` into your solution. It targets `.NET Standard 2.0`
+and has a small number of Nuget dependencies.
 </div>
 
 <div markdown="1">
@@ -40,10 +43,16 @@ and include project `GraphqlToTsql` in your solution.
 # Create Entity Mapping
 
 `GraphqlToTsql` uses the "Entity Mapping" pattern to define the types and fields
-that will be accessible in the GraphQL, and to map them to tables and columns in the
+that will be accessible in the GraphQL, and to map them to tables and columns in your
 database.
 
-Suppose you have a table named `Product`, which is related to the `OrderDetail` table
+Getting started with `GraphqlToTsql` is not too hard. Most of your time
+will be spent creating your entity mappings. `GraphqlToSql`
+is flexible, allowing calculated fields, custom join criteria, virtual tables, and more.
+The [Documentation page](/documentation) has guidance on all the
+ways you can write the mapping.
+
+For a simple example, suppose you have a table named `Product`, which is related to the `OrderDetail` table
 by a foreign key column named `ProductName`.
 
 ![](images/productSchema.png)
@@ -76,9 +85,7 @@ public class ProductDef : EntityBase
 }
 ```
 
-* See: The [Documentation page](/documentation) for guidance on mapping. `GraphqlToTsql` 
-is flexible, allowing calculated fields, custom join criteria,
-using Table Valued Functions, virtual tables, and more.
+* See: The [Documentation page](/documentation)
 * See: [Demo Entities](https://github.com/stevekerrick/GraphqlToTsql/tree/main/src/DemoEntities)
 in the project repository for more examples.
 
@@ -88,10 +95,10 @@ in the project repository for more examples.
 
 # Create Entity List
 
-`GraphqlToTsql` needs an instance of each of your Entities. When you execute a `GraphqlToTsql` Action, 
-the entity list is set on a `GraphqlActionSettings` object.
+When calling on `GraphqlToTsql` to process a GraphQL query, you must pass in a `List<EntityBase>`,
+with instances of all your entities.
 
-The [Reference Application](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/DemoEntities/DemoEntityList.cs) uses a static class named `DemoEntityList` for this:
+The [Reference Application](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/DemoEntities/DemoEntityList.cs) uses a static class named `DemoEntityList` for this purpose:
 
 ```csharp
 public static class DemoEntityList
@@ -248,7 +255,7 @@ namespace DemoApp.Controllers
 
 <div markdown="1">
 
-# Optional: Wire Up the DB
+# Two Ways to Execute the Query
 
 `GraphqlToTsql` is meant to be a flexible component of your .NET API.
 It is happy to execute the GraphQL query -- simply supply the database connection string, 
