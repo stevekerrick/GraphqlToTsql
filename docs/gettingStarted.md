@@ -255,7 +255,7 @@ namespace DemoApp.Controllers
 
 <div markdown="1">
 
-# Two Ways to Execute the Query
+# Two Ways to Run a Query
 
 `GraphqlToTsql` is meant to be a flexible component of your .NET API.
 It is happy to execute the GraphQL query -- simply supply the database connection string, 
