@@ -71,7 +71,8 @@ and the names and types of all their fields.
 `GraphqlToTsql` supports Introspection queries, but you might not want to allow them because:
 * They add overhead.
 * A "Best Practice" is to allow Introspection in test environments so that people can
-experiment with your API using a tool like GraphiQL, but not to allow Introspection in Production.
+experiment with your API using a tool like [GraphiQL](https://github.com/graphql/graphiql),
+but not to allow Introspection in Production.
 
 ### ConnectionString
 
@@ -90,8 +91,8 @@ public List<EntityBase> EntityList { get; set; }
 The list of entities that are mapped to your database.
 
 Each entity in the list is an *Instance* of an entity. The typical pattern
-is described in
-[Create Entity List]({{ 'gettingStarted?topic=create-entity-list' | relative_url }})
+is described on our 
+[Getting Started Page]({{ 'gettingStarted?topic=create-entity-list' | relative_url }}).
 
 </div>
 
@@ -197,21 +198,22 @@ The name of the database table this entity maps to.
 public override string DbTableName => "Order";
 ```
 
-Note: sometimes you might want an entity that maps
-to a SQL query, not to a physical table. You are still required
-a `DbTableName`, but you can choose up any name you want.
+Note: sometimes you might map an entity
+to a SQL query rather than to a physical table. You are still required
+to declare a `DbTableName`, but you can choose up any name you want.
+The generated `T-SQL` will use it.
 See: [Advanced Mappings]({{ 'documentation?topic=advanced-mappings' | relative_url }})
 
 ### EntityType (Optional)
 
-The `GraphQL` Type name for the entity. This is the name 
-you will use in [Fragments](https://graphql.org/learn/queries/#fragments).
+The `GraphQL` Type name for the entity. The Type name is used in `GraphQL` queries that 
+use [Fragments](https://graphql.org/learn/queries/#fragments).
 It is also the name you will see if you're doing Introspection queries.
 
 If you choose not to set `EntityType`, it defaults to the same as the `DbTableName`.
 
 ```csharp
-public override string EntityType => "ButterflyType";
+public override string EntityType => "OrderType";
 ```
 
 ```graphql
@@ -220,14 +222,21 @@ public override string EntityType => "ButterflyType";
 # Notice that the fragment is strongly typed.
 
 {
-  b1: butterfly (id: "Monarch") { ... butterflyFrag }
-  b2: butterfly (id: "Black Swallowtail") { ... butterflyFrag }
+  o1: order (id: 1122) { ... orderFrag }
+  o2: order (id: 3344) { ... orderFrag }
 }
 
-fragment butterflyFrag on ButterflyType { genus species }
+fragment orderFrag on OrderType {
+  id
+  date
+  seller {
+    name
+    city
+  }
+}
 ```
 
-### PrimaryKeyFieldNames
+### PrimaryKeyFieldNames (Required)
 
 The names of the Primary Key fields. Use the GraphQL names, not the SQL column names.
 
