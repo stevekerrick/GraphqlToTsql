@@ -331,7 +331,27 @@ protected override List<Field> BuildFieldList()
 
 # Field Mapping
 
-TODO
+When you are defining an entity, the fields for the entity are
+mapped in the `BuildFieldList` method. `GraphqlToTsql` supports six types of mapping.
+* Mapping to a database Column
+* Mapping to a related database row
+* Mapping to a set of related database rows
+* Mapping to a calculated value
+* Mapping to a calculated database row
+* Mapping to a calculated set of database rows
+
+## Mapping a Column
+
+## Mapping a Related Row
+
+## Mapping a Related Set
+
+## Mapping a Calculated Value
+
+## Mapping a Calculated Row
+
+## Mapping a Calculated Set
+
 
 
 
