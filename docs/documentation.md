@@ -22,7 +22,7 @@ If you haven't yet visited that page, take a minute and skim its topics:
 * [Wire Up the API]({{ 'gettingStarted?topic=wire-up-the-api' | relative_url }})
 * [Two Ways to Run a Query]({{ 'gettingStarted?topic=two-ways-to-run-a-query' | relative_url }})
 
-## GraphqlActionSettings
+## Settings
 
 The `GraphqlActions` class is the top-level `GraphqlToTsql` class.
 It has two public methods you can use to process a GraphQL query:
@@ -30,10 +30,16 @@ It has two public methods you can use to process a GraphQL query:
 * `TranslateToTsql`
 
 Both methods have a required parameter of type
-`GraphqlActionSettings` which has three properties:
-* AllowIntrospection
-* ConnectionString
-* EntityList
+`GraphqlActionSettings` which has three properties.
+
+```csharp
+public class GraphqlActionSettings
+{
+    public bool AllowIntrospection { get; set; }
+    public string ConnectionString { get; set; }
+    public List<EntityBase> EntityList { get; set; }
+}
+```
 
 ### AllowIntrospection
 
