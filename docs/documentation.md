@@ -240,14 +240,14 @@ fragment orderFrag on OrderType {
 
 The names of the Primary Key fields. Use the GraphQL names, not the SQL column names.
 
-You must provide a non-empty array of field names. It is used for
+You must provide a non-empty array of field names. It is needed for
 `GraphQL` queries that use paging.
 
 ```csharp
-public override string[] PrimaryKeyFieldNames => new[] { "butterflyId" };
+public override string[] PrimaryKeyFieldNames => new[] { "orderId" };
 ```
 
-See: [??? Paging]({{ 'documentation?topic=???' | relative_url }})
+See: [Paging]({{ 'documentation?topic=paging' | relative_url }})
 
 ### SqlDefinition (Optional)
 
@@ -255,43 +255,87 @@ You'll probably use `SqlDefinition` only a handful of times. It's used to map
 an entity to a SQL SELECT statement rather than a table.
 
 For detailed instructions, see: 
-[??? Virtual Table]({{ 'documentation?topic=???' | relative_url }})
+[Field Mapping]({{ 'documentation?topic=field-mapping' | relative_url }})
 
 ### MaxPageSize (Optional)
 
-`GraphqlToTsql` supports, but normally doesn't require, paged queries.
-By setting `MaxPageSize` on an entity, you force queries to use paging
-for the entity.
+Some of your database tables probably have more data than can reasonably be returned
+in a single query. `GraphqlToTsql` supports both offset and cursor-based paging.
+See [Paging]({{ 'documentation?topic=paging' | relative_url }}) for details.
 
-For example, if you want to limit the number of `Customer` rows that can be returned
-in a single query to 100:
+You can force your incoming GraphQL queries to use paging for an entity
+by setting `MaxPageSize`.
+
+For example, if you want to limit the number of `Order` rows that can be returned
+in a single query to 1000:
 
 ```csharp
-public override long? MaxPageSize => 100L;
+public override long? MaxPageSize => 1000L;
 ```
 
-The `GraphQL` will then be required to use paging for all `Customer` lists:
+The `GraphQL` query will then be required to use paging for all `Order` lists.
+If the query doesn't use paging `GraphqlToTsql` will return an error.
 
 ```graphql
 # These queries use "offset paging" to receive only 100 rows at a time
 { 
-  customers (offset: 900, first: 100) { name } 
-  regions { name customers (first: 100) { name } }
+  orders (offset: 900, first: 100) {
+    id 
+    date
+  } 
+  sellers { 
+    name 
+    orders (first: 100) { 
+      id 
+      date 
+    } 
+  }
 }
 ```
 
-`GraphqlToSql` also supports cursor-based paging. Details are shown in the
-Paging section.
+See: [Paging]({{ 'documentation?topic=paging' | relative_url }})
 
-See: [??? Paging]({{ 'documentation?topic=???' | relative_url }})
+### BuildFieldList() (Required)
 
-### BuildFieldList()
+Implement method `BuildFieldList` to define the fields in your entity.
+Very often a field will map to a database column, or to a
+related entity. Sometimes a field will map to a calculated value
+or set of values.
 
-You must implement the `BuildFieldList` method to define all the
-fields in your entity.
+See [Field Mapping]({{ 'documentation?topic=field-mapping' | relative_url }})
+for details.
 
-Each field is defined by calling a static factory method on
-the `Field` class.
+Here's a sneak peek at a typical `BuildFieldList` implementation.
+
+```csharp
+protected override List<Field> BuildFieldList()
+{
+    return new List<Field>
+    {
+        Field.Column(this, "id", "Id", ValueType.Int, IsNullable.No),
+        Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No, Visibility.Hidden),
+        Field.Column(this, "date", "Date", ValueType.String, IsNullable.No),
+        Field.Column(this, "shipping", "Shipping", ValueType.Float, IsNullable.No),
+
+        Field.Row(SellerEntity.Instance, "seller", new Join(
+            ()=>this.GetField("sellerName"),
+            ()=>SellerEntity.Instance.GetField("name"))
+        ),
+
+        Field.Set(OrderDetailEntity.Instance, "orderDetails", IsNullable.No, new Join(
+            ()=>this.GetField("id"),
+            ()=>OrderDetailEntity.Instance.GetField("orderId"))
+        )
+    };
+}
+```
+
+
+
+
+Fields are defined by calling static factory methods on the `Field` class.
+The most common mappings are explained below. For the more advanced
+mappings, 
 
 TODO
 
@@ -299,23 +343,13 @@ TODO
 
 <div markdown="1">
 
-# Advanced Mappings
+# Field Mapping
 
-
-```graphql
-
-```
-
-</div>
+TODO
 
 
 
-
-
-
-<div markdown="1">
-
-# Mapping a TVF
+## Mapping a TVF
 
 `Field.CalculatedSet` can be used to map a database Table-Valued Function (TVF).
 
@@ -375,12 +409,27 @@ public class SellerEntity : EntityBase
 }
 ```
 
+
+
+</div>
+
+<div markdown="1">
+
+# Paging
+
+TODO
+
 </div>
 
 
 
 
+
+
+
+
 <div markdown="1">
+
 # Foo
 
 </div>
