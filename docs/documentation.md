@@ -177,7 +177,7 @@ query { order (id: 100023) { id date } }
 
 ### PluralName (Optional)
 
-When querying a list of items, `GraphqlToTsql` needs a plural form of the
+When querying a list of items, `GraphqlToTsql` uses a plural form of the
 `Name`. By default `GraphqlToSql` appends an "s" to the `Name`. For `Name`s
 where that doesn't work, you need to supply the `PluralName`.
 
@@ -200,15 +200,14 @@ public override string DbTableName => "Order";
 
 Note: sometimes you might map an entity
 to a SQL query rather than to a physical table. You are still required
-to declare a `DbTableName`, but you can choose up any name you want.
-The generated `T-SQL` will use it.
-See: [Advanced Mappings]({{ 'documentation?topic=advanced-mappings' | relative_url }})
+to define a `DbTableName` (the generated `T-SQL` uses it), but you can choose any name you want.
+See: [Field Mapping]({{ 'documentation?topic=field-mapping' | relative_url }})
 
 ### EntityType (Optional)
 
 The `GraphQL` Type name for the entity. The Type name is used in `GraphQL` queries that 
 use [Fragments](https://graphql.org/learn/queries/#fragments).
-It is also the name you will see if you're doing Introspection queries.
+It is also the name you will see in Introspection queries.
 
 If you choose not to set `EntityType`, it defaults to the same as the `DbTableName`.
 
@@ -217,7 +216,7 @@ public override string EntityType => "OrderType";
 ```
 
 ```graphql
-# This GraphQL query shows how to query using a GraphQL fragment.
+# This query demonstrates the use of a GraphQL fragment.
 # The ... is the GraphQL syntax for "use fragment".
 # Notice that the fragment is strongly typed.
 
@@ -252,7 +251,7 @@ See: [Paging]({{ 'documentation?topic=paging' | relative_url }})
 ### SqlDefinition (Optional)
 
 You'll probably use `SqlDefinition` only a handful of times. It's used to map
-an entity to a SQL SELECT statement rather than a table.
+an entity to a SQL SELECT statement rather than to a table.
 
 For detailed instructions, see: 
 [Field Mapping]({{ 'documentation?topic=field-mapping' | relative_url }})
@@ -260,14 +259,9 @@ For detailed instructions, see:
 ### MaxPageSize (Optional)
 
 Some of your database tables probably have more data than can reasonably be returned
-in a single query. `GraphqlToTsql` supports both offset and cursor-based paging.
-See [Paging]({{ 'documentation?topic=paging' | relative_url }}) for details.
-
-You can force your incoming GraphQL queries to use paging for an entity
-by setting `MaxPageSize`.
-
-For example, if you want to limit the number of `Order` rows that can be returned
-in a single query to 1000:
+in a single query. You can require incoming GraphQL queries to use paging for an entity
+by setting `MaxPageSize`. For example, if you want to limit the number of `Order` 
+rows that can be returned in a single query to 1000:
 
 ```csharp
 public override long? MaxPageSize => 1000L;
@@ -293,11 +287,12 @@ If the query doesn't use paging `GraphqlToTsql` will return an error.
 }
 ```
 
-See: [Paging]({{ 'documentation?topic=paging' | relative_url }})
+`GraphqlToTsql` supports both offset and cursor-based paging.
+See [Paging]({{ 'documentation?topic=paging' | relative_url }}) for details.
 
 ### BuildFieldList() (Required)
 
-Implement method `BuildFieldList` to define the fields in your entity.
+Implement method `BuildFieldList` to define the fields for your entity.
 Very often a field will map to a database column, or to a
 related entity. Sometimes a field will map to a calculated value
 or set of values.
@@ -329,15 +324,6 @@ protected override List<Field> BuildFieldList()
     };
 }
 ```
-
-
-
-
-Fields are defined by calling static factory methods on the `Field` class.
-The most common mappings are explained below. For the more advanced
-mappings, 
-
-TODO
 
 </div>
 
