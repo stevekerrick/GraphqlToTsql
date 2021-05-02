@@ -342,6 +342,65 @@ mapped in the `BuildFieldList` method. `GraphqlToTsql` supports six types of map
 
 ## Mapping a Column
 
+The most common mapping is Column Mapping. It defines an entity field that maps
+to a database column.
+
+To create a Column Mapping, use the static method `Field.Column()`.
+
+```csharp
+/// <summary>
+/// Builds a field that maps to a database column. This is the factory method you'll use most often.
+/// </summary>
+/// <param name="entity">The entity this field belongs to</param>
+/// <param name="name">The name of the field in the GraphQL</param>
+/// <param name="dbColumnName">The column name in the database</param>
+/// <param name="valueType">Data type of the column. One of: String, Int, Float, Boolean.</param>
+/// <param name="isNullable">Is the database column nullable?</param>
+/// <param name="visibility">Mark the field as "Hidden" if you don't want to expose it to GraphQL
+/// queries. This is useful to hide Primary Key fields that are needed for joins.</param>
+public static Field Column (
+    EntityBase entity,
+    string name,
+    string dbColumnName,
+    ValueType valueType,
+    IsNullable isNullable,
+    Visibility visibility = Visibility.Normal
+);
+```
+
+```csharp
+TODO: Show samples
+```
+
+### EntityBase entity (Required)
+
+The entity instance this field belongs to. Since you do field setup in the
+entity's `BuildFieldList()` method, you will always pass the value `this`.
+
+### string name (Required)
+
+The name of the field in the GraphQL. It should begin with a lower-case letter,
+since that is the convention in GraphQL.
+
+Often you will give your field the same name as the database column it maps to,
+converted to [lower camel case](https://en.wikipedia.org/wiki/Camel_case).
+
+### string dbColumnName (Required)
+
+The column name in the database. This column must be part of the database table
+that the entity maps to.
+
+### ValueType valueType (Required)
+
+
+
+### IsNullable isNullable (Required)
+
+
+### Visibility visibitlity (Optional)
+
+
+
 ## Mapping a Related Row
 
 ## Mapping a Related Set
