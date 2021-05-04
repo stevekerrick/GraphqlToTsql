@@ -348,16 +348,6 @@ to a database column.
 To create a Column Mapping, use the static method `Field.Column()`.
 
 ```csharp
-/// <summary>
-/// Builds a field that maps to a database column. This is the factory method you'll use most often.
-/// </summary>
-/// <param name="entity">The entity this field belongs to</param>
-/// <param name="name">The name of the field in the GraphQL</param>
-/// <param name="dbColumnName">The column name in the database</param>
-/// <param name="valueType">Data type of the column. One of: String, Int, Float, Boolean.</param>
-/// <param name="isNullable">Is the database column nullable?</param>
-/// <param name="visibility">Mark the field as "Hidden" if you don't want to expose it to GraphQL
-/// queries. This is useful to hide Primary Key fields that are needed for joins.</param>
 public static Field Column (
     EntityBase entity,
     string name,
@@ -430,11 +420,267 @@ IsNullable.No
 
 ### Visibility visibility (Optional)
 
+You need to create Column Mappings for the primary keys on all your entities.
+They're needed for mapping table joins, and for paging. But you can *hide*
+those mappings from the `GraphQL` if you don't want to share your ID's
+with the world.
 
+```csharp
+Visibility.Normal
+Visibility.Hidden
+```
+
+This is an optional parameter in `Field.Column()`. The default is `Visibility.Normal`.
 
 ## Mapping to a Related Row
 
+If you are mapping a database table that has a foreign key to a related table, then you
+will likely want to express that relationship in your mapping.
+
+Use the static method `Field.Row` to configure the relationship.
+
+```csharp
+public static Field Row(
+    EntityBase entity,
+    string name,
+    Join join,
+    IsNullable isNullable = Entities.IsNullable.Yes);
+```
+
+For example, consider the database tables `Order` and `OrderDetail`.
+`OrderDetail.OrderId` is a foreign key to `Order.Id`, so when you create the
+`OrderDetail` entity you'll use a Row Mapping to link to the `Order` entity.
+
+```sql
+CREATE TABLE [Order] (
+    Id            INT NOT NULL IDENTITY(1,1) PRIMARY KEY CLUSTERED
+,   SellerName    NVARCHAR(64) NOT NULL
+,   [Date]        DATE NOT NULL
+,   Shipping      DECIMAL(5,2) NOT NULL
+,   CONSTRAINT FK_Order_Seller FOREIGN KEY (SellerName) REFERENCES Seller ([Name])
+);
+
+CREATE TABLE OrderDetail (
+    OrderId       INT NOT NULL
+,   ProductName   NVARCHAR(64) NOT NULL
+,   Quantity      INT NOT NULL
+,   CONSTRAINT PK_OrderDetail PRIMARY KEY NONCLUSTERED (OrderId, ProductName)
+,   CONSTRAINT FK_OrderDetail_Order FOREIGN KEY (OrderId) REFERENCES [Order] (Id)
+,   CONSTRAINT FK_OrderDetail_Product FOREIGN KEY (ProductName) REFERENCES Product ([Name])
+);
+```
+
+```csharp
+public class OrderDetailEntity : EntityBase
+{
+    public static OrderDetailEntity Instance = new OrderDetailEntity();
+
+    public override string Name => "orderDetail";
+    public override string DbTableName => "OrderDetail";
+    public override string[] PrimaryKeyFieldNames => new[] { "orderId", "productName" };
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "orderId", "OrderId", ValueType.Int, IsNullable.No),
+            Field.Column(this, "productName", "ProductName", ValueType.String, IsNullable.No, Visibility.Hidden),
+            Field.Column(this, "quantity", "Quantity", ValueType.Int, IsNullable.No),
+
+            Field.Row(OrderEntity.Instance, "order", new Join(
+                ()=>this.GetField("orderId"),
+                ()=>OrderEntity.Instance.GetField("id"))
+            ),
+            Field.Row(ProductEntity.Instance, "product", new Join(
+                ()=>this.GetField("productName"),
+                ()=>ProductEntity.Instance.GetField("name"))
+            )
+        };
+    }
+}
+```
+
+### EntityBase entity (Required)
+
+The singleton instance of the *related* entity.
+
+### string name (Required)
+
+The name of the row in the GraphQL. It should begin with a lower-case letter,
+since that is the convention in GraphQL.
+
+Often you will give your row the same name as the entity it maps to,
+converted to [lower camel case](https://en.wikipedia.org/wiki/Camel_case).
+
+### Join join (Required)
+
+Indicate how the two entities are to be joined, by specifying the parent entity field
+and the child entity field.
+
+The *parent entity* is the entity you're currently mapping. The *child entity* is the
+entity the `Field.Row` is mapping *to*.
+
+```csharp
+/// <summary>
+/// Specifies the fields to join a parent entity to a child entity
+/// </summary>
+/// <param name="parentFieldFunc">Func that returns the Field instance for the Parent in the join</param>
+/// <param name="childFieldFunc">Func that returns the Field instance for the Child in the join</param>
+public Join(Func<Field> parentFieldFunc, Func<Field> childFieldFunc)
+{
+    ParentFieldFunc = parentFieldFunc;
+    ChildFieldFunc = childFieldFunc;
+}
+```
+
+Note: You'll notice that `Join` won't work for tables that have a compound primary key.
+If your database has compound keys, you'll need to use the `Calcuated Row` mapping.
+
+### IsNullable isNullable (Optional)
+
+You can optionally indicate whether the child `Row` could be null. The default is
+`IsNullable.Yes`.
+
+```csharp
+IsNullable.Yes
+IsNullable.No
+```
+
+Indicating the nullability of the mapped `Row` is only necessary if you allow
+Introspection queries. (For more information about Introspection see the `AllowIntrospection`
+section of [How to Use GraphqlToTsql]({{ 'documentation?topic=how-to-use-graphqltotsql' | relative_url }}))
+
 ## Mapping to a Related Set
+
+If you are mapping a database table that has a foreign key to a related table, then you
+will likely want to express that relationship in your mapping.
+
+Use the static method `Field.Set` to configure the relationship.
+
+```csharp
+/// <summary>
+/// Builds a field for one-to-many set.
+/// </summary>
+/// <param name="entity">Tne entity of the children</param>
+/// <param name="name">The name of the field in the GraphQL</param>
+/// <param name="join">Join criteria between the parent and child entities</param>
+/// <param name="isNonEmptyList">Can the list be empty?  This setting is usually only used on the system types used for introspection.</param>
+public static Field Set(
+    EntityBase entity,
+    string name,
+    IsNullable isNullable,
+    Join join,
+    ListCanBeEmpty? isNonEmptyList = null);
+```
+
+For example, consider the database tables `Order` and `OrderDetail`.
+`OrderDetail.OrderId` is a foreign key to `Order.Id`, so when you create the
+`OrderDetail` entity you'll use a Row Mapping to link to the `Order` entity.
+
+```sql
+CREATE TABLE [Order] (
+    Id            INT NOT NULL IDENTITY(1,1) PRIMARY KEY CLUSTERED
+,   SellerName    NVARCHAR(64) NOT NULL
+,   [Date]        DATE NOT NULL
+,   Shipping      DECIMAL(5,2) NOT NULL
+,   CONSTRAINT FK_Order_Seller FOREIGN KEY (SellerName) REFERENCES Seller ([Name])
+);
+
+CREATE TABLE OrderDetail (
+    OrderId       INT NOT NULL
+,   ProductName   NVARCHAR(64) NOT NULL
+,   Quantity      INT NOT NULL
+,   CONSTRAINT PK_OrderDetail PRIMARY KEY NONCLUSTERED (OrderId, ProductName)
+,   CONSTRAINT FK_OrderDetail_Order FOREIGN KEY (OrderId) REFERENCES [Order] (Id)
+,   CONSTRAINT FK_OrderDetail_Product FOREIGN KEY (ProductName) REFERENCES Product ([Name])
+);
+```
+
+```csharp
+public class OrderDetailEntity : EntityBase
+{
+    public static OrderDetailEntity Instance = new OrderDetailEntity();
+
+    public override string Name => "orderDetail";
+    public override string DbTableName => "OrderDetail";
+    public override string[] PrimaryKeyFieldNames => new[] { "orderId", "productName" };
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "orderId", "OrderId", ValueType.Int, IsNullable.No),
+            Field.Column(this, "productName", "ProductName", ValueType.String, IsNullable.No, Visibility.Hidden),
+            Field.Column(this, "quantity", "Quantity", ValueType.Int, IsNullable.No),
+
+            Field.Row(OrderEntity.Instance, "order", new Join(
+                ()=>this.GetField("orderId"),
+                ()=>OrderEntity.Instance.GetField("id"))
+            ),
+            Field.Row(ProductEntity.Instance, "product", new Join(
+                ()=>this.GetField("productName"),
+                ()=>ProductEntity.Instance.GetField("name"))
+            )
+        };
+    }
+}
+```
+
+### EntityBase entity (Required)
+
+The singleton instance of the *related* entity.
+
+### string name (Required)
+
+The name of the row in the GraphQL. It should begin with a lower-case letter,
+since that is the convention in GraphQL.
+
+Often you will give your row the same name as the entity it maps to,
+converted to [lower camel case](https://en.wikipedia.org/wiki/Camel_case).
+
+### Join join (Required)
+
+Indicate how the two entities are to be joined, by specifying the parent entity field
+and the child entity field.
+
+The *parent entity* is the entity you're currently mapping. The *child entity* is the
+entity the `Field.Row` is mapping *to*.
+
+```csharp
+/// <summary>
+/// Specifies the fields to join a parent entity to a child entity
+/// </summary>
+/// <param name="parentFieldFunc">Func that returns the Field instance for the Parent in the join</param>
+/// <param name="childFieldFunc">Func that returns the Field instance for the Child in the join</param>
+public Join(Func<Field> parentFieldFunc, Func<Field> childFieldFunc)
+{
+    ParentFieldFunc = parentFieldFunc;
+    ChildFieldFunc = childFieldFunc;
+}
+```
+
+Note: You'll notice that `Join` won't work for tables that have a compound primary key.
+If your database has compound keys, you'll need to use the `Calcuated Row` mapping.
+
+### IsNullable isNullable (Optional)
+
+You can optionally indicate whether the child `Row` could be null. The default is
+`IsNullable.Yes`.
+
+```csharp
+IsNullable.Yes
+IsNullable.No
+```
+
+Indicating the nullability of the mapped `Row` is only necessary if you allow
+Introspection queries. (For more information about Introspection see the `AllowIntrospection`
+section of [How to Use GraphqlToTsql]({{ 'documentation?topic=how-to-use-graphqltotsql' | relative_url }}))
+
+
+
+
+
+
 
 ## Mapping to a Calculated Value
 
