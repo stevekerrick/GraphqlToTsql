@@ -216,7 +216,7 @@ namespace GraphqlToTsql.Translator
             entity = _entityList.FirstOrDefault(_ => _.PluralName == name);
             if (entity != null)
             {
-                return Entities.Field.Set(entity, name, IsNullable.Yes, null);
+                return Entities.Field.Set(entity, name, null);
             }
 
             return null;

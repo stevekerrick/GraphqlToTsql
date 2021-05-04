@@ -340,9 +340,9 @@ mapped in the `BuildFieldList` method. `GraphqlToTsql` supports six types of map
 * Mapping to a calculated database row
 * Mapping to a calculated set of database rows
 
-## Mapping a Column
+## Mapping to a Column
 
-The most common mapping is Column Mapping. It defines an entity field that maps
+Mapping to a Column is the most common mapping. It defines an entity field that maps
 to a database column.
 
 To create a Column Mapping, use the static method `Field.Column()`.
@@ -369,7 +369,12 @@ public static Field Column (
 ```
 
 ```csharp
-TODO: Show samples
+// Examples of Column Mappings
+Field.Column(this, "name", "Name", ValueType.String, IsNullable.No)
+Field.Column(this, "zip", "PostalCode", ValueType.String, IsNullable.Yes)
+Field.Column(this, "quantity", "Quantity", ValueType.Int, IsNullable.No)
+Field.Column(this, "shipping", "ShippingAmount", ValueType.Float, IsNullable.No)
+Field.Column(this, "sellerId", "SellerId", ValueType.Int, IsNullable.No, Visibility.Hidden)
 ```
 
 ### EntityBase entity (Required)
@@ -392,24 +397,50 @@ that the entity maps to.
 
 ### ValueType valueType (Required)
 
+GraphQL has a set of supported scalar value types, and these are the types
+you specify in the entity mapping. Not surprisingly they align with standard
+JSON types.
 
+```csharp
+ValueType.String
+ValueType.Int
+ValueType.Float
+ValueType.Boolean
+```
+
+If the database column is type `bit`, use `ValueType.Boolean`.
+
+If the database column is type `tinyint`, `smallint`, `int`, or `bigint`, use `ValueType.Int`.
+
+If the database column is any other numeric, use `ValueType.Float`.
+
+In all other cases, use `ValueType.String`.
 
 ### IsNullable isNullable (Required)
 
+To validate arguments and variables in the `GraphQL` you need to indicate whether the
+database column is nullable.
 
-### Visibility visibitlity (Optional)
+Use one of these values.
+
+```csharp
+IsNullable.Yes
+IsNullable.No
+```
+
+### Visibility visibility (Optional)
 
 
 
-## Mapping a Related Row
+## Mapping to a Related Row
 
-## Mapping a Related Set
+## Mapping to a Related Set
 
-## Mapping a Calculated Value
+## Mapping to a Calculated Value
 
-## Mapping a Calculated Row
+## Mapping to a Calculated Row
 
-## Mapping a Calculated Set
+## Mapping to a Calculated Set
 
 
 

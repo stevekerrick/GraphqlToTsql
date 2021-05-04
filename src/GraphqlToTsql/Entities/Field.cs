@@ -19,7 +19,7 @@ namespace GraphqlToTsql.Entities
         internal string DbColumnName { get; private set; }
         internal ValueType ValueType { get; private set; }
         internal IsNullable? IsNullable { get; private set; }
-        internal ListCanBeEmpty? IsNonEmptyList { get; private set; }
+        internal ListCanBeEmpty ListCanBeEmpty { get; private set; }
         internal Visibility Visibility { get; private set; }
         internal Join Join { get; private set; }
         internal Func<string, string> TemplateFunc { get; private set; }
@@ -68,7 +68,8 @@ namespace GraphqlToTsql.Entities
         /// </example>
         /// </param>
         /// <param name="visibility">Mark the field as "Hidden" if you don't want to expose it to GraphQL queries</param>
-        public static Field CalculatedField(EntityBase entity,
+        public static Field CalculatedField(
+            EntityBase entity,
             string name,
             ValueType valueType,
             IsNullable isNullable,
@@ -91,20 +92,18 @@ namespace GraphqlToTsql.Entities
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="join">Join criteria between the parent and child entities</param>
         /// <param name="isNullable">Can the field be null? This setting is usually only used on the system types used for introspection.</param>
-        /// <param name="visibility">Mark the row as "Hidden" if you don't want to expose it to GraphQL queries</param>
         public static Field Row(
             EntityBase entity,
             string name,
             Join join,
-            IsNullable isNullable = Entities.IsNullable.Yes,
-            Visibility visibility = Visibility.Normal) => new Field
+            IsNullable isNullable = Entities.IsNullable.Yes) => new Field
             {
                 FieldType = FieldType.Row,
                 Entity = entity,
                 Name = name,
                 Join = join,
                 IsNullable = isNullable,
-                Visibility = visibility
+                Visibility = Visibility.Normal
             };
 
         /// <summary>
@@ -113,23 +112,22 @@ namespace GraphqlToTsql.Entities
         /// <param name="entity">Tne entity of the children</param>
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="join">Join criteria between the parent and child entities</param>
-        /// <param name="isNonEmptyList">Can the list be empty?  This setting is usually only used on the system types used for introspection.</param>
-        /// <param name="visibility">Mark the set as "Hidden" if you don't want to expose it to GraphQL queries</param>
+        /// 
+        /// <param name="listCanBeEmpty">Can the list be empty?  This setting is usually only used on the system types used for introspection.</param>
         public static Field Set(
             EntityBase entity,
             string name,
-            IsNullable isNullable,
             Join join,
-            ListCanBeEmpty? isNonEmptyList = null,
-            Visibility visibility = Visibility.Normal) => new Field
+            IsNullable isNullable = Entities.IsNullable.No,
+            ListCanBeEmpty listCanBeEmpty = ListCanBeEmpty.Yes) => new Field
             {
                 FieldType = FieldType.Set,
                 Entity = entity,
                 Name = name,
-                IsNullable = isNullable,
-                IsNonEmptyList = isNonEmptyList,
                 Join = join,
-                Visibility = visibility
+                IsNullable = isNullable,
+                ListCanBeEmpty = listCanBeEmpty,
+                Visibility = Visibility.Normal
             };
 
         /// <summary>
@@ -161,23 +159,21 @@ namespace GraphqlToTsql.Entities
         /// <param name="entity">Tne entity of the child</param>
         /// <param name="name">The name of the field in the GraphQL</param>
         /// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child set</param>
-        /// <param name="isNonEmptyList">Can the list be empty?  This setting is usually only used on the system types used for introspection.</param>
-        /// <param name="visibility">Mark the set as "Hidden" if you don't want to expose it to GraphQL queries</param>
+        /// <param name="listCanBeEmpty">Can the list be empty?  This setting is usually only used on the system types used for introspection.</param>
         public static Field CalculatedSet(
             EntityBase entity,
             string name,
             IsNullable isNullable,
             Func<string, string> templateFunc,
-            ListCanBeEmpty? isNonEmptyList = null,
-            Visibility visibility = Visibility.Normal) => new Field
+            ListCanBeEmpty listCanBeEmpty = ListCanBeEmpty.Yes) => new Field
             {
                 FieldType = FieldType.Set,
                 Entity = entity,
                 Name = name,
                 IsNullable = isNullable,
-                IsNonEmptyList = isNonEmptyList,
+                ListCanBeEmpty = listCanBeEmpty,
                 TemplateFunc = templateFunc,
-                Visibility = visibility
+                Visibility = Visibility.Normal
             };
 
         internal static Field Connection(Field setField) => new Field

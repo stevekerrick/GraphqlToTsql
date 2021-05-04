@@ -33,19 +33,19 @@ namespace DemoEntities
                     (tableAlias) => $"SELECT s.* FROM tvf_AllAncestors({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name AND s.DistributorName IS NULL"
                 ),
 
-                Field.Set(this, "recruits", IsNullable.Yes, new Join(
+                Field.Set(this, "recruits", new Join(
                     ()=>this.GetField("name"),
                     ()=>this.GetField("distributorName"))
                 ),
-                Field.Set(OrderEntity.Instance, "orders", IsNullable.Yes, new Join(
+                Field.Set(OrderEntity.Instance, "orders", new Join(
                     ()=>this.GetField("name"),
                     ()=>OrderEntity.Instance.GetField("sellerName"))
                 ),
-                Field.Set(SellerBadgeEntity.Instance, "sellerBadges", IsNullable.No, new Join(
+                Field.Set(SellerBadgeEntity.Instance, "sellerBadges", new Join(
                     ()=>this.GetField("name"),
                     ()=>SellerBadgeEntity.Instance.GetField("sellerName"))
                 ),
-                Field.Set(SellerProductTotalEntity.Instance, "sellerProductTotals", IsNullable.Yes, new Join(
+                Field.Set(SellerProductTotalEntity.Instance, "sellerProductTotals", new Join(
                     ()=>this.GetField("name"),
                     ()=>SellerBadgeEntity.Instance.GetField("sellerName"))
                 ),

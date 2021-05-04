@@ -48,9 +48,10 @@ namespace GraphqlToTsql.Introspection
                 Field.Column(this, "ofTypeKey", "OfTypeKey", ValueType.String, IsNullable.Yes, Visibility.Hidden),
                 Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
 
-                Field.Set(GqlFieldEntity.Instance, "fields", IsNullable.Yes, new Join(
+                Field.Set(GqlFieldEntity.Instance, "fields", new Join(
                     () => this.GetField("key"),
                     () => GqlFieldEntity.Instance.GetField("parentTypeKey")),
+                    IsNullable.Yes,
                     ListCanBeEmpty.No
                 ),
 
@@ -61,9 +62,10 @@ namespace GraphqlToTsql.Introspection
                     tableAlias => "SELECT * FROM GqlType WHERE 1 = 0",
                     ListCanBeEmpty.No),
 
-                Field.Set(GqlEnumValueEntity.Instance, "enumValues", IsNullable.Yes, new Join(
+                Field.Set(GqlEnumValueEntity.Instance, "enumValues", new Join(
                     () => this.GetField("key"),
                     () => GqlEnumValueEntity.Instance.GetField("enumTypeKey")),
+                    IsNullable.Yes,
                     ListCanBeEmpty.No
                 ),
                 Field.CalculatedSet(GqlInputValueEntity.Instance, "inputFields", IsNullable.Yes,

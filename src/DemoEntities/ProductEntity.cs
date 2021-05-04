@@ -23,11 +23,11 @@ namespace DemoEntities
                     (tableAlias) => $"SELECT (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName) * {tableAlias}.Price"
                 ),
 
-                Field.Set(OrderDetailEntity.Instance, "orderDetails", IsNullable.Yes, new Join(
+                Field.Set(OrderDetailEntity.Instance, "orderDetails", new Join(
                     ()=>this.GetField("name"),
                     ()=>OrderDetailEntity.Instance.GetField("productName"))
                 ),
-                Field.Set(SellerProductTotalEntity.Instance, "sellerProductTotals", IsNullable.Yes, new Join(
+                Field.Set(SellerProductTotalEntity.Instance, "sellerProductTotals", new Join(
                     ()=>this.GetField("name"),
                     ()=>OrderDetailEntity.Instance.GetField("productName"))
                 )

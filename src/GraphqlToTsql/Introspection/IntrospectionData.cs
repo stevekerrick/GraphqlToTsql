@@ -130,7 +130,7 @@ namespace GraphqlToTsql.Introspection
         {
             var type = EntityType(field.Entity);
 
-            if (field.IsNonEmptyList == ListCanBeEmpty.No)
+            if (field.ListCanBeEmpty == ListCanBeEmpty.No)
             {
                 type = NonNullableType(type);
             }
