@@ -37,6 +37,7 @@ public class GraphqlActionSettings
 {
     public bool AllowIntrospection { get; set; }
     public string ConnectionString { get; set; }
+    public EmptySetBehavior EmptySetBehavior { get; set; }
     public List<EntityBase> EntityList { get; set; }
 }
 ```
@@ -81,6 +82,25 @@ public string ConnectionString { get; set; }
 ```
 
 The connection string to your SQL Server or Azure SQL database.
+
+### EmptySetBehavior (Optional)
+
+```csharp
+public EmptySetBehavior EmptySetBehavior { get; set; }
+```
+
+```csharp
+public enum EmptySetBehavior
+{
+    Null = 0,
+    EmptyArray
+}
+```
+
+It is quite normal for a query (or a field within a query) to return an
+empty list. By default, the empty list will appear in the resulting JSON
+as `null`. But if you prefer, you can have it appear in the JSON
+as an empty array, `[]`.
 
 ### EntityList
 
@@ -317,7 +337,7 @@ protected override List<Field> BuildFieldList()
             ()=>SellerEntity.Instance.GetField("name"))
         ),
 
-        Field.Set(OrderDetailEntity.Instance, "orderDetails", IsNullable.No, new Join(
+        Field.Set(OrderDetailEntity.Instance, "orderDetails", new Join(
             ()=>this.GetField("id"),
             ()=>OrderDetailEntity.Instance.GetField("orderId"))
         )
@@ -443,8 +463,7 @@ Use the static method `Field.Row` to configure the relationship.
 public static Field Row(
     EntityBase entity,
     string name,
-    Join join,
-    IsNullable isNullable = Entities.IsNullable.Yes);
+    Join join);
 ```
 
 For example, consider the database tables `Order` and `OrderDetail`.
@@ -535,20 +554,6 @@ public Join(Func<Field> parentFieldFunc, Func<Field> childFieldFunc)
 
 Note: You'll notice that `Join` won't work for tables that have a compound primary key.
 If your database has compound keys, you'll need to use the `Calcuated Row` mapping.
-
-### IsNullable isNullable (Optional)
-
-You can optionally indicate whether the child `Row` could be null. The default is
-`IsNullable.Yes`.
-
-```csharp
-IsNullable.Yes
-IsNullable.No
-```
-
-Indicating the nullability of the mapped `Row` is only necessary if you allow
-Introspection queries. (For more information about Introspection see the `AllowIntrospection`
-section of [How to Use GraphqlToTsql]({{ 'documentation?topic=how-to-use-graphqltotsql' | relative_url }}))
 
 ## Mapping to a Related Set
 
@@ -564,13 +569,11 @@ Use the static method `Field.Set` to configure the relationship.
 /// <param name="entity">Tne entity of the children</param>
 /// <param name="name">The name of the field in the GraphQL</param>
 /// <param name="join">Join criteria between the parent and child entities</param>
-/// <param name="isNonEmptyList">Can the list be empty?  This setting is usually only used on the system types used for introspection.</param>
 public static Field Set(
     EntityBase entity,
     string name,
     IsNullable isNullable,
-    Join join,
-    ListCanBeEmpty? isNonEmptyList = null);
+    Join join);
 ```
 
 For example, consider the database tables `Order` and `OrderDetail`.
@@ -661,26 +664,6 @@ public Join(Func<Field> parentFieldFunc, Func<Field> childFieldFunc)
 
 Note: You'll notice that `Join` won't work for tables that have a compound primary key.
 If your database has compound keys, you'll need to use the `Calcuated Row` mapping.
-
-### IsNullable isNullable (Optional)
-
-You can optionally indicate whether the child `Row` could be null. The default is
-`IsNullable.Yes`.
-
-```csharp
-IsNullable.Yes
-IsNullable.No
-```
-
-Indicating the nullability of the mapped `Row` is only necessary if you allow
-Introspection queries. (For more information about Introspection see the `AllowIntrospection`
-section of [How to Use GraphqlToTsql]({{ 'documentation?topic=how-to-use-graphqltotsql' | relative_url }}))
-
-
-
-
-
-
 
 ## Mapping to a Calculated Value
 
