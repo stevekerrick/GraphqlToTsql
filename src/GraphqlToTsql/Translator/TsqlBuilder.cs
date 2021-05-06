@@ -16,6 +16,7 @@ namespace GraphqlToTsql.Translator
     internal class TsqlBuilder : ITsqlBuilder
     {
         private List<EntityBase> _entityList;
+        private EmptySetBehavior _emptySetBehavior;
         private readonly StringBuilder _sb;
         private int _indent;
         private AliasSequence _aliasSequence;
@@ -25,9 +26,10 @@ namespace GraphqlToTsql.Translator
         private bool _hasCte;
         private IntrospectionData _introspectionData;
 
-        public TsqlBuilder(List<EntityBase> entityList)
+        public TsqlBuilder(List<EntityBase> entityList, EmptySetBehavior emptySetBehavior)
         {
             _entityList = entityList;
+            _emptySetBehavior = emptySetBehavior;
             _sb = new StringBuilder(2048);
             _aliasSequence = new AliasSequence();
             _tsqlParameters = new Dictionary<string, object>();
@@ -183,7 +185,7 @@ namespace GraphqlToTsql.Translator
             }
 
             // Decide whether to add logic for non-nullable lists (by default TSQL returns these as NULL instead of [])
-            var wrapNonNullableList = term.TermType == TermType.List && term.Field.IsNullable == IsNullable.No;
+            var wrapNonNullableList = term.TermType == TermType.List && (term.Field.IsNullable == IsNullable.No || _emptySetBehavior == EmptySetBehavior.EmptyArray);
             var nonNullableListPrefix = wrapNonNullableList ? "ISNULL (" : "";
             var nonNullableListSuffix = wrapNonNullableList ? ", '[]')" : "";
 

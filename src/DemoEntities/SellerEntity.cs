@@ -49,10 +49,10 @@ namespace DemoEntities
                     ()=>this.GetField("name"),
                     ()=>SellerBadgeEntity.Instance.GetField("sellerName"))
                 ),
-                Field.CalculatedSet(this, "descendants", IsNullable.Yes,
+                Field.CalculatedSet(this, "descendants",
                     (tableAlias) => $"SELECT s.* FROM tvf_AllDescendants({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name"
                 ),
-                Field.CalculatedSet(this, "ancestors", IsNullable.Yes,
+                Field.CalculatedSet(this, "ancestors",
                     (tableAlias) => $"SELECT s.* FROM tvf_AllAncestors({tableAlias}.Name) a INNER JOIN Seller s ON a.Name = s.Name"
                 )
             };

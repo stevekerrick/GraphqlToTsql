@@ -39,7 +39,7 @@ namespace GraphqlToTsqlTests
 
         internal static ITsqlBuilder GetTsqlBuilder(List<EntityBase> allEntities)
         {
-            var tsqlBuilder = new TsqlBuilder(allEntities);
+            var tsqlBuilder = new TsqlBuilder(allEntities, EmptySetBehavior.Null);
             return tsqlBuilder;
         }
 

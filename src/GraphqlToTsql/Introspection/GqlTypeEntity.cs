@@ -55,11 +55,13 @@ namespace GraphqlToTsql.Introspection
                     ListCanBeEmpty.No
                 ),
 
-                Field.CalculatedSet(GqlTypeEntity.Instance, "interfaces", IsNullable.No,
+                Field.CalculatedSet(GqlTypeEntity.Instance, "interfaces",
                     tableAlias => "SELECT * FROM GqlType WHERE Kind = 'INTERFACE'",
+                    IsNullable.No,
                     ListCanBeEmpty.No),
-                Field.CalculatedSet(GqlTypeEntity.Instance, "possibleTypes", IsNullable.Yes,
+                Field.CalculatedSet(GqlTypeEntity.Instance, "possibleTypes",
                     tableAlias => "SELECT * FROM GqlType WHERE 1 = 0",
+                    IsNullable.Yes,
                     ListCanBeEmpty.No),
 
                 Field.Set(GqlEnumValueEntity.Instance, "enumValues", new Join(
@@ -68,8 +70,9 @@ namespace GraphqlToTsql.Introspection
                     IsNullable.Yes,
                     ListCanBeEmpty.No
                 ),
-                Field.CalculatedSet(GqlInputValueEntity.Instance, "inputFields", IsNullable.Yes,
+                Field.CalculatedSet(GqlInputValueEntity.Instance, "inputFields",
                     tableAlias => $"SELECT * FROM GqlInputValue iv WHERE iv.ParentTypeKey = {tableAlias}.[Key] AND iv.FieldName IS NULL",
+                    IsNullable.Yes,
                     ListCanBeEmpty.No
                 ),
                 Field.Row(GqlTypeEntity.Instance, "ofType", new Join(
