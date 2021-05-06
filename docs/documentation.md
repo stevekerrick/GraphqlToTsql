@@ -30,7 +30,7 @@ It has two public methods you can use to process a GraphQL query:
 * `TranslateToTsql`
 
 Both methods have a required parameter of type
-`GraphqlActionSettings` which has three properties.
+`GraphqlActionSettings` which has the following properties.
 
 ```csharp
 public class GraphqlActionSettings
@@ -89,6 +89,12 @@ The connection string to your SQL Server or Azure SQL database.
 public EmptySetBehavior EmptySetBehavior { get; set; }
 ```
 
+If a GraphQL query (or part of a query) is supposed to return a list,
+how should the JSON look if the list is empty?
+By default, the empty list will appear in the resulting JSON
+as `null`. But if you prefer, you can have it appear in the JSON
+as an empty array, `[]`.
+
 ```csharp
 public enum EmptySetBehavior
 {
@@ -97,10 +103,41 @@ public enum EmptySetBehavior
 }
 ```
 
-It is quite normal for a query (or a field within a query) to return an
-empty list. By default, the empty list will appear in the resulting JSON
-as `null`. But if you prefer, you can have it appear in the JSON
-as an empty array, `[]`.
+For example, assume that the `Seller` named "Zeus" has never had any orders.
+This GraphQL query would generate an empty list.
+
+```graphql
+{
+    seller (name: "Zeus") {
+        orders {
+            id
+            date
+        }
+    }
+}
+```
+
+With the default setting, `EmptySetBehavior = EmptySetBehavior.Null`,
+the resulting JSON is:
+
+```json
+{
+    "seller": {
+        "orders": null
+    }
+}
+```
+
+With `EmptySetBehavior = EmptySetBehavior.EmptyArray`,
+the resulting JSON is:
+
+```json
+{
+    "seller": {
+        "orders": []
+    }
+}
+```
 
 ### EntityList
 
@@ -454,10 +491,8 @@ This is an optional parameter in `Field.Column()`. The default is `Visibility.No
 
 ## Mapping to a Related Row
 
-If you are mapping a database table that has a foreign key to a related table, then you
-will likely want to express that relationship in your mapping.
-
-Use the static method `Field.Row` to configure the relationship.
+If you are mapping a database table that has a foreign key to a related table,
+you can map that relationship using the static method `Field.Row`.
 
 ```csharp
 public static Field Row(
@@ -552,15 +587,15 @@ public Join(Func<Field> parentFieldFunc, Func<Field> childFieldFunc)
 }
 ```
 
-Note: You'll notice that `Join` won't work for tables that have a compound primary key.
-If your database has compound keys, you'll need to use the `Calcuated Row` mapping.
+You'll notice that `Join` won't work for tables that have a compound primary key.
+If your database has compound keys (or some other complicated relationship),
+you'll need to use the `Calcuated Row` mapping.
 
 ## Mapping to a Related Set
 
-If you are mapping a database table that has a foreign key to a related table, then you
-will likely want to express that relationship in your mapping.
-
-Use the static method `Field.Set` to configure the relationship.
+If you are mapping a database table to a child table with a one-to-many
+relationship, you will use
+the static method `Field.Set` to configure the relationship.
 
 ```csharp
 /// <summary>
@@ -572,57 +607,41 @@ Use the static method `Field.Set` to configure the relationship.
 public static Field Set(
     EntityBase entity,
     string name,
-    IsNullable isNullable,
     Join join);
 ```
 
-For example, consider the database tables `Order` and `OrderDetail`.
-`OrderDetail.OrderId` is a foreign key to `Order.Id`, so when you create the
-`OrderDetail` entity you'll use a Row Mapping to link to the `Order` entity.
+For example, consider the same database tables `Order` and `OrderDetail`
+that we used in the Row mapping of `OrderDetail` => `Order`.
+We will now use `Field.Set` to map the reverse -- the one-to-many relationship
+`Order` => `OrderDetail`s.
 
-```sql
-CREATE TABLE [Order] (
-    Id            INT NOT NULL IDENTITY(1,1) PRIMARY KEY CLUSTERED
-,   SellerName    NVARCHAR(64) NOT NULL
-,   [Date]        DATE NOT NULL
-,   Shipping      DECIMAL(5,2) NOT NULL
-,   CONSTRAINT FK_Order_Seller FOREIGN KEY (SellerName) REFERENCES Seller ([Name])
-);
-
-CREATE TABLE OrderDetail (
-    OrderId       INT NOT NULL
-,   ProductName   NVARCHAR(64) NOT NULL
-,   Quantity      INT NOT NULL
-,   CONSTRAINT PK_OrderDetail PRIMARY KEY NONCLUSTERED (OrderId, ProductName)
-,   CONSTRAINT FK_OrderDetail_Order FOREIGN KEY (OrderId) REFERENCES [Order] (Id)
-,   CONSTRAINT FK_OrderDetail_Product FOREIGN KEY (ProductName) REFERENCES Product ([Name])
-);
-```
 
 ```csharp
-public class OrderDetailEntity : EntityBase
+public class OrderEntity : EntityBase
 {
-    public static OrderDetailEntity Instance = new OrderDetailEntity();
+    public static OrderEntity Instance = new OrderEntity();
 
-    public override string Name => "orderDetail";
-    public override string DbTableName => "OrderDetail";
-    public override string[] PrimaryKeyFieldNames => new[] { "orderId", "productName" };
+    public override string Name => "order";
+    public override string DbTableName => "Order";
+    public override string[] PrimaryKeyFieldNames => new[] { "id" };
 
     protected override List<Field> BuildFieldList()
     {
         return new List<Field>
         {
-            Field.Column(this, "orderId", "OrderId", ValueType.Int, IsNullable.No),
-            Field.Column(this, "productName", "ProductName", ValueType.String, IsNullable.No, Visibility.Hidden),
-            Field.Column(this, "quantity", "Quantity", ValueType.Int, IsNullable.No),
+            Field.Column(this, "id", "Id", ValueType.Int, IsNullable.No),
+            Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No, Visibility.Hidden),
+            Field.Column(this, "date", "Date", ValueType.String, IsNullable.No),
+            Field.Column(this, "shipping", "Shipping", ValueType.Float, IsNullable.No),
 
-            Field.Row(OrderEntity.Instance, "order", new Join(
-                ()=>this.GetField("orderId"),
-                ()=>OrderEntity.Instance.GetField("id"))
+            Field.Row(SellerEntity.Instance, "seller", new Join(
+                ()=>this.GetField("sellerName"),
+                ()=>SellerEntity.Instance.GetField("name"))
             ),
-            Field.Row(ProductEntity.Instance, "product", new Join(
-                ()=>this.GetField("productName"),
-                ()=>ProductEntity.Instance.GetField("name"))
+
+            Field.Set(OrderDetailEntity.Instance, "orderDetails", new Join(
+                ()=>this.GetField("id"),
+                ()=>OrderDetailEntity.Instance.GetField("orderId"))
             )
         };
     }
@@ -631,15 +650,13 @@ public class OrderDetailEntity : EntityBase
 
 ### EntityBase entity (Required)
 
-The singleton instance of the *related* entity.
+The singleton instance of the *related* entity. Notice in the sample code above the entity
+is set to `OrderDetailEntity.Instance`.
 
 ### string name (Required)
 
-The name of the row in the GraphQL. It should begin with a lower-case letter,
-since that is the convention in GraphQL.
-
-Often you will give your row the same name as the entity it maps to,
-converted to [lower camel case](https://en.wikipedia.org/wiki/Camel_case).
+The name to use in the GraphQL for the child collection. It should begin with a lower-case letter,
+since that is the convention in GraphQL, and it should be plural.
 
 ### Join join (Required)
 
@@ -649,21 +666,12 @@ and the child entity field.
 The *parent entity* is the entity you're currently mapping. The *child entity* is the
 entity the `Field.Row` is mapping *to*.
 
-```csharp
-/// <summary>
-/// Specifies the fields to join a parent entity to a child entity
-/// </summary>
-/// <param name="parentFieldFunc">Func that returns the Field instance for the Parent in the join</param>
-/// <param name="childFieldFunc">Func that returns the Field instance for the Child in the join</param>
-public Join(Func<Field> parentFieldFunc, Func<Field> childFieldFunc)
-{
-    ParentFieldFunc = parentFieldFunc;
-    ChildFieldFunc = childFieldFunc;
-}
-```
+In the example above, `OrderEntity`'s `id` field joins to `OrderDetailEntity`'s `orderId` field.
 
-Note: You'll notice that `Join` won't work for tables that have a compound primary key.
-If your database has compound keys, you'll need to use the `Calcuated Row` mapping.
+Just as explained for `Row` mapping, the Join is expressed as a pair of `Func<Field>`s.
+If your tables are related in a more complicated way, then `Field.Row` won't work for you --
+you'll need to use the `Calculated Set` mapping explained below.
+
 
 ## Mapping to a Calculated Value
 
