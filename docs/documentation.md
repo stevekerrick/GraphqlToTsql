@@ -444,7 +444,7 @@ that the entity maps to.
 
 ### ValueType valueType (Required)
 
-GraphQL has a set of supported scalar value types, and these are the types
+GraphQL has a small set of scalar value types, and these are the types
 you specify in the entity mapping. Not surprisingly they align with standard
 JSON types.
 
@@ -571,7 +571,7 @@ converted to [lower camel case](https://en.wikipedia.org/wiki/Camel_case).
 Indicate how the two entities are to be joined, by specifying the parent entity field
 and the child entity field.
 
-The *parent entity* is the entity you're currently mapping. The *child entity* is the
+The *parent entity* is the entity you're currently mapping *from*. The *child entity* is the
 entity the `Field.Row` is mapping *to*.
 
 ```csharp
@@ -611,7 +611,7 @@ public static Field Set(
 ```
 
 For example, consider the same database tables `Order` and `OrderDetail`
-that we used in the Row mapping of `OrderDetail` => `Order`.
+that we used in the `Row` mapping of `OrderDetail` => `Order`.
 We will now use `Field.Set` to map the reverse -- the one-to-many relationship
 `Order` => `OrderDetail`s.
 
@@ -650,7 +650,7 @@ public class OrderEntity : EntityBase
 
 ### EntityBase entity (Required)
 
-The singleton instance of the *related* entity. Notice in the sample code above the entity
+The singleton instance of the *related* entity. Notice in the `Field.Set` code above the entity
 is set to `OrderDetailEntity.Instance`.
 
 ### string name (Required)
@@ -672,8 +672,110 @@ Just as explained for `Row` mapping, the Join is expressed as a pair of `Func<Fi
 If your tables are related in a more complicated way, then `Field.Row` won't work for you --
 you'll need to use the `Calculated Set` mapping explained below.
 
-
 ## Mapping to a Calculated Value
+
+You can create a scalar field in your entity that is defined by a SQL expression,
+even a complicated one.
+
+To create a `Calculated Field` Mapping, use the static method `Field.CalculatedField()`.
+It is similar to `Field.Column()`, except that instead of specifying a database column
+name you provide a SQL template.
+
+```csharp
+public static Field CalculatedField(
+    EntityBase entity,
+    string name,
+    ValueType valueType,
+    IsNullable isNullable,
+    Func<string, string> templateFunc,
+    Visibility visibility = Visibility.Normal
+);
+```
+
+For example, in the `OrderEntity` that appeared earlier in this topic we could add
+a `Calculated Field` for the `totalQuantity` on the order.
+
+```csharp
+Field.CalculatedField(this, "totalQuantity", ValueType.Int, IsNullable.No,
+    (tableAlias) => $"SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.Id = od.OrderId"
+)
+```
+
+### EntityBase entity (Required)
+
+The entity instance this field belongs to. Since you do field setup in the
+entity's `BuildFieldList()` method, you will always pass the value `this`.
+
+### string name (Required)
+
+The name of the field in the GraphQL. It should begin with a lower-case letter.
+
+### ValueType valueType (Required)
+
+GraphQL has a small set of scalar value types, and these are the types
+you specify in the entity mapping. Not surprisingly they align with standard
+JSON types.
+
+```csharp
+ValueType.String
+ValueType.Int
+ValueType.Float
+ValueType.Boolean
+```
+
+If the database column is type `bit`, use `ValueType.Boolean`.
+
+If the database column is type `tinyint`, `smallint`, `int`, or `bigint`, use `ValueType.Int`.
+
+If the database column is any other numeric, use `ValueType.Float`.
+
+In all other cases, use `ValueType.String`.
+
+### IsNullable isNullable (Required)
+
+To validate arguments and variables in the `GraphQL` you need to indicate whether the
+database column is nullable.
+
+Use one of these values.
+
+```csharp
+IsNullable.Yes
+IsNullable.No
+```
+
+### Func<string, string> templateFunc (Optional)
+
+SQL expression to calculate the field value. This SQL will
+be incorporated into the complete SQL query. Your SQL
+expression is a function that takes a table alias.
+TODO.
+
+
+
+
+
+
+### Visibility visibility (Optional)
+
+You need to create Column Mappings for the primary keys on all your entities.
+They're needed for mapping table joins, and for paging. But you can *hide*
+those mappings from the `GraphQL` if you don't want to share your ID's
+with the world.
+
+```csharp
+Visibility.Normal
+Visibility.Hidden
+```
+
+This is an optional parameter in `Field.Column()`. The default is `Visibility.Normal`.
+
+
+
+
+
+
+
+
 
 ## Mapping to a Calculated Row
 
