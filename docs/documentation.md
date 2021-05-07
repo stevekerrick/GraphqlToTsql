@@ -745,37 +745,121 @@ IsNullable.No
 
 ### Func<string, string> templateFunc (Optional)
 
-SQL expression to calculate the field value. This SQL will
-be incorporated into the complete SQL query. Your SQL
-expression is a function that takes a table alias.
-TODO.
+Template function to generate an SQL expression for the field.
+The function has a single argument, to pass in the table alias
+`GraphqlToTsql` has assigned to the entity's table.
 
+This is one of the most flexible capabilities in `GraphqlToTsql`,
+and is important so that you can expose your data in ways that
+don't need to match the physical database schema.
 
+Some examples will hopefully make it clear.
 
+#### TemplateFunc example 1: TotalQuantity
 
+Let's calculate the `TotalQuantity` for orders. The mapping looks
+like this.
 
+```csharp
+Field.CalculatedField(this, "totalQuantity", ValueType.Int, IsNullable.No,
+    (tableAlias) => $"SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.Id = od.OrderId"
+)
+```
+
+It's used in GraphQL like this.
+
+```graphql
+query ($orderId: Int) {
+    order (id: $orderId) {
+        id
+        totalQuantity
+    }
+}
+```
+
+And here is the complete TSQL that `GraphqlToSql` generates for the query.
+
+```sql
+SELECT
+
+  -- order (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Id] AS [id]
+    , (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE t1.Id = od.OrderId) AS [totalQuantity]
+    FROM [Order] t1
+    WHERE t1.[Id] = @orderId
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [order]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+```
+
+And it results in this JSON.
+
+```json
+{
+  "order": {
+    "id": 1,
+    "totalQuantity": 1
+  }
+}
+```
+
+#### TemplateFunc example 2: FormattedDate
+
+In the same `OrderEntity`, we can expose the `OrderDate` in a custom format.
+
+```csharp
+Field.CalculatedField(this, "formattedDate", ValueType.String, IsNullable.No,
+    (tableAlias) => $"FORMAT({tableAlias}.[Date], 'dd/MM/yyyy', 'en-US' )"
+),
+```
+
+```graphql
+{
+    order (id: 1) {
+        formattedDate
+    }
+}
+```
+
+Here is the complete generated TSQL and resulting data.
+
+```sql
+SELECT
+
+  -- order (t1)
+  JSON_QUERY ((
+    SELECT
+      (FORMAT(t1.[Date], 'dd/MM/yyyy', 'en-US' )) AS [formattedDate]
+    FROM [Order] t1
+    WHERE t1.[Id] = @id
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [order]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+```
+
+```json
+{
+  "order": {
+    "formattedDate": "01/01/2020"
+  }
+}
+```
 
 ### Visibility visibility (Optional)
 
-You need to create Column Mappings for the primary keys on all your entities.
-They're needed for mapping table joins, and for paging. But you can *hide*
-those mappings from the `GraphQL` if you don't want to share your ID's
-with the world.
+This is an optional parameter in `Field.CalculatedField()`. The default is `Visibility.Normal`.
+
+If you don't want to expose your `Calculated Field` in the `GraphQL` you can set the
+visibility to `Visibility.Hidden`. That's normally only used to hide Id's
+that are needed for other mapping purposes, and it would be unusual to need to
+hide a `Calculated Field`.
 
 ```csharp
 Visibility.Normal
 Visibility.Hidden
 ```
-
-This is an optional parameter in `Field.Column()`. The default is `Visibility.Normal`.
-
-
-
-
-
-
-
-
 
 ## Mapping to a Calculated Row
 
