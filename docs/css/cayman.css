@@ -102,13 +102,13 @@ pre.highlight {
 .language-graphql pre.highlight, .language-graphql.language-pill {
   background-color: #cfffcf;
 }
-.language-shell.language-pill, .language-shell.language-pill {
+.language-shell pre.highlight, .language-shell.language-pill {
   background-color: #dfdfdf;
 }
-.language-sql.language-pill, .language-sql.language-pill {
+.language-sql pre.highlight, .language-sql.language-pill {
   background-color: #f5c4c4;
 }
-.language-json.language-pill, .language-json.language-pill {
+.language-json pre.highlight, .language-json.language-pill {
   background-color: #d4faa2;
 }
 
