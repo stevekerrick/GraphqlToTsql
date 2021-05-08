@@ -674,8 +674,8 @@ you'll need to use the `Calculated Set` mapping explained below.
 
 ## Mapping to a Calculated Value
 
-You can create a scalar field in your entity that is defined by a SQL expression,
-even a complicated one.
+You can create a scalar field in your entity that isn't mapped to a database column,
+but rather is defined by a SQL expression (even a complicated one.)
 
 To create a `Calculated Field` Mapping, use the static method `Field.CalculatedField()`.
 It is similar to `Field.Column()`, except that instead of specifying a database column
@@ -723,18 +723,17 @@ ValueType.Float
 ValueType.Boolean
 ```
 
-If the database column is type `bit`, use `ValueType.Boolean`.
+If your SQL expression yields a value of type `bit`, use `ValueType.Boolean`.
 
-If the database column is type `tinyint`, `smallint`, `int`, or `bigint`, use `ValueType.Int`.
+If your SQL expression yields a value of type `tinyint`, `smallint`, `int`, or `bigint`, use `ValueType.Int`.
 
-If the database column is any other numeric, use `ValueType.Float`.
+If your SQL expression yields a type of any other numeric, use `ValueType.Float`.
 
 In all other cases, use `ValueType.String`.
 
 ### IsNullable isNullable (Required)
 
-To validate arguments and variables in the `GraphQL` you need to indicate whether the
-database column is nullable.
+Indicate whether your SQL expression yields a value that can be null.
 
 Use one of these values.
 
@@ -743,21 +742,21 @@ IsNullable.Yes
 IsNullable.No
 ```
 
-### Func<string, string> templateFunc (Optional)
+### Func<string, string> templateFunc (Required)
 
-Template function to generate an SQL expression for the field.
-The function has a single argument, to pass in the table alias
+Template function to generate a SQL expression for the field.
+The function has a single argument, representing the table alias
 `GraphqlToTsql` has assigned to the entity's table.
 
 This is one of the most flexible capabilities in `GraphqlToTsql`,
-and is important so that you can expose your data in ways that
+and allows you to expose your data in ways that
 don't need to match the physical database schema.
 
-Some examples will hopefully make it clear.
+Hopefully some examples will help make it clear. :-)
 
 #### TemplateFunc example 1: TotalQuantity
 
-Let's calculate the `TotalQuantity` for orders. The mapping looks
+Let's calculate the `TotalQuantity` for an order. The mapping looks
 like this.
 
 ```csharp
@@ -794,7 +793,9 @@ SELECT
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ```
 
-And it results in this JSON.
+Using the data in our
+[Demo App]({{ 'demo' | relative_url }}),
+it results in this JSON.
 
 ```json
 {
@@ -823,7 +824,7 @@ Field.CalculatedField(this, "formattedDate", ValueType.String, IsNullable.No,
 }
 ```
 
-Here is the complete generated TSQL and resulting data.
+Here is the TSQL that `GraphqlToTsql` generated, and the resulting data.
 
 ```sql
 SELECT
@@ -852,9 +853,8 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 This is an optional parameter in `Field.CalculatedField()`. The default is `Visibility.Normal`.
 
 If you don't want to expose your `Calculated Field` in the `GraphQL` you can set the
-visibility to `Visibility.Hidden`. That's normally only used to hide Id's
-that are needed for other mapping purposes, and it would be unusual to need to
-hide a `Calculated Field`.
+visibility to `Visibility.Hidden`. `Visibility.Hidden` is normally only used to hide Id
+columns, but it's available on `Calculated Fields` if you need it.
 
 ```csharp
 Visibility.Normal

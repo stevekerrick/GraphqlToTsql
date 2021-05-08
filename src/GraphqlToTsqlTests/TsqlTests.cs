@@ -1057,42 +1057,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             Assert.IsTrue(result.Tsql.Contains("[GqlInputValue] AS ("));
         }
 
-
-
-
-        [Test]
-        public void TotalQuantityTest()
-        {
-            const string graphql = "query ($orderId: Int) { order (id: $orderId) { id totalQuantity } }";
-            var graphqlParameters = new Dictionary<string, object> { { "orderId", 1 } };
-
-            var expectedSql = @"
--------------------------------
--- Operation: NullVariableTest
--------------------------------
-
-SELECT
-
-  -- sellers (t1)
-  JSON_QUERY ((
-    SELECT
-      t1.[Name] AS [name]
-    FROM [Seller] t1
-    WHERE t1.[City] IS NULL
-    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
-
-FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
-".Trim();
-            var expectedTsqlParameters = new Dictionary<string, object> { { "orderId", 1 } };
-
-            Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
-        }
-
-
-
-
-
-
         private void Check(
             string graphql,
             Dictionary<string, object> graphqlParameters,

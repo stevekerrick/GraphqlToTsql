@@ -22,27 +22,6 @@ namespace GraphqlToTsqlTests
             await CheckAsync(graphql, graphqlParameters, expectedObject);
         }
 
-
-
-        [Test]
-        public async Task SimpleQueryTest2()
-        {
-            const string graphql = "{ order (id: 1) { formattedDate } }";
-            var graphqlParameters = new Dictionary<string, object> { { "orderId", 1 } };
-
-
-            var expectedObject = new { orders = new[] { new { id = 1 } } };
-            await CheckAsync(graphql, graphqlParameters, expectedObject);
-        }
-
-
-
-
-
-
-
-
-
         [Test]
         public async Task BoolValueQueryTest()
         {

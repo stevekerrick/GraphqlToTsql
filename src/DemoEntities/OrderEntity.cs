@@ -21,16 +21,6 @@ namespace DemoEntities
                 Field.Column(this, "date", "Date", ValueType.String, IsNullable.No),
                 Field.Column(this, "shipping", "Shipping", ValueType.Float, IsNullable.No),
 
-
-                Field.CalculatedField(this, "totalQuantity", ValueType.Int, IsNullable.No,
-                    (tableAlias) => $"SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.Id = od.OrderId"
-                ),
-                Field.CalculatedField(this, "formattedDate", ValueType.String, IsNullable.No,
-                    (tableAlias) => $"FORMAT({tableAlias}.[Date], 'dd/MM/yyyy', 'en-US' )"
-                ),
-
-
-
                 Field.Row(SellerEntity.Instance, "seller", new Join(
                     ()=>this.GetField("sellerName"),
                     ()=>SellerEntity.Instance.GetField("name"))
