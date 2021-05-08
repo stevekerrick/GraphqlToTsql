@@ -106,10 +106,10 @@ pre.highlight {
   background-color: #dfdfdf;
 }
 .language-sql pre.highlight, .language-sql.language-pill {
-  background-color: #f5c4c4;
+  background-color: #f5e4e4;
 }
 .language-json pre.highlight, .language-json.language-pill {
-  background-color: #d4faa2;
+  background-color: #faf6a2;
 }
 
 
