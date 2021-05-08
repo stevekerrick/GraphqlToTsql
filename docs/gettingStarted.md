@@ -49,7 +49,7 @@ database.
 Getting started with `GraphqlToTsql` is not too hard. Most of your time
 will be spent creating your entity mappings. `GraphqlToSql`
 is flexible, allowing calculated fields, custom join criteria, virtual tables, and more.
-The [Documentation page](/documentation) has guidance on all the
+The [Documentation page]({{ 'documentation' | relative_url }}) has guidance on all the
 ways you can write the mapping.
 
 For a simple example, suppose you have a table named `Product`, which is related to the `OrderDetail` table
@@ -85,7 +85,7 @@ public class ProductDef : EntityBase
 }
 ```
 
-* See: The [Documentation page](/documentation) for detailed guidance.
+* See: The [Documentation page]({{ 'documentation' | relative_url }}) for detailed guidance.
 * See: [Demo Entities](https://github.com/stevekerrick/GraphqlToTsql/tree/main/src/DemoEntities)
 in the project repository for more examples.
 
