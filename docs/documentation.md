@@ -682,6 +682,20 @@ It is similar to `Field.Column()`, except that instead of specifying a database 
 name you provide a SQL template.
 
 ```csharp
+/// <summary>
+/// Builds a field that uses custom SQL. Use this to create a GraphQL field that doesn't map
+/// to any database column.
+/// </summary>
+/// <param name="entity">The entity this field belongs to</param>
+/// <param name="name">The name of the field in the GraphQL</param>
+/// <param name="valueType">Data type of the column. One of: String, Int, Float, Boolean.</param>
+/// <param name="isNullable">Can the custom SQL result in a null value?</param>
+/// <param name="templateFunc">Function that takes the table alias, and returns a SQL SELECT statement.
+/// <example>For example:
+/// <code>(tableAlias) => $"SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName"</code>
+/// </example>
+/// </param>
+/// <param name="visibility">Mark the field as "Hidden" if you don't want to expose it to GraphQL queries</param>
 public static Field CalculatedField(
     EntityBase entity,
     string name,
@@ -752,9 +766,22 @@ This is one of the most flexible capabilities in `GraphqlToTsql`,
 and allows you to expose your data in ways that
 don't need to match the physical database schema.
 
-Hopefully some examples will help make it clear. :-)
+Hopefully the examples below will help make it clear. :-)
 
-#### TemplateFunc example 1: TotalQuantity
+### Visibility visibility (Optional)
+
+This is an optional parameter in `Field.CalculatedField()`. The default is `Visibility.Normal`.
+
+If you don't want to expose your `Calculated Field` in the `GraphQL` you can set the
+visibility to `Visibility.Hidden`. `Visibility.Hidden` is normally only used to hide Id
+columns, but it's available on `Calculated Fields` if you need it.
+
+```csharp
+Visibility.Normal
+Visibility.Hidden
+```
+
+### Calculated Value example 1: TotalQuantity
 
 Let's calculate the `TotalQuantity` for an order. The mapping looks
 like this.
@@ -806,7 +833,7 @@ it results in this JSON.
 }
 ```
 
-#### TemplateFunc example 2: FormattedDate
+### Calculated Value example 2: FormattedDate
 
 In the same `OrderEntity`, we can expose the `OrderDate` in a custom format.
 
@@ -848,23 +875,153 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 }
 ```
 
-### Visibility visibility (Optional)
 
-This is an optional parameter in `Field.CalculatedField()`. The default is `Visibility.Normal`.
 
-If you don't want to expose your `Calculated Field` in the `GraphQL` you can set the
-visibility to `Visibility.Hidden`. `Visibility.Hidden` is normally only used to hide Id
-columns, but it's available on `Calculated Fields` if you need it.
 
-```csharp
-Visibility.Normal
-Visibility.Hidden
-```
+
 
 ## Mapping to a Calculated Row
 
+`Calculated Row` mapping is similar to the regular `Row` mapping, but is
+much more flexible.
+
+You'll recall that `Row` mapping allows you to define a field that is a
+single row, when your parent entity holds a regular `Foreign Key` to the child
+entity.
+
+In a `Calculated Row` mapping you write a custom `SQL SELECT` statement to retrieve
+the child row. You declare the mapping using the `Field.CalculatedRow` static method.
+
+```csharp
+/// <summary>
+/// Builds a field for a child entity, where custom SQL is used to retrieve the child row.
+/// </summary>
+/// <param name="entity">Tne entity of the child</param>
+/// <param name="name">The name of the field in the GraphQL</param>
+/// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child row</param>
+public static Field CalculatedRow(
+    EntityBase entity,
+    string name,
+    Func<string, string> templateFunc
+);
+```
+
+### EntityBase entity (Required)
+
+The singleton instance of the *related* entity.
+
+### string name (Required)
+
+The name of the row in the GraphQL. It should begin with a lower-case letter,
+since that is the convention in GraphQL.
+
+### Func<string, string> templateFunc (Required)
+
+Template function to generate a `SQL SELECT` for the field.
+The function has a single argument, representing the table alias
+`GraphqlToTsql` has assigned to the entity's table.
+
+### Calculated Row example: mostRecentOrder
+
+Let's find the most recent order for a seller. Here is a trimmed-down mapping for the
+`SellerEntity`. The `CalculatedRow` mapping for `mostRecentOrder` appears at the bottom.
+
+```csharp
+public class SellerEntity : EntityBase
+{
+    public static SellerEntity Instance = new SellerEntity();
+
+    public override string Name => "seller";
+    public override string DbTableName => "Seller";
+    public override string[] PrimaryKeyFieldNames => new[] { "name" };
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
+            ...
+
+            Field.Set(OrderEntity.Instance, "orders", new Join(
+                ()=>this.GetField("name"),
+                ()=>OrderEntity.Instance.GetField("sellerName"))
+            ),
+
+            Field.CalculatedRow(OrderEntity.Instance, "mostRecentOrder",
+                (tableAlias) => $@"SELECT TOP 1 *
+FROM [Order]
+WHERE {tableAlias}.Name = [Order].SellerName
+ORDER BY [Order].[Date] DESC"
+            )
+        };
+    }
+}
+```
+
+It's used in GraphQL like this.
+
+```graphql
+{
+    seller (name: "Donada") {
+        mostRecentOrder { id date }
+    }
+}
+```
+
+And here is the complete TSQL that `GraphqlToSql` generates for the query.
+
+```sql
+
+SELECT
+  -- seller (t1)
+  JSON_QUERY ((
+    SELECT
+
+      -- seller.mostRecentOrder (t2)
+      JSON_QUERY ((
+        SELECT
+          t2.[Id] AS [id]
+        , t2.[Date] AS [date]
+        FROM (SELECT TOP 1 *
+FROM [Order]
+WHERE t1.Name = [Order].SellerName
+ORDER BY [Order].[Date] DESC) t2
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [mostRecentOrder]
+    FROM [Seller] t1
+    WHERE t1.[Name] = @name
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [seller]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+```
+
+Using the data in our
+[Demo App]({{ 'demo' | relative_url }}),
+it results in this JSON.
+
+```json
+{
+  "seller": {
+    "mostRecentOrder": {
+      "id": 12,
+      "date": "2020-05-19"
+    }
+  }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
 ## Mapping to a Calculated Set
 
+TODO
 
 
 
