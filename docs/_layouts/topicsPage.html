@@ -115,9 +115,17 @@
     left: -8em;
     border: 1px solid teal;
   }
-  .language-shell.language-pill, .language-sql.language-pill {
+  .language-shell.language-pill {
     left: -8em;
     border: 1px solid gray;
+  }
+  .language-sql.language-pill {
+    left: -8em;
+    border: 1px solid #f5abab;
+  }
+  .language-json.language-pill {
+    left: -8em;
+    border: 1px solid #c2f788;
   }
   .language-indicator pre {
     clear: right;
@@ -202,6 +210,11 @@
     $("div.language-sql pre.highlight").each(function(){
       var $pre = $(this);
       addLanguageIndicator($pre, "SQL", "language-sql");
+    });
+
+    $("div.language-json pre.highlight").each(function(){
+      var $pre = $(this);
+      addLanguageIndicator($pre, "JSON", "language-json");
     });
 
 

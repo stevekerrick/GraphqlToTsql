@@ -96,16 +96,20 @@ pre.highlight {
   border-radius: .3rem;
 }
 
-.language-graphql pre.highlight, .language-graphql.language-pill {
-  background-color: #cfffcf;
-}
-
 .language-csharp pre.highlight, .language-csharp.language-pill {
   background-color: #dfdfff;
 }
-
-.language-shell.language-pill, .language-sql.language-pill {
+.language-graphql pre.highlight, .language-graphql.language-pill {
+  background-color: #cfffcf;
+}
+.language-shell.language-pill, .language-shell.language-pill {
   background-color: #dfdfdf;
+}
+.language-sql.language-pill, .language-sql.language-pill {
+  background-color: #f5c4c4;
+}
+.language-json.language-pill, .language-json.language-pill {
+  background-color: #d4faa2;
 }
 
 
