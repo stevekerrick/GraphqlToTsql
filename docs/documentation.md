@@ -1009,23 +1009,140 @@ it results in this JSON.
 }
 ```
 
-
-
-
-
-
-
-
-
-
-
 ## Mapping to a Calculated Set
 
-TODO
+`Calculated Set` mapping is similar to the regular `Set` mapping, but is
+much more flexible.
 
+You'll recall that `Set` mapping allows you to define a field that is a
+*list of rows*, and is normally used when the child entity you're mapping to
+holds a `Foreign Key` to the parent entity.
 
+In a `Calculated Set` mapping you write a custom `SQL SELECT` statement to retrieve
+a set of child rows. You declare the mapping using the `Field.CalculatedSet` static method.
 
-## Mapping a TVF
+```csharp
+/// <summary>
+/// Builds a field for a one-to-many set, where custom SQL is used to retrieve the child set.
+/// </summary>
+/// <param name="entity">Tne entity of the child</param>
+/// <param name="name">The name of the field in the GraphQL</param>
+/// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child set</param>
+public static Field CalculatedSet(
+    EntityBase entity,
+    string name,
+    Func<string, string> templateFunc
+);
+```
+
+### EntityBase entity (Required)
+
+The singleton instance of the *related* entity.
+
+### string name (Required)
+
+The name of the set in the GraphQL. It should begin with a lower-case letter,
+and it should be plural.
+
+### Func<string, string> templateFunc (Required)
+
+Template function to generate a `SQL SELECT` for the field.
+The function has a single argument, representing the table alias
+`GraphqlToTsql` has assigned to the entity's table.
+
+### Calculated Set example: sellers
+
+Let's map a field on `ProductEntity` to find all the sellers that have ever sold the
+product. Here is a trimmed-down mapping for the
+`ProductEntity`. The `CalculatedSet` mapping for `sellers` appears at the bottom.
+
+```csharp
+public class ProductEntity : EntityBase
+{
+    public static ProductEntity Instance = new ProductEntity();
+
+    public override string Name => "product";
+    public override string DbTableName => "Product";
+    public override string[] PrimaryKeyFieldNames => new[] { "name" };
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
+            ...
+
+            Field.CalculatedSet(SellerEntity.Instance, "sellers",
+                (tableAlias) => $@"SELECT DISTINCT s.*
+FROM OrderDetail od
+INNER JOIN [Order] o ON od.OrderId = o.Id
+INNER JOIN Seller s ON o.SellerName = s.Name
+WHERE {tableAlias}.Name = od.ProductName"
+            )
+        };
+    }
+}
+```
+
+It's used in GraphQL like this.
+
+```graphql
+{
+    product (name: "Pliers") {
+        sellers { name }
+    }
+}
+```
+
+And here is the complete TSQL that `GraphqlToSql` generates for the query.
+
+```sql
+SELECT
+
+  -- product (t1)
+  JSON_QUERY ((
+    SELECT
+
+      -- product.sellers (t2)
+      JSON_QUERY ((
+        SELECT
+          t2.[Name] AS [name]
+        FROM (SELECT DISTINCT s.*
+FROM OrderDetail od
+INNER JOIN [Order] o ON od.OrderId = o.Id
+INNER JOIN Seller s ON o.SellerName = s.Name
+WHERE t1.Name = od.ProductName) t2
+        FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
+    FROM [Product] t1
+    WHERE t1.[Name] = @name
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [product]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+```
+
+Using the data in our
+[Demo App]({{ 'demo' | relative_url }}),
+it results in this JSON.
+
+```json
+{
+  "product": {
+    "sellers": [
+      {
+        "name": "Bill"
+      },
+      {
+        "name": "Chris"
+      },
+      {
+        "name": "Erik"
+      }
+    ]
+  }
+}
+```
+
+# Mapping a TVF
 
 `Field.CalculatedSet` can be used to map a database Table-Valued Function (TVF).
 
