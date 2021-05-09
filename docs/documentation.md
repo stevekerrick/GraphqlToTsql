@@ -310,8 +310,16 @@ See: [Paging]({{ 'documentation?topic=paging' | relative_url }})
 You'll probably use `SqlDefinition` only a handful of times. It's used to map
 an entity to a SQL SELECT statement rather than to a table.
 
-For detailed instructions, see: 
-[Field Mapping]({{ 'documentation?topic=field-mapping' | relative_url }})
+Most of the time you'll map an entity to a database table.
+But sometimes you want more flexibility. `GraphqlToTsql` will let
+you map an entity to a `SQL SELECT` statement.
+
+In all other ways the entity will be like other entities. You still
+specify a DbTableName -- `GraphqlToTsql` needs it for the SQL
+it generates.
+
+`GraphqlToTsql` uses your `SQL SELECT` as a
+[Common Table Expression](https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql).
 
 ### MaxPageSize (Optional)
 
@@ -1050,7 +1058,7 @@ Template function to generate a `SQL SELECT` for the field.
 The function has a single argument, representing the table alias
 `GraphqlToTsql` has assigned to the entity's table.
 
-### Calculated Set example: sellers
+### Calculated Set example 1: Product.sellers
 
 Let's map a field on `ProductEntity` to find all the sellers that have ever sold the
 product. Here is a trimmed-down mapping for the
@@ -1142,7 +1150,7 @@ it results in this JSON.
 }
 ```
 
-# Mapping a TVF
+### Calculated Set example 2: Seller.descendants
 
 `Field.CalculatedSet` can be used to map a database Table-Valued Function (TVF).
 
@@ -1202,8 +1210,6 @@ public class SellerEntity : EntityBase
 }
 ```
 
-
-
 </div>
 
 <div markdown="1">
@@ -1211,18 +1217,5 @@ public class SellerEntity : EntityBase
 # Paging
 
 TODO
-
-</div>
-
-
-
-
-
-
-
-
-<div markdown="1">
-
-# Foo
 
 </div>
