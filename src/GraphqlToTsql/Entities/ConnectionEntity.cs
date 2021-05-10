@@ -5,12 +5,12 @@ namespace GraphqlToTsql.Entities
 {
     internal class ConnectionEntity : EntityBase
     {
-        private Field _setField;
+        private readonly Field _setField;
 
         public override string Name => $"{_setField.Name}{Constants.CONNECTION}";
         public override string DbTableName => _setField.Entity.DbTableName;
         public override string EntityType => $"{_setField.Entity.EntityType}{Constants.CONNECTION}";
-        public override string[] PrimaryKeyFieldNames => throw new Exception("Connections don't have a primary key");
+        public override string[] PrimaryKeyFieldNames => _setField.Entity.PrimaryKeyFieldNames;
 
         internal ConnectionEntity(Field setField)
         {
