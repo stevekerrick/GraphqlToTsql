@@ -1,7 +1,9 @@
 using DemoEntities;
 using GraphqlToTsql;
 using GraphqlToTsql.Entities;
+using GraphqlToTsql.Translator;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -83,6 +85,75 @@ namespace GraphqlToTsqlTests
                 }
             };
             await CheckAsync(graphql, graphqlParameters, expectedObject, EmptySetBehavior.EmptyArray);
+        }
+
+        [Test]
+        public async Task CursorTest()
+        {
+            // Query the first page
+            var page1Graphql = @"
+query firstPage ($seller: String) { 
+  seller (name: $seller) {
+    ordersConnection (first: 1) {
+      totalCount
+      edges {
+        cursor
+        node {
+          id
+        }
+      }
+    }
+  } 
+}".Trim();
+            var page1Parameters = new Dictionary<string, object> 
+            {
+                { "seller", "bill" }
+            };
+
+            var page1Result = await RunAsync(page1Graphql, page1Parameters, EmptySetBehavior.Null);
+            Assert.AreEqual(ErrorCode.NoError, page1Result.ErrorCode);
+
+            // Pick out the Cursor
+            var json = JObject.Parse(page1Result.DataJson);
+            var totalCountJtoken = json.SelectToken("$.seller.ordersConnection.totalCount");
+            Assert.AreEqual(6, ((JValue)totalCountJtoken).Value);
+
+            var cursorJtoken = json.SelectToken("$.seller.ordersConnection.edges[0].cursor");
+            var cursor = (string)((JValue)cursorJtoken).Value;
+
+            // Use the cursor in the 2nd query
+            var page2Graphql = @"
+query firstPage ($seller: String, $cursor: String) { 
+  seller (name: $seller) {
+    ordersConnection (first: 1, after: $cursor) {
+      totalCount
+      edges {
+        cursor
+        node {
+          id
+        }
+      }
+    }
+  } 
+}".Trim();
+            var page2Parameters = new Dictionary<string, object>
+            {
+                { "seller", "bill" },
+                { "cursor", cursor }
+            };
+
+            var page2Result = await RunAsync(page2Graphql, page2Parameters, EmptySetBehavior.Null);
+            Assert.AreEqual(ErrorCode.NoError, page2Result.ErrorCode);
+
+            // Pick out the totalCount and OrderId
+            json = JObject.Parse(page1Result.DataJson);
+
+            totalCountJtoken = json.SelectToken("$.seller.ordersConnection.totalCount");
+            Assert.AreEqual(6, ((JValue)totalCountJtoken).Value);
+
+            var orderIdJtoken = json.SelectToken("$.seller.ordersConnection.edges[0].node.id");
+            var orderId = (long)((JValue)orderIdJtoken).Value;
+            Assert.AreEqual(2L, orderId);
         }
 
         [Test]

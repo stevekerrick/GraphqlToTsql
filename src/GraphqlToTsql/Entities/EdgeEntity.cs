@@ -5,7 +5,7 @@ namespace GraphqlToTsql.Entities
 {
     internal class EdgeEntity : EntityBase
     {
-        private Field _setField;
+        private readonly Field _setField;
 
         public override string Name => $"edge";
         public override string DbTableName => _setField.Entity.DbTableName;
