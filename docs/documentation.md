@@ -1216,6 +1216,94 @@ public class SellerEntity : EntityBase
 
 # Paging
 
-TODO
+Paging is an important part of a Production-level `GraphQL` API.
+In traditional `GraphQL` implementations, paging can be a bit difficult
+to get working.
+
+Paging isn't part of the formal `GraphQL` specification, but graphql.org does
+provide [Best Practices guidance](https://graphql.org/learn/pagination/).
+`GraphqlToTsql` follows their guidance, *except* that `GraphqlToTsql` does not
+include a `pageInfo` object.
+
+## MaxPageSize
+
+When you are creating an entity, one of the things you can set is `MaxPageSize`.
+You *should* set `MaxPageSize` for any entity that could have more than a few
+hundred rows.
+
+If you set `MaxPageSize` you force the `GraphQL` queries to use paging anytime
+there is a *set* of that entity.
+
+For example, here you can see `OrderEntity` configured with a `MaxPageSize` of 100.
+
+```csharp
+public static OrderEntity Instance = new OrderEntity();
+
+public override string Name => "order";
+public override string DbTableName => "Order";
+public override string[] PrimaryKeyFieldNames => new[] { "id" };
+public override long? MaxPageSize => 100L;
+
+protected override List<Field> BuildFieldList()
+{
+    return new List<Field>
+    {
+        ...
+    };
+}
+```
+
+All of these queries will be rejected, with the error message
+> Paging is required with orders
+
+```graphql
+{ orders { id date }}
+{ seller(name: "Bob") { orders { id date }}}
+{ products { name description orders { date } sellers { name }}}
+```
+
+## Sneak Peek
+
+`GraphqlToTsql` follows the recommended query syntax for paging, and it's
+kind of a lot to explain. So before trying to describe it in English,
+here's a sneak peek at how it all comes together.
+
+```graphql
+{
+  seller (name: "Bill") {
+    ordersConnection {
+      totalCount
+      edges {
+        cursor
+        node { # <-- here's where the Order info starts
+          id
+          date
+          orderDetails {
+            product { name }
+            quantity
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## totalCount
+
+
+
+
+
+## Connection --> Edges --> Node
+
+In the `GraphQL` world, a *Connection* is a queryable structure that
+d
+
+
+`GraphqlToTsql` supports 
+
+
+
 
 </div>
