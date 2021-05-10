@@ -1218,12 +1218,233 @@ public class SellerEntity : EntityBase
 
 Paging is an important part of a Production-level `GraphQL` API.
 In traditional `GraphQL` implementations, paging can be a bit difficult
-to get working.
+to implement. `GraphqlToTsql` makes it easier.
 
 Paging isn't part of the formal `GraphQL` specification, but graphql.org does
 provide [Best Practices guidance](https://graphql.org/learn/pagination/).
 `GraphqlToTsql` follows their guidance, *except* that `GraphqlToTsql` does not
 include a `pageInfo` object.
+
+Cursor-based pagination isn't unique to `GraphQL`. Here's a really excellent
+article from your friends at *Slack* about how they're using it:
+[Evolving API Pagination at Slack](https://slack.engineering/evolving-api-pagination-at-slack).
+
+## Sneak Peek
+
+The paging syntax can look a bit confusing if you're new to `GraphQL`.
+It is easiest to show an example, and then explain the pieces.
+
+Here's an example of a query to retrieve the first page of
+a seller's order history, using cursor-based paging.
+
+```graphql
+{
+  seller (name: "Bill") {
+    ordersConnection (first: 2) {
+      totalCount
+      edges {
+        cursor
+        node { # <-- here's where the Order info starts
+          id
+          date
+          orderDetails {
+            product { name }
+            quantity
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Here's the resulting JSON data.
+
+```json
+{
+  "seller": {
+    "ordersConnection": {
+      "totalCount": 6,
+      "edges": [
+        {
+          "cursor": "M3wyfE9yZGVy.3cecb94d",
+          "node": {
+            "id": 2,
+            "date": "2020-01-29",
+            "orderDetails": [
+              {
+                "product": {
+                  "name": "Hammer"
+                },
+                "quantity": 1
+              },
+              {
+                "product": {
+                  "name": "Pliers"
+                },
+                "quantity": 1
+              }
+            ]
+          }
+        },
+        {
+          "cursor": "M3wzfE9yZGVy.b3987a32",
+          "node": {
+            "id": 3,
+            "date": "2020-02-06",
+            "orderDetails": [
+              {
+                "product": {
+                  "name": "Hammer"
+                },
+                "quantity": 3
+              },
+              {
+                "product": {
+                  "name": "Drill"
+                },
+                "quantity": 3
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+And here's the query to retrieve subsequent pages.
+
+```graphql
+query sellerOrders ($cursor: String) {
+  seller (name: "Bill") {
+    ordersConnection (first: 2, after: $cursor) {
+      edges {
+        cursor
+        node {
+          id
+          date
+          orderDetails {
+            product { name }
+            quantity
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+```json
+{
+  "seller": {
+    "ordersConnection": {
+      "edges": [
+        {
+          "cursor": "M3w0fE9yZGVy.b1e89f00",
+          "node": {
+            "id": 4,
+            "date": "2020-02-11",
+            "orderDetails": [
+              {
+                "product": {
+                  "name": "Hammer"
+                },
+                "quantity": 1
+              },
+              {
+                "product": {
+                  "name": "Hand Saw"
+                },
+                "quantity": 1
+              },
+              {
+                "product": {
+                  "name": "Circular Saw"
+                },
+                "quantity": 1
+              }
+            ]
+          }
+        },
+        {
+          "cursor": "M3w1fE9yZGVy.e646b265",
+          "node": {
+            "id": 5,
+            "date": "2020-02-14",
+            "orderDetails": [
+              {
+                "product": {
+                  "name": "Hammer"
+                },
+                "quantity": 1
+              },
+              {
+                "product": {
+                  "name": "Pipe Wrench"
+                },
+                "quantity": 3
+              },
+              {
+                "product": {
+                  "name": "Screwdriver"
+                },
+                "quantity": 3
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+## Connection --> Edges --> Node
+
+You're probably wondering what that `ordersConnection` structure is.
+
+Though not part of the *official* `GraphQL` specification, connections are the
+*officially recommended* way of exposing metadata about a list. `GraphqlToTsql`
+allows `GraphQL` queries on the plain lists (e.g. `seller.orders`) and also
+queries on those same lists with metadata (e.g. `seller.ordersConnection`).
+Just add the word `Connection` to the end of a list's field name.
+
+A `Connection` entity contains the *list* plus some metadata. In `GraphqlToTsql` a `Connection`
+contains two fields:
+* `totalCount` - the count of items in the complete list. Even if you've requested
+just one page of the list's data, the `totalCount` will be the count for the full list.
+* `edges` - the list (or a page of data from the list)
+
+An `Edges` entity contains the *list of items* (or one page of items from the full list)
+plus some metadata about *each item*. In `GraphqlToTsql` an `Edge` item contains two fields:
+* `cursor` - an opaque identifier for the row. Think of it like a bookmark.
+* `node` - the item. Even though it has the name `node`, this is exactly the same item
+you can query on if you're querying plain lists instead of a `Connection`.
+
+That's a lot to digest if you're new to cursor-based pagination. But it sets you
+up for success.
+
+## cursor
+
+This is *not* 
+
+
+
+
+## totalCount
+
+TODO
+
+## Offset Paging
+
+TODO
+
+
+
+
+
 
 ## MaxPageSize
 
@@ -1262,48 +1483,15 @@ All of these queries will be rejected, with the error message
 { products { name description orders { date } sellers { name }}}
 ```
 
-## Sneak Peek
+## Limitations
 
-`GraphqlToTsql` follows the recommended query syntax for paging, and it's
-kind of a lot to explain. So before trying to describe it in English,
-here's a sneak peek at how it all comes together.
+Cursor-based paging is not supported for tables with compound keys.
+The reason stems from how cursors are implemented. When a subquery
+has an argument like `after: $cursor`, the generated SQL will have
+a WHERE clause like `WHERE id > 99375`. The generated SQL is very
+efficient, but the approach won't work for tables with compound keys.
 
-```graphql
-{
-  seller (name: "Bill") {
-    ordersConnection {
-      totalCount
-      edges {
-        cursor
-        node { # <-- here's where the Order info starts
-          id
-          date
-          orderDetails {
-            product { name }
-            quantity
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-## totalCount
-
-
-
-
-
-## Connection --> Edges --> Node
-
-In the `GraphQL` world, a *Connection* is a queryable structure that
-d
-
-
-`GraphqlToTsql` supports 
-
-
-
+Offset-based paging works fine for tables with compound keys, though
+it will be less efficient than cursor-based paging could be.
 
 </div>
