@@ -284,7 +284,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ".Trim();
             var expectedTsqlParameters = new Dictionary<string, object> { { "name", "Zeus" } };
 
-            Check(graphql, null, expectedSql, expectedTsqlParameters);
+            Check(graphql, null, expectedSql, expectedTsqlParameters, EmptySetBehavior.EmptyArray);
         }
 
         [Test]
@@ -1061,9 +1061,10 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             string graphql,
             Dictionary<string, object> graphqlParameters,
             string expectedSql,
-            Dictionary<string, object> expectedTsqlParameters)
+            Dictionary<string, object> expectedTsqlParameters,
+            EmptySetBehavior emptySetBehavior = EmptySetBehavior.Null)
         {
-            var result = Translate(graphql, graphqlParameters);
+            var result = Translate(graphql, graphqlParameters, emptySetBehavior);
 
             // Show the difference between Expected and Actual Tsql
             expectedSql = expectedSql.TrimEnd();
@@ -1123,7 +1124,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             Assert.IsTrue(errorCount == 0, $"{errorCount} Tsql Parameter errors");
         }
 
-        private TsqlResult Translate(string graphql, Dictionary<string, object> graphqlParameters)
+        private TsqlResult Translate(string graphql, Dictionary<string, object> graphqlParameters, EmptySetBehavior emptySetBehavior = EmptySetBehavior.Null)
         {
             var allEntities = new List<EntityBase>();
             allEntities.AddRange(DemoEntityList.All());
@@ -1131,6 +1132,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
             var settings = new GraphqlActionSettings {
                 AllowIntrospection = true,
+                EmptySetBehavior = emptySetBehavior,
                 EntityList = DemoEntityList.All()
             };
 

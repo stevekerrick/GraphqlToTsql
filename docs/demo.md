@@ -8,10 +8,18 @@ title: Demo
 # Demo Pages
 
 There are two web pages that demonstrate the capabilities of `GraphqlToTsql`.
-* Sample Queries - Wide range of sample queries, and the user can modify them
-    or create one of their own. After a query is run, the page shows the
-    resulting data, the TSQL that was generated, and some runtime statistics.
-* GraphiQL - The standard `graphiQL` web page
+
+* [Sample Queries]({{ 'demo?topic=sample-queries' | relative_url }}) - A UI showing
+a wide assortment of sample queries. The user can modify them
+or create one of their own. After a query is run, the page shows the
+resulting data, the TSQL that was generated, and some runtime statistics.
+
+* [GraphiQL]({{ 'demo?topic=graphiql' | relative_url }}) - An open source in-browser IDE
+for composing and testing GraphQL queries.
+
+Important note: The demo website and database are hosted in Azure using
+the least expensive options possible. (The App Service is F1 (Free) and the database is Basic).
+Expect uneven performance.
 
 </div>
 
@@ -20,7 +28,7 @@ There are two web pages that demonstrate the capabilities of `GraphqlToTsql`.
 # Database Schema
 
 The demo database has six tables. To keep things interesting, some of the tables
-have auto-incrementing ID's, some have natural keys, and two have compound keys.
+have auto-incrementing ID's, some have natural keys, and some have compound keys.
 
 The `Seller` table is self-referencing.
 

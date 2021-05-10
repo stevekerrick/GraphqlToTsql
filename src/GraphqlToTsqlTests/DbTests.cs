@@ -1,5 +1,6 @@
 using DemoEntities;
 using GraphqlToTsql;
+using GraphqlToTsql.Entities;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -81,7 +82,7 @@ namespace GraphqlToTsqlTests
                     sellerBadges = new object[0]
                 }
             };
-            await CheckAsync(graphql, graphqlParameters, expectedObject);
+            await CheckAsync(graphql, graphqlParameters, expectedObject, EmptySetBehavior.EmptyArray);
         }
 
         [Test]
@@ -388,12 +389,13 @@ namespace GraphqlToTsqlTests
 
             var graphqlParameters = new Dictionary<string, object>();
 
-            await RunAsync(graphql, graphqlParameters);
+            await RunAsync(graphql, graphqlParameters, EmptySetBehavior.Null);
         }
 
-        private async Task CheckAsync(string graphql, Dictionary<string, object> graphqlParameters, object expectedObject)
+        private async Task CheckAsync(string graphql, Dictionary<string, object> graphqlParameters, object expectedObject,
+            EmptySetBehavior emptySetBehavior = EmptySetBehavior.Null)
         {
-            var queryResult = await RunAsync(graphql, graphqlParameters);
+            var queryResult = await RunAsync(graphql, graphqlParameters, emptySetBehavior);
 
             var dataObj = JsonConvert.DeserializeObject(queryResult.DataJson);
             var dataFormattedJson = JsonConvert.SerializeObject(dataObj, Formatting.Indented);
@@ -402,15 +404,16 @@ namespace GraphqlToTsqlTests
             Assert.AreEqual(expectedFormattedJson, dataFormattedJson, "Database response does not match expected");
         }
 
-        private async Task<QueryResult> RunAsync(string graphql, Dictionary<string, object> graphqlParameters)
+        private async Task<QueryResult> RunAsync(string graphql, Dictionary<string, object> graphqlParameters, EmptySetBehavior emptySetBehavior)
         {
             var graphqlActions = GetService<IGraphqlActions>();
 
             var settings = new GraphqlActionSettings
             {
                 AllowIntrospection = true,
-                EntityList = DemoEntityList.All(),
-                ConnectionString = GetConnectionString()
+                ConnectionString = GetConnectionString(),
+                EmptySetBehavior = emptySetBehavior,
+                EntityList = DemoEntityList.All()
             };
             var queryResult = await graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, settings);
 

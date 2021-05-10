@@ -48,26 +48,31 @@ namespace GraphqlToTsql.Introspection
                 Field.Column(this, "ofTypeKey", "OfTypeKey", ValueType.String, IsNullable.Yes, Visibility.Hidden),
                 Field.Column(this, "description", "Description", ValueType.String, IsNullable.Yes),
 
-                Field.Set(GqlFieldEntity.Instance, "fields", IsNullable.Yes, new Join(
+                Field.Set(GqlFieldEntity.Instance, "fields", new Join(
                     () => this.GetField("key"),
                     () => GqlFieldEntity.Instance.GetField("parentTypeKey")),
+                    IsNullable.Yes,
                     ListCanBeEmpty.No
                 ),
 
-                Field.CalculatedSet(GqlTypeEntity.Instance, "interfaces", IsNullable.No,
+                Field.CalculatedSet(GqlTypeEntity.Instance, "interfaces",
                     tableAlias => "SELECT * FROM GqlType WHERE Kind = 'INTERFACE'",
+                    IsNullable.No,
                     ListCanBeEmpty.No),
-                Field.CalculatedSet(GqlTypeEntity.Instance, "possibleTypes", IsNullable.Yes,
+                Field.CalculatedSet(GqlTypeEntity.Instance, "possibleTypes",
                     tableAlias => "SELECT * FROM GqlType WHERE 1 = 0",
+                    IsNullable.Yes,
                     ListCanBeEmpty.No),
 
-                Field.Set(GqlEnumValueEntity.Instance, "enumValues", IsNullable.Yes, new Join(
+                Field.Set(GqlEnumValueEntity.Instance, "enumValues", new Join(
                     () => this.GetField("key"),
                     () => GqlEnumValueEntity.Instance.GetField("enumTypeKey")),
+                    IsNullable.Yes,
                     ListCanBeEmpty.No
                 ),
-                Field.CalculatedSet(GqlInputValueEntity.Instance, "inputFields", IsNullable.Yes,
+                Field.CalculatedSet(GqlInputValueEntity.Instance, "inputFields",
                     tableAlias => $"SELECT * FROM GqlInputValue iv WHERE iv.ParentTypeKey = {tableAlias}.[Key] AND iv.FieldName IS NULL",
+                    IsNullable.Yes,
                     ListCanBeEmpty.No
                 ),
                 Field.Row(GqlTypeEntity.Instance, "ofType", new Join(

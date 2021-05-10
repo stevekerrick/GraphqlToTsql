@@ -4,26 +4,1306 @@ title: Documentation
 ---
 
 <div markdown="1">
-# Documentation topic 1
 
-Isn't this nice?
+# How to Use GraphqlToTsql
+
+`GraphqlToTsql` is a component that translates a GraphQL query into a
+comprehensive TSQL query, and (optionally) sends it to a SQL Server or
+AzureSQL database.
+
+## Setup
+
+The main setup steps are covered on the [Getting Started page]({{ 'gettingStarted' | relative_url }}).
+If you haven't yet visited that page, take a minute and skim its topics:
+* [Get GraphqlToTsql]({{ 'gettingStarted?topic=get-graphqltotsql' | relative_url }})
+* [Create Entity Mapping]({{ 'gettingStarted?topic=create-entity-mapping' | relative_url }})
+* [Create Entity List]({{ 'gettingStarted?topic=create-entity-list' | relative_url }})
+* [Register GraphqlActions]({{ 'gettingStarted?topic=register-graphqlactions' | relative_url }})
+* [Wire Up the API]({{ 'gettingStarted?topic=wire-up-the-api' | relative_url }})
+* [Two Ways to Run a Query]({{ 'gettingStarted?topic=two-ways-to-run-a-query' | relative_url }})
+
+## Settings
+
+The `GraphqlActions` class is the top-level `GraphqlToTsql` class.
+It has two public methods you can use to process a GraphQL query:
+* `TranslateAndRunQuery`
+* `TranslateToTsql`
+
+Both methods have a required parameter of type
+`GraphqlActionSettings` which has the following properties.
+
+```csharp
+public class GraphqlActionSettings
+{
+    public bool AllowIntrospection { get; set; }
+    public string ConnectionString { get; set; }
+    public EmptySetBehavior EmptySetBehavior { get; set; }
+    public List<EntityBase> EntityList { get; set; }
+}
+```
+
+### AllowIntrospection
+
+```csharp
+public bool AllowIntrospection { get; set; }
+```
+
+[Introspection](https://graphql.org/learn/introspection/) is an important part of `GraphQL`.
+It is a way of using `GraphQL` queries to discover the *kind* of data
+that is available. For example, the Introspection query below finds all the Types (entities)
+and the names and types of all their fields.
+
+```graphql
+{
+  __schema {
+    types {
+      name
+      fields {
+      name
+      type {
+          name
+          kind
+      }
+    }
+  }
+}
+```
+
+`GraphqlToTsql` supports Introspection queries, but you might not want to allow them because:
+* They add overhead.
+* A "Best Practice" is to allow Introspection in test environments so that people can
+experiment with your API using a tool like [GraphiQL](https://github.com/graphql/graphiql),
+but not to allow Introspection in Production.
+
+### ConnectionString
+
+```csharp
+public string ConnectionString { get; set; }
+```
+
+The connection string to your SQL Server or Azure SQL database.
+
+### EmptySetBehavior (Optional)
+
+```csharp
+public EmptySetBehavior EmptySetBehavior { get; set; }
+```
+
+If a GraphQL query (or part of a query) is supposed to return a list,
+how should the JSON look if the list is empty?
+By default, the empty list will appear in the resulting JSON
+as `null`. But if you prefer, you can have it appear in the JSON
+as an empty array, `[]`.
+
+```csharp
+public enum EmptySetBehavior
+{
+    Null = 0,
+    EmptyArray
+}
+```
+
+For example, assume that the `Seller` named "Zeus" has never had any orders.
+This GraphQL query would generate an empty list.
+
+```graphql
+{
+    seller (name: "Zeus") {
+        orders {
+            id
+            date
+        }
+    }
+}
+```
+
+With the default setting, `EmptySetBehavior = EmptySetBehavior.Null`,
+the resulting JSON is:
+
+```json
+{
+    "seller": {
+        "orders": null
+    }
+}
+```
+
+With `EmptySetBehavior = EmptySetBehavior.EmptyArray`,
+the resulting JSON is:
+
+```json
+{
+    "seller": {
+        "orders": []
+    }
+}
+```
+
+### EntityList
+
+```csharp
+public List<EntityBase> EntityList { get; set; }
+```
+
+The list of entities that are mapped to your database.
+
+Each entity in the list is an *Instance* of an entity. The typical pattern
+is described on our 
+[Getting Started Page]({{ 'gettingStarted?topic=create-entity-list' | relative_url }}).
+
 </div>
 
 <div markdown="1">
-# Documentation topic 2
 
-Also nice
+# Entity Mapping Basics
+
+A GraphQL query operates on interconnected *types*, each of which has
+a set of strongly-typed *fields*. In `GraphqlToTsql` you create an
+*Entity* for each GraphQL *type*.
+
+Have a look at the sample `OrderEntity` class, which
+maps to a database table named `Order`.
+
+```csharp
+public class OrderEntity : EntityBase
+{
+    public static OrderEntity Instance = new OrderEntity();
+
+    public override string Name => "order";
+    public override string DbTableName => "Order";
+    public override string[] PrimaryKeyFieldNames => new[] { "id" };
+    public override long? MaxPageSize => 1000L;
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "id", "Id", ValueType.Int, IsNullable.No),
+            Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No, Visibility.Hidden),
+            Field.Column(this, "date", "Date", ValueType.String, IsNullable.No),
+            Field.Column(this, "shipping", "Shipping", ValueType.Float, IsNullable.No),
+
+            Field.Row(SellerEntity.Instance, "seller", new Join(
+                ()=>this.GetField("sellerName"),
+                ()=>SellerEntity.Instance.GetField("name"))
+            ),
+
+            Field.Set(OrderDetailEntity.Instance, "orderDetails", IsNullable.No, new Join(
+                ()=>this.GetField("id"),
+                ()=>OrderDetailEntity.Instance.GetField("orderId"))
+            )
+        };
+    }
+}
+```
+
+## EntityBase
+
+Each of your Entities will inherit from [EntityBase.cs](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Entities/EntityBase.cs).
+
+Here are the parts of EntityBase that you need to care about.
+
+```csharp
+public abstract class EntityBase
+{
+    public abstract string Name { get; }
+    public virtual string PluralName => $"{Name}s";
+    public abstract string DbTableName { get; }
+    public virtual string EntityType => DbTableName;
+    public abstract string[] PrimaryKeyFieldNames { get; }
+    public virtual string SqlDefinition { get; }
+    public virtual long? MaxPageSize { get; }
+    protected abstract List<Field> BuildFieldList();
+}
+```
+
+### Name (Required)
+
+The `Name` to use for this entity in the `GraphQL` queries. Must be singular,
+and start with a lower-case letter.
+It is common to give your entity the same name as the underlying database table
+(but lower-cased).
+
+```csharp
+public override string Name => "order";
+```
+
+```graphql
+query { order (id: 100023) { id date } }
+```
+
+### PluralName (Optional)
+
+When querying a list of items, `GraphqlToTsql` uses a plural form of the
+`Name`. By default `GraphqlToSql` appends an "s" to the `Name`. For `Name`s
+where that doesn't work, you need to supply the `PluralName`.
+
+```csharp
+public override string Name => "butterfly";
+public override string PluralName => "butterflies";
+```
+
+```graphql
+{ butterflies { genus species } }
+```
+
+### DbTableName (Required)
+
+The name of the database table this entity maps to.
+
+```csharp
+public override string DbTableName => "Order";
+```
+
+Note: sometimes you might map an entity
+to a SQL query rather than to a physical table. You are still required
+to define a `DbTableName` (the generated `T-SQL` uses it), but you can choose any name you want.
+See: [Field Mapping]({{ 'documentation?topic=field-mapping' | relative_url }})
+
+### EntityType (Optional)
+
+The `GraphQL` Type name for the entity. The Type name is used in `GraphQL` queries that 
+use [Fragments](https://graphql.org/learn/queries/#fragments).
+It is also the name you will see in Introspection queries.
+
+If you choose not to set `EntityType`, it defaults to the same as the `DbTableName`.
+
+```csharp
+public override string EntityType => "OrderType";
+```
+
+```graphql
+# This query demonstrates the use of a GraphQL fragment.
+# The ... is the GraphQL syntax for "use fragment".
+# Notice that the fragment is strongly typed.
+
+{
+  o1: order (id: 1122) { ... orderFrag }
+  o2: order (id: 3344) { ... orderFrag }
+}
+
+fragment orderFrag on OrderType {
+  id
+  date
+  seller {
+    name
+    city
+  }
+}
+```
+
+### PrimaryKeyFieldNames (Required)
+
+The names of the Primary Key fields. Use the GraphQL names, not the SQL column names.
+
+You must provide a non-empty array of field names. It is needed for
+`GraphQL` queries that use paging.
+
+```csharp
+public override string[] PrimaryKeyFieldNames => new[] { "orderId" };
+```
+
+See: [Paging]({{ 'documentation?topic=paging' | relative_url }})
+
+### SqlDefinition (Optional)
+
+You'll probably use `SqlDefinition` only a handful of times. It's used to map
+an entity to a SQL SELECT statement rather than to a table.
+
+Most of the time you'll map an entity to a database table.
+But sometimes you want more flexibility. `GraphqlToTsql` will let
+you map an entity to a `SQL SELECT` statement.
+
+In all other ways the entity will be like other entities. You still
+specify a DbTableName -- `GraphqlToTsql` needs it for the SQL
+it generates.
+
+`GraphqlToTsql` uses your `SQL SELECT` as a
+[Common Table Expression](https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql).
+
+### MaxPageSize (Optional)
+
+Some of your database tables probably have more data than can reasonably be returned
+in a single query. You can require incoming GraphQL queries to use paging for an entity
+by setting `MaxPageSize`. For example, if you want to limit the number of `Order` 
+rows that can be returned in a single query to 1000:
+
+```csharp
+public override long? MaxPageSize => 1000L;
+```
+
+The `GraphQL` query will then be required to use paging for all `Order` lists.
+If the query doesn't use paging `GraphqlToTsql` will return an error.
+
+```graphql
+# These queries use "offset paging" to receive only 100 rows at a time
+{ 
+  orders (offset: 900, first: 100) {
+    id 
+    date
+  } 
+  sellers { 
+    name 
+    orders (first: 100) { 
+      id 
+      date 
+    } 
+  }
+}
+```
+
+`GraphqlToTsql` supports both offset and cursor-based paging.
+See [Paging]({{ 'documentation?topic=paging' | relative_url }}) for details.
+
+### BuildFieldList() (Required)
+
+Implement method `BuildFieldList` to define the fields for your entity.
+Very often a field will map to a database column, or to a
+related entity. Sometimes a field will map to a calculated value
+or set of values.
+
+See [Field Mapping]({{ 'documentation?topic=field-mapping' | relative_url }})
+for details.
+
+Here's a sneak peek at a typical `BuildFieldList` implementation.
+
+```csharp
+protected override List<Field> BuildFieldList()
+{
+    return new List<Field>
+    {
+        Field.Column(this, "id", "Id", ValueType.Int, IsNullable.No),
+        Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No, Visibility.Hidden),
+        Field.Column(this, "date", "Date", ValueType.String, IsNullable.No),
+        Field.Column(this, "shipping", "Shipping", ValueType.Float, IsNullable.No),
+
+        Field.Row(SellerEntity.Instance, "seller", new Join(
+            ()=>this.GetField("sellerName"),
+            ()=>SellerEntity.Instance.GetField("name"))
+        ),
+
+        Field.Set(OrderDetailEntity.Instance, "orderDetails", new Join(
+            ()=>this.GetField("id"),
+            ()=>OrderDetailEntity.Instance.GetField("orderId"))
+        )
+    };
+}
+```
+
 </div>
 
 <div markdown="1">
-# Documentation topic 3
 
-* bullet 1
-* bullet 2
+# Field Mapping
+
+When you are defining an entity, the fields for the entity are
+mapped in the `BuildFieldList` method. `GraphqlToTsql` supports six types of mapping.
+* Mapping to a database Column
+* Mapping to a related database row
+* Mapping to a set of related database rows
+* Mapping to a calculated value
+* Mapping to a calculated database row
+* Mapping to a calculated set of database rows
+
+## Mapping to a Column
+
+Mapping to a Column is the most common mapping. It defines an entity field that maps
+to a database column.
+
+To create a Column Mapping, use the static method `Field.Column()`.
+
+```csharp
+public static Field Column (
+    EntityBase entity,
+    string name,
+    string dbColumnName,
+    ValueType valueType,
+    IsNullable isNullable,
+    Visibility visibility = Visibility.Normal
+);
+```
+
+```csharp
+// Examples of Column Mappings
+Field.Column(this, "name", "Name", ValueType.String, IsNullable.No)
+Field.Column(this, "zip", "PostalCode", ValueType.String, IsNullable.Yes)
+Field.Column(this, "quantity", "Quantity", ValueType.Int, IsNullable.No)
+Field.Column(this, "shipping", "ShippingAmount", ValueType.Float, IsNullable.No)
+Field.Column(this, "sellerId", "SellerId", ValueType.Int, IsNullable.No, Visibility.Hidden)
+```
+
+### EntityBase entity (Required)
+
+The entity instance this field belongs to. Since you do field setup in the
+entity's `BuildFieldList()` method, you will always pass the value `this`.
+
+### string name (Required)
+
+The name of the field in the GraphQL. It should begin with a lower-case letter,
+since that is the convention in GraphQL.
+
+Often you will give your field the same name as the database column it maps to,
+converted to [lower camel case](https://en.wikipedia.org/wiki/Camel_case).
+
+### string dbColumnName (Required)
+
+The column name in the database. This column must be part of the database table
+that the entity maps to.
+
+### ValueType valueType (Required)
+
+GraphQL has a small set of scalar value types, and these are the types
+you specify in the entity mapping. Not surprisingly they align with standard
+JSON types.
+
+```csharp
+ValueType.String
+ValueType.Int
+ValueType.Float
+ValueType.Boolean
+```
+
+If the database column is type `bit`, use `ValueType.Boolean`.
+
+If the database column is type `tinyint`, `smallint`, `int`, or `bigint`, use `ValueType.Int`.
+
+If the database column is any other numeric, use `ValueType.Float`.
+
+In all other cases, use `ValueType.String`.
+
+### IsNullable isNullable (Required)
+
+To validate arguments and variables in the `GraphQL` you need to indicate whether the
+database column is nullable.
+
+Use one of these values.
+
+```csharp
+IsNullable.Yes
+IsNullable.No
+```
+
+### Visibility visibility (Optional)
+
+You need to create Column Mappings for the primary keys on all your entities.
+They're needed for mapping table joins, and for paging. But you can *hide*
+those mappings from the `GraphQL` if you don't want to share your ID's
+with the world.
+
+```csharp
+Visibility.Normal
+Visibility.Hidden
+```
+
+This is an optional parameter in `Field.Column()`. The default is `Visibility.Normal`.
+
+## Mapping to a Related Row
+
+If you are mapping a database table that has a foreign key to a related table,
+you can map that relationship using the static method `Field.Row`.
+
+```csharp
+public static Field Row(
+    EntityBase entity,
+    string name,
+    Join join);
+```
+
+For example, consider the database tables `Order` and `OrderDetail`.
+`OrderDetail.OrderId` is a foreign key to `Order.Id`, so when you create the
+`OrderDetail` entity you'll use a Row Mapping to link to the `Order` entity.
+
+```sql
+CREATE TABLE [Order] (
+    Id            INT NOT NULL IDENTITY(1,1) PRIMARY KEY CLUSTERED
+,   SellerName    NVARCHAR(64) NOT NULL
+,   [Date]        DATE NOT NULL
+,   Shipping      DECIMAL(5,2) NOT NULL
+,   CONSTRAINT FK_Order_Seller FOREIGN KEY (SellerName) REFERENCES Seller ([Name])
+);
+
+CREATE TABLE OrderDetail (
+    OrderId       INT NOT NULL
+,   ProductName   NVARCHAR(64) NOT NULL
+,   Quantity      INT NOT NULL
+,   CONSTRAINT PK_OrderDetail PRIMARY KEY NONCLUSTERED (OrderId, ProductName)
+,   CONSTRAINT FK_OrderDetail_Order FOREIGN KEY (OrderId) REFERENCES [Order] (Id)
+,   CONSTRAINT FK_OrderDetail_Product FOREIGN KEY (ProductName) REFERENCES Product ([Name])
+);
+```
+
+```csharp
+public class OrderDetailEntity : EntityBase
+{
+    public static OrderDetailEntity Instance = new OrderDetailEntity();
+
+    public override string Name => "orderDetail";
+    public override string DbTableName => "OrderDetail";
+    public override string[] PrimaryKeyFieldNames => new[] { "orderId", "productName" };
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "orderId", "OrderId", ValueType.Int, IsNullable.No),
+            Field.Column(this, "productName", "ProductName", ValueType.String, IsNullable.No, Visibility.Hidden),
+            Field.Column(this, "quantity", "Quantity", ValueType.Int, IsNullable.No),
+
+            Field.Row(OrderEntity.Instance, "order", new Join(
+                ()=>this.GetField("orderId"),
+                ()=>OrderEntity.Instance.GetField("id"))
+            ),
+            Field.Row(ProductEntity.Instance, "product", new Join(
+                ()=>this.GetField("productName"),
+                ()=>ProductEntity.Instance.GetField("name"))
+            )
+        };
+    }
+}
+```
+
+### EntityBase entity (Required)
+
+The singleton instance of the *related* entity.
+
+### string name (Required)
+
+The name of the row in the GraphQL. It should begin with a lower-case letter,
+since that is the convention in GraphQL.
+
+Often you will give your row the same name as the entity it maps to,
+converted to [lower camel case](https://en.wikipedia.org/wiki/Camel_case).
+
+### Join join (Required)
+
+Indicate how the two entities are to be joined, by specifying the parent entity field
+and the child entity field.
+
+The *parent entity* is the entity you're currently mapping *from*. The *child entity* is the
+entity the `Field.Row` is mapping *to*.
+
+```csharp
+/// <summary>
+/// Specifies the fields to join a parent entity to a child entity
+/// </summary>
+/// <param name="parentFieldFunc">Func that returns the Field instance for the Parent in the join</param>
+/// <param name="childFieldFunc">Func that returns the Field instance for the Child in the join</param>
+public Join(Func<Field> parentFieldFunc, Func<Field> childFieldFunc)
+{
+    ParentFieldFunc = parentFieldFunc;
+    ChildFieldFunc = childFieldFunc;
+}
+```
+
+You'll notice that `Join` won't work for tables that have a compound primary key.
+If your database has compound keys (or some other complicated relationship),
+you'll need to use the `Calcuated Row` mapping.
+
+## Mapping to a Related Set
+
+If you are mapping a database table to a child table with a one-to-many
+relationship, you will use
+the static method `Field.Set` to configure the relationship.
+
+```csharp
+/// <summary>
+/// Builds a field for one-to-many set.
+/// </summary>
+/// <param name="entity">Tne entity of the children</param>
+/// <param name="name">The name of the field in the GraphQL</param>
+/// <param name="join">Join criteria between the parent and child entities</param>
+public static Field Set(
+    EntityBase entity,
+    string name,
+    Join join);
+```
+
+For example, consider the same database tables `Order` and `OrderDetail`
+that we used in the `Row` mapping of `OrderDetail` => `Order`.
+We will now use `Field.Set` to map the reverse -- the one-to-many relationship
+`Order` => `OrderDetail`s.
+
+
+```csharp
+public class OrderEntity : EntityBase
+{
+    public static OrderEntity Instance = new OrderEntity();
+
+    public override string Name => "order";
+    public override string DbTableName => "Order";
+    public override string[] PrimaryKeyFieldNames => new[] { "id" };
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "id", "Id", ValueType.Int, IsNullable.No),
+            Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No, Visibility.Hidden),
+            Field.Column(this, "date", "Date", ValueType.String, IsNullable.No),
+            Field.Column(this, "shipping", "Shipping", ValueType.Float, IsNullable.No),
+
+            Field.Row(SellerEntity.Instance, "seller", new Join(
+                ()=>this.GetField("sellerName"),
+                ()=>SellerEntity.Instance.GetField("name"))
+            ),
+
+            Field.Set(OrderDetailEntity.Instance, "orderDetails", new Join(
+                ()=>this.GetField("id"),
+                ()=>OrderDetailEntity.Instance.GetField("orderId"))
+            )
+        };
+    }
+}
+```
+
+### EntityBase entity (Required)
+
+The singleton instance of the *related* entity. Notice in the `Field.Set` code above the entity
+is set to `OrderDetailEntity.Instance`.
+
+### string name (Required)
+
+The name to use in the GraphQL for the child collection. It should begin with a lower-case letter,
+since that is the convention in GraphQL, and it should be plural.
+
+### Join join (Required)
+
+Indicate how the two entities are to be joined, by specifying the parent entity field
+and the child entity field.
+
+The *parent entity* is the entity you're currently mapping. The *child entity* is the
+entity the `Field.Row` is mapping *to*.
+
+In the example above, `OrderEntity`'s `id` field joins to `OrderDetailEntity`'s `orderId` field.
+
+Just as explained for `Row` mapping, the Join is expressed as a pair of `Func<Field>`s.
+If your tables are related in a more complicated way, then `Field.Row` won't work for you --
+you'll need to use the `Calculated Set` mapping explained below.
+
+## Mapping to a Calculated Value
+
+You can create a scalar field in your entity that isn't mapped to a database column,
+but rather is defined by a SQL expression (even a complicated one.)
+
+To create a `Calculated Field` Mapping, use the static method `Field.CalculatedField()`.
+It is similar to `Field.Column()`, except that instead of specifying a database column
+name you provide a SQL template.
+
+```csharp
+/// <summary>
+/// Builds a field that uses custom SQL. Use this to create a GraphQL field that doesn't map
+/// to any database column.
+/// </summary>
+/// <param name="entity">The entity this field belongs to</param>
+/// <param name="name">The name of the field in the GraphQL</param>
+/// <param name="valueType">Data type of the column. One of: String, Int, Float, Boolean.</param>
+/// <param name="isNullable">Can the custom SQL result in a null value?</param>
+/// <param name="templateFunc">Function that takes the table alias, and returns a SQL SELECT statement.
+/// <example>For example:
+/// <code>(tableAlias) => $"SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName"</code>
+/// </example>
+/// </param>
+/// <param name="visibility">Mark the field as "Hidden" if you don't want to expose it to GraphQL queries</param>
+public static Field CalculatedField(
+    EntityBase entity,
+    string name,
+    ValueType valueType,
+    IsNullable isNullable,
+    Func<string, string> templateFunc,
+    Visibility visibility = Visibility.Normal
+);
+```
+
+For example, in the `OrderEntity` that appeared earlier in this topic we could add
+a `Calculated Field` for the `totalQuantity` on the order.
+
+```csharp
+Field.CalculatedField(this, "totalQuantity", ValueType.Int, IsNullable.No,
+    (tableAlias) => $"SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.Id = od.OrderId"
+)
+```
+
+### EntityBase entity (Required)
+
+The entity instance this field belongs to. Since you do field setup in the
+entity's `BuildFieldList()` method, you will always pass the value `this`.
+
+### string name (Required)
+
+The name of the field in the GraphQL. It should begin with a lower-case letter.
+
+### ValueType valueType (Required)
+
+GraphQL has a small set of scalar value types, and these are the types
+you specify in the entity mapping. Not surprisingly they align with standard
+JSON types.
+
+```csharp
+ValueType.String
+ValueType.Int
+ValueType.Float
+ValueType.Boolean
+```
+
+If your SQL expression yields a value of type `bit`, use `ValueType.Boolean`.
+
+If your SQL expression yields a value of type `tinyint`, `smallint`, `int`, or `bigint`, use `ValueType.Int`.
+
+If your SQL expression yields a type of any other numeric, use `ValueType.Float`.
+
+In all other cases, use `ValueType.String`.
+
+### IsNullable isNullable (Required)
+
+Indicate whether your SQL expression yields a value that can be null.
+
+Use one of these values.
+
+```csharp
+IsNullable.Yes
+IsNullable.No
+```
+
+### Func<string, string> templateFunc (Required)
+
+Template function to generate a SQL expression for the field.
+The function has a single argument, representing the table alias
+`GraphqlToTsql` has assigned to the entity's table.
+
+This is one of the most flexible capabilities in `GraphqlToTsql`,
+and allows you to expose your data in ways that
+don't need to match the physical database schema.
+
+Hopefully the examples below will help make it clear. :-)
+
+### Visibility visibility (Optional)
+
+This is an optional parameter in `Field.CalculatedField()`. The default is `Visibility.Normal`.
+
+If you don't want to expose your `Calculated Field` in the `GraphQL` you can set the
+visibility to `Visibility.Hidden`. `Visibility.Hidden` is normally only used to hide Id
+columns, but it's available on `Calculated Fields` if you need it.
+
+```csharp
+Visibility.Normal
+Visibility.Hidden
+```
+
+### Calculated Value example 1: TotalQuantity
+
+Let's calculate the `TotalQuantity` for an order. The mapping looks
+like this.
+
+```csharp
+Field.CalculatedField(this, "totalQuantity", ValueType.Int, IsNullable.No,
+    (tableAlias) => $"SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.Id = od.OrderId"
+)
+```
+
+It's used in GraphQL like this.
+
+```graphql
+query ($orderId: Int) {
+    order (id: $orderId) {
+        id
+        totalQuantity
+    }
+}
+```
+
+And here is the complete TSQL that `GraphqlToSql` generates for the query.
+
+```sql
+SELECT
+
+  -- order (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Id] AS [id]
+    , (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE t1.Id = od.OrderId) AS [totalQuantity]
+    FROM [Order] t1
+    WHERE t1.[Id] = @orderId
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [order]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+```
+
+Using the data in our
+[Demo App]({{ 'demo' | relative_url }}),
+it results in this JSON.
+
+```json
+{
+  "order": {
+    "id": 1,
+    "totalQuantity": 1
+  }
+}
+```
+
+### Calculated Value example 2: FormattedDate
+
+In the same `OrderEntity`, we can expose the `OrderDate` in a custom format.
+
+```csharp
+Field.CalculatedField(this, "formattedDate", ValueType.String, IsNullable.No,
+    (tableAlias) => $"FORMAT({tableAlias}.[Date], 'dd/MM/yyyy', 'en-US' )"
+),
+```
+
+```graphql
+{
+    order (id: 1) {
+        formattedDate
+    }
+}
+```
+
+Here is the TSQL that `GraphqlToTsql` generated, and the resulting data.
+
+```sql
+SELECT
+
+  -- order (t1)
+  JSON_QUERY ((
+    SELECT
+      (FORMAT(t1.[Date], 'dd/MM/yyyy', 'en-US' )) AS [formattedDate]
+    FROM [Order] t1
+    WHERE t1.[Id] = @id
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [order]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+```
+
+```json
+{
+  "order": {
+    "formattedDate": "01/01/2020"
+  }
+}
+```
+
+
+
+
+
+
+## Mapping to a Calculated Row
+
+`Calculated Row` mapping is similar to the regular `Row` mapping, but is
+much more flexible.
+
+You'll recall that `Row` mapping allows you to define a field that is a
+single row, when your parent entity holds a regular `Foreign Key` to the child
+entity.
+
+In a `Calculated Row` mapping you write a custom `SQL SELECT` statement to retrieve
+the child row. You declare the mapping using the `Field.CalculatedRow` static method.
+
+```csharp
+/// <summary>
+/// Builds a field for a child entity, where custom SQL is used to retrieve the child row.
+/// </summary>
+/// <param name="entity">Tne entity of the child</param>
+/// <param name="name">The name of the field in the GraphQL</param>
+/// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child row</param>
+public static Field CalculatedRow(
+    EntityBase entity,
+    string name,
+    Func<string, string> templateFunc
+);
+```
+
+### EntityBase entity (Required)
+
+The singleton instance of the *related* entity.
+
+### string name (Required)
+
+The name of the row in the GraphQL. It should begin with a lower-case letter,
+since that is the convention in GraphQL.
+
+### Func<string, string> templateFunc (Required)
+
+Template function to generate a `SQL SELECT` for the field.
+The function has a single argument, representing the table alias
+`GraphqlToTsql` has assigned to the entity's table.
+
+### Calculated Row example: mostRecentOrder
+
+Let's find the most recent order for a seller. Here is a trimmed-down mapping for the
+`SellerEntity`. The `CalculatedRow` mapping for `mostRecentOrder` appears at the bottom.
+
+```csharp
+public class SellerEntity : EntityBase
+{
+    public static SellerEntity Instance = new SellerEntity();
+
+    public override string Name => "seller";
+    public override string DbTableName => "Seller";
+    public override string[] PrimaryKeyFieldNames => new[] { "name" };
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
+            ...
+
+            Field.Set(OrderEntity.Instance, "orders", new Join(
+                ()=>this.GetField("name"),
+                ()=>OrderEntity.Instance.GetField("sellerName"))
+            ),
+
+            Field.CalculatedRow(OrderEntity.Instance, "mostRecentOrder",
+                (tableAlias) => $@"SELECT TOP 1 *
+FROM [Order]
+WHERE {tableAlias}.Name = [Order].SellerName
+ORDER BY [Order].[Date] DESC"
+            )
+        };
+    }
+}
+```
+
+It's used in GraphQL like this.
+
+```graphql
+{
+    seller (name: "Donada") {
+        mostRecentOrder { id date }
+    }
+}
+```
+
+And here is the complete TSQL that `GraphqlToSql` generates for the query.
+
+```sql
+
+SELECT
+  -- seller (t1)
+  JSON_QUERY ((
+    SELECT
+
+      -- seller.mostRecentOrder (t2)
+      JSON_QUERY ((
+        SELECT
+          t2.[Id] AS [id]
+        , t2.[Date] AS [date]
+        FROM (SELECT TOP 1 *
+FROM [Order]
+WHERE t1.Name = [Order].SellerName
+ORDER BY [Order].[Date] DESC) t2
+        FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [mostRecentOrder]
+    FROM [Seller] t1
+    WHERE t1.[Name] = @name
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [seller]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+```
+
+Using the data in our
+[Demo App]({{ 'demo' | relative_url }}),
+it results in this JSON.
+
+```json
+{
+  "seller": {
+    "mostRecentOrder": {
+      "id": 12,
+      "date": "2020-05-19"
+    }
+  }
+}
+```
+
+## Mapping to a Calculated Set
+
+`Calculated Set` mapping is similar to the regular `Set` mapping, but is
+much more flexible.
+
+You'll recall that `Set` mapping allows you to define a field that is a
+*list of rows*, and is normally used when the child entity you're mapping to
+holds a `Foreign Key` to the parent entity.
+
+In a `Calculated Set` mapping you write a custom `SQL SELECT` statement to retrieve
+a set of child rows. You declare the mapping using the `Field.CalculatedSet` static method.
+
+```csharp
+/// <summary>
+/// Builds a field for a one-to-many set, where custom SQL is used to retrieve the child set.
+/// </summary>
+/// <param name="entity">Tne entity of the child</param>
+/// <param name="name">The name of the field in the GraphQL</param>
+/// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child set</param>
+public static Field CalculatedSet(
+    EntityBase entity,
+    string name,
+    Func<string, string> templateFunc
+);
+```
+
+### EntityBase entity (Required)
+
+The singleton instance of the *related* entity.
+
+### string name (Required)
+
+The name of the set in the GraphQL. It should begin with a lower-case letter,
+and it should be plural.
+
+### Func<string, string> templateFunc (Required)
+
+Template function to generate a `SQL SELECT` for the field.
+The function has a single argument, representing the table alias
+`GraphqlToTsql` has assigned to the entity's table.
+
+### Calculated Set example 1: Product.sellers
+
+Let's map a field on `ProductEntity` to find all the sellers that have ever sold the
+product. Here is a trimmed-down mapping for the
+`ProductEntity`. The `CalculatedSet` mapping for `sellers` appears at the bottom.
+
+```csharp
+public class ProductEntity : EntityBase
+{
+    public static ProductEntity Instance = new ProductEntity();
+
+    public override string Name => "product";
+    public override string DbTableName => "Product";
+    public override string[] PrimaryKeyFieldNames => new[] { "name" };
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "name", "Name", ValueType.String, IsNullable.No),
+            ...
+
+            Field.CalculatedSet(SellerEntity.Instance, "sellers",
+                (tableAlias) => $@"SELECT DISTINCT s.*
+FROM OrderDetail od
+INNER JOIN [Order] o ON od.OrderId = o.Id
+INNER JOIN Seller s ON o.SellerName = s.Name
+WHERE {tableAlias}.Name = od.ProductName"
+            )
+        };
+    }
+}
+```
+
+It's used in GraphQL like this.
+
+```graphql
+{
+    product (name: "Pliers") {
+        sellers { name }
+    }
+}
+```
+
+And here is the complete TSQL that `GraphqlToSql` generates for the query.
+
+```sql
+SELECT
+
+  -- product (t1)
+  JSON_QUERY ((
+    SELECT
+
+      -- product.sellers (t2)
+      JSON_QUERY ((
+        SELECT
+          t2.[Name] AS [name]
+        FROM (SELECT DISTINCT s.*
+FROM OrderDetail od
+INNER JOIN [Order] o ON od.OrderId = o.Id
+INNER JOIN Seller s ON o.SellerName = s.Name
+WHERE t1.Name = od.ProductName) t2
+        FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
+    FROM [Product] t1
+    WHERE t1.[Name] = @name
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [product]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+```
+
+Using the data in our
+[Demo App]({{ 'demo' | relative_url }}),
+it results in this JSON.
+
+```json
+{
+  "product": {
+    "sellers": [
+      {
+        "name": "Bill"
+      },
+      {
+        "name": "Chris"
+      },
+      {
+        "name": "Erik"
+      }
+    ]
+  }
+}
+```
+
+### Calculated Set example 2: Seller.descendants
+
+`Field.CalculatedSet` can be used to map a database Table-Valued Function (TVF).
+
+In the reference database there is a `Seller` table
+* Keyed by `Name`
+* With a `DistributorName` column that self-references the `Seller` table
+
+The database has a TVF to find all the descendants for a distributor.
+
+```sql
+CREATE FUNCTION tvf_AllDescendants (
+  @parentName VARCHAR(64)
+)
+RETURNS TABLE
+AS
+RETURN
+  WITH ParentCTE AS (
+    SELECT
+      [Name]
+    , DistributorName
+    FROM Seller s
+    WHERE s.DistributorName = @parentName
+
+    UNION ALL
+
+    SELECT
+      child.[Name]
+    , child.DistributorName
+    FROM ParentCTE parent
+    INNER JOIN Seller child
+      ON child.DistributorName = parent.[Name]
+  )
+
+  SELECT
+    [Name]
+  FROM ParentCTE;
+GO
+```
+
+The C# code below defines a GraphQL field named `descendants`, of type `Seller[]`.
+
+```csharp
+public class SellerEntity : EntityBase
+{
+    ...
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            ...
+            Field.CalculatedSet(this, "descendants", IsNullable.Yes,
+                (tableAlias) => $"SELECT s.* FROM tvf_AllDescendants({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name"
+            ),
+            ...
+        };
+    }
+}
+```
+
 </div>
 
 <div markdown="1">
-# Documentation topic 4
 
-adsf
+# Paging
+
+Paging is an important part of a Production-level `GraphQL` API.
+In traditional `GraphQL` implementations, paging can be a bit difficult
+to get working.
+
+Paging isn't part of the formal `GraphQL` specification, but graphql.org does
+provide [Best Practices guidance](https://graphql.org/learn/pagination/).
+`GraphqlToTsql` follows their guidance, *except* that `GraphqlToTsql` does not
+include a `pageInfo` object.
+
+## MaxPageSize
+
+When you are creating an entity, one of the things you can set is `MaxPageSize`.
+You *should* set `MaxPageSize` for any entity that could have more than a few
+hundred rows.
+
+If you set `MaxPageSize` you force the `GraphQL` queries to use paging anytime
+there is a *set* of that entity.
+
+For example, here you can see `OrderEntity` configured with a `MaxPageSize` of 100.
+
+```csharp
+public static OrderEntity Instance = new OrderEntity();
+
+public override string Name => "order";
+public override string DbTableName => "Order";
+public override string[] PrimaryKeyFieldNames => new[] { "id" };
+public override long? MaxPageSize => 100L;
+
+protected override List<Field> BuildFieldList()
+{
+    return new List<Field>
+    {
+        ...
+    };
+}
+```
+
+All of these queries will be rejected, with the error message
+> Paging is required with orders
+
+```graphql
+{ orders { id date }}
+{ seller(name: "Bob") { orders { id date }}}
+{ products { name description orders { date } sellers { name }}}
+```
+
+## Sneak Peek
+
+`GraphqlToTsql` follows the recommended query syntax for paging, and it's
+kind of a lot to explain. So before trying to describe it in English,
+here's a sneak peek at how it all comes together.
+
+```graphql
+{
+  seller (name: "Bill") {
+    ordersConnection {
+      totalCount
+      edges {
+        cursor
+        node { # <-- here's where the Order info starts
+          id
+          date
+          orderDetails {
+            product { name }
+            quantity
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## totalCount
+
+
+
+
+
+## Connection --> Edges --> Node
+
+In the `GraphQL` world, a *Connection* is a queryable structure that
+d
+
+
+`GraphqlToTsql` supports 
+
+
+
+
 </div>

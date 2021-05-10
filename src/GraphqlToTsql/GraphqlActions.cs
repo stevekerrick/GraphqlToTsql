@@ -62,7 +62,7 @@ namespace GraphqlToTsql
             }
 
             // Create TSQL
-            var tsqlBuilder = GetTsqlBuilder(allEntities);
+            var tsqlBuilder = GetTsqlBuilder(allEntities, settings.EmptySetBehavior);
             var tsqlResult = tsqlBuilder.Build(parseResult);
             return tsqlResult;
         }
@@ -94,7 +94,7 @@ namespace GraphqlToTsql
 
             // Create TSQL
             sw.Restart();
-            var tsqlBuilder = GetTsqlBuilder(allEntities);
+            var tsqlBuilder = GetTsqlBuilder(allEntities, settings.EmptySetBehavior);
             var tsqlResult = tsqlBuilder.Build(parseResult);
             if (tsqlResult.Error != null)
             {
@@ -183,9 +183,9 @@ namespace GraphqlToTsql
             return parser;
         }
 
-        private static ITsqlBuilder GetTsqlBuilder(List<EntityBase> allEntities)
+        private static ITsqlBuilder GetTsqlBuilder(List<EntityBase> allEntities, EmptySetBehavior emptySetBehavior)
         {
-            var tsqlBuilder = new TsqlBuilder(allEntities);
+            var tsqlBuilder = new TsqlBuilder(allEntities, emptySetBehavior);
             return tsqlBuilder;
         }
 

@@ -26,7 +26,7 @@ namespace GraphqlToTsql.Entities
         /// <summary>
         /// The name for the underlying SQL table
         /// </summary>
-        public virtual string DbTableName { get; }
+        public abstract string DbTableName { get; }
 
         /// <summary>
         /// The name of the entity type
