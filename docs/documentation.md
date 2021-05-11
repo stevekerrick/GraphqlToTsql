@@ -1423,28 +1423,95 @@ plus some metadata about *each item*. In `GraphqlToTsql` an `Edge` item contains
 * `node` - the item. Even though it has the name `node`, this is exactly the same item
 you can query on if you're querying plain lists instead of a `Connection`.
 
-That's a lot to digest if you're new to cursor-based pagination. But it sets you
-up for success.
-
-## cursor
-
-This is *not* 
-
-
-
+That's a lot to digest if you're new to cursor-based pagination. But it's an important
+pattern, and it will help you understand the rest of the details.
 
 ## totalCount
 
-TODO
+You can include `totalCount` in the query to see the total number of rows
+in a dataset.
+
+Keep performance in mind. `totalCount` is not free. So don't ask for `totalCount`
+unless your app needs it. And if you're doing a paged query only ask for
+`totalCount` on the first page.
+
+## cursor
+
+This is *not* the same thing as a SQL cursor. In cursor-based pagination, a cursor is a
+row identifier. It's used like this.
+
+1. When you query for the first page of data, include `cursor` in the request.
+For example, if you're paging through a data set 100 rows at a time your query would
+have a pattern like:
+
+```graphql
+{
+  # ...
+    xxxxConnection (first: 100) {
+      edges {
+        cursor
+        node { # ...
+        }
+      }
+    }
+  # ...
+}
+```
+
+2. For subsequent requests for pages of data use an `after` argument,
+with the `cursor` value of the last row in the prior page.
+
+```graphql
+{
+  # ...
+    xxxxConnection (first: 100, after: "xxxxxxx") {
+      edges {
+        cursor
+        node { # ...
+        }
+      }
+    }
+  # ...
+}
+```
+
+3. Keep querying until the page comes back with fewer than 100 rows.
+
+Cursors are designed to be *opaque*, meaning that they are encoded in such
+a way that you can't see the raw data they're made from. That's partly because
+it's wise to hide implementation details, and partly because consumers of
+your API shouldn't try to create their own cursors.
+
+But there's no real magic to `cursors`. Once they're decoded they're info about
+the Primary Key of the row.
 
 ## Offset Paging
 
-TODO
+Most of this topic has focused on cursor-based pagination because it's
+much more efficient on large datasets. But `GraphqlToTsql` supports
+offset-based pagination as well.
 
+One good thing about offset-base pagination is that you don't need
+the extra `Connection / Edges / Node` syntax because you don't need
+to query for `cursors`.
 
+Use arguments `first` and `offset` are used for offset-based paging
 
+```graphql
+{
+  seller (name: "Bill") {
+    orders (first: 100, offset: 1100) {
+      id
+      date
+      orderDetails {
+        product { name }
+        quantity
+      }
+    }
+  }
+}
 
-
+```
 
 ## MaxPageSize
 
@@ -1493,5 +1560,43 @@ efficient, but the approach won't work for tables with compound keys.
 
 Offset-based paging works fine for tables with compound keys, though
 it will be less efficient than cursor-based paging could be.
+
+## Use Variables
+
+Most of the sample `GraphQL` queries in this topic didn't use Variables, but
+that was to keep the sample code as clear as possible.
+
+Any time you are issuing parameterized `GraphQL` queries you should
+do so using Variables.
+
+```graphql
+query sellerOrders ($name: String, $first: Int, $cursor: String) {
+  seller (name: $name) {
+    ordersConnection (first: $first, after: $cursor) {
+      edges {
+        cursor
+        node {
+          id
+          date
+          orderDetails {
+            product { name }
+            quantity
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Here are the Variables you send with the above query.
+
+```json
+{
+    "name": "Bill",
+    "first": 100,
+    "after": "M3w0fE9yZGVy.b1e89f00"
+}
+```
 
 </div>
