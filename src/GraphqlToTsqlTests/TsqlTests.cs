@@ -699,6 +699,54 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
+        public void PagingOnMainQueryTest()
+        {
+            var after = 999;
+            var cursor = CursorUtility.CreateCursor(new Value(after), "Order");
+
+            var graphql = @"
+{
+  ordersConnection (first: 10, offset: 100) {
+    edges {
+      node { date }
+    }
+  }
+}
+".Trim();
+            var graphqlParameters = new Dictionary<string, object>();
+
+            var expectedSql = @"
+SELECT
+
+  -- ordersConnection (t1)
+  JSON_QUERY ((
+    SELECT
+
+      -- ordersConnection.edges (t1)
+      JSON_QUERY ((
+        SELECT
+
+          -- ordersConnection.edges.node (t1)
+          JSON_QUERY ((
+            SELECT
+              t1.[Date] AS [date]
+            FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [node]
+        FROM [Order] t1
+        ORDER BY t1.[Id]
+        OFFSET 100 ROWS
+        FETCH FIRST 10 ROWS ONLY
+        FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [edges]
+    FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER)) AS [ordersConnection]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+
+            var expectedTsqlParameters = new Dictionary<string, object>();
+
+            Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
+        }
+
+        [Test]
         public void CalculatedSetTest()
         {
             const string graphql = "{ sellers { name descendants { name city } } }";

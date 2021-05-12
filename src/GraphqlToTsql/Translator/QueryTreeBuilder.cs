@@ -219,6 +219,13 @@ namespace GraphqlToTsql.Translator
                 return Entities.Field.Set(entity, name, null);
             }
 
+            entity = _entityList.FirstOrDefault(_ => _.PluralName + Constants.CONNECTION == name);
+            if (entity != null)
+            {
+                var setField = Entities.Field.Set(entity, name, null);
+                return Entities.Field.Connection(setField);
+            }
+
             return null;
         }
     }
