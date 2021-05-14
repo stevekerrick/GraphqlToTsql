@@ -44,15 +44,11 @@ and computed values.
 * `GraphqlToTsql` only supports the `query` portion of `GraphQL`. `Mutations` are not
 supported
 
+## License
+
+`GraphqlToTsql` is licensed under the [MIT License](https://opensource.org/licenses/MIT)
 
 
 
-
-
-</div>
-
-<div markdown="1">
-
-# Foo
 
 </div>
