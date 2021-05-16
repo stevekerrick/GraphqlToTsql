@@ -5,6 +5,15 @@
     <RootNamespace>GraphqlToTsql</RootNamespace>
     <AssemblyName>GraphqlToTsql</AssemblyName>
     <Authors>Steve Kerrick</Authors>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <Copyright>Copyright (c) 2021 Steve Kerrick. All rights reserved.</Copyright>
+    <PackageProjectUrl>https://graphqltotsql.net/</PackageProjectUrl>
+    <PackageIcon>favicon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/stevekerrick/GraphqlToTsql</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>graphql tsql sql sqlserver azuresql</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -20,6 +29,13 @@
 
   <ItemGroup>
     <Folder Include="CodeGen\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="favicon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
