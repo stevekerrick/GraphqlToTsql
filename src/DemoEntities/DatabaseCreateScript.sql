@@ -209,7 +209,7 @@ EXEC #CreateOrder @ivan, '2020-09-25T21:50:24-05:00', 23.95, @hammer, 1, @circul
 EXEC #CreateOrder @ivan, '2020-10-05T20:59:14-06:00', 18.95, @hammer, 1, @pipeWrench, 1, @screwdriver, 1;
 EXEC #CreateOrder @ivan, '2020-10-30T08:14:03-04:00', 9.95, @hammer, 1, @screwdriver, 1, @woodGlue, 1;
 EXEC #CreateOrder @ivan, '2020-12-29T17:52:33Z', 11.95, @hammer, 1, @wireBrush, 4, @workLight, 1, @chisel, 1;
-EXEC #CreateOrder @ivan, '2020-04-06T22:04:04+4:00', 7.95, @hammer, 1;
+EXEC #CreateOrder @ivan, '2020-04-06T22:04:04+04:00', 7.95, @hammer, 1;
 EXEC #CreateOrder @lynnette, '2020-04-29T06:12:00Z', 15.95, @hammer, 1, @circularSaw, 1, @woodGlue, 1, @chisel, 1;
 EXEC #CreateOrder @lynnette, '2020-05-15T08:40:12-06:00', 13.95, @hammer, 1, @screwdriver, 1, @workLight, 2;
 EXEC #CreateOrder @lynnette, '2020-05-28T09:50:13-07:00', 7.95, @hammer, 1;
