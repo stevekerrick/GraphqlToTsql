@@ -29,7 +29,7 @@ CREATE TABLE Product (
 CREATE TABLE [Order] (
     Id            INT NOT NULL IDENTITY(1,1) PRIMARY KEY CLUSTERED
 ,   SellerName    NVARCHAR(64) NOT NULL
-,   [Date]        DATE NOT NULL
+,   [Date]        DATETIMEOFFSET NOT NULL
 ,   Shipping      DECIMAL(5,2) NOT NULL
 ,   CONSTRAINT FK_Order_Seller FOREIGN KEY (SellerName) REFERENCES Seller ([Name])
 );
@@ -61,7 +61,7 @@ GO
 -- Create temp stored proc to make it easier to script in orders
 CREATE PROCEDURE #CreateOrder (
   @sellerName NVARCHAR(64)
-, @date DATE
+, @date DATETIMEOFFSET
 , @shipping DECIMAL(5,2)
 , @productName1 NVARCHAR(64), @quantity1 INT
 , @productName2 NVARCHAR(64) = NULL, @quantity2 INT = NULL
@@ -184,53 +184,53 @@ VALUES
 
 
 PRINT 'Populating: Order';
-EXEC #CreateOrder @amber, '2020-01-01', 7.95, @hammer, 1;
-EXEC #CreateOrder @bill, '2020-01-29', 12.95, @hammer, 1, @pliers, 1;
-EXEC #CreateOrder @bill, '2020-02-06', 11.95, @hammer, 3, @drill, 3;
-EXEC #CreateOrder @bill, '2020-02-11', 15.95, @hammer, 1, @handSaw, 1, @circularSaw, 1;
-EXEC #CreateOrder @bill, '2020-02-14', 14.95, @hammer, 1, @pipeWrench, 3, @screwdriver, 3;
-EXEC #CreateOrder @bill, '2020-02-17', 12.95, @hammer, 1, @wireBrush, 1;
-EXEC #CreateOrder @bill, '2020-03-12', 14.95, @hammer, 1, @chisel, 4, @workLight, 1;
-EXEC #CreateOrder @Chris, '2020-03-25', 13.95, @hammer, 1, @woodGlue, 3, @handSaw, 1;
-EXEC #CreateOrder @Chris, '2020-04-23', 152.95, @hammer, 3, @pliers, 3, @drill, 4, @handSaw, 2, @circularSaw, 5, @pipeWrench, 2, @screwdriver, 15, @wireBrush, 6, @chisel, 2, @workLight, 4;
-EXEC #CreateOrder @Chris, '2020-05-04', 8.95, @hammer, 1, @chisel, 2;
-EXEC #CreateOrder @donada, '2020-05-12', 11.95, @hammer, 1, @workLight, 1;
-EXEC #CreateOrder @donada, '2020-05-19', 23.95, @hammer, 1, @woodGlue, 50;
-EXEC #CreateOrder @erik, '2020-06-03', 14.95, @hammer, 1, @pliers, 4, @drill, 1;
-EXEC #CreateOrder @erik, '2020-06-04', 15.95, @hammer, 1, @handSaw, 1, @workLight, 1;
-EXEC #CreateOrder @erik, '2020-06-12', 14.95, @hammer, 1, @circularSaw, 1, @pipeWrench, 1;
-EXEC #CreateOrder @francesca, '2020-07-06', 7.95, @hammer, 1;
-EXEC #CreateOrder @francesca, '2020-07-13', 13.95, @hammer, 1, @circularSaw, 1, @wireBrush, 2, @workLight, 1;
-EXEC #CreateOrder @georgey, '2020-07-24', 10.95, @hammer, 1, @screwdriver, 1, @workLight, 1;
-EXEC #CreateOrder @helena, '2020-08-17', 21.95, @hammer, 1, @pipeWrench, 1, @screwdriver, 1;
-EXEC #CreateOrder @helena, '2020-09-10', 9.95, @hammer, 1, @screwdriver, 1, @chisel, 1;
-EXEC #CreateOrder @helena, '2020-09-16', 7.95, @hammer, 1;
-EXEC #CreateOrder @ivan, '2020-09-25', 23.95, @hammer, 1, @circularSaw, 1, @wireBrush, 1, @woodGlue, 1, @workLight, 3;
-EXEC #CreateOrder @ivan, '2020-10-05', 18.95, @hammer, 1, @pipeWrench, 1, @screwdriver, 1;
-EXEC #CreateOrder @ivan, '2020-10-30', 9.95, @hammer, 1, @screwdriver, 1, @woodGlue, 1;
-EXEC #CreateOrder @ivan, '2020-12-29', 11.95, @hammer, 1, @wireBrush, 4, @workLight, 1, @chisel, 1;
-EXEC #CreateOrder @ivan, '2020-04-06', 7.95, @hammer, 1;
-EXEC #CreateOrder @lynnette, '2020-04-29', 15.95, @hammer, 1, @circularSaw, 1, @woodGlue, 1, @chisel, 1;
-EXEC #CreateOrder @lynnette, '2020-05-15', 13.95, @hammer, 1, @screwdriver, 1, @workLight, 2;
-EXEC #CreateOrder @lynnette, '2020-05-28', 7.95, @hammer, 1;
-EXEC #CreateOrder @lynnette, '2020-05-29', 12.95, @hammer, 1, @circularSaw, 1, @workLight, 1;
-EXEC #CreateOrder @lynnette, '2020-06-17', 8.95, @hammer, 1, @woodGlue, 1, @chisel, 1;
-EXEC #CreateOrder @lynnette, '2020-07-03', 7.95, @hammer, 1;
-EXEC #CreateOrder @marco, '2020-07-06', 8.95, @hammer, 1, @chisel, 1;
-EXEC #CreateOrder @marco, '2020-07-15', 17.95, @hammer, 1, @circularSaw, 1, @screwdriver, 1, @woodGlue, 1;
-EXEC #CreateOrder @novalee, '2020-08-06', 16.95, @hammer, 1, @pipeWrench, 1;
-EXEC #CreateOrder @novalee, '2020-08-07', 15.95, @hammer, 1, @woodGlue, 1, @workLight, 1, @chisel, 1;
-EXEC #CreateOrder @queenie, '2020-09-17', 7.95, @hammer, 1;
-EXEC #CreateOrder @roy, '2020-09-22', 7.95, @hammer, 1;
-EXEC #CreateOrder @steve, '2020-10-05', 8.95, @hammer, 1, @chisel, 1;
-EXEC #CreateOrder @tariq, '2020-10-21', 7.95, @hammer, 1;
-EXEC #CreateOrder @tariq, '2020-10-26', 19.95, @hammer, 1, @wireBrush, 2, @woodGlue, 1, @workLight, 1, @chisel, 1;
-EXEC #CreateOrder @ursula, '2020-11-27', 12.95, @hammer, 1, @pipeWrench, 1, @screwdriver, 1;
-EXEC #CreateOrder @vanessa, '2020-11-30', 15.95, @hammer, 1, @circularSaw, 1, @pipeWrench, 1;
-EXEC #CreateOrder @willem, '2020-12-10', 12.95, @hammer, 1, @screwdriver, 1, @woodGlue, 1;
-EXEC #CreateOrder @yvette, '2020-07-03', 7.95, @hammer, 1;
-EXEC #CreateOrder @yvette, '2020-07-09', 8.95, @hammer, 1, @woodGlue, 1;
-EXEC #CreateOrder @zeus, '2020-07-15', 31.95, @hammer, 1, @pipeWrench, 1, @screwdriver, 1, @woodGlue, 1, @workLight, 1, @chisel, 3;
+EXEC #CreateOrder @amber, '2020-01-01T12:30:15Z', 7.95, @hammer, 1;
+EXEC #CreateOrder @bill, '2020-01-29T07:58:13-06:00', 12.95, @hammer, 1, @pliers, 1;
+EXEC #CreateOrder @bill, '2020-02-06T14:12:12-06:00', 11.95, @hammer, 3, @drill, 3;
+EXEC #CreateOrder @bill, '2020-02-11T09:30:00-05:00', 15.95, @hammer, 1, @handSaw, 1, @circularSaw, 1;
+EXEC #CreateOrder @bill, '2020-02-14T10:10:15+00:00', 14.95, @hammer, 1, @pipeWrench, 3, @screwdriver, 3;
+EXEC #CreateOrder @bill, '2020-02-17T11:11:58+03:30', 12.95, @hammer, 1, @wireBrush, 1;
+EXEC #CreateOrder @bill, '2020-03-12T12:12:00Z', 14.95, @hammer, 1, @chisel, 4, @workLight, 1;
+EXEC #CreateOrder @Chris, '2020-03-25T13:13:15-04:00', 13.95, @hammer, 1, @woodGlue, 3, @handSaw, 1;
+EXEC #CreateOrder @Chris, '2020-04-23T14:14:35-05:00', 152.95, @hammer, 3, @pliers, 3, @drill, 4, @handSaw, 2, @circularSaw, 5, @pipeWrench, 2, @screwdriver, 15, @wireBrush, 6, @chisel, 2, @workLight, 4;
+EXEC #CreateOrder @Chris, '2020-05-04T15:15:00+02:00', 8.95, @hammer, 1, @chisel, 2;
+EXEC #CreateOrder @donada, '2020-05-12T16:16:20Z', 11.95, @hammer, 1, @workLight, 1;
+EXEC #CreateOrder @donada, '2020-05-19T17:17:17+04:00', 23.95, @hammer, 1, @woodGlue, 50;
+EXEC #CreateOrder @erik, '2020-06-03T18:18:18-02:00', 14.95, @hammer, 1, @pliers, 4, @drill, 1;
+EXEC #CreateOrder @erik, '2020-06-04T19:19:19Z', 15.95, @hammer, 1, @handSaw, 1, @workLight, 1;
+EXEC #CreateOrder @erik, '2020-06-12T20:20:20Z', 14.95, @hammer, 1, @circularSaw, 1, @pipeWrench, 1;
+EXEC #CreateOrder @francesca, '2020-07-06T21:21:21-04:00', 7.95, @hammer, 1;
+EXEC #CreateOrder @francesca, '2020-07-13T22:22:22-06:00', 13.95, @hammer, 1, @circularSaw, 1, @wireBrush, 2, @workLight, 1;
+EXEC #CreateOrder @georgey, '2020-07-24T23:23:23-05:00', 10.95, @hammer, 1, @screwdriver, 1, @workLight, 1;
+EXEC #CreateOrder @helena, '2020-08-17T20:15:02-05:00', 21.95, @hammer, 1, @pipeWrench, 1, @screwdriver, 1;
+EXEC #CreateOrder @helena, '2020-09-10T19:00:00Z', 9.95, @hammer, 1, @screwdriver, 1, @chisel, 1;
+EXEC #CreateOrder @helena, '2020-09-16T19:15:02Z', 7.95, @hammer, 1;
+EXEC #CreateOrder @ivan, '2020-09-25T21:50:24-05:00', 23.95, @hammer, 1, @circularSaw, 1, @wireBrush, 1, @woodGlue, 1, @workLight, 3;
+EXEC #CreateOrder @ivan, '2020-10-05T20:59:14-06:00', 18.95, @hammer, 1, @pipeWrench, 1, @screwdriver, 1;
+EXEC #CreateOrder @ivan, '2020-10-30T08:14:03-04:00', 9.95, @hammer, 1, @screwdriver, 1, @woodGlue, 1;
+EXEC #CreateOrder @ivan, '2020-12-29T17:52:33Z', 11.95, @hammer, 1, @wireBrush, 4, @workLight, 1, @chisel, 1;
+EXEC #CreateOrder @ivan, '2020-04-06T22:04:04+4:00', 7.95, @hammer, 1;
+EXEC #CreateOrder @lynnette, '2020-04-29T06:12:00Z', 15.95, @hammer, 1, @circularSaw, 1, @woodGlue, 1, @chisel, 1;
+EXEC #CreateOrder @lynnette, '2020-05-15T08:40:12-06:00', 13.95, @hammer, 1, @screwdriver, 1, @workLight, 2;
+EXEC #CreateOrder @lynnette, '2020-05-28T09:50:13-07:00', 7.95, @hammer, 1;
+EXEC #CreateOrder @lynnette, '2020-05-29T10:13:16-04:00', 12.95, @hammer, 1, @circularSaw, 1, @workLight, 1;
+EXEC #CreateOrder @lynnette, '2020-06-17T11:43:00+03:00', 8.95, @hammer, 1, @woodGlue, 1, @chisel, 1;
+EXEC #CreateOrder @lynnette, '2020-07-03T12:41:09Z', 7.95, @hammer, 1;
+EXEC #CreateOrder @marco, '2020-07-06T13:52:41+04:00', 8.95, @hammer, 1, @chisel, 1;
+EXEC #CreateOrder @marco, '2020-07-15T13:52:50+04:00', 17.95, @hammer, 1, @circularSaw, 1, @screwdriver, 1, @woodGlue, 1;
+EXEC #CreateOrder @novalee, '2020-08-06T14:22:00Z', 16.95, @hammer, 1, @pipeWrench, 1;
+EXEC #CreateOrder @novalee, '2020-08-07T15:59:03-05:00', 15.95, @hammer, 1, @woodGlue, 1, @workLight, 1, @chisel, 1;
+EXEC #CreateOrder @queenie, '2020-09-17T16:32:21-04:00', 7.95, @hammer, 1;
+EXEC #CreateOrder @roy, '2020-09-22T17:26:23Z', 7.95, @hammer, 1;
+EXEC #CreateOrder @steve, '2020-10-05T18:30:30Z', 8.95, @hammer, 1, @chisel, 1;
+EXEC #CreateOrder @tariq, '2020-10-21T19:21:00-06:00', 7.95, @hammer, 1;
+EXEC #CreateOrder @tariq, '2020-10-26T20:26:00-05:00', 19.95, @hammer, 1, @wireBrush, 2, @woodGlue, 1, @workLight, 1, @chisel, 1;
+EXEC #CreateOrder @ursula, '2020-11-27T21:20:02-04:00', 12.95, @hammer, 1, @pipeWrench, 1, @screwdriver, 1;
+EXEC #CreateOrder @vanessa, '2020-11-30T22:09:00Z', 15.95, @hammer, 1, @circularSaw, 1, @pipeWrench, 1;
+EXEC #CreateOrder @willem, '2020-12-10T23:57:49-05:00', 12.95, @hammer, 1, @screwdriver, 1, @woodGlue, 1;
+EXEC #CreateOrder @yvette, '2020-07-03T16:39:09-06:00', 7.95, @hammer, 1;
+EXEC #CreateOrder @yvette, '2020-07-09T12:00:00Z', 8.95, @hammer, 1, @woodGlue, 1;
+EXEC #CreateOrder @zeus, '2020-07-15T14:29:44Z', 31.95, @hammer, 1, @pipeWrench, 1, @screwdriver, 1, @woodGlue, 1, @workLight, 1, @chisel, 3;
 
 DROP PROCEDURE #CreateOrder;
 
