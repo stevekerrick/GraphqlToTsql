@@ -46,24 +46,62 @@ namespace GraphqlToTsqlTests
         {
             var graphql = @"
 {
-  orders (first: 10, date: ""2020-01-29"") {
-    id date seller { name sellerBadges(first: 1) { badge { name } dateAwarded } }
+  sellerBadges (dateAwarded: ""2020-09-16"") {
+    dateAwarded
+    seller { name }
+    badge { name }
   }
 }".Trim();
             var graphqlParameters = new Dictionary<string, object>();
 
             var expectedObject = new
             {
-                orders = new[]
+                sellerBadges = new[]
                 {
-                    new {
-                        id = 2,
-                        date = "2020-01-29",
-                        seller = new {
-                            name = "Bill",
-                            sellerBadges = new[] {
-                                new { badge = new { name = "Diamond" }, dateAwarded = "2020-04-07" }
-                            }
+                    new
+                    {
+                        dateAwarded = "2020-09-16",
+                        seller = new { name = "Willem" },
+                        badge = new { name = "Bronze" }
+                    }
+                }
+            };
+            await CheckAsync(graphql, graphqlParameters, expectedObject);
+        }
+
+        [Test]
+        public async Task DateTimeOffsetQueryTest()
+        {
+            var graphql = @"
+query ($sellerName: String) {
+  seller (name: $sellerName) {
+    orders (first: 10) {
+      date shipping
+    }
+  }
+}".Trim();
+            var graphqlParameters = new Dictionary<string, object> { { "sellerName", "Helena" } };
+
+            var expectedObject = new
+            {
+                seller = new
+                {
+                    orders = new[]
+                    {
+                        new
+                        {
+                            date = "2020-08-17T20:15:02-05:00",
+                            shipping = 21.95
+                        },
+                        new
+                        {
+                            date = "2020-09-10T19:00:00Z",
+                            shipping = 9.95
+                        },
+                        new
+                        {
+                            date = "2020-09-16T19:15:02Z",
+                            shipping = 7.95
                         }
                     }
                 }
