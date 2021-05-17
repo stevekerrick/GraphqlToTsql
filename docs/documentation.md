@@ -310,7 +310,8 @@ specify a DbTableName -- `GraphqlToTsql` needs it for the SQL
 it generates.
 
 `GraphqlToTsql` uses your `SQL SELECT` as a
-[Common Table Expression](https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql).
+[Common Table Expression](https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql)
+in the `T-SQL` query it constructs.
 
 For example, here is an entity from our [reference application](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/DemoEntities/SellerTotalEntity.cs).
 The `SellerTotalEntity` has calculated order totals for each `Seller`.
@@ -598,9 +599,19 @@ public class OrderDetailEntity : EntityBase
 }
 ```
 
+Notice in the `OrderDetailEntity` above where the `OrderEntity` is mapped
+using a Row Mapping.
+
+```csharp
+Field.Row(OrderEntity.Instance, "order", new Join(
+    ()=>this.GetField("orderId"),
+    ()=>OrderEntity.Instance.GetField("id"))
+),
+```
+
 ### EntityBase entity (Required)
 
-The singleton instance of the *related* entity.
+The singleton instance of the *related* entity. In the example above, `OrderEntity.Instance`.
 
 ### string name (Required)
 
@@ -633,7 +644,7 @@ public Join(Func<Field> parentFieldFunc, Func<Field> childFieldFunc)
 
 You'll notice that `Join` won't work for tables that have a compound primary key.
 If your database has compound keys (or some other complicated relationship),
-you'll need to use the `Calcuated Row` mapping.
+you'll need to use the `Calcuated Row` mapping instead.
 
 ## Mapping to a Related Set
 
@@ -642,12 +653,6 @@ relationship, you will use
 the static method `Field.Set` to configure the relationship.
 
 ```csharp
-/// <summary>
-/// Builds a field for one-to-many set.
-/// </summary>
-/// <param name="entity">Tne entity of the children</param>
-/// <param name="name">The name of the field in the GraphQL</param>
-/// <param name="join">Join criteria between the parent and child entities</param>
 public static Field Set(
     EntityBase entity,
     string name,
@@ -726,20 +731,6 @@ It is similar to `Field.Column()`, except that instead of specifying a database 
 name you provide a SQL template.
 
 ```csharp
-/// <summary>
-/// Builds a field that uses custom SQL. Use this to create a GraphQL field that doesn't map
-/// to any database column.
-/// </summary>
-/// <param name="entity">The entity this field belongs to</param>
-/// <param name="name">The name of the field in the GraphQL</param>
-/// <param name="valueType">Data type of the column. One of: String, Int, Float, Boolean.</param>
-/// <param name="isNullable">Can the custom SQL result in a null value?</param>
-/// <param name="templateFunc">Function that takes the table alias, and returns a SQL SELECT statement.
-/// <example>For example:
-/// <code>(tableAlias) => $"SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName"</code>
-/// </example>
-/// </param>
-/// <param name="visibility">Mark the field as "Hidden" if you don't want to expose it to GraphQL queries</param>
 public static Field CalculatedField(
     EntityBase entity,
     string name,
@@ -847,7 +838,7 @@ query ($orderId: Int) {
 }
 ```
 
-And here is the complete TSQL that `GraphqlToSql` generates for the query.
+And here is the complete T-SQL that `GraphqlToSql` generates for the query.
 
 ```sql
 SELECT
@@ -895,7 +886,7 @@ Field.CalculatedField(this, "formattedDate", ValueType.String, IsNullable.No,
 }
 ```
 
-Here is the TSQL that `GraphqlToTsql` generated, and the resulting data.
+Here is the T-SQL that `GraphqlToTsql` generated, and the resulting data.
 
 ```sql
 SELECT
@@ -919,11 +910,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 }
 ```
 
-
-
-
-
-
 ## Mapping to a Calculated Row
 
 `Calculated Row` mapping is similar to the regular `Row` mapping, but is
@@ -937,12 +923,6 @@ In a `Calculated Row` mapping you write a custom `SQL SELECT` statement to retri
 the child row. You declare the mapping using the `Field.CalculatedRow` static method.
 
 ```csharp
-/// <summary>
-/// Builds a field for a child entity, where custom SQL is used to retrieve the child row.
-/// </summary>
-/// <param name="entity">Tne entity of the child</param>
-/// <param name="name">The name of the field in the GraphQL</param>
-/// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child row</param>
 public static Field CalculatedRow(
     EntityBase entity,
     string name,
