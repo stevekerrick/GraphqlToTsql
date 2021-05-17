@@ -24,12 +24,7 @@ If you haven't yet visited that page, take a minute and skim its topics:
 
 ## Settings
 
-The `GraphqlActions` class is the top-level `GraphqlToTsql` class.
-It has two public methods you can use to process a GraphQL query:
-* `TranslateAndRunQuery`
-* `TranslateToTsql`
-
-Both methods have a required parameter of type
+When calling on `GraphqlToTsql`, there is a required parameter of type
 `GraphqlActionSettings` which has the following properties.
 
 ```csharp
@@ -258,7 +253,6 @@ public override string DbTableName => "Order";
 Note: sometimes you might map an entity
 to a SQL query rather than to a physical table. You are still required
 to define a `DbTableName` (the generated `T-SQL` uses it), but you can choose any name you want.
-See: [Field Mapping]({{ 'documentation?topic=field-mapping' | relative_url }})
 
 ### EntityType (Optional)
 
@@ -307,9 +301,6 @@ See: [Paging]({{ 'documentation?topic=paging' | relative_url }})
 
 ### SqlDefinition (Optional)
 
-You'll probably use `SqlDefinition` only a handful of times. It's used to map
-an entity to a SQL SELECT statement rather than to a table.
-
 Most of the time you'll map an entity to a database table.
 But sometimes you want more flexibility. `GraphqlToTsql` will let
 you map an entity to a `SQL SELECT` statement.
@@ -320,6 +311,51 @@ it generates.
 
 `GraphqlToTsql` uses your `SQL SELECT` as a
 [Common Table Expression](https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql).
+
+For example, here is an entity from our [reference application](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/DemoEntities/SellerTotalEntity.cs).
+The `SellerTotalEntity` has calculated order totals for each `Seller`.
+
+```csharp
+public class SellerTotalEntity : EntityBase
+{
+    public static SellerTotalEntity Instance = new SellerTotalEntity();
+
+    public override string Name => "sellerTotal";
+    public override string DbTableName => "SellerTotal";
+    public override string[] PrimaryKeyFieldNames => new[] { "sellerName" };
+    public override string SqlDefinition => @"
+SELECT
+  s.[Name] AS SellerName
+, COUNT(DISTINCT o.Id) AS TotalOrders
+, SUM(od.Quantity) AS TotalQuantity
+, SUM(od.Quantity * p.Price) AS TotalAmount
+FROM Seller s
+INNER JOIN [Order] o
+  ON s.Name = o.SellerName
+INNER JOIN OrderDetail od
+  ON o.Id = od.OrderId
+INNER JOIN Product p
+  ON od.ProductName = p.[Name]
+GROUP BY s.[Name]
+".Trim();
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No),
+            Field.Column(this, "totalOrders", "TotalOrders", ValueType.Int, IsNullable.No),
+            Field.Column(this, "totalQuantity", "TotalQuantity", ValueType.Int, IsNullable.No),
+            Field.Column(this, "totalAmount", "TotalAmount", ValueType.Float, IsNullable.No),
+
+            Field.Row(SellerEntity.Instance, "seller", new Join(
+                ()=>this.GetField("sellerName"),
+                ()=>SellerEntity.Instance.GetField("name"))
+            )
+        };
+    }
+}
+```
 
 ### MaxPageSize (Optional)
 
