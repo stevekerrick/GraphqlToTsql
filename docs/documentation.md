@@ -1477,7 +1477,7 @@ have a pattern like:
     }
     ```
 
-2. For subsequent requests for pages of data use an `after` argument,
+2. In subsequent requests use an `after` argument,
 with the `cursor` value of the last row in the prior page.
 
     ```graphql
@@ -1499,10 +1499,10 @@ with the `cursor` value of the last row in the prior page.
 Cursors are designed to be *opaque*, meaning that they are encoded in such
 a way that you can't see the raw data they're made from. That's partly because
 it's wise to hide implementation details, and partly because consumers of
-your API shouldn't try to create their own cursors.
+your API shouldn't try to create their own cursor values.
 
-But there's no real magic to `cursors`. Once they're decoded they're info about
-the Primary Key of the row.
+But there's no real magic to `cursors`. Basically they store the value of
+the *Primary Key* for the row.
 
 ## Offset Paging
 
@@ -1512,7 +1512,8 @@ offset-based pagination as well.
 
 One good thing about offset-base pagination is that you don't need
 the extra `Connection / Edges / Node` syntax because you don't need
-to query for `cursors`.
+to query for `cursors`. (Though you can still query for `totalCount` value
+on the `Connection` if you want to.)
 
 Use arguments `first` and `offset` are used for offset-based paging
 
