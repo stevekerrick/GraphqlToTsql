@@ -1233,7 +1233,7 @@ public class SellerEntity : EntityBase
 # Paging
 
 Paging is an important part of a Production-level `GraphQL` API.
-In traditional `GraphQL` implementations, paging can be a bit difficult
+In traditional `GraphQL` implementations paging can be a bit difficult
 to implement. `GraphqlToTsql` makes it easier.
 
 Paging isn't part of the formal `GraphQL` specification, but graphql.org *does*
@@ -1241,8 +1241,8 @@ provide [Best Practices guidance](https://graphql.org/learn/pagination/).
 `GraphqlToTsql` follows their guidance, *except* that `GraphqlToTsql` does not
 include a `pageInfo` object.
 
-There are two competing techniques on how to implement pagination,
-Offset-based pagination and cursor-based pagination. `GraphqlToTsql` supports them both.
+There are two competing techniques for implementing pagination,
+offset-based pagination and cursor-based pagination. `GraphqlToTsql` supports them both.
 
 Cursor-based pagination is rather new, and quite a bit more efficient when
 querying large data sets. It isn't unique to `GraphQL`. Here's a really excellent
@@ -1263,7 +1263,7 @@ a seller's order history, using cursor-based paging.
     ordersConnection (first: 2) {
       totalCount
       edges {
-        cursor
+        cursor # <-- here we're asking for the "cursor" for each Order
         node { # <-- here's where the Order info starts
           id
           date
@@ -1339,7 +1339,7 @@ And here's the query to retrieve subsequent pages.
 ```graphql
 query sellerOrders ($cursor: String) {
   seller (name: "Bill") {
-    ordersConnection (first: 2, after: $cursor) {
+    ordersConnection (first: 2, after: $cursor) { # <-- The "after" argument is the important part
       edges {
         cursor
         node {
