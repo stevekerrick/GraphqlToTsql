@@ -1480,19 +1480,19 @@ have a pattern like:
 2. For subsequent requests for pages of data use an `after` argument,
 with the `cursor` value of the last row in the prior page.
 
-```graphql
-{
-  # ...
-    xxxxConnection (first: 100, after: "xxxxxxx") {
-      edges {
-        cursor
-        node { # ...
+    ```graphql
+    {
+      # ...
+        xxxxConnection (first: 100, after: "xxxxxxx") {
+          edges {
+            cursor
+            node { # ...
+            }
+          }
         }
-      }
+      # ...
     }
-  # ...
-}
-```
+    ```
 
 3. Keep querying until the page comes back with fewer than 100 rows.
 
