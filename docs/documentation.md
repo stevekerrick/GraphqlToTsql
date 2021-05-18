@@ -1512,10 +1512,10 @@ offset-based pagination as well.
 
 One good thing about offset-base pagination is that you don't need
 the extra `Connection / Edges / Node` syntax because you don't need
-to query for `cursors`. (Though you can still query for `totalCount` value
+to query for `cursors`. (Though you can still query for the `totalCount` value
 on the `Connection` if you want to.)
 
-Use arguments `first` and `offset` are used for offset-based paging
+Use arguments `first` and `offset` for offset-based paging
 
 ```graphql
 {
@@ -1530,7 +1530,6 @@ Use arguments `first` and `offset` are used for offset-based paging
     }
   }
 }
-
 ```
 
 ## MaxPageSize
@@ -1539,8 +1538,8 @@ When you are creating an entity, one of the things you can set is `MaxPageSize`.
 You *should* set `MaxPageSize` for any entity that could have more than a few
 hundred rows.
 
-If you set `MaxPageSize` you force the `GraphQL` queries to use paging anytime
-there is a *set* of that entity.
+If you set `MaxPageSize` you force queries to use paging anywhere
+a *set* of that entity is queried.
 
 For example, here you can see `OrderEntity` configured with a `MaxPageSize` of 100.
 
@@ -1586,8 +1585,13 @@ it will be less efficient than cursor-based paging could be.
 Most of the sample `GraphQL` queries in this topic didn't use Variables, but
 that was to keep the sample code as clear as possible.
 
-Any time you are issuing parameterized `GraphQL` queries you should
-do so using Variables.
+Typically when doing paging in `GraphQL` you declare your paging
+values as `Variables` at the beginning of your query, and when you
+submit the `GraphQL` query you send in a dictionary of `Variable values`
+with it.
+
+This keeps your queries tidy, and also keeps you from having to use
+string interpolation to build the `GraphQL` query.
 
 ```graphql
 query sellerOrders ($name: String, $first: Int, $cursor: String) {
