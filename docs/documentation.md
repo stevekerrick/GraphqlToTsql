@@ -1431,14 +1431,14 @@ allows `GraphQL` queries on the plain lists (e.g. `seller.orders`) and also
 queries on those same lists with metadata (e.g. `seller.ordersConnection`).
 Just add the word `Connection` to the end of a list's field name.
 
-A `Connection` entity contains the *list* plus some metadata. In `GraphqlToTsql` a `Connection`
-contains two fields:
+A `Connection` entity contains the *list* plus some metadata about the *list*.
+In `GraphqlToTsql` a `Connection` contains two fields:
 * `totalCount` - the count of items in the complete list. Even if you've requested
 just one page of the list's data, the `totalCount` will be the count for the full list.
 * `edges` - the list (or a page of data from the list)
 
-An `Edges` entity contains the *list of items* (or one page of items from the full list)
-plus some metadata about *each item*. In `GraphqlToTsql` an `Edge` item contains two fields:
+The `edges` property is an array. Each item of the array contains *one of the items you're querying for*,
+plus some metadata about *that item*. In `GraphqlToTsql` an `Edge` item contains two fields:
 * `cursor` - an opaque identifier for the row. Think of it like a bookmark.
 * `node` - the item. Even though it has the name `node`, this is exactly the same item
 you can query on if you're querying plain lists instead of a `Connection`.
