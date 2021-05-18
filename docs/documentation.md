@@ -1451,8 +1451,7 @@ pattern, and it will help you understand the rest of the details.
 You can include `totalCount` in the query to see the total number of rows
 in a dataset.
 
-Keep performance in mind. `totalCount` is not free. So don't ask for `totalCount`
-unless your app needs it. And if you're doing a paged query only ask for
+Keep performance in mind. `totalCount` is not free. If you're doing a paged query only ask for
 `totalCount` on the first page.
 
 ## cursor
@@ -1464,19 +1463,19 @@ row identifier. It's used like this.
 For example, if you're paging through a data set 100 rows at a time your query would
 have a pattern like:
 
-```graphql
-{
-  # ...
-    xxxxConnection (first: 100) {
-      edges {
-        cursor
-        node { # ...
+    ```graphql
+    {
+      # ...
+        xxxxConnection (first: 100) {
+          edges {
+            cursor
+            node { # ...
+            }
+          }
         }
-      }
+      # ...
     }
-  # ...
-}
-```
+    ```
 
 2. For subsequent requests for pages of data use an `after` argument,
 with the `cursor` value of the last row in the prior page.
