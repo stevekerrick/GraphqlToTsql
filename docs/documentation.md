@@ -1046,12 +1046,6 @@ In a `Calculated Set` mapping you write a custom `SQL SELECT` statement to retri
 a set of child rows. You declare the mapping using the `Field.CalculatedSet` static method.
 
 ```csharp
-/// <summary>
-/// Builds a field for a one-to-many set, where custom SQL is used to retrieve the child set.
-/// </summary>
-/// <param name="entity">Tne entity of the child</param>
-/// <param name="name">The name of the field in the GraphQL</param>
-/// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child set</param>
 public static Field CalculatedSet(
     EntityBase entity,
     string name,
@@ -1076,7 +1070,7 @@ The function has a single argument, representing the table alias
 
 ### Calculated Set example 1: Product.sellers
 
-Let's map a field on `ProductEntity` to find all the sellers that have ever sold the
+Let's map a field on `ProductEntity` to show all the sellers that have ever sold the
 product. Here is a trimmed-down mapping for the
 `ProductEntity`. The `CalculatedSet` mapping for `sellers` appears at the bottom.
 
@@ -1168,13 +1162,19 @@ it results in this JSON.
 
 ### Calculated Set example 2: Seller.descendants
 
-`Field.CalculatedSet` can be used to map a database Table-Valued Function (TVF).
+The SQL you use in your `Field.CalculatedSet` can make use of any of the
+database's tables, views, and functions (limited by the permissions of the user
+in the connection string, of course.) A common and powerful technique is to
+make use of a Table-Valued Function (TVF) that encapsulates complicated
+parts of the query. In this example, we use a TVF that contains a
+[recursive CTE](https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver15#guidelines-for-defining-and-using-recursive-common-table-expressions). 
 
 In the reference database there is a `Seller` table
 * Keyed by `Name`
 * With a `DistributorName` column that self-references the `Seller` table
 
 The database has a TVF to find all the descendants for a distributor.
+(This has been predefined in the database.)
 
 ```sql
 CREATE FUNCTION tvf_AllDescendants (
@@ -1236,13 +1236,17 @@ Paging is an important part of a Production-level `GraphQL` API.
 In traditional `GraphQL` implementations, paging can be a bit difficult
 to implement. `GraphqlToTsql` makes it easier.
 
-Paging isn't part of the formal `GraphQL` specification, but graphql.org does
+Paging isn't part of the formal `GraphQL` specification, but graphql.org *does*
 provide [Best Practices guidance](https://graphql.org/learn/pagination/).
 `GraphqlToTsql` follows their guidance, *except* that `GraphqlToTsql` does not
 include a `pageInfo` object.
 
-Cursor-based pagination isn't unique to `GraphQL`. Here's a really excellent
-article from your friends at *Slack* about how they're using it:
+There are two competing techniques on how to implement pagination,
+Offset-based pagination and cursor-based pagination. `GraphqlToTsql` supports them both.
+
+Cursor-based pagination is rather new, and quite a bit more efficient when
+querying large data sets. It isn't unique to `GraphQL`. Here's a really excellent
+article from our friends at *Slack* about how they're using it:
 [Evolving API Pagination at Slack](https://slack.engineering/evolving-api-pagination-at-slack).
 
 ## Sneak Peek
