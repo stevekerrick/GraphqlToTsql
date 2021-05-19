@@ -630,11 +630,6 @@ The *parent entity* is the entity you're currently mapping *from*. The *child en
 entity the `Field.Row` is mapping *to*.
 
 ```csharp
-/// <summary>
-/// Specifies the fields to join a parent entity to a child entity
-/// </summary>
-/// <param name="parentFieldFunc">Func that returns the Field instance for the Parent in the join</param>
-/// <param name="childFieldFunc">Func that returns the Field instance for the Child in the join</param>
 public Join(Func<Field> parentFieldFunc, Func<Field> childFieldFunc)
 {
     ParentFieldFunc = parentFieldFunc;
