@@ -1,6 +1,6 @@
 ---
 layout: topicsPage
-title: GraphQL to T-SQL!
+title: Welcome!
 ---
 
 <div markdown="1">
@@ -90,56 +90,87 @@ SELECT
 FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 ```
 
+</div>
 
+<div markdown="1">
 
+# Hmm, is it easy?
 
-
-
-
-
-
-## An easier way to do GraphQL!
-
-`GraphqlToTsql` 
-
-
+GraphQL can be hard. GraphqlToTsql makes it a little easier.
 * NO servers to install
 * NO resolvers to write
 * NO new technologies to add to your stack
 
-`GraphqlToTsql` is a .NET component that helps you build a `GraphQL` API endpoint.
+GraphqlToTsql is a `NuGet` package, not a system or a service.
+* *You* supply the API endpoint to receive GraphQL queries
+* *You* supply a connection string to your SQL Server or Azure SQL database
+* *You* write entity mappings
+* *GraphqlToTsql* will to translate the GraphQL into a comprehensive T-SQL query
+and send it to your database. You get back a JSON string.
 
-`GraphqlToTsql` turns `GraphQL` queries into efficient SQL.
+## Sounds easy, what's the catch?
 
-`GraphqlToTsql` is a `NuGet` package, not a system or a service. *You* supply
-the API endpoint, *you* apply your own authentication.
+Actually there are *two* catches...
 
-OR... Use `GraphqlToTsql` as a Micro ORM for your own data layer.
+1. GraphqlToTsql only works with specific technologies
+    * .NET (GraphqlToSql targets .NET Standard 2.0)
+    * SQL Server / Azure SQL. The T-SQL that is generated is specific to Microsoft databases
+    * At this time, only the *query* portion of the GraphQL spec is supported. *Mutations* are not
+supported
 
-## How does it work?
-
-`GraphqlToTsql` translates a `GraphQL` query into a single
-`T-SQL SELECT` query, and executes the query on your `SQL Server` or
-`SQL Azure` database.
-
-You write Entity Mappers, so you are in control of which data is
-exposed and how things are named.
-
+2. You have to write entity mappings. They're not that hard to write, and
+they're powerful. You can choose what parts of your database should be
+available for GraphQL queries and how things are named.
 Your Entity Mappers can include custom join criteria, virtual tables,
 and computed values.
 
-## Will GraphqlToTsql fit your needs?
+To give you the idea, here's a sample entity mapping.
 
-* `GraphqlToTsql` is a .NET component
-* `GraphqlToTsql` creates `T-SQL` commands, so your database must be `SQL Server` or `SQL Azure`
-* `GraphqlToTsql` only supports the `query` portion of `GraphQL`. `Mutations` are not
-supported
+```csharp
+public class OrderEntity : EntityBase
+{
+    public static OrderEntity Instance = new OrderEntity();
 
-## License
+    public override string Name => "order";
+    public override string DbTableName => "Order";
+    public override string[] PrimaryKeyFieldNames => new[] { "id" };
+    public override long? MaxPageSize => 1000L;
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "id", "Id", ValueType.Int, IsNullable.No),
+            Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No, Visibility.Hidden),
+            Field.Column(this, "date", "Date", ValueType.String, IsNullable.No),
+            Field.Column(this, "shipping", "Shipping", ValueType.Float, IsNullable.No),
+
+            Field.Row(SellerEntity.Instance, "seller", new Join(
+                ()=>this.GetField("sellerName"),
+                ()=>SellerEntity.Instance.GetField("name"))
+            ),
+
+            Field.Set(OrderDetailEntity.Instance, "orderDetails", IsNullable.No, new Join(
+                ()=>this.GetField("id"),
+                ()=>OrderDetailEntity.Instance.GetField("orderId"))
+            )
+        };
+    }
+}
+```
+
+</div>
+
+<div markdown="1">
+
+# Foo
+
+</div>
+
+<div markdown="1">
+
+# License
 
 `GraphqlToTsql` is licensed under the [MIT License](https://opensource.org/licenses/MIT)
-
-
-
 
 </div>
