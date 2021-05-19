@@ -96,17 +96,17 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
 # Hmm, is it easy?
 
-GraphQL can be hard. GraphqlToTsql makes it a little easier.
+We all know GraphQL can be hard. GraphqlToTsql makes it a little easier.
 * NO servers to install
 * NO resolvers to write
 * NO new technologies to add to your stack
 
-GraphqlToTsql is a `NuGet` package, not a system or a service.
+GraphqlToTsql is a *NuGet* package, not a system or a service.
 * *You* supply the API endpoint to receive GraphQL queries
 * *You* supply a connection string to your SQL Server or Azure SQL database
 * *You* write entity mappings
 * *GraphqlToTsql* will to translate the GraphQL into a comprehensive T-SQL query
-and send it to your database. You get back a JSON string.
+and send it to your database. You get back the data as a JSON string.
 
 ## Sounds easy, what's the catch?
 
@@ -114,9 +114,9 @@ Actually there are *two* catches...
 
 1. GraphqlToTsql only works with specific technologies
     * .NET (GraphqlToSql targets .NET Standard 2.0)
-    * SQL Server / Azure SQL. The T-SQL that is generated is specific to Microsoft databases
+    * SQL Server / Azure SQL. The T-SQL that is generated is specific to Microsoft databases.
     * At this time, only the *query* portion of the GraphQL spec is supported. *Mutations* are not
-supported
+supported.
 
 2. You have to write entity mappings. They're not that hard to write, and
 they're powerful. You can choose what parts of your database should be
@@ -163,14 +163,8 @@ public class OrderEntity : EntityBase
 
 <div markdown="1">
 
-# Foo
-
-</div>
-
-<div markdown="1">
-
 # License
 
-`GraphqlToTsql` is licensed under the [MIT License](https://opensource.org/licenses/MIT)
+GraphqlToTsql is licensed under the [MIT License](https://opensource.org/licenses/MIT)
 
 </div>
