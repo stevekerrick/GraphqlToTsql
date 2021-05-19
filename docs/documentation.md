@@ -24,12 +24,7 @@ If you haven't yet visited that page, take a minute and skim its topics:
 
 ## Settings
 
-The `GraphqlActions` class is the top-level `GraphqlToTsql` class.
-It has two public methods you can use to process a GraphQL query:
-* `TranslateAndRunQuery`
-* `TranslateToTsql`
-
-Both methods have a required parameter of type
+When calling on `GraphqlToTsql`, there is a required parameter of type
 `GraphqlActionSettings` which has the following properties.
 
 ```csharp
@@ -258,7 +253,6 @@ public override string DbTableName => "Order";
 Note: sometimes you might map an entity
 to a SQL query rather than to a physical table. You are still required
 to define a `DbTableName` (the generated `T-SQL` uses it), but you can choose any name you want.
-See: [Field Mapping]({{ 'documentation?topic=field-mapping' | relative_url }})
 
 ### EntityType (Optional)
 
@@ -307,9 +301,6 @@ See: [Paging]({{ 'documentation?topic=paging' | relative_url }})
 
 ### SqlDefinition (Optional)
 
-You'll probably use `SqlDefinition` only a handful of times. It's used to map
-an entity to a SQL SELECT statement rather than to a table.
-
 Most of the time you'll map an entity to a database table.
 But sometimes you want more flexibility. `GraphqlToTsql` will let
 you map an entity to a `SQL SELECT` statement.
@@ -319,7 +310,53 @@ specify a DbTableName -- `GraphqlToTsql` needs it for the SQL
 it generates.
 
 `GraphqlToTsql` uses your `SQL SELECT` as a
-[Common Table Expression](https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql).
+[Common Table Expression](https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql)
+in the `T-SQL` query it constructs.
+
+For example, here is an entity from our [reference application](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/DemoEntities/SellerTotalEntity.cs).
+The `SellerTotalEntity` has calculated order totals for each `Seller`.
+
+```csharp
+public class SellerTotalEntity : EntityBase
+{
+    public static SellerTotalEntity Instance = new SellerTotalEntity();
+
+    public override string Name => "sellerTotal";
+    public override string DbTableName => "SellerTotal";
+    public override string[] PrimaryKeyFieldNames => new[] { "sellerName" };
+    public override string SqlDefinition => @"
+SELECT
+  s.[Name] AS SellerName
+, COUNT(DISTINCT o.Id) AS TotalOrders
+, SUM(od.Quantity) AS TotalQuantity
+, SUM(od.Quantity * p.Price) AS TotalAmount
+FROM Seller s
+INNER JOIN [Order] o
+  ON s.Name = o.SellerName
+INNER JOIN OrderDetail od
+  ON o.Id = od.OrderId
+INNER JOIN Product p
+  ON od.ProductName = p.[Name]
+GROUP BY s.[Name]
+".Trim();
+
+    protected override List<Field> BuildFieldList()
+    {
+        return new List<Field>
+        {
+            Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No),
+            Field.Column(this, "totalOrders", "TotalOrders", ValueType.Int, IsNullable.No),
+            Field.Column(this, "totalQuantity", "TotalQuantity", ValueType.Int, IsNullable.No),
+            Field.Column(this, "totalAmount", "TotalAmount", ValueType.Float, IsNullable.No),
+
+            Field.Row(SellerEntity.Instance, "seller", new Join(
+                ()=>this.GetField("sellerName"),
+                ()=>SellerEntity.Instance.GetField("name"))
+            )
+        };
+    }
+}
+```
 
 ### MaxPageSize (Optional)
 
@@ -562,9 +599,19 @@ public class OrderDetailEntity : EntityBase
 }
 ```
 
+Notice in the `OrderDetailEntity` above where the `OrderEntity` is mapped
+using a Row Mapping.
+
+```csharp
+Field.Row(OrderEntity.Instance, "order", new Join(
+    ()=>this.GetField("orderId"),
+    ()=>OrderEntity.Instance.GetField("id"))
+),
+```
+
 ### EntityBase entity (Required)
 
-The singleton instance of the *related* entity.
+The singleton instance of the *related* entity. In the example above, `OrderEntity.Instance`.
 
 ### string name (Required)
 
@@ -583,11 +630,6 @@ The *parent entity* is the entity you're currently mapping *from*. The *child en
 entity the `Field.Row` is mapping *to*.
 
 ```csharp
-/// <summary>
-/// Specifies the fields to join a parent entity to a child entity
-/// </summary>
-/// <param name="parentFieldFunc">Func that returns the Field instance for the Parent in the join</param>
-/// <param name="childFieldFunc">Func that returns the Field instance for the Child in the join</param>
 public Join(Func<Field> parentFieldFunc, Func<Field> childFieldFunc)
 {
     ParentFieldFunc = parentFieldFunc;
@@ -597,7 +639,7 @@ public Join(Func<Field> parentFieldFunc, Func<Field> childFieldFunc)
 
 You'll notice that `Join` won't work for tables that have a compound primary key.
 If your database has compound keys (or some other complicated relationship),
-you'll need to use the `Calcuated Row` mapping.
+you'll need to use the `Calcuated Row` mapping instead.
 
 ## Mapping to a Related Set
 
@@ -606,12 +648,6 @@ relationship, you will use
 the static method `Field.Set` to configure the relationship.
 
 ```csharp
-/// <summary>
-/// Builds a field for one-to-many set.
-/// </summary>
-/// <param name="entity">Tne entity of the children</param>
-/// <param name="name">The name of the field in the GraphQL</param>
-/// <param name="join">Join criteria between the parent and child entities</param>
 public static Field Set(
     EntityBase entity,
     string name,
@@ -690,20 +726,6 @@ It is similar to `Field.Column()`, except that instead of specifying a database 
 name you provide a SQL template.
 
 ```csharp
-/// <summary>
-/// Builds a field that uses custom SQL. Use this to create a GraphQL field that doesn't map
-/// to any database column.
-/// </summary>
-/// <param name="entity">The entity this field belongs to</param>
-/// <param name="name">The name of the field in the GraphQL</param>
-/// <param name="valueType">Data type of the column. One of: String, Int, Float, Boolean.</param>
-/// <param name="isNullable">Can the custom SQL result in a null value?</param>
-/// <param name="templateFunc">Function that takes the table alias, and returns a SQL SELECT statement.
-/// <example>For example:
-/// <code>(tableAlias) => $"SELECT SUM(od.Quantity) FROM OrderDetail od WHERE {tableAlias}.[Name] = od.ProductName"</code>
-/// </example>
-/// </param>
-/// <param name="visibility">Mark the field as "Hidden" if you don't want to expose it to GraphQL queries</param>
 public static Field CalculatedField(
     EntityBase entity,
     string name,
@@ -811,7 +833,7 @@ query ($orderId: Int) {
 }
 ```
 
-And here is the complete TSQL that `GraphqlToSql` generates for the query.
+And here is the complete T-SQL that `GraphqlToSql` generates for the query.
 
 ```sql
 SELECT
@@ -859,7 +881,7 @@ Field.CalculatedField(this, "formattedDate", ValueType.String, IsNullable.No,
 }
 ```
 
-Here is the TSQL that `GraphqlToTsql` generated, and the resulting data.
+Here is the T-SQL that `GraphqlToTsql` generated, and the resulting data.
 
 ```sql
 SELECT
@@ -883,11 +905,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 }
 ```
 
-
-
-
-
-
 ## Mapping to a Calculated Row
 
 `Calculated Row` mapping is similar to the regular `Row` mapping, but is
@@ -901,12 +918,6 @@ In a `Calculated Row` mapping you write a custom `SQL SELECT` statement to retri
 the child row. You declare the mapping using the `Field.CalculatedRow` static method.
 
 ```csharp
-/// <summary>
-/// Builds a field for a child entity, where custom SQL is used to retrieve the child row.
-/// </summary>
-/// <param name="entity">Tne entity of the child</param>
-/// <param name="name">The name of the field in the GraphQL</param>
-/// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child row</param>
 public static Field CalculatedRow(
     EntityBase entity,
     string name,
@@ -1030,12 +1041,6 @@ In a `Calculated Set` mapping you write a custom `SQL SELECT` statement to retri
 a set of child rows. You declare the mapping using the `Field.CalculatedSet` static method.
 
 ```csharp
-/// <summary>
-/// Builds a field for a one-to-many set, where custom SQL is used to retrieve the child set.
-/// </summary>
-/// <param name="entity">Tne entity of the child</param>
-/// <param name="name">The name of the field in the GraphQL</param>
-/// <param name="templateFunc">Function that takes the parent table alias, and returns a SQL SELECT statement to retrieve the child set</param>
 public static Field CalculatedSet(
     EntityBase entity,
     string name,
@@ -1060,7 +1065,7 @@ The function has a single argument, representing the table alias
 
 ### Calculated Set example 1: Product.sellers
 
-Let's map a field on `ProductEntity` to find all the sellers that have ever sold the
+Let's map a field on `ProductEntity` to show all the sellers that have ever sold the
 product. Here is a trimmed-down mapping for the
 `ProductEntity`. The `CalculatedSet` mapping for `sellers` appears at the bottom.
 
@@ -1152,13 +1157,19 @@ it results in this JSON.
 
 ### Calculated Set example 2: Seller.descendants
 
-`Field.CalculatedSet` can be used to map a database Table-Valued Function (TVF).
+The SQL you use in your `Field.CalculatedSet` can make use of any of the
+database's tables, views, and functions (limited by the permissions of the user
+in the connection string, of course.) A common and powerful technique is to
+make use of a Table-Valued Function (TVF) that encapsulates complicated
+parts of the query. In this example, we use a TVF that contains a
+[recursive CTE](https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver15#guidelines-for-defining-and-using-recursive-common-table-expressions). 
 
 In the reference database there is a `Seller` table
 * Keyed by `Name`
 * With a `DistributorName` column that self-references the `Seller` table
 
 The database has a TVF to find all the descendants for a distributor.
+(This has been predefined in the database.)
 
 ```sql
 CREATE FUNCTION tvf_AllDescendants (
@@ -1217,16 +1228,20 @@ public class SellerEntity : EntityBase
 # Paging
 
 Paging is an important part of a Production-level `GraphQL` API.
-In traditional `GraphQL` implementations, paging can be a bit difficult
+In traditional `GraphQL` implementations paging can be a bit difficult
 to implement. `GraphqlToTsql` makes it easier.
 
-Paging isn't part of the formal `GraphQL` specification, but graphql.org does
+Paging isn't part of the formal `GraphQL` specification, but graphql.org *does*
 provide [Best Practices guidance](https://graphql.org/learn/pagination/).
 `GraphqlToTsql` follows their guidance, *except* that `GraphqlToTsql` does not
 include a `pageInfo` object.
 
-Cursor-based pagination isn't unique to `GraphQL`. Here's a really excellent
-article from your friends at *Slack* about how they're using it:
+There are two competing techniques for implementing pagination,
+offset-based pagination and cursor-based pagination. `GraphqlToTsql` supports them both.
+
+Cursor-based pagination is rather new, and quite a bit more efficient when
+querying large data sets. It isn't unique to `GraphQL`. Here's a really excellent
+article from our friends at *Slack* about how they're using it:
 [Evolving API Pagination at Slack](https://slack.engineering/evolving-api-pagination-at-slack).
 
 ## Sneak Peek
@@ -1243,7 +1258,7 @@ a seller's order history, using cursor-based paging.
     ordersConnection (first: 2) {
       totalCount
       edges {
-        cursor
+        cursor # <-- here we're asking for the "cursor" for each Order
         node { # <-- here's where the Order info starts
           id
           date
@@ -1319,7 +1334,7 @@ And here's the query to retrieve subsequent pages.
 ```graphql
 query sellerOrders ($cursor: String) {
   seller (name: "Bill") {
-    ordersConnection (first: 2, after: $cursor) {
+    ordersConnection (first: 2, after: $cursor) { # <-- The "after" argument is the important part
       edges {
         cursor
         node {
@@ -1411,14 +1426,14 @@ allows `GraphQL` queries on the plain lists (e.g. `seller.orders`) and also
 queries on those same lists with metadata (e.g. `seller.ordersConnection`).
 Just add the word `Connection` to the end of a list's field name.
 
-A `Connection` entity contains the *list* plus some metadata. In `GraphqlToTsql` a `Connection`
-contains two fields:
+A `Connection` entity contains the *list* plus some metadata about the *list*.
+In `GraphqlToTsql` a `Connection` contains two fields:
 * `totalCount` - the count of items in the complete list. Even if you've requested
 just one page of the list's data, the `totalCount` will be the count for the full list.
 * `edges` - the list (or a page of data from the list)
 
-An `Edges` entity contains the *list of items* (or one page of items from the full list)
-plus some metadata about *each item*. In `GraphqlToTsql` an `Edge` item contains two fields:
+The `edges` property is an array. Each item of the array contains *one of the items you're querying for*,
+plus some metadata about *that item*. In `GraphqlToTsql` an `Edge` item contains two fields:
 * `cursor` - an opaque identifier for the row. Think of it like a bookmark.
 * `node` - the item. Even though it has the name `node`, this is exactly the same item
 you can query on if you're querying plain lists instead of a `Connection`.
@@ -1431,8 +1446,7 @@ pattern, and it will help you understand the rest of the details.
 You can include `totalCount` in the query to see the total number of rows
 in a dataset.
 
-Keep performance in mind. `totalCount` is not free. So don't ask for `totalCount`
-unless your app needs it. And if you're doing a paged query only ask for
+Keep performance in mind. `totalCount` is not free. If you're doing a paged query only ask for
 `totalCount` on the first page.
 
 ## cursor
@@ -1444,46 +1458,46 @@ row identifier. It's used like this.
 For example, if you're paging through a data set 100 rows at a time your query would
 have a pattern like:
 
-```graphql
-{
-  # ...
-    xxxxConnection (first: 100) {
-      edges {
-        cursor
-        node { # ...
+    ```graphql
+    {
+      # ...
+        xxxxConnection (first: 100) {
+          edges {
+            cursor
+            node { # ...
+            }
+          }
         }
-      }
+      # ...
     }
-  # ...
-}
-```
+    ```
 
-2. For subsequent requests for pages of data use an `after` argument,
+2. In subsequent requests use an `after` argument,
 with the `cursor` value of the last row in the prior page.
 
-```graphql
-{
-  # ...
-    xxxxConnection (first: 100, after: "xxxxxxx") {
-      edges {
-        cursor
-        node { # ...
+    ```graphql
+    {
+      # ...
+        xxxxConnection (first: 100, after: "xxxxxxx") {
+          edges {
+            cursor
+            node { # ...
+            }
+          }
         }
-      }
+      # ...
     }
-  # ...
-}
-```
+    ```
 
 3. Keep querying until the page comes back with fewer than 100 rows.
 
 Cursors are designed to be *opaque*, meaning that they are encoded in such
 a way that you can't see the raw data they're made from. That's partly because
 it's wise to hide implementation details, and partly because consumers of
-your API shouldn't try to create their own cursors.
+your API shouldn't try to create their own cursor values.
 
-But there's no real magic to `cursors`. Once they're decoded they're info about
-the Primary Key of the row.
+But there's no real magic to `cursors`. Basically they store the value of
+the *Primary Key* for the row.
 
 ## Offset Paging
 
@@ -1493,9 +1507,10 @@ offset-based pagination as well.
 
 One good thing about offset-base pagination is that you don't need
 the extra `Connection / Edges / Node` syntax because you don't need
-to query for `cursors`.
+to query for `cursors`. (Though you can still query for the `totalCount` value
+on the `Connection` if you want to.)
 
-Use arguments `first` and `offset` are used for offset-based paging
+Use arguments `first` and `offset` for offset-based paging
 
 ```graphql
 {
@@ -1510,7 +1525,6 @@ Use arguments `first` and `offset` are used for offset-based paging
     }
   }
 }
-
 ```
 
 ## MaxPageSize
@@ -1519,8 +1533,8 @@ When you are creating an entity, one of the things you can set is `MaxPageSize`.
 You *should* set `MaxPageSize` for any entity that could have more than a few
 hundred rows.
 
-If you set `MaxPageSize` you force the `GraphQL` queries to use paging anytime
-there is a *set* of that entity.
+If you set `MaxPageSize` you force queries to use paging anywhere
+a *set* of that entity is queried.
 
 For example, here you can see `OrderEntity` configured with a `MaxPageSize` of 100.
 
@@ -1566,8 +1580,13 @@ it will be less efficient than cursor-based paging could be.
 Most of the sample `GraphQL` queries in this topic didn't use Variables, but
 that was to keep the sample code as clear as possible.
 
-Any time you are issuing parameterized `GraphQL` queries you should
-do so using Variables.
+Typically when doing paging in `GraphQL` you declare your paging
+values as `Variables` at the beginning of your query, and when you
+submit the `GraphQL` query you send in a dictionary of `Variable values`
+with it.
+
+This keeps your queries tidy, and also keeps you from having to use
+string interpolation to build the `GraphQL` query.
 
 ```graphql
 query sellerOrders ($name: String, $first: Int, $cursor: String) {
