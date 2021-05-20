@@ -7,20 +7,12 @@
     overflow-y: scroll;
   }
 
-  body.hasIframe {
-    overflow-y: hidden;
-  }
-
   section.hidden {
     display: none;
   }
 
   .my-main-content {
     padding: 0 2rem;
-  }
-
-  .hasIframe .my-main-content {
-    padding-right: 0;
   }
 
   .topic-container {
@@ -131,32 +123,6 @@
     clear: right;
   }
 
-  .iframeWrapper {
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-  }
-
-  iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-  }
-
-  @media screen and (min-width: 64em) {
-    .iframeWrapper {
-      height: calc(100vh - 7.125rem);
-    }
-  }
-
-  @media screen and (max-width: 64em) {
-    .iframeWrapper {
-      height: calc(100vh - 5.64rem);
-    }
-  }
 </style>
 
 <body>
@@ -224,18 +190,11 @@
 
     // Use a closure to create a topic "click" handler
     var selectedTopic;
-    function makeClick($h1Parent, $topic, iframeUrl) {
+    function makeClick($h1Parent, $topic) {
       return () => {
         if (selectedTopic) {
           selectedTopic.$h1Parent.hide();
           selectedTopic.$topic.removeClass("selected");
-        }
-
-        // Adjust the CSS for topic content that's an iframe
-        if (iframeUrl) {
-          $("body").addClass("hasIframe");
-        } else {
-          $("body").removeClass("hasIframe");
         }
 
         $h1Parent.show();
@@ -261,16 +220,8 @@
       var $h1Parent = $h1.parent();
       $h1Parent.hide();
 
-      // Parse the H1 text. Iframes are formatted like text|url
       var topicText = $h1.text();
       var topicId = $h1.attr("id");
-      var iframeUrl = null;
-      var pipe = topicText.indexOf('|');
-      if (pipe > 0) {
-        iframeUrl = topicText.substring(pipe + 1);
-        topicText = topicText.substring(0, pipe);
-        topicId = topicId.substring(0, pipe);
-      }
 
       // Build topic element for the left-side menu
       var $topic = $("<div></div>", {
@@ -279,44 +230,27 @@
       $(".topic-links").append($topic);
 
       // Make it clickable
-      var click = makeClick($h1Parent, $topic, iframeUrl);
+      var click = makeClick($h1Parent, $topic);
       $topic.click(click);
 
       // In the content, add a footer with arrows Back and Next
-      // (Don't do this for iframe topics)
-      if (!iframeUrl) {
-        var $topicFooter = $("<div></div>", {
-          class: "topic-footer"
-        });
-        $h1Parent.append($topicFooter);
-        if ($priorTopic) {
-          var back = $(`<button class="back">&larr; ${$priorTopic.text()}</button>`)
-            .click($priorClick)
-            .appendTo($topicFooter);
-        }
-        if ($priorTopicFooter) {
-          var next = $(`<button class="next">${$topic.text()} &rarr;</button>`)
-            .click(click)
-            .appendTo($priorTopicFooter);
-        }
-        $priorClick = click;
-        $priorTopic = $topic;
-        $priorTopicFooter = $topicFooter;
+      var $topicFooter = $("<div></div>", {
+        class: "topic-footer"
+      });
+      $h1Parent.append($topicFooter);
+      if ($priorTopic) {
+        var back = $(`<button class="back">&larr; ${$priorTopic.text()}</button>`)
+          .click($priorClick)
+          .appendTo($topicFooter);
       }
-
-      // Build the iframe
-      // (Only do this for iframe topics)
-      if (iframeUrl) {
-        $h1Parent.empty();
-        $h1Parent.append($(`
-          <section class="iframeWrapper">
-            <iframe
-              title="${topicText}"
-              src="${iframeUrl}">
-            </iframe>
-          </section>
-        `));
+      if ($priorTopicFooter) {
+        var next = $(`<button class="next">${$topic.text()} &rarr;</button>`)
+          .click(click)
+          .appendTo($priorTopicFooter);
       }
+      $priorClick = click;
+      $priorTopic = $topic;
+      $priorTopicFooter = $topicFooter;
 
       // If this is the first topic, click on it
       if (!selectedTopic) {

@@ -39,12 +39,10 @@ The [Init Script](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/De
 
 <div markdown="1">
 
-# Sample Queries|//graphqltotsqldemoapp.azurewebsites.net/
+# Foo
 
-</div>
+Sample Queries|//graphqltotsqldemoapp.azurewebsites.net/
 
-<div markdown="1">
-
-# GraphiQL|//graphqltotsqldemoapp.azurewebsites.net/graphiql
+GraphiQL|//graphqltotsqldemoapp.azurewebsites.net/graphiql
 
 </div>
