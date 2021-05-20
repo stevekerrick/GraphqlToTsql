@@ -21,6 +21,7 @@ namespace DemoApp
             services.AddRazorPages();
 
             services
+                .AddCors()
                 .AddControllers()
                 .AddNewtonsoftJson();
 
@@ -38,6 +39,12 @@ namespace DemoApp
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            // global cors policy
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+            );
 
             app.UseAuthorization();
 
