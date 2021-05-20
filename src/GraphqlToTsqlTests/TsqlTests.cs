@@ -300,6 +300,8 @@ query hammerQuery ($name: String) {
         date seller {
           city state
           distributor { name }
+          recruits { name }
+          sellerBadges { badge { name } }
         }
       }
     }
@@ -310,9 +312,6 @@ query hammerQuery ($name: String) {
 
             var result = Translate(graphql, graphqlParameters);
             var tsql = result.Tsql;
-
-            Console.WriteLine(tsql);
-
             Assert.IsTrue(tsql.Contains("hammerQuery"));
             Assert.IsTrue(tsql.Contains("Product"));
             Assert.IsTrue(tsql.Contains("OrderDetail"));

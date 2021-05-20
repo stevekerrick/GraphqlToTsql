@@ -46,6 +46,23 @@ namespace DemoApp.Controllers
             return new JsonResult(response);
         }
 
+        [Route("KeepAlive")]
+        [HttpGet]
+        public void KeepAlive()
+        {
+            var settings = new GraphqlActionSettings
+            {
+                AllowIntrospection = true,
+                EntityList = DemoEntityList.All()
+            };
+
+            _graphqlActions.TranslateToTsql (
+                "{ __schema { types { name fields { name } } } }",
+                new Dictionary<string, object>(),
+                settings
+            );
+        }
+
         private async Task<QueryResponse> RunQuery(QueryRequest query)
         {
             var graphql = query.Query;
