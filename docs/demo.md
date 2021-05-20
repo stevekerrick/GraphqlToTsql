@@ -7,6 +7,8 @@ title: Demo
 
 # Demo Pages
 
+<a href="//graphqltotsqldemoapp.azurewebsites.net/" target="_blank">Sample Queries</a>
+
 There are two web pages that demonstrate the capabilities of `GraphqlToTsql`.
 
 * [Sample Queries]({{ 'demo?topic=sample-queries' | relative_url }}) - A UI showing
