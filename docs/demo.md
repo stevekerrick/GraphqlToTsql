@@ -5,21 +5,20 @@ title: Demo
 
 <div markdown="1">
 
-# Demo Pages
+# Database Schema
 
-<a href="//graphqltotsqldemoapp.azurewebsites.net/" target="_blank">Sample Queries</a>
+We have two web pages where you can try out `GraphQL` queries. Both of them
+use the same demo database.
 
-There are two web pages that demonstrate the capabilities of `GraphqlToTsql`.
+The demo database has six tables. To keep things interesting, some of the tables
+have auto-incrementing ID's, some have natural keys, and some have compound keys.
+The `Seller` table is self-referencing.
 
-* [Sample Queries]({{ 'demo?topic=sample-queries' | relative_url }}) - A UI showing
-a wide assortment of sample queries. The user can modify them
-or create one of their own. After a query is run, the page shows the
-resulting data, the TSQL that was generated, and some runtime statistics.
+The [Init Script](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/DemoEntities/DatabaseCreateScript.sql) has all the details, including the data that's scripted in.
 
-* [GraphiQL]({{ 'demo?topic=graphiql' | relative_url }}) - An open source in-browser IDE
-for composing and testing GraphQL queries.
+![](images/schemaDiagram.png)
 
-Important note: The demo website and database are hosted in Azure using
+Note: The demo website and database are hosted in Azure using
 the least expensive options possible. (The App Service is F1 (Free) and the database is Basic).
 Expect uneven performance.
 
@@ -27,24 +26,27 @@ Expect uneven performance.
 
 <div markdown="1">
 
-# Database Schema
+# GraphiQL
 
-The demo database has six tables. To keep things interesting, some of the tables
-have auto-incrementing ID's, some have natural keys, and some have compound keys.
+`GraphiQL` is an open source in-browser IDE for composing and 
+testing GraphQL queries. The good part about `GraphiQL` is
+that behind the scenes it issues an introspection query
+to the GraphQL API, and thereafter it provides auto-complete
+to help the user write queries.
 
-The `Seller` table is self-referencing.
+<h2><a href="//graphqltotsqldemoapp.azurewebsites.net/graphiql" target="_blank">GraphiQL Demo App</a></h2>
 
-The [Init Script](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/DemoEntities/DatabaseCreateScript.sql) has all the details, including the data that's scripted in.
-
-![](images/schemaDiagram.png)
 </div>
 
 <div markdown="1">
 
-# Foo
+# Sample Queries
 
-Sample Queries|//graphqltotsqldemoapp.azurewebsites.net/
+`Sample Queries` is a UI showing
+a wide assortment of sample queries. The user can modify them
+or create one of their own. After a query is run, the page shows the
+resulting data, the TSQL that was generated, and some runtime statistics.
 
-GraphiQL|//graphqltotsqldemoapp.azurewebsites.net/graphiql
+<h2><a href="//graphqltotsqldemoapp.azurewebsites.net/" target="_blank">Sample Queries App</a></h2>
 
 </div>
