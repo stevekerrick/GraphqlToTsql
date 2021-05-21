@@ -18,7 +18,7 @@ The [Init Script](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/De
 
 ![](images/schemaDiagram.png)
 
-Note: The demo website and database are hosted in Azure using
+Note: The demo websites and database are hosted in Azure using
 the least expensive options possible. (The App Service is F1 (Free) and the database is Basic).
 Expect uneven performance.
 
