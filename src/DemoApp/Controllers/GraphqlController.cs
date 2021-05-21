@@ -66,9 +66,7 @@ namespace DemoApp.Controllers
         private async Task<QueryResponse> RunQuery(QueryRequest query)
         {
             var graphql = query.Query;
-            var graphqlParameters = string.IsNullOrEmpty(query.Variables)
-                ? null
-                : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.Variables);
+            var graphqlParameters = query.Variables ?? new Dictionary<string, object>();
 
             var connectionString = _configuration.GetConnectionString("DemoDB");
             if (string.IsNullOrEmpty(connectionString) || connectionString == "set in azure")
@@ -115,7 +113,7 @@ namespace DemoApp.Controllers
         public string Query { get; set; }
 
         // The GraphQL variable values, in JSON format
-        public string Variables { get; set; }
+        public Dictionary<string, object> Variables { get; set; }
     }
 
     public class QueryResponse

@@ -272,6 +272,13 @@
                     return json;
                 }
 
+                function toObject(objectString) {
+                    var json = formatObject(objectString);
+                    return json
+                        ? JSON.parse(json)
+                        : null;
+                }
+
                 function regularResult(data) {
                     var result = {
                         graphql: vm.graphql,
@@ -310,7 +317,7 @@
                         "Content-Type": "application/json",
                         "RequestVerificationToken": antiForgeryToken
                     },
-                    body: JSON.stringify({ query: this.graphql, variables: formatObject(this.graphqlParameters) }),
+                    body: JSON.stringify({ query: this.graphql, variables: toObject(this.graphqlParameters) }),
                 })
                 .then(response => response.json())
                 .then(data => {
