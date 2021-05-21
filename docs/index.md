@@ -110,17 +110,19 @@ and send it to your database. You get back the data as a JSON string.
 
 ## Sounds easy, what's the catch?
 
-Actually there are *two* catches...
+Actually there are *three* catches...
 
 1. GraphqlToTsql only works with specific technologies
     * .NET (GraphqlToSql targets .NET Standard 2.0)
     * SQL Server / Azure SQL. The T-SQL that is generated is specific to Microsoft databases.
-    * At this time, only the *query* portion of the GraphQL spec is supported. *Mutations* are not
+
+
+2. At this time, only the *query* portion of the GraphQL spec is supported. *Mutations* are not
 supported.
 
-2. You have to write entity mappings. They're not that hard to write, and
-they're powerful. You can choose what parts of your database should be
-available for GraphQL queries and how things are named.
+3. You have to write entity mappings. They're easier to write than resolvers, and
+they're powerful. They control what parts of your database are
+available to GraphQL queries, and how things are named.
 Your Entity Mappers can include custom join criteria, virtual tables,
 and computed values.
 
@@ -159,12 +161,14 @@ public class OrderEntity : EntityBase
 }
 ```
 
+The [Documentation page]({{ 'documentation' | relative_url }}) takes you through all the details.
+
 </div>
 
 <div markdown="1">
 
 # License
 
-GraphqlToTsql is licensed under the [MIT License](https://opensource.org/licenses/MIT)
+GraphqlToTsql is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 </div>
