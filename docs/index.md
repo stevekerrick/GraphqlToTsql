@@ -116,12 +116,13 @@ Actually there are *three* catches...
     * .NET (GraphqlToSql targets .NET Standard 2.0)
     * SQL Server / Azure SQL. The T-SQL that is generated is specific to Microsoft databases.
 
+
 2. At this time, only the *query* portion of the GraphQL spec is supported. *Mutations* are not
 supported.
 
-3. You have to write entity mappings. They're not that hard to write, and
-they're powerful. You can choose what parts of your database should be
-available for GraphQL queries and how things are named.
+3. You have to write entity mappings. They're easier to write than resolvers, and
+they're powerful. They control what parts of your database are
+available to GraphQL queries, and how things are named.
 Your Entity Mappers can include custom join criteria, virtual tables,
 and computed values.
 
