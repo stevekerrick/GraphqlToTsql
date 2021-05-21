@@ -46,12 +46,27 @@ namespace DemoApp.Controllers
             return new JsonResult(response);
         }
 
+        [Route("KeepAlive")]
+        [HttpGet]
+        public void KeepAlive()
+        {
+            var settings = new GraphqlActionSettings
+            {
+                AllowIntrospection = true,
+                EntityList = DemoEntityList.All()
+            };
+
+            _graphqlActions.TranslateToTsql (
+                "{ __schema { types { name fields { name } } } }",
+                new Dictionary<string, object>(),
+                settings
+            );
+        }
+
         private async Task<QueryResponse> RunQuery(QueryRequest query)
         {
             var graphql = query.Query;
-            var graphqlParameters = string.IsNullOrEmpty(query.Variables)
-                ? null
-                : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.Variables);
+            var graphqlParameters = query.Variables ?? new Dictionary<string, object>();
 
             var connectionString = _configuration.GetConnectionString("DemoDB");
             if (string.IsNullOrEmpty(connectionString) || connectionString == "set in azure")
@@ -98,7 +113,7 @@ namespace DemoApp.Controllers
         public string Query { get; set; }
 
         // The GraphQL variable values, in JSON format
-        public string Variables { get; set; }
+        public Dictionary<string, object> Variables { get; set; }
     }
 
     public class QueryResponse
