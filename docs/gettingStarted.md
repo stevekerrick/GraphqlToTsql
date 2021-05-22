@@ -295,6 +295,6 @@ var tsqlResult = await _graphqlActions.TranslateToTsql(graphql, graphqlParameter
 
 * See: [IGraphqlActions interface](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/GraphqlActions.cs)
 * See: [DbAccess](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Database/DbAccess.cs),
-the class in `GraphqlToTsql` that sends queries to the database. It uses the Micro ORM [Dapper](https://github.com/StackExchange/Dapper)
+the class in `GraphqlToTsql` that sends queries to the database. It uses the Micro ORM [Dapper](https://github.com/StackExchange/Dapper).
 
 </div>
