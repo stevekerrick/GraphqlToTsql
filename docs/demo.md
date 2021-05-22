@@ -29,10 +29,9 @@ Expect uneven performance.
 # GraphiQL
 
 `GraphiQL` is an open source in-browser IDE for composing and 
-testing GraphQL queries. The good part about `GraphiQL` is
-that behind the scenes it issues an introspection query
-to the GraphQL API, and thereafter it provides auto-complete
-to help the user write queries.
+testing GraphQL queries. When `GraphiQL` launches,
+it issues an introspection query to the GraphQL API, then helps you
+write queries by providing auto-complete.
 
 <h2><a href="//graphqltotsqldemoapp.azurewebsites.net/graphiql" target="_blank">GraphiQL Demo App</a></h2>
 
@@ -43,8 +42,8 @@ to help the user write queries.
 # Sample Queries
 
 `Sample Queries` is a UI showing
-a wide assortment of sample queries. The user can modify them
-or create one of their own. After a query is run, the page shows the
+a wide assortment of sample queries. You can modify them
+or create one of your own. After a query is run, the page shows the
 resulting data, the T-SQL that was generated, and some runtime statistics.
 
 <h2><a href="//graphqltotsqldemoapp.azurewebsites.net/" target="_blank">Sample Queries App</a></h2>

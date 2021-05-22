@@ -794,7 +794,7 @@ The function has a single argument, representing the table alias
 
 This is one of the most flexible capabilities in `GraphqlToTsql`,
 and allows you to expose your data in ways that
-don't need to match the physical database schema.
+don't match the physical database schema.
 
 Hopefully the examples below will help make it clear. :-)
 
