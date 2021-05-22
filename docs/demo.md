@@ -45,7 +45,7 @@ to help the user write queries.
 `Sample Queries` is a UI showing
 a wide assortment of sample queries. The user can modify them
 or create one of their own. After a query is run, the page shows the
-resulting data, the TSQL that was generated, and some runtime statistics.
+resulting data, the T-SQL that was generated, and some runtime statistics.
 
 <h2><a href="//graphqltotsqldemoapp.azurewebsites.net/" target="_blank">Sample Queries App</a></h2>
 

@@ -112,7 +112,7 @@ namespace DemoApp.Controllers
         // The GraphQL query
         public string Query { get; set; }
 
-        // The GraphQL variable values, in JSON format
+        // The GraphQL variable values
         public Dictionary<string, object> Variables { get; set; }
     }
 
