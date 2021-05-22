@@ -8,7 +8,7 @@ title: Documentation
 # How to Use GraphqlToTsql
 
 `GraphqlToTsql` is a component that translates a GraphQL query into a
-comprehensive TSQL query, and (optionally) sends it to a SQL Server or
+comprehensive T-SQL query, and (optionally) sends it to a SQL Server or
 AzureSQL database.
 
 ## Setup
@@ -794,7 +794,7 @@ The function has a single argument, representing the table alias
 
 This is one of the most flexible capabilities in `GraphqlToTsql`,
 and allows you to expose your data in ways that
-don't need to match the physical database schema.
+don't match the physical database schema.
 
 Hopefully the examples below will help make it clear. :-)
 
@@ -987,7 +987,7 @@ It's used in GraphQL like this.
 }
 ```
 
-And here is the complete TSQL that `GraphqlToSql` generates for the query.
+And here is the complete T-SQL that `GraphqlToSql` generates for the query.
 
 ```sql
 
@@ -1107,7 +1107,7 @@ It's used in GraphQL like this.
 }
 ```
 
-And here is the complete TSQL that `GraphqlToSql` generates for the query.
+And here is the complete T-SQL that `GraphqlToSql` generates for the query.
 
 ```sql
 SELECT

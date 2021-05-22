@@ -129,6 +129,10 @@ public static class DemoEntityList
 If your application uses a DI container (such as AspNetCore's [IServiceCollection](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/dependency-injection?view=aspnetcore-5.0)) there is one class to register.
 * `GraphqlActions` implements interface `IGraphqlActions`.
 
+If you're using AspNetCore you will also need to register `Newtonsoft` as the JSON provider,
+because it's able to handle the `Dictionary<string, object>` parts that need to go
+to/from JSON.
+
 For example:
 
 ```csharp
@@ -136,6 +140,9 @@ public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
     {
+        services
+            .AddNewtonsoftJson();
+
         services
             .AddScoped<IGraphqlActions, GraphqlActions>();
     }
@@ -147,7 +154,7 @@ public class Startup
 
 # Wire Up the API
 
-`GraphqlToTsql` is a component to translate a *GraphQL* query into a *TSQL* query, 
+`GraphqlToTsql` is a component to translate a *GraphQL* query into a *T-SQL* query, 
 and to execute the query for you.
 *You* provide the web service/controller, however.
 
@@ -200,9 +207,7 @@ namespace DemoApp.Controllers
         private async Task<QueryResponse> RunQuery(QueryRequest query)
         {
             var graphql = query.Query;
-            var graphqlParameters = string.IsNullOrEmpty(query.Variables)
-                ? null
-                : JsonConvert.DeserializeObject<Dictionary<string, object>>(query.Variables);
+            var graphqlParameters = query.Variables ?? new Dictionary<string, object>();
 
             var settings = new GraphqlActionSettings
             {
@@ -238,8 +243,9 @@ namespace DemoApp.Controllers
         // The GraphQL query
         public string Query { get; set; }
 
-        // The GraphQL variable values, in JSON format
-        public string Variables { get; set; }
+        // The GraphQL variable values
+        public Dictionary<string, object> Variables { get; set; }
+
     }
 
     // The shape of the QueryResponse is dictated by the GraphQL standard
@@ -272,8 +278,8 @@ var settings = new GraphqlActionSettings
 var queryResult = await _graphqlActions.TranslateAndRunQuery(graphql, graphqlParameters, settings);
 ```
 
-If you prefer to have more control over the database access you can use `TranslateToTsql` to create the TSQL
-query (and associated TSQL Parameters), then submit the query to the database yourself.
+If you prefer to have more control over the database access you can use `TranslateToTsql` to create the T-SQL
+query (and associated T-SQL Parameters), then submit the query to the database yourself.
 
 ```csharp
 var settings = new GraphqlActionSettings
@@ -289,6 +295,6 @@ var tsqlResult = await _graphqlActions.TranslateToTsql(graphql, graphqlParameter
 
 * See: [IGraphqlActions interface](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/GraphqlActions.cs)
 * See: [DbAccess](https://github.com/stevekerrick/GraphqlToTsql/blob/main/src/GraphqlToTsql/Database/DbAccess.cs),
-the class in `GraphqlToTsql` that sends queries to the database. It uses the Micro ORM [Dapper](https://github.com/StackExchange/Dapper)
+the class in `GraphqlToTsql` that sends queries to the database. It uses the Micro ORM [Dapper](https://github.com/StackExchange/Dapper).
 
 </div>

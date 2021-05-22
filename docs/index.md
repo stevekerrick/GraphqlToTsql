@@ -114,8 +114,7 @@ Actually there are *three* catches...
 
 1. GraphqlToTsql only works with specific technologies
     * .NET (GraphqlToSql targets .NET Standard 2.0)
-    * SQL Server / Azure SQL. The T-SQL that is generated is specific to Microsoft databases.
-
+    * SQL Server / Azure SQL. The T-SQL that is generated is specific to Microsoft databases.  
 
 2. At this time, only the *query* portion of the GraphQL spec is supported. *Mutations* are not
 supported.
