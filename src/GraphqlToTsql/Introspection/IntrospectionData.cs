@@ -269,7 +269,7 @@ namespace GraphqlToTsql.Introspection
 
             throw new Exception($"Unsupported Introspection type: {name}");
         }
- 
+
         private string GetTypesSql()
         {
             var sb = new StringBuilder(1024);
@@ -335,7 +335,7 @@ namespace GraphqlToTsql.Introspection
             var isFirstRow = true;
 
             // InputValues for row/set filtering
-            foreach (var parentType in Types)
+            foreach (var parentType in Types) // e.g. Seller
             {
                 if (parentType.Fields != null)
                 {
@@ -364,6 +364,15 @@ namespace GraphqlToTsql.Introspection
                                     AppendInputValueRow(sb, isFirstRow, parentType.Key, field.Name, subfield.Name, subfieldType.Key);
                                     isFirstRow = false;
                                 }
+                            }
+
+                            // For a SET, add input filters for paging
+                            if (field.Type.Kind == TypeKind.LIST ||
+                                (field.Type.Kind == TypeKind.NON_NULL && field.Type.OfType.Kind == TypeKind.LIST))
+                            {
+                                AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.FIRST_ARGUMENT, ValueType.Int.ToString());
+                                AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.OFFSET_ARGUMENT, ValueType.Int.ToString());
+                                AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.AFTER_ARGUMENT, ValueType.String.ToString());
                             }
                         }
                     }
