@@ -55,6 +55,14 @@ namespace GraphqlToTsql.Introspection
             foreach (var entity in entityList)
             {
                 EntityType(entity);
+
+                // Every entity has an assocaited ConnectionEntity
+                if (!entity.EntityType.StartsWith("__"))
+                {
+                    var setField = Field.Set(entity, entity.PluralName + Constants.CONNECTION, join: null);
+                    var connectionEntity = new ConnectionEntity(setField);
+                    EntityType(connectionEntity);
+                }
             }
         }
 
@@ -94,6 +102,14 @@ namespace GraphqlToTsql.Introspection
                         break;
 
                     case FieldType.Set:
+                        type.Fields.Add(SetField(field));
+
+                        // A "Set" field can also be queried using a Connection
+                        var connectionType = GetType(field.Entity.EntityType + Constants.CONNECTION);
+                        var connectionField = new GqlField(field.Name + Constants.CONNECTION, connectionType);
+                        type.Fields.Add(connectionField);
+                        break;
+
                     case FieldType.Edge:
                         type.Fields.Add(SetField(field));
                         break;
@@ -145,6 +161,13 @@ namespace GraphqlToTsql.Introspection
             return new GqlField(field.Name, type);
         }
 
+        private GqlField ConnectionField(Field field)
+        {
+            var type = EntityType(field.Entity);
+
+
+        }
+
         private GqlType NonNullableType(GqlType baseType)
         {
             var type = GqlType.NonNullable(baseType);
@@ -183,7 +206,7 @@ namespace GraphqlToTsql.Introspection
 
             foreach (var entity in entityList)
             {
-                if (entity.Name.StartsWith("__"))
+                if (entity.EntityType.StartsWith("__"))
                 {
                     continue;
                 }
@@ -195,6 +218,10 @@ namespace GraphqlToTsql.Introspection
                 var listType = SetType(type);
                 var setField = new GqlField(entity.PluralName, listType);
                 queryType.Fields.Add(setField);
+
+                var connectionType = GetType(entity.EntityType + Constants.CONNECTION);
+                var connectionField = new GqlField(entity.PluralName + Constants.CONNECTION, connectionType);
+                queryType.Fields.Add(connectionField);
             }
         }
 
@@ -366,7 +393,7 @@ namespace GraphqlToTsql.Introspection
                                 }
                             }
 
-                            // For a SET, add input filters for paging
+                            // For a SET, add boilerplate input filters
                             if (field.Type.Kind == TypeKind.LIST ||
                                 (field.Type.Kind == TypeKind.NON_NULL && field.Type.OfType.Kind == TypeKind.LIST))
                             {

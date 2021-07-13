@@ -20,11 +20,17 @@ namespace GraphqlToTsql.Entities
 
         protected override List<Field> BuildFieldList()
         {
-            return new List<Field>
+            var fieldList = new List<Field>
             {
                 Field.Node(_setField),
-                Field.Cursor(_setField)
             };
+
+            if (_setField.Entity.PrimaryKeyFieldNames.Length == 1)
+            {
+                fieldList.Add(Field.Cursor(_setField));
+            }
+
+            return fieldList;
         }
     }
 }
