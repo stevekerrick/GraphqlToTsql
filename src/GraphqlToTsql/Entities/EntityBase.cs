@@ -130,5 +130,7 @@ namespace GraphqlToTsql.Entities
                 return pks[0];
             }
         }
+
+        internal bool IsSystemEntity => EntityType.StartsWith("__");
     }
 }
