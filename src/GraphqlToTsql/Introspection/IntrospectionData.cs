@@ -57,7 +57,7 @@ namespace GraphqlToTsql.Introspection
                 EntityType(entity);
 
                 // Every entity has an assocaited ConnectionEntity
-                if (!entity.EntityType.StartsWith("__"))
+                if (!entity.IsSystemEntity)
                 {
                     var setField = Field.Set(entity, entity.PluralName + Constants.CONNECTION, join: null);
                     var connectionEntity = new ConnectionEntity(setField);
@@ -105,9 +105,13 @@ namespace GraphqlToTsql.Introspection
                         type.Fields.Add(SetField(field));
 
                         // A "Set" field can also be queried using a Connection
-                        var connectionType = GetType(field.Entity.EntityType + Constants.CONNECTION);
-                        var connectionField = new GqlField(field.Name + Constants.CONNECTION, connectionType);
-                        type.Fields.Add(connectionField);
+                        if (!field.Entity.IsSystemEntity)
+                        {
+                            var connectionEntity = new ConnectionEntity(field);
+                            var connectionType = EntityType(connectionEntity);
+                            var connectionField = new GqlField(field.Name + Constants.CONNECTION, connectionType);
+                            type.Fields.Add(connectionField);
+                        }
                         break;
 
                     case FieldType.Edge:
@@ -161,13 +165,6 @@ namespace GraphqlToTsql.Introspection
             return new GqlField(field.Name, type);
         }
 
-        private GqlField ConnectionField(Field field)
-        {
-            var type = EntityType(field.Entity);
-
-
-        }
-
         private GqlType NonNullableType(GqlType baseType)
         {
             var type = GqlType.NonNullable(baseType);
@@ -206,7 +203,7 @@ namespace GraphqlToTsql.Introspection
 
             foreach (var entity in entityList)
             {
-                if (entity.EntityType.StartsWith("__"))
+                if (entity.IsSystemEntity)
                 {
                     continue;
                 }
