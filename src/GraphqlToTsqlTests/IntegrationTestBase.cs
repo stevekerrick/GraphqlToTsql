@@ -1,5 +1,4 @@
 ﻿using GraphqlToTsql;
-using GraphqlToTsql.Database;
 using GraphqlToTsql.Entities;
 using GraphqlToTsql.Translator;
 using Microsoft.Extensions.Configuration;
