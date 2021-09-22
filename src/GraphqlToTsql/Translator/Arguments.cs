@@ -115,5 +115,23 @@ namespace GraphqlToTsql.Translator
                 Value = coercedValue;
             }
         }
+
+        public class OrderBy
+        {
+            public Field Field { get; }
+            public bool IsAscending { get; }
+
+            public Filter(Field field, Value value)
+            {
+                var coercedValue = new Value(ValueType.String, value, () => $"order_by must be either asc or desc: {value.RawValue}");
+                if (coercedValue.RawValue == null)
+                {
+                    throw new InvalidRequestException(ErrorCode.V30, $"{name} must be a Boolean: {value.RawValue}", context);
+                }
+                var foo = coercedValue.ToString();
+                Field = field;
+                Value = coercedValue;
+            }
+        }
     }
 }

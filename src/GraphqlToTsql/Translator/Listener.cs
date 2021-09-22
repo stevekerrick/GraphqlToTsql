@@ -84,16 +84,23 @@ namespace GraphqlToTsql.Translator
                 throw new InvalidRequestException(ErrorCode.V01, $"Arguments should be formed like (id: 1)", new Context(context));
             }
 
+            // Found ORDER BY specification
+            if (name == Constants.ORDER_BY)
+            {
+                returnxx;
+            }
+
+            // The r-value is a scalar variable reference
             if (valueOrVariableContext.variable() != null)
             {
                 var variableName = valueOrVariableContext.variable().children[1].GetText();
                 _qt.Argument(name, variableName, new Context(context));
+                return;
             }
-            else
-            {
-                var value = new Value(valueOrVariableContext);
-                _qt.Argument(name, value, new Context(context));
-            }
+
+            // The r-value is a scalar value
+            var value = new Value(valueOrVariableContext);
+            _qt.Argument(name, value, new Context(context));
         }
 
         public override void ExitOperationDefinition(GqlParser.OperationDefinitionContext context)
