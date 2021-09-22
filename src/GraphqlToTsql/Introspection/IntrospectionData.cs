@@ -55,6 +55,14 @@ namespace GraphqlToTsql.Introspection
             foreach (var entity in entityList)
             {
                 EntityType(entity);
+
+                // Every entity has an assocaited ConnectionEntity
+                if (!entity.IsSystemEntity)
+                {
+                    var setField = Field.Set(entity, entity.PluralName + Constants.CONNECTION, join: null);
+                    var connectionEntity = new ConnectionEntity(setField);
+                    EntityType(connectionEntity);
+                }
             }
         }
 
@@ -94,6 +102,18 @@ namespace GraphqlToTsql.Introspection
                         break;
 
                     case FieldType.Set:
+                        type.Fields.Add(SetField(field));
+
+                        // A "Set" field can also be queried using a Connection
+                        if (!field.Entity.IsSystemEntity)
+                        {
+                            var connectionEntity = new ConnectionEntity(field);
+                            var connectionType = EntityType(connectionEntity);
+                            var connectionField = new GqlField(field.Name + Constants.CONNECTION, connectionType);
+                            type.Fields.Add(connectionField);
+                        }
+                        break;
+
                     case FieldType.Edge:
                         type.Fields.Add(SetField(field));
                         break;
@@ -183,7 +203,7 @@ namespace GraphqlToTsql.Introspection
 
             foreach (var entity in entityList)
             {
-                if (entity.Name.StartsWith("__"))
+                if (entity.IsSystemEntity)
                 {
                     continue;
                 }
@@ -195,6 +215,10 @@ namespace GraphqlToTsql.Introspection
                 var listType = SetType(type);
                 var setField = new GqlField(entity.PluralName, listType);
                 queryType.Fields.Add(setField);
+
+                var connectionType = GetType(entity.EntityType + Constants.CONNECTION);
+                var connectionField = new GqlField(entity.PluralName + Constants.CONNECTION, connectionType);
+                queryType.Fields.Add(connectionField);
             }
         }
 
@@ -269,7 +293,7 @@ namespace GraphqlToTsql.Introspection
 
             throw new Exception($"Unsupported Introspection type: {name}");
         }
- 
+
         private string GetTypesSql()
         {
             var sb = new StringBuilder(1024);
@@ -335,7 +359,7 @@ namespace GraphqlToTsql.Introspection
             var isFirstRow = true;
 
             // InputValues for row/set filtering
-            foreach (var parentType in Types)
+            foreach (var parentType in Types) // e.g. Seller
             {
                 if (parentType.Fields != null)
                 {
@@ -364,6 +388,15 @@ namespace GraphqlToTsql.Introspection
                                     AppendInputValueRow(sb, isFirstRow, parentType.Key, field.Name, subfield.Name, subfieldType.Key);
                                     isFirstRow = false;
                                 }
+                            }
+
+                            // For a SET, add boilerplate input filters
+                            if (field.Type.Kind == TypeKind.LIST ||
+                                (field.Type.Kind == TypeKind.NON_NULL && field.Type.OfType.Kind == TypeKind.LIST))
+                            {
+                                AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.FIRST_ARGUMENT, ValueType.Int.ToString());
+                                AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.OFFSET_ARGUMENT, ValueType.Int.ToString());
+                                AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.AFTER_ARGUMENT, ValueType.String.ToString());
                             }
                         }
                     }

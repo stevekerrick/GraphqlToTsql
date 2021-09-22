@@ -32,7 +32,7 @@
             <div class="input-controls">
                 <textarea v-model="graphql" v-show="inputTab === 0"></textarea>
                 <textarea v-model="graphqlParameters" v-show="inputTab === 1"></textarea>
-                <div class="scrollPanel" v-html="notes" v-show="inputTab === 2"></div>
+                <div class="scrollPanel contains-pre" v-html="notes" v-show="inputTab === 2"></div>
             </div>
         </div>
     </div>
@@ -102,7 +102,15 @@
   }
 }`,
             graphqlParameters: '{ }',
-            notes: `<p>The totalRevenue field uses custom SQL</p>`
+            notes: `<p>The totalRevenue field uses custom SQL.
+Here's how the Product's entity defines the totalRevenue field.</p>
+<pre>
+Field.CalculatedField(this, "totalRevenue", ValueType.Float, IsNullable.No,
+    (tableAlias) => $"SELECT (SELECT SUM(od.Quantity)
+                        FROM OrderDetail od
+                        WHERE {tableAlias}.[Name] = od.ProductName) * {tableAlias}.Price"
+)
+</pre>`
         },
         {
             name: 'mapping a TVF',
@@ -114,7 +122,16 @@
   }
 }`,
             graphqlParameters: '{ name: "Bill" }',
-            notes: `<p>The descendants field maps to a table-valued-function</p>`
+            notes: `<p>The Seller's "descendants" field maps to a table-valued-function.</p>
+<p>GraphqlToTsql can map to virtually any SQL you want to create.
+In this case we tap into a TVF that is already defined in the database,
+to recursively find the IDs of all the descendants for a Seller.
+Our custom SQL then joins to the Seller table to return a set of Seller entities.</p>
+<pre>
+Field.CalculatedSet(this, "descendants",
+    (tableAlias) => $"SELECT s.* FROM tvf_AllDescendants({tableAlias}.Name) d INNER JOIN Seller s ON d.Name = s.Name"
+)
+</pre>`
         },
         {
             name: 'custom SQL for entity',
@@ -125,7 +142,53 @@
   }
 }`,
             graphqlParameters: '{ name: "Bill" }',
-            notes: `<p>Custom SQL is used for the sellerTotal table</p>`
+            notes: `<p>Custom SQL is used for the sellerTotal table -- it is not a physical table.</p>
+<p>Being able to use a virtual table like this is powerful, and lets you expose your data
+via GraphQL in ways that are quite different from your data's
+physical structure.</p>
+<p>This uses a C# "Entity" class just as for regular entities, then uses the "SqlDefinition" property
+for the SQL query that defines the data set.</p>
+<pre>
+    public class SellerTotalEntity : EntityBase
+    {
+        public static SellerTotalEntity Instance = new SellerTotalEntity();
+
+        public override string Name => "sellerTotal";
+        public override string DbTableName => "SellerTotal";
+        public override string[] PrimaryKeyFieldNames => new[] { "sellerName" };
+        public override string <b>SqlDefinition</b> => @@"
+SELECT
+  s.[Name] AS SellerName
+, COUNT(DISTINCT o.Id) AS TotalOrders
+, SUM(od.Quantity) AS TotalQuantity
+, SUM(od.Quantity * p.Price) AS TotalAmount
+FROM Seller s
+INNER JOIN [Order] o
+  ON s.Name = o.SellerName
+INNER JOIN OrderDetail od
+  ON o.Id = od.OrderId
+INNER JOIN Product p
+  ON od.ProductName = p.[Name]
+GROUP BY s.[Name]
+".Trim();
+
+        protected override List<Field> BuildFieldList()
+        {
+            return new List<Field>
+            {
+                Field.Column(this, "sellerName", "SellerName", ValueType.String, IsNullable.No),
+                Field.Column(this, "totalOrders", "TotalOrders", ValueType.Int, IsNullable.No),
+                Field.Column(this, "totalQuantity", "TotalQuantity", ValueType.Int, IsNullable.No),
+                Field.Column(this, "totalAmount", "TotalAmount", ValueType.Float, IsNullable.No),
+
+                Field.Row(SellerEntity.Instance, "seller", new Join(
+                    ()=>this.GetField("sellerName"),
+                    ()=>SellerEntity.Instance.GetField("name"))
+                )
+            };
+        }
+    }
+</pre>`
         },
         {
             name: 'introspection',
@@ -225,7 +288,9 @@
     }
 `,
             graphqlParameters: '',
-            notes: `<p>This is the introspection query used by graphiql</p>`
+            notes: `<p>This is the introspection query used by graphiql</p>
+<p>If you're curious how GraphqlToTsql handles introspection, take a look
+at the generated SQL. You'll see giant CTEs that define the introspection data.</p>`
         }
     ];
 
@@ -385,6 +450,8 @@
     .input-controls { height: calc(100% - 37px); }
     .nav-tabs { height: 37px; overflow: hidden; }
     .result-text-container { height: calc(100% - 37px); }
+    div.contains-pre { height: 5em; /* hack */ }
+    div.contains-pre pre { white-space: pre-wrap; }
 
     a.command-link:hover {
         text-decoration: none;
