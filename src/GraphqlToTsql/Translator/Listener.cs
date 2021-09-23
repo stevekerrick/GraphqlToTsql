@@ -1,6 +1,7 @@
 ﻿using Antlr4.Runtime.Tree;
 using GraphqlToTsql.CodeGen;
 using GraphqlToTsql.Entities;
+using System;
 using System.Collections.Generic;
 
 namespace GraphqlToTsql.Translator
@@ -172,16 +173,16 @@ namespace GraphqlToTsql.Translator
             var objectFieldContexts = objectValueContext.objectField();
             foreach(var objectFieldContext in objectFieldContexts)
             {
-                objectValue.ObjectFields.Add(ParseObjectField(objectFieldContext));
+                objectValue.ObjectFields.Add(ParseObjectField(objectFieldContext, typeof(OrderByEnum)));
             }
 
             return objectValue;
         }
 
-        private ObjectField ParseObjectField(GqlParser.ObjectFieldContext objectFieldContext)
+        private ObjectField ParseObjectField(GqlParser.ObjectFieldContext objectFieldContext, Type enumTypeAllowed)
         {
             var name = objectFieldContext.name().GetText();
-            var value = new Value(objectFieldContext.value());
+            var value = new Value(objectFieldContext.value(), enumTypeAllowed);
             return new ObjectField
             {
                 Name = name,

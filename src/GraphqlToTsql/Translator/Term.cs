@@ -177,13 +177,13 @@ namespace GraphqlToTsql.Translator
                     throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} must be either {Constants.ASC} or {Constants.DESC}, not [{objectField.Value.RawValue}]", context);
                 }
 
-                var canParseDirection = Enum.TryParse<Direction>(objectField.Value.RawValue.ToString(), ignoreCase: true, result: out var direction);
-                if (!canParseDirection)
+                var canParseOrderByEnum = Enum.TryParse<OrderByEnum>(objectField.Value.RawValue.ToString(), ignoreCase: true, result: out var orderByEnum);
+                if (!canParseOrderByEnum)
                 {
                     throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} must be either {Constants.ASC} or {Constants.DESC}, not [{objectField.Value.RawValue}]", context);
                 }
 
-                orderBy.Add(field, direction);
+                orderBy.Add(field, orderByEnum);
             }
 
             OrderBy = orderBy;

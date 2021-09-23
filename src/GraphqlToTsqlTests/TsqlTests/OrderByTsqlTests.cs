@@ -9,7 +9,7 @@ namespace GraphqlToTsqlTests.TsqlTests
         public void OrderByNonKeyFieldTest([Values] bool isAscending)
         {
             var graphqlDirection = isAscending ? "asc" : "desc";
-            var graphql = "{ sellers (order_by: { city: \"" + graphqlDirection + "\"}) { name } }";
+            var graphql = "{ sellers (order_by: { city: " + graphqlDirection + "}) { name } }";
 
             var sqlDirection = isAscending ? "" : " DESC";
             var expectedSql = @$"
@@ -40,7 +40,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_MultipleColumnsInSingleObject_Fails()
         {
-            var graphql = "{ sellers (order_by: { city: \"asc\", state: \"asc\" }) { name } }";
+            var graphql = "{ sellers (order_by: { city: asc, state: asc }) { name } }";
             ParseShouldFail(graphql, null, "order_by must specify exactly one field to order by");
         }
 
@@ -49,6 +49,27 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         {
             var graphql = "{ sellers (order_by: { }) { name } }";
             ParseShouldFail(graphql, null, "order_by must specify exactly one field to order by");
+        }
+
+        [Test]
+        public void OrderBy_InvalidDirection_Fails()
+        {
+            var graphql = "{ sellers (order_by: { city: \"foo\" }) { name } }";
+            ParseShouldFail(graphql, null, "Expected an unquoted enum value");
+        }
+
+        [Test]
+        public void OrderBy_InvalidDirection_Fails2()
+        {
+            var graphql = "{ sellers (order_by: { city: 1234 }) { name } }";
+            ParseShouldFail(graphql, null, "Expected an unquoted enum value");
+        }
+
+        [Test]
+        public void OrderBy_InvalidDirection_Fails3()
+        {
+            var graphql = "{ sellers (order_by: { city: up }) { name } }";
+            ParseShouldFail(graphql, null, "Expected one of (asc, desc)");
         }
 
 

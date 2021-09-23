@@ -27,7 +27,7 @@ namespace GraphqlToTsql.Translator
             }
         }
 
-        public Value(GqlParser.ValueContext valueContext)
+        public Value(GqlParser.ValueContext valueContext, Type expectedEnumType = null)
         {
             if (valueContext == null)
             {
@@ -42,6 +42,30 @@ namespace GraphqlToTsql.Translator
                 ValueType = ValueType.Null;
                 RawValue = null;
                 return;
+            }
+
+            var enumValueContext = valueContext.enumValue();
+            if (expectedEnumType != null)
+            {
+                if (enumValueContext == null)
+                {
+                    var expectedValues = string.Join(", ", Enum.GetNames(expectedEnumType));
+                    throw new InvalidRequestException(ErrorCode.V13, $"Expected an unquoted enum value, one of ({expectedValues})", new Context(valueContext));
+                }
+
+                var enumValueString = enumValueContext.GetText();
+                try
+                {
+                    Enum.Parse(expectedEnumType, enumValueString);
+                    ValueType = ValueType.String;
+                    RawValue = enumValueString;
+                    return;
+                }
+                catch
+                {
+                    var expectedValues = string.Join(", ", Enum.GetNames(expectedEnumType));
+                    throw new InvalidRequestException(ErrorCode.V13, $"Expected one of ({expectedValues})", new Context(valueContext));
+                }
             }
 
             var stringValueContext = valueContext.stringValue();
@@ -91,19 +115,18 @@ namespace GraphqlToTsql.Translator
             var listValueContext = valueContext.listValue();
             if (listValueContext != null)
             {
-                throw new InvalidRequestException(ErrorCode.V11, "List values are not supported", new Context(valueContext));
+                throw new InvalidRequestException(ErrorCode.V11, "List values are not allowed here", new Context(valueContext));
             }
 
             var objectValueContext = valueContext.objectValue();
             if (objectValueContext != null)
             {
-                throw new InvalidRequestException(ErrorCode.V12, "Object values are not supported", new Context(valueContext));
+                throw new InvalidRequestException(ErrorCode.V12, "Object values are not allowed here", new Context(valueContext));
             }
 
-            var enumValueContext = valueContext.enumValue();
             if (enumValueContext != null)
             {
-                throw new InvalidRequestException(ErrorCode.V13, "Enum values are not supported", new Context(valueContext));
+                throw new InvalidRequestException(ErrorCode.V13, "Enum values are not allowed here", new Context(valueContext));
             }
 
             throw new InvalidRequestException(ErrorCode.V14, "Unexpected value type", new Context(valueContext));

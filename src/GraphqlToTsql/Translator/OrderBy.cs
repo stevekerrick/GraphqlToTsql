@@ -1,7 +1,5 @@
 ﻿using GraphqlToTsql.Entities;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace GraphqlToTsql.Translator
 {
@@ -14,19 +12,19 @@ namespace GraphqlToTsql.Translator
             Fields = new List<OrderByField>();
         }
 
-        public void Add(Field field, Direction direction)
+        public void Add(Field field, OrderByEnum orderByEnum)
         {
-            Fields.Add(new OrderByField { Field = field, Direction = direction });
+            Fields.Add(new OrderByField { Field = field, OrderByEnum = orderByEnum });
         }
     }
 
     internal class OrderByField
     {
         public Field Field { get; set; }
-        public Direction Direction { get; set; }
+        public OrderByEnum OrderByEnum { get; set; }
     }
 
-    internal enum Direction
+    internal enum OrderByEnum
     {
         asc,
         desc

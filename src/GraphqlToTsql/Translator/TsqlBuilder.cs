@@ -383,12 +383,12 @@ namespace GraphqlToTsql.Translator
             {
                 foreach (var orderByField in term.OrderBy.Fields)
                 {
-                    columns.Add(FormatOrderByColumn(term, orderByField.Field, orderByField.Direction));
+                    columns.Add(FormatOrderByColumn(term, orderByField.Field, orderByField.OrderByEnum));
                 }
             }
 
             // Add PK columns to the OrderBy
-            var defaultDirection = term.OrderBy == null ? Direction.asc : term.OrderBy.Fields[0].Direction;
+            var defaultOrderByEnum = term.OrderBy == null ? OrderByEnum.asc : term.OrderBy.Fields[0].OrderByEnum;
             var entity = term.Field.Entity;
             foreach (var pkField in entity.PrimaryKeyFields)
             {
@@ -397,7 +397,7 @@ namespace GraphqlToTsql.Translator
                     continue;
                 }
 
-                columns.Add(FormatOrderByColumn(term, pkField, defaultDirection));
+                columns.Add(FormatOrderByColumn(term, pkField, defaultOrderByEnum));
             }
 
             // Build the ORDER BY SQL
@@ -418,11 +418,11 @@ namespace GraphqlToTsql.Translator
             }
         }
 
-        private string FormatOrderByColumn(Term term, Field field, Direction direction)
+        private string FormatOrderByColumn(Term term, Field field, OrderByEnum orderByEnum)
         {
             var qualifiedColumnName = $"{term.TableAlias(_aliasSequence)}.[{field.DbColumnName}]";
 
-            return direction == Direction.asc ? qualifiedColumnName : $"{qualifiedColumnName} {direction.ToString().ToUpper()}";
+            return orderByEnum == OrderByEnum.asc ? qualifiedColumnName : $"{qualifiedColumnName} {orderByEnum.ToString().ToUpper()}";
         }
 
         private string RegisterTsqlParameter(Arguments.Filter filter)
