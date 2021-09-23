@@ -87,7 +87,8 @@ namespace GraphqlToTsql.Translator
             // Found ORDER BY specification
             if (name == Constants.ORDER_BY)
             {
-                returnxx;
+                OrderBy(valueOrVariableContext);
+                return;
             }
 
             // The r-value is a scalar variable reference
@@ -101,6 +102,19 @@ namespace GraphqlToTsql.Translator
             // The r-value is a scalar value
             var value = new Value(valueOrVariableContext);
             _qt.Argument(name, value, new Context(context));
+        }
+
+        private void OrderBy(GqlParser.ValueContext context)
+        {
+            var objectValueContext = context.objectValue();
+            var objectValue = objectValueContext.objectValue();
+
+
+
+
+
+
+            //todo
         }
 
         public override void ExitOperationDefinition(GqlParser.OperationDefinitionContext context)

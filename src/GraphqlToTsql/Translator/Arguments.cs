@@ -121,16 +121,24 @@ namespace GraphqlToTsql.Translator
             public Field Field { get; }
             public bool IsAscending { get; }
 
-            public Filter(Field field, Value value)
+            public OrderBy(Field field, Value value, Context context)
             {
-                var coercedValue = new Value(ValueType.String, value, () => $"order_by must be either asc or desc: {value.RawValue}");
+                var error = $"order_by must be either {Constants.ASC} or {Constants.DESC}";
+
+                var coercedValue = new Value(ValueType.String, value, () => $"{error}: {value.RawValue}");
                 if (coercedValue.RawValue == null)
                 {
-                    throw new InvalidRequestException(ErrorCode.V30, $"{name} must be a Boolean: {value.RawValue}", context);
+                    throw new InvalidRequestException(ErrorCode.V30, $"{error}, not null", context);
                 }
-                var foo = coercedValue.ToString();
+
+                var ascOrDesc = coercedValue.RawValue.ToString().ToLower();
+                if (ascOrDesc != Constants.ASC && ascOrDesc != Constants.DESC)
+                {
+                    throw new InvalidRequestException(ErrorCode.V30, $"{error}, not {coercedValue.RawValue}", context);
+                }
+
                 Field = field;
-                Value = coercedValue;
+                IsAscending = ascOrDesc == Constants.ASC;
             }
         }
     }

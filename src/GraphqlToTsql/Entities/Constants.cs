@@ -19,5 +19,8 @@
         public const string DIRECTIVE_TYPE_KEY = "*Directive*";
 
         public const string ORDER_BY = "order_by";
+        public const string ASC = "asc";
+        public const string DESC = "desc";
+
     }
 }
