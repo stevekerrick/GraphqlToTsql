@@ -15,9 +15,9 @@ namespace GraphqlToTsql.Translator
         public Field Field { get; private set; }
         public string Name { get; private set; }
         public TermType TermType { get; private set; }
-        public OrderBy OrderBy { get; private set; }
 
         private Arguments _arguments;
+        private OrderBy _orderBy;
         private string _tableAlias;
 
         private Term()
@@ -128,6 +128,17 @@ namespace GraphqlToTsql.Translator
             return path;
         }
 
+        public void AddArgument(string name, Value value, Context context)
+        {
+            if (Field.FieldType == FieldType.Edge || Field.FieldType == FieldType.Node || TermType == TermType.Scalar)
+            {
+                throw new InvalidRequestException(ErrorCode.V16, $"Arguments are not allowed on [{Name}]", context);
+            }
+
+            Arguments.Add(Field, name, value, context);
+            CheckForConflictBetweenOrderByAndCursorBasedPaging(context);
+        }
+
         public Arguments Arguments
         {
             get
@@ -146,29 +157,37 @@ namespace GraphqlToTsql.Translator
             }
         }
 
-        public void AddArgument(string name, Value value, Context context)
+        public OrderBy OrderBy
         {
-            if (Field.FieldType == FieldType.Edge || Field.FieldType == FieldType.Node || TermType == TermType.Scalar)
+            get
             {
-                throw new InvalidRequestException(ErrorCode.V16, $"Arguments are not allowed on [{Name}]", context);
+                // The GraphQL for edges have no arguments -- they appear on the Connection.
+                // But when the TSQL is formed those arguments apply to the edge.
+                if (Field != null && Field.FieldType == FieldType.Edge)
+                {
+                    return Parent.OrderBy;
+                }
+                return _orderBy;
             }
-
-            Arguments.Add(Field, name, value, context);
+            private set
+            {
+                _orderBy = value;
+            }
         }
 
         public void SetOrderBy(ObjectValue objectValue, Context context)
         {
-            if (OrderBy != null)
-            {
-                throw new InvalidRequestException(ErrorCode.V30, $"Only one {Constants.ORDER_BY} is allowed on a list", context);
-            }
-            if (Field.FieldType == FieldType.Edge || Field.FieldType == FieldType.Node || TermType != TermType.List)
+            //if (OrderBy != null)
+            //{
+            //    throw new InvalidRequestException(ErrorCode.V30, $"Only one {Constants.ORDER_BY} is allowed on a list", context);
+            //}
+            if (Field.FieldType != FieldType.Set && Field.FieldType != FieldType.Connection)
             {
                 throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} is not allowed on [{Name}]", context);
             }
 
             var orderBy = new OrderBy();
-            foreach(var objectField in objectValue.ObjectFields)
+            foreach (var objectField in objectValue.ObjectFields)
             {
                 var field = Field.Entity.GetField(objectField.Name, context);
 
@@ -187,6 +206,7 @@ namespace GraphqlToTsql.Translator
             }
 
             OrderBy = orderBy;
+            CheckForConflictBetweenOrderByAndCursorBasedPaging(context);
         }
 
         public bool IsFirstChild
@@ -218,6 +238,23 @@ namespace GraphqlToTsql.Translator
             term.Arguments = this.Arguments;
             term.Children.AddRange(Children.Select(_ => _.Clone(term)));
             return term;
+        }
+
+        private void CheckForConflictBetweenOrderByAndCursorBasedPaging(Context context)
+        {
+            if (Arguments.After == null || OrderBy == null)
+            {
+                return;
+            }
+
+            // Cursors only work when there's exactly 1 PK field
+            var pkFieldName = Field.Entity.PrimaryKeyFieldNames.FirstOrDefault();
+            if (OrderBy.Fields.Count == 1 && OrderBy.Fields[0].Field.Name == pkFieldName)
+            {
+                return;
+            }
+
+            throw new InvalidRequestException(ErrorCode.V30, $"Because you are using cursor-based paging, you can only {Constants.ORDER_BY} {pkFieldName}", context);
         }
     }
 

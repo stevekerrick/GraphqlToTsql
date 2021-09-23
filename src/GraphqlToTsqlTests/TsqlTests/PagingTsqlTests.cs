@@ -342,9 +342,6 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void PagingOnMainQueryTest()
         {
-            var after = 999;
-            var cursor = CursorUtility.CreateCursor(new Value(after), "Order");
-
             var graphql = @"
 {
   ordersConnection (first: 10, offset: 100) {

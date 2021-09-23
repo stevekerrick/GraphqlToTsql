@@ -355,7 +355,12 @@ namespace GraphqlToTsql.Translator
                 var cursorData = CursorUtility.DecodeCursor(term.Arguments.After, entity.DbTableName);
                 var filter = new Arguments.Filter(entity.SinglePrimaryKeyFieldForPaging, cursorData.Value);
                 childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
-                whereParts.Add($"{childTableAlias}.[{filter.Field.DbColumnName}] > @{RegisterTsqlParameter(filter)}");
+
+                var op = term.OrderBy != null && term.OrderBy.Fields[0].OrderByEnum == OrderByEnum.desc
+                    ? "<"
+                    : ">";
+
+                whereParts.Add($"{childTableAlias}.[{filter.Field.DbColumnName}] {op} @{RegisterTsqlParameter(filter)}");
             }
 
             // Build the complete WHERE clause
