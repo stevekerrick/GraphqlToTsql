@@ -87,7 +87,13 @@ namespace GraphqlToTsql.Translator
             // Found ORDER BY specification
             if (name == Constants.ORDER_BY)
             {
-                OrderBy(valueOrVariableContext);
+                var objectValue = ParseObjectValue(valueOrVariableContext, ErrorCode.V30);
+                if (objectValue.ObjectFields.Count != 1)
+                {
+                    throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} must specify exactly one field to order by", new Context(context));
+                }
+
+                _qt.OrderBy(objectValue, new Context(context));
                 return;
             }
 
@@ -102,19 +108,6 @@ namespace GraphqlToTsql.Translator
             // The r-value is a scalar value
             var value = new Value(valueOrVariableContext);
             _qt.Argument(name, value, new Context(context));
-        }
-
-        private void OrderBy(GqlParser.ValueContext context)
-        {
-            var objectValueContext = context.objectValue();
-            var objectValue = objectValueContext.objectValue();
-
-
-
-
-
-
-            //todo
         }
 
         public override void ExitOperationDefinition(GqlParser.OperationDefinitionContext context)
@@ -166,5 +159,34 @@ namespace GraphqlToTsql.Translator
         }
 
         #endregion
+
+        private ObjectValue ParseObjectValue(GqlParser.ValueContext valueContext, ErrorCode errorCode)
+        {
+            var objectValueContext = valueContext.objectValue();
+            if (objectValueContext == null)
+            {
+                throw new InvalidRequestException(errorCode, "An object value was expected", new Context(valueContext));
+            }
+
+            var objectValue = new ObjectValue();
+            var objectFieldContexts = objectValueContext.objectField();
+            foreach(var objectFieldContext in objectFieldContexts)
+            {
+                objectValue.ObjectFields.Add(ParseObjectField(objectFieldContext));
+            }
+
+            return objectValue;
+        }
+
+        private ObjectField ParseObjectField(GqlParser.ObjectFieldContext objectFieldContext)
+        {
+            var name = objectFieldContext.name().GetText();
+            var value = new Value(objectFieldContext.value());
+            return new ObjectField
+            {
+                Name = name,
+                Value = value
+            };
+        }
     }
 }

@@ -123,7 +123,7 @@ namespace GraphqlToTsql.Translator
 
             public OrderBy(Field field, Value value, Context context)
             {
-                var error = $"order_by must be either {Constants.ASC} or {Constants.DESC}";
+                var error = $"{Constants.ORDER_BY} must be either {Constants.ASC} or {Constants.DESC}";
 
                 var coercedValue = new Value(ValueType.String, value, () => $"{error}: {value.RawValue}");
                 if (coercedValue.RawValue == null)

@@ -21,6 +21,7 @@ namespace GraphqlToTsql.Translator
         void EndDirective();
         void Argument(string name, Value value, Context context);
         void Argument(string name, string variableName, Context context);
+        void OrderBy(ObjectValue objectValue, Context context);
     }
 
     internal class QueryTreeBuilder : IQueryTreeBuilder
@@ -192,6 +193,11 @@ namespace GraphqlToTsql.Translator
             }
 
             _term.AddArgument(name, _variables[variableName], context);
+        }
+
+        public void OrderBy(ObjectValue objectValue, Context context)
+        {
+            _term.SetOrderBy(objectValue, context);
         }
 
         private Field LookupType(string type, Context context)

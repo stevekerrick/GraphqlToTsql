@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Translator
 {
@@ -14,6 +15,7 @@ namespace GraphqlToTsql.Translator
         public Field Field { get; private set; }
         public string Name { get; private set; }
         public TermType TermType { get; private set; }
+        public OrderBy OrderBy { get; private set; }
 
         private Arguments _arguments;
         private string _tableAlias;
@@ -152,6 +154,39 @@ namespace GraphqlToTsql.Translator
             }
 
             Arguments.Add(Field, name, value, context);
+        }
+
+        public void SetOrderBy(ObjectValue objectValue, Context context)
+        {
+            if (OrderBy != null)
+            {
+                throw new InvalidRequestException(ErrorCode.V30, $"Only one {Constants.ORDER_BY} is allowed on a list", context);
+            }
+            if (Field.FieldType == FieldType.Edge || Field.FieldType == FieldType.Node || TermType != TermType.List)
+            {
+                throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} is not allowed on [{Name}]", context);
+            }
+
+            var orderBy = new OrderBy();
+            foreach(var objectField in objectValue.ObjectFields)
+            {
+                var field = Field.Entity.GetField(objectField.Name, context);
+
+                if (objectField.Value.ValueType != ValueType.String)
+                {
+                    throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} must be either {Constants.ASC} or {Constants.DESC}, not [{objectField.Value.RawValue}]", context);
+                }
+
+                var canParseDirection = Enum.TryParse<Direction>(objectField.Value.RawValue.ToString(), ignoreCase: true, result: out var direction);
+                if (!canParseDirection)
+                {
+                    throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} must be either {Constants.ASC} or {Constants.DESC}, not [{objectField.Value.RawValue}]", context);
+                }
+
+                orderBy.Add(field, direction);
+            }
+
+            OrderBy = orderBy;
         }
 
         public bool IsFirstChild

@@ -370,25 +370,59 @@ namespace GraphqlToTsql.Translator
 
         private void EmitOrderByClause(Term term)
         {
-            if (term.Arguments.First == null && term.Arguments.Offset == null && term.Arguments.After == null)
+            var hasPaging = term.Arguments.First != null || term.Arguments.Offset != null || term.Arguments.After != null;
+            if (!hasPaging && term.OrderBy == null)
             {
                 return;
             }
 
-            var offset = term.Arguments.Offset.GetValueOrDefault(0);
-            var first = term.Arguments.First;
+            var columns = new List<string>();
 
-            var entity = term.Field.Entity;
-            var pks = entity.PrimaryKeyFields;
-            var columns = pks.Select(pk => $"{term.TableAlias(_aliasSequence)}.[{pk.DbColumnName}]");
-            var orderBy = string.Join(", ", columns);
-
-            Emit($"ORDER BY {orderBy}");
-            Emit($"OFFSET {offset} ROWS");
-            if (first != null)
+            // If the query specified OrderBy, set up those column sorts first
+            if (term.OrderBy != null)
             {
-                Emit($"FETCH FIRST {first} ROWS ONLY");
+                foreach (var orderByField in term.OrderBy.Fields)
+                {
+                    columns.Add(FormatOrderByColumn(term, orderByField.Field, orderByField.Direction));
+                }
             }
+
+            // Add PK columns to the OrderBy
+            var defaultDirection = term.OrderBy == null ? Direction.asc : term.OrderBy.Fields[0].Direction;
+            var entity = term.Field.Entity;
+            foreach (var pkField in entity.PrimaryKeyFields)
+            {
+                if (term.OrderBy != null && term.OrderBy.Fields.Any(_ => _.Field == pkField))
+                {
+                    continue;
+                }
+
+                columns.Add(FormatOrderByColumn(term, pkField, defaultDirection));
+            }
+
+            // Build the ORDER BY SQL
+            var orderBy = string.Join(", ", columns);
+            Emit($"ORDER BY {orderBy}");
+
+            // If there is Paging, build the OFFSET SQL
+            if (hasPaging)
+            {
+                var offset = term.Arguments.Offset.GetValueOrDefault(0);
+                var first = term.Arguments.First;
+
+                Emit($"OFFSET {offset} ROWS");
+                if (first != null)
+                {
+                    Emit($"FETCH FIRST {first} ROWS ONLY");
+                }
+            }
+        }
+
+        private string FormatOrderByColumn(Term term, Field field, Direction direction)
+        {
+            var qualifiedColumnName = $"{term.TableAlias(_aliasSequence)}.[{field.DbColumnName}]";
+
+            return direction == Direction.asc ? qualifiedColumnName : $"{qualifiedColumnName} {direction.ToString().ToUpper()}";
         }
 
         private string RegisterTsqlParameter(Arguments.Filter filter)
