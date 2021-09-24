@@ -8,7 +8,7 @@ namespace GraphqlToTsqlTests.TsqlTests
     public class OrderByTsqlTests : TsqlTestBase
     {
         [Test]
-        public void OrderByNonKeyFieldTest([Values] bool isAscending)
+        public void OrderBy_NonKeyFieldTest([Values] bool isAscending)
         {
             var graphqlDirection = isAscending ? "asc" : "desc";
             var graphql = "{ sellers (order_by: { city: " + graphqlDirection + "}) { name } }";
@@ -33,7 +33,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
-        public void OrderByKeyFieldTest()
+        public void OrderBy_KeyFieldTest()
         {
             var graphql = "{ sellers (order_by: { name: desc }) { name } }";
 
@@ -56,7 +56,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
-        public void CursorBasedPagingWithOrderByTest()
+        public void OrderBy_CursorBasedPagingTest()
         {
             var cursor = CursorUtility.CreateCursor(new Value(99), "Order");
 
@@ -94,7 +94,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
-        public void OffsetPagingWithOrderByTest([Values] bool isAscending)
+        public void OrderBy_OffsetPagingTest([Values] bool isAscending)
         {
             var graphqlDirection = isAscending ? "asc" : "desc";
             var graphql = "{ sellers (first: 5, offset: 10, order_by: { city: " + graphqlDirection + "}) { name } }";
@@ -119,6 +119,35 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
+
+
+        [Test]
+        public void OrderBy_VariableOrderByObjectTest()
+        {
+            var graphql = @"query VarOrderByTest ($orderBy: OrderByExp) { sellers (order_by: $orderBy) { name } }";
+            var graphqlParameters = new Dictionary<string, object> { { "orderBy", new { city = "desc" } } };
+
+            var expectedSql = @"
+SELECT
+
+  -- sellers (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Name] AS [name]
+    FROM [Seller] t1
+    ORDER BY t1.[City] DESC, t1.[Name] DESC
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object> { };
+
+            Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
+        }
+
+
+
+
 
         [Test]
         public void OrderBy_NonObjectValue_Fails()
