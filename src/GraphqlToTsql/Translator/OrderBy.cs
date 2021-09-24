@@ -3,6 +3,12 @@ using System.Collections.Generic;
 
 namespace GraphqlToTsql.Translator
 {
+    internal class OrderByExp
+    {
+        public string FieldName { get; set; }
+        public OrderByEnum OrderByEnum { get; set; }
+    }
+
     internal class OrderBy
     {
         public List<OrderByField> Fields { get; private set; }
