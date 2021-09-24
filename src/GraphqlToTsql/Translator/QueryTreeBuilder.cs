@@ -26,6 +26,8 @@ namespace GraphqlToTsql.Translator
 
     internal class QueryTreeBuilder : IQueryTreeBuilder
     {
+        private readonly IRawValueConverter _rawValueConverter;
+
         private Dictionary<string, object> _graphqlParameters;
         private List<EntityBase> _entityList;
         private Dictionary<string, Value> _variables;
@@ -36,8 +38,9 @@ namespace GraphqlToTsql.Translator
         private Dictionary<string, Term> _fragments;
         private Term _rootTerm;
 
-        public QueryTreeBuilder()
+        public QueryTreeBuilder(IRawValueConverter rawValueConverter)
         {
+            _rawValueConverter = rawValueConverter;
         }
 
         public void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
@@ -75,7 +78,7 @@ namespace GraphqlToTsql.Translator
             // See if the GraphqlParameters dictionary has a variable value, otherwise the default is used
             if (_graphqlParameters != null && _graphqlParameters.ContainsKey(name))
             {
-                value = new Value(_graphqlParameters[name]);
+                value = _rawValueConverter.Convert(valueType, _graphqlParameters[name]);
             }
             if (value == null)
             {

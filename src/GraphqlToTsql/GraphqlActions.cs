@@ -177,7 +177,8 @@ namespace GraphqlToTsql
 
         private static IParser GetParser()
         {
-            var queryTreeBuilder = new QueryTreeBuilder();
+            var rawValueConverter = new RawValueConverter();
+            var queryTreeBuilder = new QueryTreeBuilder(rawValueConverter);
             var listener = new Listener(queryTreeBuilder);
             var parser = new Parser(listener);
             return parser;

@@ -132,86 +132,10 @@ namespace GraphqlToTsql.Translator
             throw new InvalidRequestException(ErrorCode.V14, "Unexpected value type", new Context(valueContext));
         }
 
-        public Value(object rawValue)
-        {
-            if (rawValue == null)
-            {
-                ValueType = ValueType.Null;
-                RawValue = null;
-                return;
-            }
-
-            var typeName = rawValue.GetType().Name;
-
-            switch (typeName)
-            {
-                case "String":
-                    ValueType = ValueType.String;
-                    RawValue = (string)rawValue;
-                    break;
-
-                case "Int32":
-                    ValueType = ValueType.Int;
-                    RawValue = (long)(int)rawValue;
-                    break;
-                case "Int64":
-                    ValueType = ValueType.Int;
-                    RawValue = (long)rawValue;
-                    break;
-
-                case "Single":
-                case "Double":
-                case "Decimal":
-                    var stringValue = rawValue.ToString();
-                    var decimalValue = decimal.Parse(stringValue);
-                    if (decimalValue % 1.0m == 0.0m)
-                    {
-                        // If there's no fractional part, convert to Int
-                        ValueType = ValueType.Int;
-                        RawValue = (long)decimalValue;
-                    }
-                    else
-                    {
-                        ValueType = ValueType.Float;
-                        RawValue = decimalValue;
-                    }
-                    break;
-
-                case "Boolean":
-                    ValueType = ValueType.Boolean;
-                    RawValue = (bool)rawValue;
-                    break;
-
-                default:
-                    throw new InvalidRequestException(ErrorCode.V14, $"Unsupported value type, value=[{rawValue}], type=[{typeName}]");
-            }
-        }
-
-        public Value(ValueType valueType, string stringValue)
+        public Value(ValueType valueType, object rawValue)
         {
             ValueType = valueType;
-
-            // This is only used by our internally-constructed Cursors, so we can trust Parse
-            switch (valueType)
-            {
-                case ValueType.Null:
-                    RawValue = null;
-                    break;
-                case ValueType.String:
-                    RawValue = stringValue;
-                    break;
-                case ValueType.Int:
-                    RawValue = long.Parse(stringValue);
-                    break;
-                case ValueType.Float:
-                    RawValue = decimal.Parse(stringValue);
-                    break;
-                case ValueType.Boolean:
-                    RawValue = bool.Parse(stringValue); ;
-                    break;
-                default:
-                    throw new Exception($"Unsupported ValueType: {valueType}");
-            }
+            RawValue = rawValue;
         }
 
         public Value(ValueType expectedValueType, Value value, Func<string> errorMessageFunc)
@@ -238,6 +162,35 @@ namespace GraphqlToTsql.Translator
 
             var errorMessage = errorMessageFunc();
             throw new InvalidRequestException(ErrorCode.V15, errorMessage);
+        }
+
+        public static Value FromStringValue(ValueType valueType, string stringValue)
+        {
+            var rawValue = (object)null;
+
+            // This is only used by our internally-constructed Cursors, so we can trust Parse
+            switch (valueType)
+            {
+                case ValueType.Null:
+                    rawValue = null;
+                    break;
+                case ValueType.String:
+                    rawValue = stringValue;
+                    break;
+                case ValueType.Int:
+                    rawValue = long.Parse(stringValue);
+                    break;
+                case ValueType.Float:
+                    rawValue = decimal.Parse(stringValue);
+                    break;
+                case ValueType.Boolean:
+                    rawValue = bool.Parse(stringValue); ;
+                    break;
+                default:
+                    throw new Exception($"Unsupported ValueType: {valueType}");
+            }
+
+            return new Value(valueType, rawValue);
         }
     }
 }

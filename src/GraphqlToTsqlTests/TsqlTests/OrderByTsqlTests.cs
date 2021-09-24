@@ -2,6 +2,7 @@
 using GraphqlToTsql.Util;
 using NUnit.Framework;
 using System.Collections.Generic;
+using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsqlTests.TsqlTests
 {
@@ -58,7 +59,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_CursorBasedPagingTest()
         {
-            var cursor = CursorUtility.CreateCursor(new Value(99), "Order");
+            var cursor = CursorUtility.CreateCursor(new Value(ValueType.Int, 99), "Order");
 
             var graphql = "{ ordersConnection (first: 10, after: \"" + cursor + "\", order_by: { id: desc}) { edges { node { id } } } }";
 
@@ -194,7 +195,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_Cursor_Conflict_Fails()
         {
-            var cursor = CursorUtility.CreateCursor(new Value(99), "Order");
+            var cursor = CursorUtility.CreateCursor(new Value(ValueType.Int, 99), "Order");
             var graphql = "{ ordersConnection (first: 10, after: \"" + cursor + "\", order_by: { date: desc}) { edges { node { id } } } }";
             ParseShouldFail(graphql, null, "Because you are using cursor-based paging, you can only order_by id");
         }
@@ -202,14 +203,14 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_Cursor_Conflict2_Fails()
         {
-            var cursor = CursorUtility.CreateCursor(new Value(99), "Order");
+            var cursor = CursorUtility.CreateCursor(new Value(ValueType.Int, 99), "Order");
             var graphql = "{ ordersConnection (order_by: { date: desc}, first: 10, after: \"" + cursor + "\") { edges { node { id } } } }";
             ParseShouldFail(graphql, null, "Because you are using cursor-based paging, you can only order_by id");
         }
 
 
 
-
+        // Use variable for OrderBy object, with a default
         // use variable for asc/desc value
         // use variable for entire OrderBy object
         // TODO: refactor so that objectValue parsing is more general-purpose, and uses enums properly

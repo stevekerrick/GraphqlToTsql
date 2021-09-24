@@ -42,11 +42,11 @@ namespace GraphqlToTsqlTests
         {
             // Create a couple of cursors to use
             var order1 = _fixture.Create<int>();
-            var cursorData1 = CursorUtility.CursorDataFunc(new Value(order1), "Order");
+            var cursorData1 = CursorUtility.CursorDataFunc(new Value(ValueType.Int, order1), "Order");
             var cursor1 = CursorUtility.CreateCursor(cursorData1);
 
             var order2 = _fixture.Create<int>();
-            var cursorData2 = CursorUtility.CursorDataFunc(new Value(order2), "Order");
+            var cursorData2 = CursorUtility.CursorDataFunc(new Value(ValueType.Int, order2), "Order");
             var cursor2 = CursorUtility.CreateCursor(cursorData2);
 
             // Build up the term tree

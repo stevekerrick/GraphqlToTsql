@@ -93,7 +93,7 @@ namespace GraphqlToTsql.Util
             return new CursorData
             {
                 DbTableName = actualDbTableName,
-                Value = new Value(valueType, idValue)
+                Value = Value.FromStringValue(valueType, idValue)
             };
         }
     }

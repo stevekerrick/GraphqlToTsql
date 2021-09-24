@@ -195,7 +195,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         public void FirstAfterTest()
         {
             var after = 999;
-            var cursor = CursorUtility.CreateCursor(new Value(after), "Order");
+            var cursor = CursorUtility.CreateCursor(new Value(ValueType.Int, after), "Order");
 
             var graphql = @"
 query FirstAfterTest($cursor: String) {
@@ -282,7 +282,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         public void FirstAfterWithFilterTest()
         {
             var after = 999;
-            var cursor = CursorUtility.CreateCursor(new Value(after), "Order");
+            var cursor = CursorUtility.CreateCursor(new Value(ValueType.Int, after), "Order");
 
             var graphql = @"
 query FirstAfterWithFilterTest($cursor: String) {
