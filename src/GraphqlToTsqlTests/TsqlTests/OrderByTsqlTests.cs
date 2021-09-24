@@ -93,7 +93,32 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
+        [Test]
+        public void OffsetPagingWithOrderByTest([Values] bool isAscending)
+        {
+            var graphqlDirection = isAscending ? "asc" : "desc";
+            var graphql = "{ sellers (first: 5, offset: 10, order_by: { city: " + graphqlDirection + "}) { name } }";
 
+            var sqlDirection = isAscending ? "" : " DESC";
+            var expectedSql = @$"
+SELECT
+
+  -- sellers (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Name] AS [name]
+    FROM [Seller] t1
+    ORDER BY t1.[City]{sqlDirection}, t1.[Name]{sqlDirection}
+    OFFSET 10 ROWS
+    FETCH FIRST 5 ROWS ONLY
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object> { };
+
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
+        }
 
         [Test]
         public void OrderBy_NonObjectValue_Fails()
@@ -159,15 +184,12 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         // use variable for asc/desc value
         // use variable for entire OrderBy object
         // TODO: refactor so that objectValue parsing is more general-purpose, and uses enums properly
-        // order_by combined with paging
+
         // TODO: support multiple order_by's
         // TODO: Introspection support
         // TODO: Documentation
         // TODO: Sample queries
 
 
-
     }
-
-
 }
