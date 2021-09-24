@@ -48,10 +48,9 @@ namespace GraphqlToTsqlTests
         }
 
         [Test]
-        public void RawValue_JsonValue()
+        public void RawValue_OrderBy_JsonValue()
         {
             var variables = new Dictionary<string, object> { { "orderBy", new { city = "desc" } } };
-            //var orderBy = new { city= "desc" };
             var jsonString = JsonConvert.SerializeObject(variables);
             var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonString);
 
@@ -65,11 +64,17 @@ namespace GraphqlToTsqlTests
             Assert.AreEqual(OrderByEnum.desc, orderByExp.OrderByEnum);
         }
 
-        // TODO: Test anonymous object
-        // TODO: Think -- any other formats?
+        [Test]
+        public void RawValue_OrderBy_AnonymousObject()
+        {
+            var value = _rawValueConverter.Convert(ValueType.OrderByExp, new { city = "desc" });
 
+            Assert.AreEqual(ValueType.OrderByExp, value.ValueType);
+            Assert.AreEqual("OrderByExp", value.RawValue.GetType().Name);
 
-
-
+            var orderByExp = (OrderByExp)value.RawValue;
+            Assert.AreEqual("city", orderByExp.FieldName);
+            Assert.AreEqual(OrderByEnum.desc, orderByExp.OrderByEnum);
+        }
     }
 }

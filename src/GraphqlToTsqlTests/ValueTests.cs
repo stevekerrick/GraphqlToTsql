@@ -13,7 +13,7 @@ namespace GraphqlToTsqlTests
         [TestCaseSource(nameof(ValueTypePlusStringTestCases))]
         public void ValueTypePlusStringTest(ValueType valueType, string stringValue, object expectedRawValue)
         {
-            var value = new Value(valueType, stringValue);
+            var value = Value.FromStringValue(valueType, stringValue);
 
             Assert.AreEqual(valueType, value.ValueType);
             Assert.AreEqual(expectedRawValue, value.RawValue);
