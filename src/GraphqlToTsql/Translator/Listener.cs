@@ -55,7 +55,10 @@ namespace GraphqlToTsql.Translator
             if (context.defaultValue() != null)
             {
                 var defaultValueContext = context.defaultValue().value();
-                defaultValue = new Value(valueType, defaultValueContext);
+
+                defaultValue = valueType == ValueType.OrderBy
+                    ? new Value(valueType, OrderByValue.FromParse(defaultValueContext))
+                    : Value.ScalarValueFromParse(defaultValueContext);
             }
 
             _qt.Variable(name, type, typeIsNullable, defaultValue, new Context(context));
