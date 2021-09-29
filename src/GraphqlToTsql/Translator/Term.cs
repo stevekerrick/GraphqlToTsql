@@ -182,24 +182,11 @@ namespace GraphqlToTsql.Translator
                 throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} is not allowed on [{Name}]", context);
             }
 
-            //var orderBy = new OrderBy();
-            //foreach (var objectField in objectValue.ObjectFields)
-            //{
-            //    var field = Field.Entity.GetField(objectField.Name, context);
-
-            //    if (objectField.Value.ValueType != ValueType.String)
-            //    {
-            //        throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} must be either {Constants.ASC} or {Constants.DESC}, not [{objectField.Value.RawValue}]", context);
-            //    }
-
-            //    var canParseOrderByEnum = Enum.TryParse<OrderByEnum>(objectField.Value.RawValue.ToString(), ignoreCase: true, result: out var orderByEnum);
-            //    if (!canParseOrderByEnum)
-            //    {
-            //        throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} must be either {Constants.ASC} or {Constants.DESC}, not [{objectField.Value.RawValue}]", context);
-            //    }
-
-            //    orderBy.Add(field, orderByEnum);
-            //}
+            // Validate the OrderBy field names
+            foreach(var orderByField in orderByValue.Fields)
+            {
+                Field.Entity.GetField(orderByField.FieldName, context); // Throws if the field is not found
+            }
 
             OrderByValue = orderByValue;
             CheckForConflictBetweenOrderByAndCursorBasedPaging(context);

@@ -386,10 +386,13 @@ namespace GraphqlToTsql.Translator
             // If the query specified OrderBy, set up those column sorts first
             if (term.OrderByValue != null)
             {
+                var setEntity = term.Field.FieldType == FieldType.Edge
+                    ? term.Parent.Field.Entity
+                    : term.Field.Entity;
                 foreach (var orderByField in term.OrderByValue.Fields)
                 {
-                    throw new Exception("reinstate this code when OrderBy logic is ready");
-                    //columns.Add(FormatOrderByColumn(term, orderByField.Field, orderByField.OrderByEnum));
+                    var field = setEntity.GetField(orderByField.FieldName);
+                    columns.Add(FormatOrderByColumn(term, field, orderByField.OrderByEnum));
                 }
             }
 
@@ -398,11 +401,10 @@ namespace GraphqlToTsql.Translator
             var entity = term.Field.Entity;
             foreach (var pkField in entity.PrimaryKeyFields)
             {
-                throw new Exception("reinstate this code when OrderBy logic is ready");
-                //if (term.OrderBy != null && term.OrderBy.Fields.Any(_ => _.Field == pkField))
-                //{
-                //    continue;
-                //}
+                if (term.OrderByValue != null && term.OrderByValue.Fields.Any(_ => _.FieldName == pkField.Name))
+                {
+                    continue;
+                }
 
                 columns.Add(FormatOrderByColumn(term, pkField, defaultOrderByEnum));
             }

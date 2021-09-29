@@ -154,42 +154,42 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         public void OrderBy_NonObjectValue_Fails()
         {
             var graphql = "{ sellers (order_by: \"city\") { name } }";
-            ParseShouldFail(graphql, null, "An object value was expected");
+            ParseShouldFail(graphql, null, "Invalid order_by value. Try something like { id: desc }.");
         }
 
         [Test]
         public void OrderBy_MultipleColumnsInSingleObject_Fails()
         {
             var graphql = "{ sellers (order_by: { city: asc, state: asc }) { name } }";
-            ParseShouldFail(graphql, null, "order_by must specify exactly one field to order by");
+            ParseShouldFail(graphql, null, "Invalid order_by value. Try something like { id: desc }.");
         }
 
         [Test]
         public void OrderBy_EmptyObject_Fails()
         {
             var graphql = "{ sellers (order_by: { }) { name } }";
-            ParseShouldFail(graphql, null, "order_by must specify exactly one field to order by");
+            ParseShouldFail(graphql, null, "Invalid order_by value. Try something like { id: desc }.");
         }
 
         [Test]
         public void OrderBy_InvalidDirection_String_Fails()
         {
             var graphql = "{ sellers (order_by: { city: \"foo\" }) { name } }";
-            ParseShouldFail(graphql, null, "Expected an unquoted enum value");
+            ParseShouldFail(graphql, null, "Invalid order_by value. Try something like { id: desc }.");
         }
 
         [Test]
         public void OrderBy_InvalidDirection_Integer_Fails()
         {
             var graphql = "{ sellers (order_by: { city: 1234 }) { name } }";
-            ParseShouldFail(graphql, null, "Expected an unquoted enum value");
+            ParseShouldFail(graphql, null, "Invalid order_by value. Try something like { id: desc }.");
         }
 
         [Test]
         public void OrderBy_InvalidDirection_NotAscOrDesc_Fails()
         {
             var graphql = "{ sellers (order_by: { city: up }) { name } }";
-            ParseShouldFail(graphql, null, "Expected one of (asc, desc)");
+            ParseShouldFail(graphql, null, "Invalid order_by value. Try something like { id: desc }.");
         }
 
         [Test]

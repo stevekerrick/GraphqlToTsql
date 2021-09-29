@@ -130,6 +130,11 @@ namespace GraphqlToTsql.Translator
 
             var orderByEnumValueContext = objectFieldContext.value();
             var enumValueContext = orderByEnumValueContext.enumValue();
+            if (enumValueContext == null)
+            {
+                throw Error();
+            }
+
             var enumString = enumValueContext.GetText();
             if (!Enum.TryParse<OrderByEnum>(enumString, out var orderByEnum))
             {
