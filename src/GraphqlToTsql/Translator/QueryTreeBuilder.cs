@@ -21,12 +21,12 @@ namespace GraphqlToTsql.Translator
         void EndDirective();
         void Argument(string name, Value value, Context context);
         void Argument(string name, string variableName, Context context);
-        void OrderBy(ObjectValue objectValue, Context context);
+        void OrderBy(OrderByValue orderByValue, Context context);
     }
 
     internal class QueryTreeBuilder : IQueryTreeBuilder
     {
-        private readonly IRawValueConverter _rawValueConverter;
+        private readonly IJsonValueConverter _jsonValueConverter;
 
         private Dictionary<string, object> _graphqlParameters;
         private List<EntityBase> _entityList;
@@ -38,9 +38,9 @@ namespace GraphqlToTsql.Translator
         private Dictionary<string, Term> _fragments;
         private Term _rootTerm;
 
-        public QueryTreeBuilder(IRawValueConverter rawValueConverter)
+        public QueryTreeBuilder(IJsonValueConverter jsonValueConverter)
         {
-            _rawValueConverter = rawValueConverter;
+            _jsonValueConverter = jsonValueConverter;
         }
 
         public void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList)
@@ -78,7 +78,7 @@ namespace GraphqlToTsql.Translator
             // See if the GraphqlParameters dictionary has a variable value, otherwise the default is used
             if (_graphqlParameters != null && _graphqlParameters.ContainsKey(name))
             {
-                value = _rawValueConverter.Convert(valueType, _graphqlParameters[name]);
+                value = _jsonValueConverter.Convert(valueType, _graphqlParameters[name]);
             }
             if (value == null)
             {
@@ -198,9 +198,9 @@ namespace GraphqlToTsql.Translator
             _term.AddArgument(name, _variables[variableName], context);
         }
 
-        public void OrderBy(ObjectValue objectValue, Context context)
+        public void OrderBy(OrderByValue orderByValue, Context context)
         {
-            _term.SetOrderBy(objectValue, context);
+            _term.SetOrderBy(orderByValue, context);
         }
 
         private Field LookupType(string type, Context context)

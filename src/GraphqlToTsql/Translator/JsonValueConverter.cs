@@ -7,15 +7,16 @@ using ValueType = GraphqlToTsql.Entities.ValueType;
 namespace GraphqlToTsql.Translator
 {
     /// <summary>
-    /// The GraphQL variables are submitted as JSON. The RawValueConverter converts
-    /// the raw JSON deserialized values into the expected types.
+    /// The GraphQL variables are submitted either 1) as JSON through an api endpoint, or
+    /// 2) as anonymous objects created by a C# business layer. The JsonValueConverter converts
+    /// those raw values into the expected types.
     /// </summary>
-    internal interface IRawValueConverter
+    internal interface IJsonValueConverter
     {
         Value Convert(ValueType valueType, object rawValue);
     }
 
-    internal class RawValueConverter : IRawValueConverter
+    internal class JsonValueConverter : IJsonValueConverter
     {
         public Value Convert(ValueType valueType, object rawValue)
         {
@@ -24,9 +25,10 @@ namespace GraphqlToTsql.Translator
                 return new Value(ValueType.Null, null);
             }
 
-            if (valueType == ValueType.OrderByExp)
+            if (valueType == ValueType.OrderBy)
             {
-                return ConvertOrderByExp(rawValue);
+                var orderByValue = OrderByValue.FromRawValue(rawValue);
+                return new Value(valueType, orderByValue);
             }
 
             // The base types are all scalars, and the ValueType for them is assigned based on the value.
@@ -70,37 +72,5 @@ namespace GraphqlToTsql.Translator
                     throw new InvalidRequestException(ErrorCode.V14, $"Unsupported value type, value=[{rawValue}], type=[{typeName}]");
             }
         }
-
-        // e.g. { "name": "desc" }
-        private Value ConvertOrderByExp(object rawValue)
-        {
-            if (rawValue == null)
-            {
-                return new Value(ValueType.Null, null);
-            }
-
-            var valueString = JsonConvert.SerializeObject(rawValue);
-            var jobject = (JObject)JsonConvert.DeserializeObject(valueString);
-
-            if (jobject.Count == 1)
-            {
-                var jproperty = jobject.First as JProperty;
-                if (jproperty != null)
-                {
-                    var fieldName = jproperty.Name;
-
-                    var value = jproperty.Value.ToString();
-                    if (Enum.TryParse(value, out OrderByEnum orderByEnum))
-                    {
-                        var orderByExp = new OrderByExp { FieldName = fieldName, OrderByEnum = orderByEnum };
-                        return new Value(ValueType.OrderByExp, orderByExp);
-                    }
-                }
-            }
-
-            throw new InvalidRequestException(ErrorCode.V30, $"Invalid {Constants.ORDER_BY} value. Try something like {{ id: desc }}.");
-
-        }
-
     }
 }

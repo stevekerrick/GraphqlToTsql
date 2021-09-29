@@ -38,7 +38,7 @@ namespace GraphqlToTsqlTests
         [TestCaseSource(nameof(ValueTypePlusValueTestCases))]
         public void ValueTypePlusValueTest(ValueType valueType, object rawValue, ValueType expectedValueType, object expectedRawValue)
         {
-            var rawValueConverter = new RawValueConverter();
+            var rawValueConverter = new JsonValueConverter();
             var startingValue = rawValueConverter.Convert(ValueType.Unknown, rawValue);
 
             var resultingValue = new Value(valueType, startingValue, () => "unexpected error");

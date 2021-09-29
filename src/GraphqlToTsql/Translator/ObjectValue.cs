@@ -1,7 +1,6 @@
-﻿using GraphqlToTsql.Translator;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace GraphqlToTsql.Entities
+namespace GraphqlToTsql.Translator
 {
     /// <summary>
     /// Stores the result of a parsed GQL ObjectValue

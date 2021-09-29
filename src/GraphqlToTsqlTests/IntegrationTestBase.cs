@@ -28,7 +28,7 @@ namespace GraphqlToTsqlTests
                 .AddTransient<IQueryTreeBuilder, QueryTreeBuilder>()
                 .AddTransient<IGraphqlActions, GraphqlActions>()
                 .AddTransient<IDataMutator, DataMutator>()
-                .AddTransient<IRawValueConverter, RawValueConverter>();
+                .AddTransient<IJsonValueConverter, JsonValueConverter>();
 
             _services = serviceCollection.BuildServiceProvider();
         }

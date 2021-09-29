@@ -8,6 +8,6 @@
         Int,
         Float,
         Boolean,
-        OrderByExp
+        OrderBy
     }
 }

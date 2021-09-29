@@ -1,15 +1,14 @@
 ﻿using GraphqlToTsql.Translator;
 using NUnit.Framework;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsqlTests
 {
     [TestFixture]
-    public class RawValueConverterTests
+    public class JsonValueConverterTests
     {
-        private readonly RawValueConverter _rawValueConverter = new RawValueConverter();
+        private readonly JsonValueConverter _rawValueConverter = new JsonValueConverter();
 
         [TestCaseSource(nameof(BaseTypeTestCases))]
         public void RawValue_BaseTypes(object rawValue, ValueType expectedValueType, object expectedRawValue)
@@ -45,36 +44,6 @@ namespace GraphqlToTsqlTests
                 yield return new TestCaseData(true, ValueType.Boolean, true);
                 yield return new TestCaseData(false, ValueType.Boolean, false);
             }
-        }
-
-        [Test]
-        public void RawValue_OrderBy_JsonValue()
-        {
-            var variables = new Dictionary<string, object> { { "orderBy", new { city = "desc" } } };
-            var jsonString = JsonConvert.SerializeObject(variables);
-            var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonString);
-
-            var value = _rawValueConverter.Convert(ValueType.OrderByExp, dict["orderBy"]);
-
-            Assert.AreEqual(ValueType.OrderByExp, value.ValueType);
-            Assert.AreEqual("OrderByExp", value.RawValue.GetType().Name);
-
-            var orderByExp = (OrderByExp)value.RawValue;
-            Assert.AreEqual("city", orderByExp.FieldName);
-            Assert.AreEqual(OrderByEnum.desc, orderByExp.OrderByEnum);
-        }
-
-        [Test]
-        public void RawValue_OrderBy_AnonymousObject()
-        {
-            var value = _rawValueConverter.Convert(ValueType.OrderByExp, new { city = "desc" });
-
-            Assert.AreEqual(ValueType.OrderByExp, value.ValueType);
-            Assert.AreEqual("OrderByExp", value.RawValue.GetType().Name);
-
-            var orderByExp = (OrderByExp)value.RawValue;
-            Assert.AreEqual("city", orderByExp.FieldName);
-            Assert.AreEqual(OrderByEnum.desc, orderByExp.OrderByEnum);
         }
     }
 }

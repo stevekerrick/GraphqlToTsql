@@ -3,6 +3,7 @@ using GraphqlToTsql.CodeGen;
 using GraphqlToTsql.Entities;
 using System;
 using System.Collections.Generic;
+using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Translator
 {
@@ -41,7 +42,12 @@ namespace GraphqlToTsql.Translator
             {
                 throw InvalidRequestException.Unsupported(ErrorCode.V03, "Array values", context);
             }
+
             var type = typeContext.namedType().GetText();
+            if (!Enum.TryParse<ValueType>(type, out var valueType))
+            {
+                throw new InvalidRequestException(ErrorCode.V04, $"Unsupported type: {type}", new Context(context));
+            }
 
             var typeIsNullable = !context.type_().GetText().EndsWith("!");
 
@@ -49,7 +55,7 @@ namespace GraphqlToTsql.Translator
             if (context.defaultValue() != null)
             {
                 var defaultValueContext = context.defaultValue().value();
-                defaultValue = new Value(defaultValueContext);
+                defaultValue = new Value(valueType, defaultValueContext);
             }
 
             _qt.Variable(name, type, typeIsNullable, defaultValue, new Context(context));
@@ -75,6 +81,9 @@ namespace GraphqlToTsql.Translator
             _qt.Field(alias, name, new Context(context));
         }
 
+        // e.g. name: $nameVar
+        // e.g. id: 1
+        // e.g. order_by: {"city": desc}
         public override void ExitArgument(GqlParser.ArgumentContext context)
         {
             var name = context.name().GetText();
@@ -85,20 +94,7 @@ namespace GraphqlToTsql.Translator
                 throw new InvalidRequestException(ErrorCode.V01, $"Arguments should be formed like (id: 1)", new Context(context));
             }
 
-            // Found ORDER BY specification
-            if (name == Constants.ORDER_BY)
-            {
-                var objectValue = ParseObjectValue(valueOrVariableContext, ErrorCode.V30);
-                if (objectValue.ObjectFields.Count != 1)
-                {
-                    throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} must specify exactly one field to order by", new Context(context));
-                }
-
-                _qt.OrderBy(objectValue, new Context(context));
-                return;
-            }
-
-            // The r-value is a scalar variable reference
+            // The r-value is a variable reference
             if (valueOrVariableContext.variable() != null)
             {
                 var variableName = valueOrVariableContext.variable().children[1].GetText();
@@ -106,8 +102,16 @@ namespace GraphqlToTsql.Translator
                 return;
             }
 
+            // Found ORDER BY specification
+            if (name == Constants.ORDER_BY)
+            {
+                var orderByValue = OrderByValue.FromParse(valueOrVariableContext);
+                _qt.OrderBy(orderByValue, new Context(context));
+                return;
+            }
+
             // The r-value is a scalar value
-            var value = new Value(valueOrVariableContext);
+            var value = Value.ScalarValueFromParse(valueOrVariableContext);
             _qt.Argument(name, value, new Context(context));
         }
 
@@ -161,33 +165,5 @@ namespace GraphqlToTsql.Translator
 
         #endregion
 
-        private ObjectValue ParseObjectValue(GqlParser.ValueContext valueContext, ErrorCode errorCode)
-        {
-            var objectValueContext = valueContext.objectValue();
-            if (objectValueContext == null)
-            {
-                throw new InvalidRequestException(errorCode, "An object value was expected", new Context(valueContext));
-            }
-
-            var objectValue = new ObjectValue();
-            var objectFieldContexts = objectValueContext.objectField();
-            foreach(var objectFieldContext in objectFieldContexts)
-            {
-                objectValue.ObjectFields.Add(ParseObjectField(objectFieldContext, typeof(OrderByEnum)));
-            }
-
-            return objectValue;
-        }
-
-        private ObjectField ParseObjectField(GqlParser.ObjectFieldContext objectFieldContext, Type enumTypeAllowed)
-        {
-            var name = objectFieldContext.name().GetText();
-            var value = new Value(objectFieldContext.value(), enumTypeAllowed);
-            return new ObjectField
-            {
-                Name = name,
-                Value = value
-            };
-        }
     }
 }

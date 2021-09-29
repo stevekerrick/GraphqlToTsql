@@ -17,7 +17,7 @@ namespace GraphqlToTsql.Translator
         public TermType TermType { get; private set; }
 
         private Arguments _arguments;
-        private OrderBy _orderBy;
+        private OrderByValue _orderByValue;
         private string _tableAlias;
 
         private Term()
@@ -157,7 +157,7 @@ namespace GraphqlToTsql.Translator
             }
         }
 
-        public OrderBy OrderBy
+        public OrderByValue OrderByValue
         {
             get
             {
@@ -165,47 +165,43 @@ namespace GraphqlToTsql.Translator
                 // But when the TSQL is formed those arguments apply to the edge.
                 if (Field != null && Field.FieldType == FieldType.Edge)
                 {
-                    return Parent.OrderBy;
+                    return Parent.OrderByValue;
                 }
-                return _orderBy;
+                return _orderByValue;
             }
             private set
             {
-                _orderBy = value;
+                _orderByValue = value;
             }
         }
 
-        public void SetOrderBy(ObjectValue objectValue, Context context)
+        public void SetOrderBy(OrderByValue orderByValue, Context context)
         {
-            //if (OrderBy != null)
-            //{
-            //    throw new InvalidRequestException(ErrorCode.V30, $"Only one {Constants.ORDER_BY} is allowed on a list", context);
-            //}
             if (Field.FieldType != FieldType.Set && Field.FieldType != FieldType.Connection)
             {
                 throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} is not allowed on [{Name}]", context);
             }
 
-            var orderBy = new OrderBy();
-            foreach (var objectField in objectValue.ObjectFields)
-            {
-                var field = Field.Entity.GetField(objectField.Name, context);
+            //var orderBy = new OrderBy();
+            //foreach (var objectField in objectValue.ObjectFields)
+            //{
+            //    var field = Field.Entity.GetField(objectField.Name, context);
 
-                if (objectField.Value.ValueType != ValueType.String)
-                {
-                    throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} must be either {Constants.ASC} or {Constants.DESC}, not [{objectField.Value.RawValue}]", context);
-                }
+            //    if (objectField.Value.ValueType != ValueType.String)
+            //    {
+            //        throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} must be either {Constants.ASC} or {Constants.DESC}, not [{objectField.Value.RawValue}]", context);
+            //    }
 
-                var canParseOrderByEnum = Enum.TryParse<OrderByEnum>(objectField.Value.RawValue.ToString(), ignoreCase: true, result: out var orderByEnum);
-                if (!canParseOrderByEnum)
-                {
-                    throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} must be either {Constants.ASC} or {Constants.DESC}, not [{objectField.Value.RawValue}]", context);
-                }
+            //    var canParseOrderByEnum = Enum.TryParse<OrderByEnum>(objectField.Value.RawValue.ToString(), ignoreCase: true, result: out var orderByEnum);
+            //    if (!canParseOrderByEnum)
+            //    {
+            //        throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} must be either {Constants.ASC} or {Constants.DESC}, not [{objectField.Value.RawValue}]", context);
+            //    }
 
-                orderBy.Add(field, orderByEnum);
-            }
+            //    orderBy.Add(field, orderByEnum);
+            //}
 
-            OrderBy = orderBy;
+            OrderByValue = orderByValue;
             CheckForConflictBetweenOrderByAndCursorBasedPaging(context);
         }
 
@@ -242,14 +238,14 @@ namespace GraphqlToTsql.Translator
 
         private void CheckForConflictBetweenOrderByAndCursorBasedPaging(Context context)
         {
-            if (Arguments.After == null || OrderBy == null)
+            if (Arguments.After == null || OrderByValue == null)
             {
                 return;
             }
 
             // Cursors only work when there's exactly 1 PK field
             var pkFieldName = Field.Entity.PrimaryKeyFieldNames.FirstOrDefault();
-            if (OrderBy.Fields.Count == 1 && OrderBy.Fields[0].Field.Name == pkFieldName)
+            if (OrderByValue.Fields.Count == 1 && OrderByValue.Fields[0].FieldName == pkFieldName)
             {
                 return;
             }

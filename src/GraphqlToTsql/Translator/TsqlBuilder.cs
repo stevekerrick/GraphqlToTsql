@@ -356,7 +356,7 @@ namespace GraphqlToTsql.Translator
                 var filter = new Arguments.Filter(entity.SinglePrimaryKeyFieldForPaging, cursorData.Value);
                 childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
 
-                var op = term.OrderBy != null && term.OrderBy.Fields[0].OrderByEnum == OrderByEnum.desc
+                var op = term.OrderByValue != null && term.OrderByValue.Fields[0].OrderByEnum == OrderByEnum.desc
                     ? "<"
                     : ">";
 
@@ -376,7 +376,7 @@ namespace GraphqlToTsql.Translator
         private void EmitOrderByClause(Term term)
         {
             var hasPaging = term.Arguments.First != null || term.Arguments.Offset != null || term.Arguments.After != null;
-            if (!hasPaging && term.OrderBy == null)
+            if (!hasPaging && term.OrderByValue == null)
             {
                 return;
             }
@@ -384,23 +384,25 @@ namespace GraphqlToTsql.Translator
             var columns = new List<string>();
 
             // If the query specified OrderBy, set up those column sorts first
-            if (term.OrderBy != null)
+            if (term.OrderByValue != null)
             {
-                foreach (var orderByField in term.OrderBy.Fields)
+                foreach (var orderByField in term.OrderByValue.Fields)
                 {
-                    columns.Add(FormatOrderByColumn(term, orderByField.Field, orderByField.OrderByEnum));
+                    throw new Exception("reinstate this code when OrderBy logic is ready");
+                    //columns.Add(FormatOrderByColumn(term, orderByField.Field, orderByField.OrderByEnum));
                 }
             }
 
             // Add PK columns to the OrderBy
-            var defaultOrderByEnum = term.OrderBy == null ? OrderByEnum.asc : term.OrderBy.Fields[0].OrderByEnum;
+            var defaultOrderByEnum = term.OrderByValue == null ? OrderByEnum.asc : term.OrderByValue.Fields[0].OrderByEnum;
             var entity = term.Field.Entity;
             foreach (var pkField in entity.PrimaryKeyFields)
             {
-                if (term.OrderBy != null && term.OrderBy.Fields.Any(_ => _.Field == pkField))
-                {
-                    continue;
-                }
+                throw new Exception("reinstate this code when OrderBy logic is ready");
+                //if (term.OrderBy != null && term.OrderBy.Fields.Any(_ => _.Field == pkField))
+                //{
+                //    continue;
+                //}
 
                 columns.Add(FormatOrderByColumn(term, pkField, defaultOrderByEnum));
             }
