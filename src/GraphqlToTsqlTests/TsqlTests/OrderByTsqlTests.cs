@@ -129,6 +129,10 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             var graphqlParameters = new Dictionary<string, object> { { "orderBy", new { city = "desc" } } };
 
             var expectedSql = @"
+-------------------------------
+-- Operation: VarOrderByTest
+-------------------------------
+
 SELECT
 
   -- sellers (t1)

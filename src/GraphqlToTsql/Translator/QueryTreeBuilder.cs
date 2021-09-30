@@ -19,8 +19,9 @@ namespace GraphqlToTsql.Translator
         void UseFragment(string name);
         void BeginDirective(string name, Context context);
         void EndDirective();
-        void Argument(string name, Value value, Context context);
         void Argument(string name, string variableName, Context context);
+        void Argument(string name, Value value, Context context);
+        void OrderBy(string variableName, Context context);
         void OrderBy(OrderByValue orderByValue, Context context);
     }
 
@@ -183,19 +184,25 @@ namespace GraphqlToTsql.Translator
             _parent = _term.Parent;
         }
 
+        public void Argument(string name, string variableName, Context context)
+        {
+            var value = LookupVariable(variableName, context);
+            Argument(name, value, context);
+        }
+
         public void Argument(string name, Value value, Context context)
         {
             _term.AddArgument(name, value, context);
         }
 
-        public void Argument(string name, string variableName, Context context)
+        public void OrderBy(string variableName, Context context)
         {
-            if (!_variables.ContainsKey(variableName))
+            var value = LookupVariable(variableName, context);
+            if (value.ValueType != ValueType.OrderBy)
             {
-                throw new InvalidRequestException(ErrorCode.V09, $"Variable [${variableName}] is not declared", context);
+                throw new InvalidRequestException(ErrorCode.V30, $"Variable [${variableName}] is not type {ValueType.OrderBy}", context);
             }
-
-            _term.AddArgument(name, _variables[variableName], context);
+            OrderBy((OrderByValue)value.RawValue, context);
         }
 
         public void OrderBy(OrderByValue orderByValue, Context context)
@@ -236,6 +243,16 @@ namespace GraphqlToTsql.Translator
             }
 
             return null;
+        }
+
+        private Value LookupVariable(string variableName, Context context)
+        {
+            if (!_variables.ContainsKey(variableName))
+            {
+                throw new InvalidRequestException(ErrorCode.V09, $"Variable [${variableName}] is not declared", context);
+            }
+
+            return _variables[variableName];
         }
     }
 }
