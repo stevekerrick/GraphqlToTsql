@@ -121,16 +121,43 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             Check(graphql, null, expectedSql, expectedTsqlParameters);
         }
 
+        [Test]
+        public void OrderBy_SingleColumn_LiteralValue()
+        {
+            var graphql = @"query OrderByCity { sellers (order_by: {city: desc}) { name } }";
+            var graphqlParameters = new Dictionary<string, object> { { "orderBy", new { city = "desc" } } };
+            CheckOrderByCity(graphql, graphqlParameters);
+        }
 
         [Test]
-        public void OrderBy_VariableOrderByObjectTest()
+        public void OrderBy_SingleColumn_Variable()
         {
-            var graphql = @"query VarOrderByTest ($orderBy: OrderBy) { sellers (order_by: $orderBy) { name } }";
+            var graphql = @"query OrderByCity ($orderBy: OrderBy) { sellers (order_by: $orderBy) { name } }";
             var graphqlParameters = new Dictionary<string, object> { { "orderBy", new { city = "desc" } } };
+            CheckOrderByCity(graphql, graphqlParameters);
+        }
 
+        [Test]
+        public void OrderBy_SingleColumn_VariableWithDefaultValue()
+        {
+            var graphql = @"query OrderByCity ($orderBy: OrderBy={city: desc}) { sellers (order_by: $orderBy) { name } }";
+            var graphqlParameters = new Dictionary<string, object> { };
+            CheckOrderByCity(graphql, graphqlParameters);
+        }
+
+        [Test]
+        public void OrderBy_SingleColumn_VariableIgnoreDefaultValue()
+        {
+            var graphql = @"query OrderByCity ($orderBy: OrderBy={postalCode: desc}) { sellers (order_by: $orderBy) { name } }";
+            var graphqlParameters = new Dictionary<string, object> { { "orderBy", new { city = "desc" } } };
+            CheckOrderByCity(graphql, graphqlParameters);
+        }
+
+        private void CheckOrderByCity(string graphql, Dictionary<string, object> graphqlParameters)
+        {
             var expectedSql = @"
 -------------------------------
--- Operation: VarOrderByTest
+-- Operation: OrderByCity
 -------------------------------
 
 SELECT
@@ -150,9 +177,61 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
         }
 
+        [Test]
+        public void OrderBy_MultiColumn_LiteralValue()
+        {
+            var graphql = @"query OrderByCityAndState { sellers (order_by: [{city: desc}, {state: asc}]) { name } }";
+            var graphqlParameters = new Dictionary<string, object> { { "orderBy", new { city = "desc" } } };
+            CheckOrderByCityAndState(graphql, graphqlParameters);
+        }
 
+        [Test]
+        public void OrderBy_MultiColumn_Variable()
+        {
+            var graphql = @"query OrderByCityAndState ($orderBy: OrderBy) { sellers (order_by: $orderBy) { name } }";
+            var graphqlParameters = new Dictionary<string, object> { { "orderBy", new object[] { new { city = "desc" }, new { state = "asc" } } } };
+            CheckOrderByCityAndState(graphql, graphqlParameters);
+        }
 
+        [Test]
+        public void OrderBy_MultiColumn_VariableWithDefaultValue()
+        {
+            var graphql = @"query OrderByCityAndState ($orderBy: OrderBy=[{city: desc}, {state: asc}]) { sellers (order_by: $orderBy) { name } }";
+            var graphqlParameters = new Dictionary<string, object> { };
+            CheckOrderByCityAndState(graphql, graphqlParameters);
+        }
 
+        [Test]
+        public void OrderBy_MultiColumn_VariableIgnoreDefaultValue()
+        {
+            var graphql = @"query OrderByCityAndState ($orderBy: OrderBy={postalCode: desc}) { sellers (order_by: $orderBy) { name } }";
+            var graphqlParameters = new Dictionary<string, object> { { "orderBy", new object[] { new { city = "desc" }, new { state = "asc" } } } };
+            CheckOrderByCityAndState(graphql, graphqlParameters);
+        }
+
+        private void CheckOrderByCityAndState(string graphql, Dictionary<string, object> graphqlParameters)
+        {
+            var expectedSql = @"
+-------------------------------
+-- Operation: OrderByCityAndState
+-------------------------------
+
+SELECT
+
+  -- sellers (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Name] AS [name]
+    FROM [Seller] t1
+    ORDER BY t1.[City] DESC, t1.[State], t1.[Name] DESC
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [sellers]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object> { };
+
+            Check(graphql, graphqlParameters, expectedSql, expectedTsqlParameters);
+        }
 
         [Test]
         public void OrderBy_NonObjectValue_Fails()
@@ -213,17 +292,9 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
 
-
-        // Use variable for OrderBy object, with a default
         // use variable for asc/desc value
-        // use variable for entire OrderBy object
-        // TODO: refactor so that objectValue parsing is more general-purpose, and uses enums properly
-
-        // TODO: support multiple order_by's
         // TODO: Introspection support
         // TODO: Documentation
         // TODO: Sample queries
-
-
     }
 }
