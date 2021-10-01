@@ -429,9 +429,15 @@ namespace GraphqlToTsql.Translator
 
         private string FormatOrderByColumn(Term term, Field field, OrderByEnum orderByEnum)
         {
-            var qualifiedColumnName = $"{term.TableAlias(_aliasSequence)}.[{field.DbColumnName}]";
+            var alias = term.TableAlias(_aliasSequence);
 
-            return orderByEnum == OrderByEnum.asc ? qualifiedColumnName : $"{qualifiedColumnName} {orderByEnum.ToString().ToUpper()}";
+            var columnExpression = field.TemplateFunc == null
+                ? $"{alias}.[{field.DbColumnName}]"
+                : $"({field.TemplateFunc(alias)})";
+
+            return orderByEnum == OrderByEnum.asc 
+                ? columnExpression
+                : $"{columnExpression} {orderByEnum.ToString().ToUpper()}";
         }
 
         private string RegisterTsqlParameter(Arguments.Filter filter)

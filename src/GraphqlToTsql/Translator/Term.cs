@@ -185,7 +185,11 @@ namespace GraphqlToTsql.Translator
             // Validate the OrderBy field names
             foreach(var orderByField in orderByValue.Fields)
             {
-                Field.Entity.GetField(orderByField.FieldName, context); // Throws if the field is not found
+                var field = Field.Entity.GetField(orderByField.FieldName, context); // Throws if the field is not found
+                if (field.FieldType != FieldType.Column)
+                {
+                    throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} is not allowed on [{Name}.{field.Name}]", context);
+                }
             }
 
             OrderByValue = orderByValue;

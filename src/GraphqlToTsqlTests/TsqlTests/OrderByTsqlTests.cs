@@ -234,6 +234,30 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         }
 
         [Test]
+        public void OrderBy_CalculatedFieldTest()
+        {
+            var graphql = "{ products (order_by: { totalRevenue: desc }) { name totalRevenue } }";
+
+            var expectedSql = @"
+SELECT
+
+  -- products (t1)
+  JSON_QUERY ((
+    SELECT
+      t1.[Name] AS [name]
+    , (SELECT (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE t1.[Name] = od.ProductName) * t1.Price) AS [totalRevenue]
+    FROM [Product] t1
+    ORDER BY (SELECT (SELECT SUM(od.Quantity) FROM OrderDetail od WHERE t1.[Name] = od.ProductName) * t1.Price) DESC, t1.[Name] DESC
+    FOR JSON PATH, INCLUDE_NULL_VALUES)) AS [products]
+
+FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
+".Trim();
+            var expectedTsqlParameters = new Dictionary<string, object> { };
+
+            Check(graphql, null, expectedSql, expectedTsqlParameters);
+        }
+
+        [Test]
         public void OrderBy_NonObjectValue_Fails()
         {
             var graphql = "{ sellers (order_by: \"city\") { name } }";
@@ -291,8 +315,19 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
             ParseShouldFail(graphql, null, "Because you are using cursor-based paging, you can only order_by id");
         }
 
+        [Test]
+        public void OrderBy_NonScalarField_Fails()
+        {
+            var graphql = "{ sellers (order_by: { orders: desc }) { name } }";
+            ParseShouldFail(graphql, null, "order_by is not allowed on [sellers.orders]");
+        }
 
-        // use variable for asc/desc value
+
+
+
+
+
+
         // TODO: Introspection support
         // TODO: Documentation
         // TODO: Sample queries
