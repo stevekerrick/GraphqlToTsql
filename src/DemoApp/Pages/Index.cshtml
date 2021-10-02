@@ -291,6 +291,38 @@ GROUP BY s.[Name]
             notes: `<p>This is the introspection query used by graphiql</p>
 <p>If you're curious how GraphqlToTsql handles introspection, take a look
 at the generated SQL. You'll see giant CTEs that define the introspection data.</p>`
+        },
+        {
+            name: 'order by',
+            graphql: `query SellerDetails ($who: String) {
+  seller (name: $who) {
+    name city state postalCode
+    recruits (order_by: [{state: asc}, {name: asc}]) { name state }
+    sellerBadges (order_by: {dateAwarded: desc}) { badge { name} dateAwarded }
+    orders (order_by: {date: desc}, first: 1000) { id date }
+  }
+}`,
+            graphqlParameters: '{ "who": "bill" }',
+            notes: `<p>Find a lot of information about Bill, using order_by</p>
+<p>Notice that the list of Bill's recruits is sorted by two columns,
+first by state and then by name.</p>
+<p>In GraphqlToTsql you can order_by any scalar field.</p>
+`
+        },
+        {
+            name: 'order by calculated field',
+            graphql: `{
+  products (first: 1, order_by: { totalRevenue: desc }) {
+    name price totalRevenue
+    sellerProductTotals (order_by: { totalAmount: desc }) { seller { name } totalAmount totalQuantity }
+  }
+}`,
+            graphqlParameters: '{ }',
+            notes: `<p>Find the top selling product</p>
+<p>This query orders products by a calculated field, totalRevenue, and returns the first one.</p>
+<p>Take a peek at the generated TSQL for this query. You'll see the <i>totalRevenue</i>
+expression used twice -- once for the ORDER BY clause, and once for the return value.</p>
+`
         }
     ];
 
