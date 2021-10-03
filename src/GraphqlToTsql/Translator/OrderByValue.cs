@@ -150,7 +150,7 @@ namespace GraphqlToTsql.Translator
 
         private static InvalidRequestException Error()
         {
-            return new InvalidRequestException(ErrorCode.V30, $"Invalid {Constants.ORDER_BY} value. Try something like {{ id: desc }}.");
+            return new InvalidRequestException(ErrorCode.V30, $"Invalid {Constants.ORDER_BY_ARGUMENT} value. Try something like {{ id: desc }}.");
         }
     }
 

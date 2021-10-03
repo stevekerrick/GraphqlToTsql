@@ -98,7 +98,7 @@ namespace GraphqlToTsql.Translator
             }
 
             // Found ORDER BY specification
-            if (name == Constants.ORDER_BY)
+            if (name == Constants.ORDER_BY_ARGUMENT)
             {
                 if (valueOrVariableContext.variable() != null)
                 {

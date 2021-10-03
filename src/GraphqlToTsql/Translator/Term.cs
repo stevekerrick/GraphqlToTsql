@@ -179,7 +179,7 @@ namespace GraphqlToTsql.Translator
         {
             if (Field.FieldType != FieldType.Set && Field.FieldType != FieldType.Connection)
             {
-                throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} is not allowed on [{Name}]", context);
+                throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY_ARGUMENT} is not allowed on [{Name}]", context);
             }
 
             // Validate the OrderBy field names
@@ -188,7 +188,7 @@ namespace GraphqlToTsql.Translator
                 var field = Field.Entity.GetField(orderByField.FieldName, context); // Throws if the field is not found
                 if (field.FieldType != FieldType.Column)
                 {
-                    throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY} is not allowed on [{Name}.{field.Name}]", context);
+                    throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY_ARGUMENT} is not allowed on [{Name}.{field.Name}]", context);
                 }
             }
 
@@ -241,7 +241,7 @@ namespace GraphqlToTsql.Translator
                 return;
             }
 
-            throw new InvalidRequestException(ErrorCode.V30, $"Because you are using cursor-based paging, you can only {Constants.ORDER_BY} {pkFieldName}", context);
+            throw new InvalidRequestException(ErrorCode.V30, $"Because you are using cursor-based paging, you can only {Constants.ORDER_BY_ARGUMENT} {pkFieldName}", context);
         }
     }
 

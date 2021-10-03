@@ -18,9 +18,9 @@
         public const string IF_ARGUMENT = "if";
         public const string DIRECTIVE_TYPE_KEY = "*Directive*";
 
-        public const string ORDER_BY = "order_by";
+        public const string ORDER_BY_OBJECT = "OrderBy";
+        public const string ORDER_BY_ARGUMENT = "order_by";
         public const string ASC = "asc";
         public const string DESC = "desc";
-
     }
 }
