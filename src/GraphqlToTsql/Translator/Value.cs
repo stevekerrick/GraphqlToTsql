@@ -72,30 +72,6 @@ namespace GraphqlToTsql.Translator
                 return new Value(ValueType.Null, null);
             }
 
-            //var enumValueContext = valueContext.enumValue();
-            //if (expectedEnumType != null)
-            //{
-            //    if (enumValueContext == null)
-            //    {
-            //        var expectedValues = string.Join(", ", Enum.GetNames(expectedEnumType));
-            //        throw new InvalidRequestException(ErrorCode.V13, $"Expected an unquoted enum value, one of ({expectedValues})", new Context(valueContext));
-            //    }
-
-            //    var enumValueString = enumValueContext.GetText();
-            //    try
-            //    {
-            //        Enum.Parse(expectedEnumType, enumValueString);
-            //        ValueType = ValueType.String;
-            //        RawValue = enumValueString;
-            //        return;
-            //    }
-            //    catch
-            //    {
-            //        var expectedValues = string.Join(", ", Enum.GetNames(expectedEnumType));
-            //        throw new InvalidRequestException(ErrorCode.V13, $"Expected one of ({expectedValues})", new Context(valueContext));
-            //    }
-            //}
-
             var stringValueContext = valueContext.stringValue();
             if (stringValueContext != null)
             {
