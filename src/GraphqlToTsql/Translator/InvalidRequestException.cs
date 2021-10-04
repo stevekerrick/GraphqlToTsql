@@ -59,7 +59,8 @@ namespace GraphqlToTsql.Translator
         V26, // Fragment is defined for a different type
         V27, // Cursor-based paging not supported for the list
         V28, // Cursor is invalid
-        V29, // Malformed Graphql 
+        V29, // Malformed Graphql
+        V30, // Invalid orderBy specification
         E01, // Database error
     }
 }

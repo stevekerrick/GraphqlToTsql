@@ -3,6 +3,7 @@ using GraphqlToTsql.Translator;
 using GraphqlToTsql.Util;
 using NUnit.Framework;
 using System;
+using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsqlTests
 {
@@ -52,7 +53,7 @@ namespace GraphqlToTsqlTests
         public void CorruptedCursorTest(Func<string, string> corruptorFunc)
         {
             // Create an actual cursor
-            var value = new Value(_fixture.Create<int>());
+            var value = RandomIntValue();
             var dbTableName = _fixture.Create<string>();
             var cursor = CursorUtility.CreateCursor(value, dbTableName);
 
@@ -101,12 +102,12 @@ namespace GraphqlToTsqlTests
  
         Value RandomIntValue()
         {
-            return new Value(_fixture.Create<int>());
+            return new Value(ValueType.Int, _fixture.Create<int>());
         }
 
         Value RandomStringValue()
         {
-            return new Value(_fixture.Create<string>());
+            return new Value(ValueType.String, _fixture.Create<string>());
         }
     }
 }

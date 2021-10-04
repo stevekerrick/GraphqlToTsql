@@ -10,11 +10,13 @@ namespace GraphqlToTsql.Introspection
         public GqlType Type { get; set; }
         public bool IsDeprecated { get; set; }
         public string DeprecationReason { get; set; }
+        public string BaseEntityType { get; set; }
 
-        public GqlField(string name, GqlType type)
+        public GqlField(string name, GqlType type, string baseEntityType = null)
         {
-            this.Name = name;
-            this.Type = type;
+            Name = name;
+            Type = type;
+            BaseEntityType = baseEntityType;
 
             Args = new List<GqlInputValue>();
             Args.Add(new GqlInputValue

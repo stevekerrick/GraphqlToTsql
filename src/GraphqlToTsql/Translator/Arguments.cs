@@ -115,5 +115,31 @@ namespace GraphqlToTsql.Translator
                 Value = coercedValue;
             }
         }
+
+        public class OrderBy
+        {
+            public Field Field { get; }
+            public bool IsAscending { get; }
+
+            public OrderBy(Field field, Value value, Context context)
+            {
+                var error = $"{Constants.ORDER_BY_ARGUMENT} must be either {Constants.ASC} or {Constants.DESC}";
+
+                var coercedValue = new Value(ValueType.String, value, () => $"{error}: {value.RawValue}");
+                if (coercedValue.RawValue == null)
+                {
+                    throw new InvalidRequestException(ErrorCode.V30, $"{error}, not null", context);
+                }
+
+                var ascOrDesc = coercedValue.RawValue.ToString().ToLower();
+                if (ascOrDesc != Constants.ASC && ascOrDesc != Constants.DESC)
+                {
+                    throw new InvalidRequestException(ErrorCode.V30, $"{error}, not {coercedValue.RawValue}", context);
+                }
+
+                Field = field;
+                IsAscending = ascOrDesc == Constants.ASC;
+            }
+        }
     }
 }

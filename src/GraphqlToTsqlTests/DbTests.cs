@@ -215,7 +215,8 @@ query firstPage ($seller: String, $cursor: String) {
                     {
                         new { name = "name" },
                         new { name = "isSpecial" },
-                        new { name = "sellerBadges" }
+                        new { name = "sellerBadges" },
+                        new { name = "sellerBadgesConnection" }
                     }
                 }
             };

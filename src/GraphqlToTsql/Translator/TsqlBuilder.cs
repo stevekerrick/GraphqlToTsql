@@ -355,7 +355,12 @@ namespace GraphqlToTsql.Translator
                 var cursorData = CursorUtility.DecodeCursor(term.Arguments.After, entity.DbTableName);
                 var filter = new Arguments.Filter(entity.SinglePrimaryKeyFieldForPaging, cursorData.Value);
                 childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
-                whereParts.Add($"{childTableAlias}.[{filter.Field.DbColumnName}] > @{RegisterTsqlParameter(filter)}");
+
+                var op = term.OrderByValue != null && term.OrderByValue.Fields[0].OrderByEnum == OrderByEnum.DESC
+                    ? "<"
+                    : ">";
+
+                whereParts.Add($"{childTableAlias}.[{filter.Field.DbColumnName}] {op} @{RegisterTsqlParameter(filter)}");
             }
 
             // Build the complete WHERE clause
@@ -370,25 +375,69 @@ namespace GraphqlToTsql.Translator
 
         private void EmitOrderByClause(Term term)
         {
-            if (term.Arguments.First == null && term.Arguments.Offset == null && term.Arguments.After == null)
+            var hasPaging = term.Arguments.First != null || term.Arguments.Offset != null || term.Arguments.After != null;
+            if (!hasPaging && term.OrderByValue == null)
             {
                 return;
             }
 
-            var offset = term.Arguments.Offset.GetValueOrDefault(0);
-            var first = term.Arguments.First;
+            var columns = new List<string>();
 
-            var entity = term.Field.Entity;
-            var pks = entity.PrimaryKeyFields;
-            var columns = pks.Select(pk => $"{term.TableAlias(_aliasSequence)}.[{pk.DbColumnName}]");
-            var orderBy = string.Join(", ", columns);
-
-            Emit($"ORDER BY {orderBy}");
-            Emit($"OFFSET {offset} ROWS");
-            if (first != null)
+            // If the query specified OrderBy, set up those column sorts first
+            if (term.OrderByValue != null)
             {
-                Emit($"FETCH FIRST {first} ROWS ONLY");
+                var setEntity = term.Field.FieldType == FieldType.Edge
+                    ? term.Parent.Field.Entity
+                    : term.Field.Entity;
+                foreach (var orderByField in term.OrderByValue.Fields)
+                {
+                    var field = setEntity.GetField(orderByField.FieldName);
+                    columns.Add(FormatOrderByColumn(term, field, orderByField.OrderByEnum));
+                }
             }
+
+            // Add PK columns to the OrderBy
+            var defaultOrderByEnum = term.OrderByValue == null ? OrderByEnum.ASC : term.OrderByValue.Fields[0].OrderByEnum;
+            var entity = term.Field.Entity;
+            foreach (var pkField in entity.PrimaryKeyFields)
+            {
+                if (term.OrderByValue != null && term.OrderByValue.Fields.Any(_ => _.FieldName == pkField.Name))
+                {
+                    continue;
+                }
+
+                columns.Add(FormatOrderByColumn(term, pkField, defaultOrderByEnum));
+            }
+
+            // Build the ORDER BY SQL
+            var orderBy = string.Join(", ", columns);
+            Emit($"ORDER BY {orderBy}");
+
+            // If there is Paging, build the OFFSET SQL
+            if (hasPaging)
+            {
+                var offset = term.Arguments.Offset.GetValueOrDefault(0);
+                var first = term.Arguments.First;
+
+                Emit($"OFFSET {offset} ROWS");
+                if (first != null)
+                {
+                    Emit($"FETCH FIRST {first} ROWS ONLY");
+                }
+            }
+        }
+
+        private string FormatOrderByColumn(Term term, Field field, OrderByEnum orderByEnum)
+        {
+            var alias = term.TableAlias(_aliasSequence);
+
+            var columnExpression = field.TemplateFunc == null
+                ? $"{alias}.[{field.DbColumnName}]"
+                : $"({field.TemplateFunc(alias)})";
+
+            return orderByEnum == OrderByEnum.ASC 
+                ? columnExpression
+                : $"{columnExpression} {orderByEnum.ToString().ToUpper()}";
         }
 
         private string RegisterTsqlParameter(Arguments.Filter filter)

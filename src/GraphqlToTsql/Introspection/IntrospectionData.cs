@@ -25,9 +25,9 @@ namespace GraphqlToTsql.Introspection
 
             BuildScalarTypes();
 
-            BuildEntityTypes(entityList);
-
             BuildEnums();
+
+            BuildEntityTypes(entityList);
 
             BuildQueryTypes(entityList);
 
@@ -56,12 +56,14 @@ namespace GraphqlToTsql.Introspection
             {
                 EntityType(entity);
 
-                // Every entity has an assocaited ConnectionEntity
+                // Every entity has an associated ConnectionEntity and OrderByObject
                 if (!entity.IsSystemEntity)
                 {
                     var setField = Field.Set(entity, entity.PluralName + Constants.CONNECTION, join: null);
                     var connectionEntity = new ConnectionEntity(setField);
                     EntityType(connectionEntity);
+
+                    OrderByObject(entity);
                 }
             }
         }
@@ -102,7 +104,8 @@ namespace GraphqlToTsql.Introspection
                         break;
 
                     case FieldType.Set:
-                        type.Fields.Add(SetField(field));
+                        var setField = SetField(field);
+                        type.Fields.Add(setField);
 
                         // A "Set" field can also be queried using a Connection
                         if (!field.Entity.IsSystemEntity)
@@ -117,6 +120,30 @@ namespace GraphqlToTsql.Introspection
                     case FieldType.Edge:
                         type.Fields.Add(SetField(field));
                         break;
+                }
+            }
+
+            return type;
+        }
+
+        private GqlType OrderByObject(EntityBase entity)
+        {
+            var type = GqlType.InputObject(entity.EntityType + Constants.ORDER_BY_OBJECT);
+            if (IsTypeRegistered(type.Key))
+            {
+                return GetType(type.Key);
+            }
+            Types.Add(type);
+
+            var orderByEnumType = GetType("OrderByEnum");
+
+            foreach (var field in entity.Fields)
+            {
+                if (field.Visibility != Visibility.Hidden &&
+                    field.FieldType == FieldType.Column)
+                {
+                    var orderByField = new GqlInputValue { Name = field.Name, Type = orderByEnumType };
+                    type.InputFields.Add(orderByField);
                 }
             }
 
@@ -162,7 +189,14 @@ namespace GraphqlToTsql.Introspection
                 type = NonNullableType(type);
             }
 
-            return new GqlField(field.Name, type);
+            var baseEntityType = (string)null;
+            if (field.FieldType == FieldType.Edge)
+            {
+                var node = field.Entity.GetField(Constants.NODE);
+                baseEntityType = node.Entity.EntityType;
+            }
+
+            return new GqlField(field.Name, type, baseEntityType);
         }
 
         private GqlType NonNullableType(GqlType baseType)
@@ -194,6 +228,10 @@ namespace GraphqlToTsql.Introspection
             // CacheControlScope enum
             var cacheControlScopeEnum = GqlType.Enum("CacheControlScope", "PUBLIC", "PRIVATE");
             Types.Add(cacheControlScopeEnum);
+
+            // OrderByEnum
+            var orderByEnum = GqlType.Enum("OrderByEnum", Constants.ASC, Constants.DESC);
+            Types.Add(orderByEnum);
         }
 
         private void BuildQueryTypes(List<EntityBase> entityList)
@@ -334,6 +372,7 @@ namespace GraphqlToTsql.Introspection
             EnumValuesForOneType("__TypeKind", sb, ref isFirstRow);
             EnumValuesForOneType("__DirectiveLocation", sb, ref isFirstRow);
             EnumValuesForOneType("CacheControlScope", sb, ref isFirstRow);
+            EnumValuesForOneType("OrderByEnum", sb, ref isFirstRow);
 
             return sb.ToString().Trim();
         }
@@ -358,9 +397,9 @@ namespace GraphqlToTsql.Introspection
             var sb = new StringBuilder(1024);
             var isFirstRow = true;
 
-            // InputValues for row/set filtering
             foreach (var parentType in Types) // e.g. Seller
             {
+                // InputValues for row/set filtering
                 if (parentType.Fields != null)
                 {
                     foreach (var field in parentType.Fields)
@@ -397,8 +436,25 @@ namespace GraphqlToTsql.Introspection
                                 AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.FIRST_ARGUMENT, ValueType.Int.ToString());
                                 AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.OFFSET_ARGUMENT, ValueType.Int.ToString());
                                 AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.AFTER_ARGUMENT, ValueType.String.ToString());
+
+                                var baseEntityType = field.BaseEntityType ?? unwrappedFieldType.Key;
+                                var orderByTypeKey = $"{baseEntityType}{Constants.ORDER_BY_OBJECT}";
+                                if (IsTypeRegistered(orderByTypeKey))
+                                {
+                                    AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.ORDER_BY_ARGUMENT, orderByTypeKey);
+                                }
                             }
                         }
+                    }
+                }
+ 
+                // InputValues for OrderBy
+                if (parentType.Kind == TypeKind.INPUT_OBJECT)
+                {
+                    foreach(var inputValue in parentType.InputFields)
+                    {
+                        AppendInputValueRow(sb, isFirstRow, parentType.Key, null, inputValue.Name, inputValue.Type.Key);
+                        isFirstRow = false;
                     }
                 }
             }

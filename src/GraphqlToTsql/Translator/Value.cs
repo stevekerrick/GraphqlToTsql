@@ -27,168 +27,10 @@ namespace GraphqlToTsql.Translator
             }
         }
 
-        public Value(GqlParser.ValueContext valueContext)
-        {
-            if (valueContext == null)
-            {
-                ValueType = ValueType.Null;
-                RawValue = null;
-                return;
-            }
-
-            var nullValueContext = valueContext.nullValue();
-            if (nullValueContext != null)
-            {
-                ValueType = ValueType.Null;
-                RawValue = null;
-                return;
-            }
-
-            var stringValueContext = valueContext.stringValue();
-            if (stringValueContext != null)
-            {
-                var stringValue = (string)null;
-                if (stringValueContext.STRING() != null)
-                {
-                    var quotedString = stringValueContext.STRING().GetText();
-                    stringValue = quotedString.Substring(1, quotedString.Length - 2);
-                }
-                else if (stringValueContext.BLOCK_STRING() != null)
-                {
-                    var tripleQuotedString = stringValueContext.BLOCK_STRING().GetText();
-                    stringValue = tripleQuotedString.Substring(3, tripleQuotedString.Length - 6);
-                }
-
-                ValueType = ValueType.String;
-                RawValue = stringValue;
-                return;
-            }
-
-            var intValueContext = valueContext.intValue();
-            if (intValueContext != null)
-            {
-                ValueType = ValueType.Int;
-                RawValue = long.Parse(intValueContext.GetText());
-                return;
-            }
-
-            var floatValueContext = valueContext.floatValue();
-            if (floatValueContext != null)
-            {
-                ValueType = ValueType.Float;
-                RawValue = decimal.Parse(floatValueContext.GetText());
-                return;
-            }
-
-            var boolValueContext = valueContext.booleanValue();
-            if (boolValueContext != null)
-            {
-                ValueType = ValueType.Boolean;
-                RawValue = bool.Parse(boolValueContext.GetText());
-                return;
-            }
-
-            var listValueContext = valueContext.listValue();
-            if (listValueContext != null)
-            {
-                throw new InvalidRequestException(ErrorCode.V11, "List values are not supported", new Context(valueContext));
-            }
-
-            var objectValueContext = valueContext.objectValue();
-            if (objectValueContext != null)
-            {
-                throw new InvalidRequestException(ErrorCode.V12, "Object values are not supported", new Context(valueContext));
-            }
-
-            var enumValueContext = valueContext.enumValue();
-            if (enumValueContext != null)
-            {
-                throw new InvalidRequestException(ErrorCode.V13, "Enum values are not supported", new Context(valueContext));
-            }
-
-            throw new InvalidRequestException(ErrorCode.V14, "Unexpected value type", new Context(valueContext));
-        }
-
-        public Value(object rawValue)
-        {
-            if (rawValue == null)
-            {
-                ValueType = ValueType.Null;
-                RawValue = null;
-                return;
-            }
-
-            var typeName = rawValue.GetType().Name;
-
-            switch (typeName)
-            {
-                case "String":
-                    ValueType = ValueType.String;
-                    RawValue = (string)rawValue;
-                    break;
-
-                case "Int32":
-                    ValueType = ValueType.Int;
-                    RawValue = (long)(int)rawValue;
-                    break;
-                case "Int64":
-                    ValueType = ValueType.Int;
-                    RawValue = (long)rawValue;
-                    break;
-
-                case "Single":
-                case "Double":
-                case "Decimal":
-                    var stringValue = rawValue.ToString();
-                    var decimalValue = decimal.Parse(stringValue);
-                    if (decimalValue % 1.0m == 0.0m)
-                    {
-                        // If there's no fractional part, convert to Int
-                        ValueType = ValueType.Int;
-                        RawValue = (long)decimalValue;
-                    }
-                    else
-                    {
-                        ValueType = ValueType.Float;
-                        RawValue = decimalValue;
-                    }
-                    break;
-
-                case "Boolean":
-                    ValueType = ValueType.Boolean;
-                    RawValue = (bool)rawValue;
-                    break;
-
-                default:
-                    throw new InvalidRequestException(ErrorCode.V14, $"Unsupported value type, value=[{rawValue}], type=[{typeName}]");
-            }
-        }
-
-        public Value(ValueType valueType, string stringValue)
+        public Value(ValueType valueType, object rawValue)
         {
             ValueType = valueType;
-
-            // This is only used by our internally-constructed Cursors, so we can trust Parse
-            switch (valueType)
-            {
-                case ValueType.Null:
-                    RawValue = null;
-                    break;
-                case ValueType.String:
-                    RawValue = stringValue;
-                    break;
-                case ValueType.Int:
-                    RawValue = long.Parse(stringValue);
-                    break;
-                case ValueType.Float:
-                    RawValue = decimal.Parse(stringValue);
-                    break;
-                case ValueType.Boolean:
-                    RawValue = bool.Parse(stringValue); ;
-                    break;
-                default:
-                    throw new Exception($"Unsupported ValueType: {valueType}");
-            }
+            RawValue = rawValue;
         }
 
         public Value(ValueType expectedValueType, Value value, Func<string> errorMessageFunc)
@@ -215,6 +57,105 @@ namespace GraphqlToTsql.Translator
 
             var errorMessage = errorMessageFunc();
             throw new InvalidRequestException(ErrorCode.V15, errorMessage);
+        }
+
+        public static Value ScalarValueFromParse(GqlParser.ValueContext valueContext, Type expectedEnumType = null)
+        {
+            if (valueContext == null)
+            {
+                return new Value(ValueType.Null, null);
+            }
+
+            var nullValueContext = valueContext.nullValue();
+            if (nullValueContext != null)
+            {
+                return new Value(ValueType.Null, null);
+            }
+
+            var stringValueContext = valueContext.stringValue();
+            if (stringValueContext != null)
+            {
+                var stringValue = (string)null;
+                if (stringValueContext.STRING() != null)
+                {
+                    var quotedString = stringValueContext.STRING().GetText();
+                    stringValue = quotedString.Substring(1, quotedString.Length - 2);
+                }
+                else if (stringValueContext.BLOCK_STRING() != null)
+                {
+                    var tripleQuotedString = stringValueContext.BLOCK_STRING().GetText();
+                    stringValue = tripleQuotedString.Substring(3, tripleQuotedString.Length - 6);
+                }
+
+                return new Value(ValueType.String, stringValue);
+            }
+
+            var intValueContext = valueContext.intValue();
+            if (intValueContext != null)
+            {
+                return new Value(ValueType.Int, long.Parse(intValueContext.GetText()));
+            }
+
+            var floatValueContext = valueContext.floatValue();
+            if (floatValueContext != null)
+            {
+                return new Value(ValueType.Float, decimal.Parse(floatValueContext.GetText()));
+            }
+
+            var boolValueContext = valueContext.booleanValue();
+            if (boolValueContext != null)
+            {
+                return new Value(ValueType.Boolean, bool.Parse(boolValueContext.GetText()));
+            }
+
+            var listValueContext = valueContext.listValue();
+            if (listValueContext != null)
+            {
+                throw new InvalidRequestException(ErrorCode.V11, "List values are not allowed here", new Context(valueContext));
+            }
+
+            var objectValueContext = valueContext.objectValue();
+            if (objectValueContext != null)
+            {
+                throw new InvalidRequestException(ErrorCode.V12, "Object values are not allowed here", new Context(valueContext));
+            }
+
+            var enumValueContext = valueContext.enumValue();
+            if (enumValueContext != null)
+            {
+                throw new InvalidRequestException(ErrorCode.V13, "Enum values are not allowed here", new Context(valueContext));
+            }
+
+            throw new InvalidRequestException(ErrorCode.V14, "Unexpected value type", new Context(valueContext));
+        }
+
+        public static Value FromStringValue(ValueType valueType, string stringValue)
+        {
+            var rawValue = (object)null;
+
+            // This is only used by our internally-constructed Cursors, so we can trust Parse
+            switch (valueType)
+            {
+                case ValueType.Null:
+                    rawValue = null;
+                    break;
+                case ValueType.String:
+                    rawValue = stringValue;
+                    break;
+                case ValueType.Int:
+                    rawValue = long.Parse(stringValue);
+                    break;
+                case ValueType.Float:
+                    rawValue = decimal.Parse(stringValue);
+                    break;
+                case ValueType.Boolean:
+                    rawValue = bool.Parse(stringValue); ;
+                    break;
+                default:
+                    throw new Exception($"Unsupported ValueType: {valueType}");
+            }
+
+            return new Value(valueType, rawValue);
         }
     }
 }

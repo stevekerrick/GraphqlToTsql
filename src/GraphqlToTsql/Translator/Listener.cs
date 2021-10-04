@@ -1,7 +1,9 @@
 ﻿using Antlr4.Runtime.Tree;
 using GraphqlToTsql.CodeGen;
 using GraphqlToTsql.Entities;
+using System;
 using System.Collections.Generic;
+using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Translator
 {
@@ -40,7 +42,12 @@ namespace GraphqlToTsql.Translator
             {
                 throw InvalidRequestException.Unsupported(ErrorCode.V03, "Array values", context);
             }
+
             var type = typeContext.namedType().GetText();
+            if (!Enum.TryParse<ValueType>(type, out var valueType))
+            {
+                throw new InvalidRequestException(ErrorCode.V04, $"Unsupported type: {type}", new Context(context));
+            }
 
             var typeIsNullable = !context.type_().GetText().EndsWith("!");
 
@@ -48,7 +55,10 @@ namespace GraphqlToTsql.Translator
             if (context.defaultValue() != null)
             {
                 var defaultValueContext = context.defaultValue().value();
-                defaultValue = new Value(defaultValueContext);
+
+                defaultValue = valueType == ValueType.OrderBy
+                    ? new Value(valueType, OrderByValue.FromParse(defaultValueContext))
+                    : Value.ScalarValueFromParse(defaultValueContext);
             }
 
             _qt.Variable(name, type, typeIsNullable, defaultValue, new Context(context));
@@ -74,6 +84,9 @@ namespace GraphqlToTsql.Translator
             _qt.Field(alias, name, new Context(context));
         }
 
+        // e.g. name: $nameVar
+        // e.g. id: 1
+        // e.g. orderBy: {"city": DESC}
         public override void ExitArgument(GqlParser.ArgumentContext context)
         {
             var name = context.name().GetText();
@@ -84,16 +97,34 @@ namespace GraphqlToTsql.Translator
                 throw new InvalidRequestException(ErrorCode.V01, $"Arguments should be formed like (id: 1)", new Context(context));
             }
 
+            // Found ORDER BY specification
+            if (name == Constants.ORDER_BY_ARGUMENT)
+            {
+                if (valueOrVariableContext.variable() != null)
+                {
+                    var variableName = valueOrVariableContext.variable().children[1].GetText();
+                    _qt.OrderBy(variableName, new Context(context));
+                }
+                else
+                {
+                    var orderByValue = OrderByValue.FromParse(valueOrVariableContext);
+                    _qt.OrderBy(orderByValue, new Context(context));
+                }
+
+                return;
+            }
+
+            // The r-value is a variable reference
             if (valueOrVariableContext.variable() != null)
             {
                 var variableName = valueOrVariableContext.variable().children[1].GetText();
                 _qt.Argument(name, variableName, new Context(context));
+                return;
             }
-            else
-            {
-                var value = new Value(valueOrVariableContext);
-                _qt.Argument(name, value, new Context(context));
-            }
+
+            // The r-value is a scalar value
+            var value = Value.ScalarValueFromParse(valueOrVariableContext);
+            _qt.Argument(name, value, new Context(context));
         }
 
         public override void ExitOperationDefinition(GqlParser.OperationDefinitionContext context)
@@ -145,5 +176,6 @@ namespace GraphqlToTsql.Translator
         }
 
         #endregion
+
     }
 }

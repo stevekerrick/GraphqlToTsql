@@ -17,5 +17,10 @@
         public const string SKIP_DIRECTIVE = "skip";
         public const string IF_ARGUMENT = "if";
         public const string DIRECTIVE_TYPE_KEY = "*Directive*";
+
+        public const string ORDER_BY_OBJECT = "OrderBy";
+        public const string ORDER_BY_ARGUMENT = "orderBy";
+        public const string ASC = "ASC";
+        public const string DESC = "DESC";
     }
 }

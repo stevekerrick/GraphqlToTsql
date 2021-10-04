@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Translator
 {
@@ -16,6 +17,7 @@ namespace GraphqlToTsql.Translator
         public TermType TermType { get; private set; }
 
         private Arguments _arguments;
+        private OrderByValue _orderByValue;
         private string _tableAlias;
 
         private Term()
@@ -126,6 +128,17 @@ namespace GraphqlToTsql.Translator
             return path;
         }
 
+        public void AddArgument(string name, Value value, Context context)
+        {
+            if (Field.FieldType == FieldType.Edge || Field.FieldType == FieldType.Node || TermType == TermType.Scalar)
+            {
+                throw new InvalidRequestException(ErrorCode.V16, $"Arguments are not allowed on [{Name}]", context);
+            }
+
+            Arguments.Add(Field, name, value, context);
+            CheckForConflictBetweenOrderByAndCursorBasedPaging(context);
+        }
+
         public Arguments Arguments
         {
             get
@@ -144,14 +157,43 @@ namespace GraphqlToTsql.Translator
             }
         }
 
-        public void AddArgument(string name, Value value, Context context)
+        public OrderByValue OrderByValue
         {
-            if (Field.FieldType == FieldType.Edge || Field.FieldType == FieldType.Node || TermType == TermType.Scalar)
+            get
             {
-                throw new InvalidRequestException(ErrorCode.V16, $"Arguments are not allowed on [{Name}]", context);
+                // The GraphQL for edges have no arguments -- they appear on the Connection.
+                // But when the TSQL is formed those arguments apply to the edge.
+                if (Field != null && Field.FieldType == FieldType.Edge)
+                {
+                    return Parent.OrderByValue;
+                }
+                return _orderByValue;
+            }
+            private set
+            {
+                _orderByValue = value;
+            }
+        }
+
+        public void SetOrderBy(OrderByValue orderByValue, Context context)
+        {
+            if (Field.FieldType != FieldType.Set && Field.FieldType != FieldType.Connection)
+            {
+                throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY_ARGUMENT} is not allowed on [{Name}]", context);
             }
 
-            Arguments.Add(Field, name, value, context);
+            // Validate the OrderBy field names
+            foreach(var orderByField in orderByValue.Fields)
+            {
+                var field = Field.Entity.GetField(orderByField.FieldName, context); // Throws if the field is not found
+                if (field.FieldType != FieldType.Column)
+                {
+                    throw new InvalidRequestException(ErrorCode.V30, $"{Constants.ORDER_BY_ARGUMENT} is not allowed on [{Name}.{field.Name}]", context);
+                }
+            }
+
+            OrderByValue = orderByValue;
+            CheckForConflictBetweenOrderByAndCursorBasedPaging(context);
         }
 
         public bool IsFirstChild
@@ -183,6 +225,23 @@ namespace GraphqlToTsql.Translator
             term.Arguments = this.Arguments;
             term.Children.AddRange(Children.Select(_ => _.Clone(term)));
             return term;
+        }
+
+        private void CheckForConflictBetweenOrderByAndCursorBasedPaging(Context context)
+        {
+            if (Arguments.After == null || OrderByValue == null)
+            {
+                return;
+            }
+
+            // Cursors only work when there's exactly 1 PK field
+            var pkFieldName = Field.Entity.PrimaryKeyFieldNames.FirstOrDefault();
+            if (OrderByValue.Fields.Count == 1 && OrderByValue.Fields[0].FieldName == pkFieldName)
+            {
+                return;
+            }
+
+            throw new InvalidRequestException(ErrorCode.V30, $"Because you are using cursor-based paging, you can only {Constants.ORDER_BY_ARGUMENT} {pkFieldName}", context);
         }
     }
 
