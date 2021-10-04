@@ -89,6 +89,17 @@ namespace GraphqlToTsql.Introspection
                 EnumValues = enumValues
             };
         }
+ 
+        public static GqlType InputObject(string name)
+        {
+            return new GqlType
+            {
+                Key = name,
+                Name = name,
+                Kind = TypeKind.INPUT_OBJECT,
+                InputFields = new List<GqlInputValue>()
+            };
+        }
     }
 
     internal enum TypeKind

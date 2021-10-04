@@ -128,7 +128,7 @@ namespace GraphqlToTsql.Introspection
 
         private GqlType OrderByObject(EntityBase entity)
         {
-            var type = GqlType.Object(entity.EntityType + Constants.ORDER_BY_OBJECT);
+            var type = GqlType.InputObject(entity.EntityType + Constants.ORDER_BY_OBJECT);
             if (IsTypeRegistered(type.Key))
             {
                 return GetType(type.Key);
@@ -142,8 +142,8 @@ namespace GraphqlToTsql.Introspection
                 if (field.Visibility != Visibility.Hidden &&
                     field.FieldType == FieldType.Column)
                 {
-                    var orderByField = new GqlField(field.Name, orderByEnumType);
-                    type.Fields.Add(orderByField);
+                    var orderByField = new GqlInputValue { Name = field.Name, Type = orderByEnumType };
+                    type.InputFields.Add(orderByField);
                 }
             }
 
@@ -189,7 +189,14 @@ namespace GraphqlToTsql.Introspection
                 type = NonNullableType(type);
             }
 
-            return new GqlField(field.Name, type);
+            var baseEntityType = (string)null;
+            if (field.FieldType == FieldType.Edge)
+            {
+                var node = field.Entity.GetField(Constants.NODE);
+                baseEntityType = node.Entity.EntityType;
+            }
+
+            return new GqlField(field.Name, type, baseEntityType);
         }
 
         private GqlType NonNullableType(GqlType baseType)
@@ -390,9 +397,9 @@ namespace GraphqlToTsql.Introspection
             var sb = new StringBuilder(1024);
             var isFirstRow = true;
 
-            // InputValues for row/set filtering
             foreach (var parentType in Types) // e.g. Seller
             {
+                // InputValues for row/set filtering
                 if (parentType.Fields != null)
                 {
                     foreach (var field in parentType.Fields)
@@ -429,9 +436,25 @@ namespace GraphqlToTsql.Introspection
                                 AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.FIRST_ARGUMENT, ValueType.Int.ToString());
                                 AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.OFFSET_ARGUMENT, ValueType.Int.ToString());
                                 AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.AFTER_ARGUMENT, ValueType.String.ToString());
-                                AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.ORDER_BY_ARGUMENT, unwrappedFieldType.Key + Constants.ORDER_BY_OBJECT);
+
+                                var baseEntityType = field.BaseEntityType ?? unwrappedFieldType.Key;
+                                var orderByTypeKey = $"{baseEntityType}{Constants.ORDER_BY_OBJECT}";
+                                if (IsTypeRegistered(orderByTypeKey))
+                                {
+                                    AppendInputValueRow(sb, false, parentType.Key, field.Name, Constants.ORDER_BY_ARGUMENT, orderByTypeKey);
+                                }
                             }
                         }
+                    }
+                }
+ 
+                // InputValues for OrderBy
+                if (parentType.Kind == TypeKind.INPUT_OBJECT)
+                {
+                    foreach(var inputValue in parentType.InputFields)
+                    {
+                        AppendInputValueRow(sb, isFirstRow, parentType.Key, null, inputValue.Name, inputValue.Type.Key);
+                        isFirstRow = false;
                     }
                 }
             }
