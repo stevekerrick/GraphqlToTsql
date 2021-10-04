@@ -297,9 +297,9 @@ at the generated SQL. You'll see giant CTEs that define the introspection data.<
             graphql: `query SellerDetails ($who: String) {
   seller (name: $who) {
     name city state postalCode
-    recruits (order_by: [{state: asc}, {name: asc}]) { name state }
-    sellerBadges (order_by: {dateAwarded: desc}) { badge { name} dateAwarded }
-    orders (order_by: {date: desc}, first: 1000) { id date }
+    recruits (order_by: [{state: ASC}, {name: ASC}]) { name state }
+    sellerBadges (order_by: {dateAwarded: DESC}) { badge { name} dateAwarded }
+    orders (order_by: {date: DESC}, first: 1000) { id date }
   }
 }`,
             graphqlParameters: '{ "who": "bill" }',
@@ -312,9 +312,9 @@ first by state and then by name.</p>
         {
             name: 'order by calculated field',
             graphql: `{
-  products (first: 1, order_by: { totalRevenue: desc }) {
+  products (first: 1, order_by: { totalRevenue: DESC }) {
     name price totalRevenue
-    sellerProductTotals (order_by: { totalAmount: desc }) { seller { name } totalAmount totalQuantity }
+    sellerProductTotals (order_by: { totalAmount: DESC }) { seller { name } totalAmount totalQuantity }
   }
 }`,
             graphqlParameters: '{ }',

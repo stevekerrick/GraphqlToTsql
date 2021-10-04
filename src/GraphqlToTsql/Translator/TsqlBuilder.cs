@@ -356,7 +356,7 @@ namespace GraphqlToTsql.Translator
                 var filter = new Arguments.Filter(entity.SinglePrimaryKeyFieldForPaging, cursorData.Value);
                 childTableAlias = childTableAlias ?? term.TableAlias(_aliasSequence);
 
-                var op = term.OrderByValue != null && term.OrderByValue.Fields[0].OrderByEnum == OrderByEnum.desc
+                var op = term.OrderByValue != null && term.OrderByValue.Fields[0].OrderByEnum == OrderByEnum.DESC
                     ? "<"
                     : ">";
 
@@ -397,7 +397,7 @@ namespace GraphqlToTsql.Translator
             }
 
             // Add PK columns to the OrderBy
-            var defaultOrderByEnum = term.OrderByValue == null ? OrderByEnum.asc : term.OrderByValue.Fields[0].OrderByEnum;
+            var defaultOrderByEnum = term.OrderByValue == null ? OrderByEnum.ASC : term.OrderByValue.Fields[0].OrderByEnum;
             var entity = term.Field.Entity;
             foreach (var pkField in entity.PrimaryKeyFields)
             {
@@ -435,7 +435,7 @@ namespace GraphqlToTsql.Translator
                 ? $"{alias}.[{field.DbColumnName}]"
                 : $"({field.TemplateFunc(alias)})";
 
-            return orderByEnum == OrderByEnum.asc 
+            return orderByEnum == OrderByEnum.ASC 
                 ? columnExpression
                 : $"{columnExpression} {orderByEnum.ToString().ToUpper()}";
         }

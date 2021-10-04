@@ -10,8 +10,8 @@ namespace GraphqlToTsqlTests
     [TestFixture]
     public class OrderByValueTests
     {
-        private readonly object _cityDesc = new { city = "desc" };
-        private readonly object _postalCodeAsc = new { postalCode = "asc" };
+        private readonly object _cityDesc = new { city = "DESC" };
+        private readonly object _postalCodeAsc = new { postalCode = "ASC" };
 
         [Test]
         public void OrderByValue_SingleColumn_Json()
@@ -27,7 +27,7 @@ namespace GraphqlToTsqlTests
                 {
                     Fields = new[]
                     {
-                        new { FieldName = "city", OrderByEnum = OrderByEnum.desc }
+                        new { FieldName = "city", OrderByEnum = OrderByEnum.DESC }
                     }
                 });
         }
@@ -42,7 +42,7 @@ namespace GraphqlToTsqlTests
                 {
                     Fields = new[]
                     {
-                        new { FieldName = "city", OrderByEnum = OrderByEnum.desc }
+                        new { FieldName = "city", OrderByEnum = OrderByEnum.DESC }
                     }
                 });
         }
@@ -62,8 +62,8 @@ namespace GraphqlToTsqlTests
                 {
                     Fields = new[]
                     {
-                        new { FieldName = "city", OrderByEnum = OrderByEnum.desc },
-                        new { FieldName = "postalCode", OrderByEnum = OrderByEnum.asc },
+                        new { FieldName = "city", OrderByEnum = OrderByEnum.DESC },
+                        new { FieldName = "postalCode", OrderByEnum = OrderByEnum.ASC },
                     }
                 });
         }
@@ -80,8 +80,8 @@ namespace GraphqlToTsqlTests
                 {
                     Fields = new[]
                     {
-                        new { FieldName = "city", OrderByEnum = OrderByEnum.desc },
-                        new { FieldName = "postalCode", OrderByEnum = OrderByEnum.asc },
+                        new { FieldName = "city", OrderByEnum = OrderByEnum.DESC },
+                        new { FieldName = "postalCode", OrderByEnum = OrderByEnum.ASC },
                     }
                 });
         }

@@ -20,7 +20,7 @@
 
         public const string ORDER_BY_OBJECT = "OrderBy";
         public const string ORDER_BY_ARGUMENT = "order_by";
-        public const string ASC = "asc";
-        public const string DESC = "desc";
+        public const string ASC = "ASC";
+        public const string DESC = "DESC";
     }
 }

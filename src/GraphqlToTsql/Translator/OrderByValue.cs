@@ -16,7 +16,7 @@ namespace GraphqlToTsql.Translator
             Fields = new List<OrderByField>();
         }
 
-        // e.g. { "name": "desc" }
+        // e.g. { "name": "DESC" }
         public static OrderByValue FromRawValue(object rawValue)
         {
             if (rawValue == null)
@@ -117,7 +117,7 @@ namespace GraphqlToTsql.Translator
                 throw Error();
             }
 
-            // The object must have exactly one field: {"city": asc}
+            // The object must have exactly one field: {"city": ASC}
             var objectFieldContexts = objectValueContext.objectField();
             if (objectFieldContexts.Length != 1)
             {
@@ -150,7 +150,7 @@ namespace GraphqlToTsql.Translator
 
         private static InvalidRequestException Error()
         {
-            return new InvalidRequestException(ErrorCode.V30, $"Invalid {Constants.ORDER_BY_ARGUMENT} value. Try something like {{ id: desc }}.");
+            return new InvalidRequestException(ErrorCode.V30, $"Invalid {Constants.ORDER_BY_ARGUMENT} value. Try something like {{ id: DESC }}.");
         }
     }
 
@@ -162,7 +162,7 @@ namespace GraphqlToTsql.Translator
 
     internal enum OrderByEnum
     {
-        asc,
-        desc
+        ASC,
+        DESC
     }
 }
