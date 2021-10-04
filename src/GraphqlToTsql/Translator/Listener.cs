@@ -86,7 +86,7 @@ namespace GraphqlToTsql.Translator
 
         // e.g. name: $nameVar
         // e.g. id: 1
-        // e.g. order_by: {"city": desc}
+        // e.g. orderBy: {"city": DESC}
         public override void ExitArgument(GqlParser.ArgumentContext context)
         {
             var name = context.name().GetText();

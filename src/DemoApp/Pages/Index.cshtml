@@ -297,24 +297,24 @@ at the generated SQL. You'll see giant CTEs that define the introspection data.<
             graphql: `query SellerDetails ($who: String) {
   seller (name: $who) {
     name city state postalCode
-    recruits (order_by: [{state: ASC}, {name: ASC}]) { name state }
-    sellerBadges (order_by: {dateAwarded: DESC}) { badge { name} dateAwarded }
-    orders (order_by: {date: DESC}, first: 1000) { id date }
+    recruits (orderBy: [{state: ASC}, {name: ASC}]) { name state }
+    sellerBadges (orderBy: {dateAwarded: DESC}) { badge { name} dateAwarded }
+    orders (orderBy: {date: DESC}, first: 1000) { id date }
   }
 }`,
             graphqlParameters: '{ "who": "bill" }',
-            notes: `<p>Find a lot of information about Bill, using order_by</p>
+            notes: `<p>Find a lot of information about Bill, using orderBy</p>
 <p>Notice that the list of Bill's recruits is sorted by two columns,
 first by state and then by name.</p>
-<p>In GraphqlToTsql you can order_by any scalar field.</p>
+<p>In GraphqlToTsql you can orderBy any scalar field.</p>
 `
         },
         {
             name: 'order by calculated field',
             graphql: `{
-  products (first: 1, order_by: { totalRevenue: DESC }) {
+  products (first: 1, orderBy: { totalRevenue: DESC }) {
     name price totalRevenue
-    sellerProductTotals (order_by: { totalAmount: DESC }) { seller { name } totalAmount totalQuantity }
+    sellerProductTotals (orderBy: { totalAmount: DESC }) { seller { name } totalAmount totalQuantity }
   }
 }`,
             graphqlParameters: '{ }',

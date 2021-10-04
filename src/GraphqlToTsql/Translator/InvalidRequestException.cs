@@ -60,7 +60,7 @@ namespace GraphqlToTsql.Translator
         V27, // Cursor-based paging not supported for the list
         V28, // Cursor is invalid
         V29, // Malformed Graphql
-        V30, // Invalid order_by specification
+        V30, // Invalid orderBy specification
         E01, // Database error
     }
 }

@@ -12,7 +12,7 @@ namespace GraphqlToTsqlTests.TsqlTests
         public void OrderBy_NonKeyFieldTest([Values] bool isAscending)
         {
             var graphqlDirection = isAscending ? "ASC" : "DESC";
-            var graphql = "{ sellers (order_by: { city: " + graphqlDirection + "}) { name } }";
+            var graphql = "{ sellers (orderBy: { city: " + graphqlDirection + "}) { name } }";
 
             var sqlDirection = isAscending ? "" : " DESC";
             var expectedSql = @$"
@@ -36,7 +36,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_KeyFieldTest()
         {
-            var graphql = "{ sellers (order_by: { name: DESC }) { name } }";
+            var graphql = "{ sellers (orderBy: { name: DESC }) { name } }";
 
             var expectedSql = @"
 SELECT
@@ -61,7 +61,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         {
             var cursor = CursorUtility.CreateCursor(new Value(ValueType.Int, 99), "Order");
 
-            var graphql = "{ ordersConnection (first: 10, after: \"" + cursor + "\", order_by: { id: DESC}) { edges { node { id } } } }";
+            var graphql = "{ ordersConnection (first: 10, after: \"" + cursor + "\", orderBy: { id: DESC}) { edges { node { id } } } }";
 
             var expectedSql = @$"
 SELECT
@@ -98,7 +98,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         public void OrderBy_OffsetPagingTest([Values] bool isAscending)
         {
             var graphqlDirection = isAscending ? "ASC" : "DESC";
-            var graphql = "{ sellers (first: 5, offset: 10, order_by: { city: " + graphqlDirection + "}) { name } }";
+            var graphql = "{ sellers (first: 5, offset: 10, orderBy: { city: " + graphqlDirection + "}) { name } }";
 
             var sqlDirection = isAscending ? "" : " DESC";
             var expectedSql = @$"
@@ -124,7 +124,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_SingleColumn_LiteralValue()
         {
-            var graphql = @"query OrderByCity { sellers (order_by: {city: DESC}) { name } }";
+            var graphql = @"query OrderByCity { sellers (orderBy: {city: DESC}) { name } }";
             var graphqlParameters = new Dictionary<string, object> { { "orderBy", new { city = "DESC" } } };
             CheckOrderByCity(graphql, graphqlParameters);
         }
@@ -132,7 +132,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_SingleColumn_Variable()
         {
-            var graphql = @"query OrderByCity ($orderBy: OrderBy) { sellers (order_by: $orderBy) { name } }";
+            var graphql = @"query OrderByCity ($orderBy: OrderBy) { sellers (orderBy: $orderBy) { name } }";
             var graphqlParameters = new Dictionary<string, object> { { "orderBy", new { city = "DESC" } } };
             CheckOrderByCity(graphql, graphqlParameters);
         }
@@ -140,7 +140,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_SingleColumn_VariableWithDefaultValue()
         {
-            var graphql = @"query OrderByCity ($orderBy: OrderBy={city: DESC}) { sellers (order_by: $orderBy) { name } }";
+            var graphql = @"query OrderByCity ($orderBy: OrderBy={city: DESC}) { sellers (orderBy: $orderBy) { name } }";
             var graphqlParameters = new Dictionary<string, object> { };
             CheckOrderByCity(graphql, graphqlParameters);
         }
@@ -148,7 +148,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_SingleColumn_VariableIgnoreDefaultValue()
         {
-            var graphql = @"query OrderByCity ($orderBy: OrderBy={postalCode: DESC}) { sellers (order_by: $orderBy) { name } }";
+            var graphql = @"query OrderByCity ($orderBy: OrderBy={postalCode: DESC}) { sellers (orderBy: $orderBy) { name } }";
             var graphqlParameters = new Dictionary<string, object> { { "orderBy", new { city = "DESC" } } };
             CheckOrderByCity(graphql, graphqlParameters);
         }
@@ -180,7 +180,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_MultiColumn_LiteralValue()
         {
-            var graphql = @"query OrderByCityAndState { sellers (order_by: [{city: DESC}, {state: ASC}]) { name } }";
+            var graphql = @"query OrderByCityAndState { sellers (orderBy: [{city: DESC}, {state: ASC}]) { name } }";
             var graphqlParameters = new Dictionary<string, object> { { "orderBy", new { city = "DESC" } } };
             CheckOrderByCityAndState(graphql, graphqlParameters);
         }
@@ -188,7 +188,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_MultiColumn_Variable()
         {
-            var graphql = @"query OrderByCityAndState ($orderBy: OrderBy) { sellers (order_by: $orderBy) { name } }";
+            var graphql = @"query OrderByCityAndState ($orderBy: OrderBy) { sellers (orderBy: $orderBy) { name } }";
             var graphqlParameters = new Dictionary<string, object> { { "orderBy", new object[] { new { city = "DESC" }, new { state = "ASC" } } } };
             CheckOrderByCityAndState(graphql, graphqlParameters);
         }
@@ -196,7 +196,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_MultiColumn_VariableWithDefaultValue()
         {
-            var graphql = @"query OrderByCityAndState ($orderBy: OrderBy=[{city: DESC}, {state: ASC}]) { sellers (order_by: $orderBy) { name } }";
+            var graphql = @"query OrderByCityAndState ($orderBy: OrderBy=[{city: DESC}, {state: ASC}]) { sellers (orderBy: $orderBy) { name } }";
             var graphqlParameters = new Dictionary<string, object> { };
             CheckOrderByCityAndState(graphql, graphqlParameters);
         }
@@ -204,7 +204,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_MultiColumn_VariableIgnoreDefaultValue()
         {
-            var graphql = @"query OrderByCityAndState ($orderBy: OrderBy={postalCode: DESC}) { sellers (order_by: $orderBy) { name } }";
+            var graphql = @"query OrderByCityAndState ($orderBy: OrderBy={postalCode: DESC}) { sellers (orderBy: $orderBy) { name } }";
             var graphqlParameters = new Dictionary<string, object> { { "orderBy", new object[] { new { city = "DESC" }, new { state = "ASC" } } } };
             CheckOrderByCityAndState(graphql, graphqlParameters);
         }
@@ -236,7 +236,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_CalculatedFieldTest()
         {
-            var graphql = "{ products (order_by: { totalRevenue: DESC }) { name totalRevenue } }";
+            var graphql = "{ products (orderBy: { totalRevenue: DESC }) { name totalRevenue } }";
 
             var expectedSql = @"
 SELECT
@@ -260,66 +260,66 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
         [Test]
         public void OrderBy_NonObjectValue_Fails()
         {
-            var graphql = "{ sellers (order_by: \"city\") { name } }";
-            ParseShouldFail(graphql, null, "Invalid order_by value. Try something like { id: DESC }.");
+            var graphql = "{ sellers (orderBy: \"city\") { name } }";
+            ParseShouldFail(graphql, null, "Invalid orderBy value. Try something like { id: DESC }.");
         }
 
         [Test]
         public void OrderBy_MultipleColumnsInSingleObject_Fails()
         {
-            var graphql = "{ sellers (order_by: { city: ASC, state: ASC }) { name } }";
-            ParseShouldFail(graphql, null, "Invalid order_by value. Try something like { id: DESC }.");
+            var graphql = "{ sellers (orderBy: { city: ASC, state: ASC }) { name } }";
+            ParseShouldFail(graphql, null, "Invalid orderBy value. Try something like { id: DESC }.");
         }
 
         [Test]
         public void OrderBy_EmptyObject_Fails()
         {
-            var graphql = "{ sellers (order_by: { }) { name } }";
-            ParseShouldFail(graphql, null, "Invalid order_by value. Try something like { id: DESC }.");
+            var graphql = "{ sellers (orderBy: { }) { name } }";
+            ParseShouldFail(graphql, null, "Invalid orderBy value. Try something like { id: DESC }.");
         }
 
         [Test]
         public void OrderBy_InvalidDirection_String_Fails()
         {
-            var graphql = "{ sellers (order_by: { city: \"foo\" }) { name } }";
-            ParseShouldFail(graphql, null, "Invalid order_by value. Try something like { id: DESC }.");
+            var graphql = "{ sellers (orderBy: { city: \"foo\" }) { name } }";
+            ParseShouldFail(graphql, null, "Invalid orderBy value. Try something like { id: DESC }.");
         }
 
         [Test]
         public void OrderBy_InvalidDirection_Integer_Fails()
         {
-            var graphql = "{ sellers (order_by: { city: 1234 }) { name } }";
-            ParseShouldFail(graphql, null, "Invalid order_by value. Try something like { id: DESC }.");
+            var graphql = "{ sellers (orderBy: { city: 1234 }) { name } }";
+            ParseShouldFail(graphql, null, "Invalid orderBy value. Try something like { id: DESC }.");
         }
 
         [Test]
         public void OrderBy_InvalidDirection_NotAscOrDesc_Fails()
         {
-            var graphql = "{ sellers (order_by: { city: up }) { name } }";
-            ParseShouldFail(graphql, null, "Invalid order_by value. Try something like { id: DESC }.");
+            var graphql = "{ sellers (orderBy: { city: up }) { name } }";
+            ParseShouldFail(graphql, null, "Invalid orderBy value. Try something like { id: DESC }.");
         }
 
         [Test]
         public void OrderBy_Cursor_Conflict_Fails()
         {
             var cursor = CursorUtility.CreateCursor(new Value(ValueType.Int, 99), "Order");
-            var graphql = "{ ordersConnection (first: 10, after: \"" + cursor + "\", order_by: { date: DESC}) { edges { node { id } } } }";
-            ParseShouldFail(graphql, null, "Because you are using cursor-based paging, you can only order_by id");
+            var graphql = "{ ordersConnection (first: 10, after: \"" + cursor + "\", orderBy: { date: DESC}) { edges { node { id } } } }";
+            ParseShouldFail(graphql, null, "Because you are using cursor-based paging, you can only orderBy id");
         }
 
         [Test]
         public void OrderBy_Cursor_Conflict2_Fails()
         {
             var cursor = CursorUtility.CreateCursor(new Value(ValueType.Int, 99), "Order");
-            var graphql = "{ ordersConnection (order_by: { date: DESC}, first: 10, after: \"" + cursor + "\") { edges { node { id } } } }";
-            ParseShouldFail(graphql, null, "Because you are using cursor-based paging, you can only order_by id");
+            var graphql = "{ ordersConnection (orderBy: { date: DESC}, first: 10, after: \"" + cursor + "\") { edges { node { id } } } }";
+            ParseShouldFail(graphql, null, "Because you are using cursor-based paging, you can only orderBy id");
         }
 
         [Test]
         public void OrderBy_NonScalarField_Fails()
         {
-            var graphql = "{ sellers (order_by: { orders: DESC }) { name } }";
-            ParseShouldFail(graphql, null, "order_by is not allowed on [sellers.orders]");
+            var graphql = "{ sellers (orderBy: { orders: DESC }) { name } }";
+            ParseShouldFail(graphql, null, "orderBy is not allowed on [sellers.orders]");
         }
     }
 }

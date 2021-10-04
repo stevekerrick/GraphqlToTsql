@@ -230,7 +230,7 @@ namespace GraphqlToTsql.Introspection
             Types.Add(cacheControlScopeEnum);
 
             // OrderByEnum
-            var orderByEnum = GqlType.Enum("OrderByEnum", "asc", "desc");
+            var orderByEnum = GqlType.Enum("OrderByEnum", Constants.ASC, Constants.DESC);
             Types.Add(orderByEnum);
         }
 

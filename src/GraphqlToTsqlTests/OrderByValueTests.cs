@@ -104,11 +104,11 @@ namespace GraphqlToTsqlTests
 
         static object[] InvalidRawObjects =
         {
-            new { city = "not-asc-or-desc"},
-            new { city = "asc", postal = "desc"}, // Multiple columns must use array syntax
+            new { city = "not-ASC-or-DESC"},
+            new { city = "ASC", postal = "DESC"}, // Multiple columns must use array syntax
             "city",
             100,
-            new object[] { new { city = "desc" }, new { postal = "happy" } },
+            new object[] { new { city = "DESC" }, new { postal = "happy" } },
             new object[0]
         };
     }
