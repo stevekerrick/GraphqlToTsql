@@ -16,9 +16,9 @@
     <NeutralLanguage>en</NeutralLanguage>
     <Title>Translate GraphQL queries to T-SQL</Title>
     <Description>Translate GraphQL queries to T-SQL</Description>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <FileVersion>1.0.1.0</FileVersion>
-    <Version>1.0.1</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
