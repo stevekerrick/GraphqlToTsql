@@ -258,6 +258,14 @@
           $topic.click();
         }
       }
+
+      // Add links for all the h2's
+      $h1Parent.children("h2").each(function () {
+        var $h2 = $(this);
+        var id = $h2.text().replace(/[^a-zA-Z]+/g, '');
+        console.log(id);
+      });
+
     });
 
     $(".my-main-content").removeClass("hidden");
