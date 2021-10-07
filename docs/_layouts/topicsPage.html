@@ -55,6 +55,13 @@
     overflow-x: auto;
   }
 
+  ul.subtopic {
+    margin: 0;
+    font-size: smaller;
+    list-style-type: none;
+    padding-left: 2em;
+  }
+
   .topic-footer {
     margin-top: 1.5em;
     width: 100%;
@@ -228,7 +235,7 @@
         text: topicText
       });
       $(".topic-links").append($topic);
-      var $subtopicUl = $("<ul></ul>");
+      var $subtopicUl = $("<ul class='subtopic'></ul>");
       $(".topic-links").append($subtopicUl);
 
       // Make it clickable
