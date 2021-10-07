@@ -265,7 +265,7 @@
       $h1Parent.children("h2").each(function () {
         var $h2 = $(this);
 
-        var subtopic = $h2.topic();
+        var subtopic = $h2.text();
         var subtopicId = subtopic.replace(/[^a-zA-Z]+/g, '');
         $subtopicUl.append(`<li>${subtopic}</li>`);
 
