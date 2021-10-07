@@ -228,6 +228,8 @@
         text: topicText
       });
       $(".topic-links").append($topic);
+      var $subtopicUl = $("<ul></ul>");
+      $(".topic-links").append($subtopicUl);
 
       // Make it clickable
       var click = makeClick($h1Parent, $topic);
@@ -262,8 +264,18 @@
       // Add links for all the h2's
       $h1Parent.children("h2").each(function () {
         var $h2 = $(this);
-        var id = $h2.text().replace(/[^a-zA-Z]+/g, '');
+
+        var subtopic = $h2.topic();
+        var subtopicId = subtopic.replace(/[^a-zA-Z]+/g, '');
+        $subtopicUl.append(`<li>${subtopic}</li>`);
+
+
+
         console.log(id);
+
+
+
+
       });
 
     });
