@@ -36,8 +36,20 @@
     border-radius: .25em;
   }
 
+  .topic-links>div, ul.subtopic>li {
+    margin-right: .5em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    border: 1px solid white;
+    border-radius: .25em;
+  }
+
   .topic-links>div.selected,
-  .topic-links>div:hover {
+  .topic-links>div:hover,
+  ul.subtopic>li.selected,
+  ul.subtopic>li:hover {
     border-color: gray;
   }
 
