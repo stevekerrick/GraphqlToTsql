@@ -37,7 +37,8 @@
     border-radius: .25em;
   }
 
-  .topic-links>div, ul.subtopic>li {
+  .topic-links>div,
+  ul.subtopic>li {
     padding-left: .4em;
     padding-right: .4em;
     margin-right: .5em;
@@ -79,7 +80,7 @@
     top: -5px;
   }
 
-  ul.subtopic > li {
+  ul.subtopic>li {
     padding-left: 1.5em;
   }
 
@@ -114,10 +115,12 @@
   .language-indicator {
     width: 100%;
   }
-  .language-indicator > div {
+
+  .language-indicator>div {
     position: relative;
     float: right;
   }
+
   .language-pill {
     position: absolute;
     top: -.75em;
@@ -127,30 +130,35 @@
     border-radius: .3rem;
     font-size: smaller;
   }
+
   .language-csharp.language-pill {
     left: -5em;
     border: 1px solid steelblue;
   }
+
   .language-graphql.language-pill {
     left: -8em;
     border: 1px solid teal;
   }
+
   .language-shell.language-pill {
     left: -6em;
     border: 1px solid gray;
   }
+
   .language-sql.language-pill {
     left: -5.5em;
     border: 1px solid #e69ce2;
   }
+
   .language-json.language-pill {
     left: -6.5em;
     border: 1px solid brown;
   }
+
   .language-indicator pre {
     clear: right;
   }
-
 </style>
 
 <body>
@@ -186,27 +194,27 @@
       $pre.parent().prepend(`<div class="language-indicator"><div><div class="${css} language-pill">${lang}</div></div></div>`);
     }
 
-    $("div.language-csharp pre.highlight").each(function(){
+    $("div.language-csharp pre.highlight").each(function () {
       var $pre = $(this);
       addLanguageIndicator($pre, "C#", "language-csharp");
     });
 
-    $("div.language-graphql pre.highlight").each(function(){
+    $("div.language-graphql pre.highlight").each(function () {
       var $pre = $(this);
       addLanguageIndicator($pre, "GraphQL", "language-graphql");
     });
 
-    $("div.language-shell pre.highlight").each(function(){
+    $("div.language-shell pre.highlight").each(function () {
       var $pre = $(this);
       addLanguageIndicator($pre, "Shell", "language-shell");
     });
 
-    $("div.language-sql pre.highlight").each(function(){
+    $("div.language-sql pre.highlight").each(function () {
       var $pre = $(this);
       addLanguageIndicator($pre, "SQL", "language-sql");
     });
 
-    $("div.language-json pre.highlight").each(function(){
+    $("div.language-json pre.highlight").each(function () {
       var $pre = $(this);
       addLanguageIndicator($pre, "JSON", "language-json");
     });
@@ -218,17 +226,26 @@
 
     // Use a closure to create a topic "click" handler
     var selectedTopic;
-    function makeClick($h1Parent, $topic) {
+    function makeClick($h1Parent, $topic, $h2, $subtopic) {
       return () => {
         if (selectedTopic) {
           selectedTopic.$h1Parent.hide();
           selectedTopic.$topic.removeClass("selected");
+          if (selectedTopic.$subtopic) {
+            selectedTopic.$subtopic.removeClass("selected");
+          }
         }
 
+        selectedTopic = { $h1Parent, $topic, $h2, $subtopic };
         $h1Parent.show();
-        $topic.addClass("selected");
-        selectedTopic = { $h1Parent, $topic };
-        $("html").animate({ scrollTop: 0 }, "fast");
+        if ($subtopic) {
+          $subtopic.addClass("selected");
+          $h2.get(0).scrollIntoView();
+          $("html").animate({ scrollTop: 0 }, "fast");
+        } else {
+          $topic.addClass("selected");
+          $("html").animate({ scrollTop: 0 }, "fast");
+        }
       };
     }
 
@@ -295,17 +312,16 @@
 
         var subtopic = $h2.text();
         var subtopicId = subtopic.replace(/[^a-zA-Z]+/g, '');
-        $subtopicUl.append(`<li>${subtopic}</li>`);
+        var $subtopic = $(`<li>${subtopic}</li>`);
+        $subtopicUl.append($subtopic);
 
-        //$h2.wrap(`<a name="${subtopicId}"></a`);
+        // Make it clickable
+        var h2Click = makeClick($h1Parent, $topic, $h2, $subtopic);
+        $subtopic.click(h2Click);
 
-
-
-        //console.log(id);
-
-
-
-
+        if (!selectedTopic && subtopicId == startWith) {
+          $subtopic.click();
+        }
       });
 
     });
