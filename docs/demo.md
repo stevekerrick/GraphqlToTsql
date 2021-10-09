@@ -46,6 +46,6 @@ a wide assortment of sample queries. You can modify them
 or create one of your own. After a query is run, the page shows the
 resulting data, the T-SQL that was generated, and some runtime statistics.
 
-<a href="//graphqltotsqldemoapp.azurewebsites.net/" target="_blank" class="btn">Sample Queries App</a>
+<a href="//graphqltotsqldemoapp.azurewebsites.net/" target="_blank" class="btn btn-link">Run: Sample Queries App</a>
 
 </div>
