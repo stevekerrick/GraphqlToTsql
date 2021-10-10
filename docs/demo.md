@@ -28,12 +28,12 @@ Expect uneven performance.
 
 # GraphiQL
 
-`GraphiQL` is an open source in-browser IDE for composing and 
+`GraphiQL` is an open source in-browser IDE for composing and
 testing GraphQL queries. When `GraphiQL` launches,
 it issues an introspection query to the GraphQL API, then helps you
 write queries by providing auto-complete.
 
-<h2><a href="//graphqltotsqldemoapp.azurewebsites.net/graphiql" target="_blank">GraphiQL Demo App</a></h2>
+<a href="//graphqltotsqldemoapp.azurewebsites.net/graphiql" target="_blank" class="btn btn-link">Run: GraphiQL Demo App</a>
 
 </div>
 
