@@ -23,6 +23,7 @@
     flex: 0 0 auto;
     width: 15em;
     padding-top: 1.5em;
+    position: relative;
   }
 
   .topic-links>div {
@@ -36,8 +37,23 @@
     border-radius: .25em;
   }
 
+  .topic-links>div,
+  ul.subtopic>li {
+    padding-left: .4em;
+    padding-right: .4em;
+    margin-right: .5em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    border: 1px solid white;
+    border-radius: .25em;
+  }
+
   .topic-links>div.selected,
-  .topic-links>div:hover {
+  .topic-links>div:hover,
+  ul.subtopic>li.selected,
+  ul.subtopic>li:hover {
     border-color: gray;
   }
 
@@ -53,6 +69,19 @@
     padding-bottom: 1em;
     flex: 1 1;
     overflow-x: auto;
+  }
+
+  ul.subtopic {
+    margin: 0;
+    font-size: smaller;
+    list-style-type: none;
+    padding-left: 0;
+    position: relative;
+    top: -5px;
+  }
+
+  ul.subtopic>li {
+    padding-left: 1.5em;
   }
 
   .topic-footer {
@@ -83,13 +112,27 @@
     background-color: #f0f0f0;
   }
 
+  a.btn.btn-link {
+    background-color: #e0e0e0;
+    border-color: teal;
+    color: inherit;
+  }
+
+  a.btn.btn-link:hover {
+    background-color: whitesmoke;
+    border-color: inherit;
+    color: inherit;
+  }
+
   .language-indicator {
     width: 100%;
   }
-  .language-indicator > div {
+
+  .language-indicator>div {
     position: relative;
     float: right;
   }
+
   .language-pill {
     position: absolute;
     top: -.75em;
@@ -99,30 +142,35 @@
     border-radius: .3rem;
     font-size: smaller;
   }
+
   .language-csharp.language-pill {
     left: -5em;
     border: 1px solid steelblue;
   }
+
   .language-graphql.language-pill {
     left: -8em;
     border: 1px solid teal;
   }
+
   .language-shell.language-pill {
     left: -6em;
     border: 1px solid gray;
   }
+
   .language-sql.language-pill {
     left: -5.5em;
     border: 1px solid #e69ce2;
   }
+
   .language-json.language-pill {
     left: -6.5em;
     border: 1px solid brown;
   }
+
   .language-indicator pre {
     clear: right;
   }
-
 </style>
 
 <body>
@@ -158,27 +206,27 @@
       $pre.parent().prepend(`<div class="language-indicator"><div><div class="${css} language-pill">${lang}</div></div></div>`);
     }
 
-    $("div.language-csharp pre.highlight").each(function(){
+    $("div.language-csharp pre.highlight").each(function () {
       var $pre = $(this);
       addLanguageIndicator($pre, "C#", "language-csharp");
     });
 
-    $("div.language-graphql pre.highlight").each(function(){
+    $("div.language-graphql pre.highlight").each(function () {
       var $pre = $(this);
       addLanguageIndicator($pre, "GraphQL", "language-graphql");
     });
 
-    $("div.language-shell pre.highlight").each(function(){
+    $("div.language-shell pre.highlight").each(function () {
       var $pre = $(this);
       addLanguageIndicator($pre, "Shell", "language-shell");
     });
 
-    $("div.language-sql pre.highlight").each(function(){
+    $("div.language-sql pre.highlight").each(function () {
       var $pre = $(this);
       addLanguageIndicator($pre, "SQL", "language-sql");
     });
 
-    $("div.language-json pre.highlight").each(function(){
+    $("div.language-json pre.highlight").each(function () {
       var $pre = $(this);
       addLanguageIndicator($pre, "JSON", "language-json");
     });
@@ -190,17 +238,25 @@
 
     // Use a closure to create a topic "click" handler
     var selectedTopic;
-    function makeClick($h1Parent, $topic) {
+    function makeClick($h1Parent, $topic, $h2, $subtopic) {
       return () => {
         if (selectedTopic) {
           selectedTopic.$h1Parent.hide();
           selectedTopic.$topic.removeClass("selected");
+          if (selectedTopic.$subtopic) {
+            selectedTopic.$subtopic.removeClass("selected");
+          }
         }
 
+        selectedTopic = { $h1Parent, $topic, $h2, $subtopic };
         $h1Parent.show();
-        $topic.addClass("selected");
-        selectedTopic = { $h1Parent, $topic };
-        $("html").animate({ scrollTop: 0 }, "fast");
+        if ($subtopic) {
+          $subtopic.addClass("selected");
+          $h2.get(0).scrollIntoView();
+        } else {
+          $topic.addClass("selected");
+          $("html").animate({ scrollTop: 0 }, "fast");
+        }
       };
     }
 
@@ -228,6 +284,8 @@
         text: topicText
       });
       $(".topic-links").append($topic);
+      var $subtopicUl = $("<ul class='subtopic'></ul>");
+      $(".topic-links").append($subtopicUl);
 
       // Make it clickable
       var click = makeClick($h1Parent, $topic);
@@ -258,6 +316,25 @@
           $topic.click();
         }
       }
+
+      // Add links for all the h2's
+      $h1Parent.children("h2").each(function () {
+        var $h2 = $(this);
+
+        var subtopic = $h2.text();
+        var subtopicId = subtopic.replace(/[^a-zA-Z]+/g, '');
+        var $subtopic = $(`<li>${subtopic}</li>`);
+        $subtopicUl.append($subtopic);
+
+        // Make it clickable
+        var h2Click = makeClick($h1Parent, $topic, $h2, $subtopic);
+        $subtopic.click(h2Click);
+
+        if (!selectedTopic && subtopicId == startWith) {
+          $subtopic.click();
+        }
+      });
+
     });
 
     $(".my-main-content").removeClass("hidden");
