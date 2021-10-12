@@ -1625,18 +1625,18 @@ Here are the Variables you send with the above query.
 # Sorting
 
 Sorting is not part of the `GraphQL` specification, but it is important if you are
-using the `GraphQL` data to populate UI tables and grids. `GraphqlToTsql` added support
+using `GraphQL` to populate UI tables and grids. `GraphqlToTsql` added support
 for sorting in version 1.1.
-
 
 ## Sort by One Field
 
-To sort by a single field, use an `orderBy` argument, with a value of `fieldName`: `ASC` or `DESC`.
+To sort by a single field, use an `orderBy` argument, with a value of `fieldName`: `ASC`/`DESC`, 
+e.g. `orderBy: {date: DESC}`.
 
 Here's an example of a query to retrieve the first page of
 a seller's order history, sorted descending by date. Notice that the `orderBy` argument
 works alongside the paging arguments. In fact, if you specify an `orderBy` but don't
-specify paging, `GraphqlToTsql` will sort by the primary key.
+specify paging arguments, the generated `T-SQL` will sort by the primary key.
 
 ```graphql
 query SellerDetails {
@@ -1690,9 +1690,9 @@ Here's the resulting JSON data.
 
 To sort by multiple fields, your `orderBy` expression needs to be an array, like
 `orderBy: [{field1: ASC}, {field2: DESC}]`. You might find that surprising -- it might seem
-more natural to use a single object with two properties, rather than an array of
-single-property objects. The reason is that it is easier to guarantee the order of
-the expressions through layers of serialization/deserialization by using an array.
+more natural to use a single object with two properties, rather than an array of 
+objects each with a single property. The reason is that the array will preserve its
+order better through serialization/deserialization.
 
 Here's a sample query that sorts by two fields.
 
@@ -1743,10 +1743,10 @@ Here's the resulting JSON data.
 ## Sorting Using a Variable
 
 If the sorted data is rendered in a table or grid, then most likely the user
-will be able to sort the data, and you will want to use a `GraphQL` variable
+will want to sort the data, and you will want to use a `GraphQL` variable
 to avoid hard-coding the sorting criteria.
 
-This example shows the use of a variable sorting. Notice that the variable type is `OrderBy`.
+This example shows the use of a variable in sorting. Notice that the `GraphQL` variable type is `OrderBy`.
 
 ```graphql
 query BestProduct ($order: OrderBy) {
@@ -1779,7 +1779,7 @@ Here's the resulting JSON data.
 }
 ```
 
-This example is interesting because the sorting is being done on a calculated value.
+The above example is interesting because the sorting is being done on a calculated value.
 Here's the T-SQL that was generated.
 
 ```sql
@@ -1809,5 +1809,7 @@ FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER;
 Unfortunately at this time `GraphqlToTsql` does not support
 * Using a Variable or Argument for `ASC`/`DESC`
 * Sorting by a field in a joined table. For example, when retrieving `orders { id date seller { name }}`, you are not able to sort by `seller.name`.
+
+We plan to support both of these scenarios in a future version.
 
 </div>
