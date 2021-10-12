@@ -1628,7 +1628,7 @@ Sorting is not part of the `GraphQL` specification, but it is important if you a
 using `GraphQL` to populate UI tables and grids. `GraphqlToTsql` added support
 for sorting in version 1.1.
 
-## Sort by One Field
+## Sort by a Single Field
 
 To sort by a single field, use an `orderBy` argument, with a value of `fieldName`: `ASC`/`DESC`, 
 e.g. `orderBy: {date: DESC}`.
