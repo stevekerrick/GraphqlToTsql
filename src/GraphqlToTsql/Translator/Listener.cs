@@ -1,5 +1,5 @@
 ﻿using Antlr4.Runtime.Tree;
-using GraphqlToTsql.CodeGen;
+using GraphqlToTsql.CodeGen.Gql;
 using GraphqlToTsql.Entities;
 using System;
 using System.Collections.Generic;

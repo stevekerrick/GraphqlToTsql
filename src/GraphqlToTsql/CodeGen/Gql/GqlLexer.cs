@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace GraphqlToTsql.CodeGen {
+namespace GraphqlToTsql.CodeGen.Gql {
 using System;
 using System.IO;
 using System.Text;
@@ -30,7 +30,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.8")]
 [System.CLSCompliant(false)]
-public partial class GraphQLLexer : Lexer {
+public partial class GqlLexer : Lexer {
 	protected static DFA[] decisionToDFA;
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
@@ -66,10 +66,10 @@ public partial class GraphQLLexer : Lexer {
 	};
 
 
-	public GraphQLLexer(ICharStream input)
+	public GqlLexer(ICharStream input)
 	: this(input, Console.Out, Console.Error) { }
 
-	public GraphQLLexer(ICharStream input, TextWriter output, TextWriter errorOutput)
+	public GqlLexer(ICharStream input, TextWriter output, TextWriter errorOutput)
 	: base(input, output, errorOutput)
 	{
 		Interpreter = new LexerATNSimulator(this, _ATN, decisionToDFA, sharedContextCache);
@@ -117,7 +117,7 @@ public partial class GraphQLLexer : Lexer {
 
 	public override string SerializedAtn { get { return new string(_serializedATN); } }
 
-	static GraphQLLexer() {
+	static GqlLexer() {
 		decisionToDFA = new DFA[_ATN.NumberOfDecisions];
 		for (int i = 0; i < _ATN.NumberOfDecisions; i++) {
 			decisionToDFA[i] = new DFA(_ATN.GetDecisionState(i), i);
@@ -702,4 +702,4 @@ public partial class GraphQLLexer : Lexer {
 
 
 }
-} // namespace GraphqlToTsql.CodeGen
+} // namespace GraphqlToTsql.CodeGen.Gql

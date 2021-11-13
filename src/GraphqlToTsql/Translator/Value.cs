@@ -1,4 +1,4 @@
-using GraphqlToTsql.CodeGen;
+using GraphqlToTsql.CodeGen.Gql;
 using System;
 using ValueType = GraphqlToTsql.Entities.ValueType;
 

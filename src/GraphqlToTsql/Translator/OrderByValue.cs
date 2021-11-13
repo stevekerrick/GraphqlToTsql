@@ -1,4 +1,4 @@
-﻿using GraphqlToTsql.CodeGen;
+﻿using GraphqlToTsql.CodeGen.Gql;
 using GraphqlToTsql.Entities;
 using Newtonsoft.Json.Linq;
 using System;

@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace GraphqlToTsql.CodeGen {
+namespace GraphqlToTsql.CodeGen.Gql {
 using System;
 using System.IO;
 using System.Text;
@@ -5291,4 +5291,4 @@ public partial class GqlParser : Parser {
 
 
 }
-} // namespace GraphqlToTsql.CodeGen
+} // namespace GraphqlToTsql.CodeGen.Gql
