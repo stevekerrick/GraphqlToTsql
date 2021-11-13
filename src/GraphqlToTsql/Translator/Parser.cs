@@ -15,12 +15,12 @@ namespace GraphqlToTsql.Translator
 
     internal class Parser : IParser
     {
-        private readonly IListener _listener;
+        private readonly IGqlListener _gqlListener;
 
         public Parser(
-            IListener listener)
+            IGqlListener gqlListener)
         {
-            _listener = listener;
+            _gqlListener = gqlListener;
         }
 
         public ParseResult ParseGraphql(
@@ -51,9 +51,9 @@ namespace GraphqlToTsql.Translator
                 try
                 {
                     // Perform the parse/translation
-                    _listener.Initialize(graphqlParameters, entityList);
+                    _gqlListener.Initialize(graphqlParameters, entityList);
                     var parser = new GqlParser(tokenStream, outputStringWriter, errorStringWriter);
-                    parser.AddParseListener(_listener);
+                    parser.AddParseListener(_gqlListener);
                     parser.document();
 
                     // Exit if the parse was unsuccessful
@@ -75,7 +75,7 @@ namespace GraphqlToTsql.Translator
                     }
 
                     // Parse was successful
-                    var parseResult = _listener.GetResult();
+                    var parseResult = _gqlListener.GetResult();
                     return parseResult;
                 }
                 catch (InvalidRequestException e)

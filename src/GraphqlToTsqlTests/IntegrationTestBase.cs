@@ -23,7 +23,7 @@ namespace GraphqlToTsqlTests
 
             serviceCollection
                 .AddSingleton((IConfiguration)configuration)
-                .AddTransient<IListener, Listener>()
+                .AddTransient<IGqlListener, GqlListener>()
                 .AddTransient<IParser, Parser>()
                 .AddTransient<IQueryTreeBuilder, QueryTreeBuilder>()
                 .AddTransient<IGraphqlActions, GraphqlActions>()

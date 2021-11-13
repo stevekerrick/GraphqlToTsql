@@ -7,18 +7,18 @@ using ValueType = GraphqlToTsql.Entities.ValueType;
 
 namespace GraphqlToTsql.Translator
 {
-    internal interface IListener : IParseTreeListener
+    internal interface IGqlListener : IParseTreeListener
     {
         void Initialize(Dictionary<string, object> graphqlParameters, List<EntityBase> entityList);
         ParseResult GetResult();
     }
 
-    internal class Listener : GqlBaseListener, IListener
+    internal class GqlListener : GqlBaseListener, IGqlListener
     {
         private readonly IQueryTreeBuilder _qt;
         private string _fragmentName;
 
-        public Listener(IQueryTreeBuilder queryTreeBuilder)
+        public GqlListener(IQueryTreeBuilder queryTreeBuilder)
         {
             _qt = queryTreeBuilder;
         }

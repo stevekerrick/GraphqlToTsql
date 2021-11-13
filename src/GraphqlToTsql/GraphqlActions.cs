@@ -179,8 +179,8 @@ namespace GraphqlToTsql
         {
             var jsonValueConverter = new JsonValueConverter();
             var queryTreeBuilder = new QueryTreeBuilder(jsonValueConverter);
-            var listener = new Listener(queryTreeBuilder);
-            var parser = new Parser(listener);
+            var gqlListener = new GqlListener(queryTreeBuilder);
+            var parser = new Parser(gqlListener);
             return parser;
         }
 
