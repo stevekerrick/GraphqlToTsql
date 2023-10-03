@@ -79,7 +79,7 @@
 
 @section Scripts {
 <script src="https://unpkg.com/popper.js"></script>
-<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <script src="https://unpkg.com/v-tooltip@2.0.2"></script>
 
 <script>
@@ -333,20 +333,23 @@ expression used twice -- once for the ORDER BY clause, and once for the return v
         return (str || "").replace(/\s+/g, " ");
     }
 
-    var app = new Vue({
-        el: "#app",
-        data: {
-            prebuiltQueries: prebuiltQueries,
-            selectedPrebuiltQuery: null,
-            graphql: "",
-            graphqlParameters: "",
-            notes: "",
-            waiting: false,
-            results: [],
-            result: null,
-            inputTab: 0,
-            resultTabs: ["Data", "Stats", "TSQL", "Tsql Params", "GraphQL", "Params", "Error"],
-            resultTab: 0
+      const { createApp } = Vue
+
+      createApp({
+        data() {
+            return {
+                prebuiltQueries: prebuiltQueries,
+                selectedPrebuiltQuery: null,
+                graphql: "",
+                graphqlParameters: "",
+                notes: "",
+                waiting: false,
+                results: [],
+                result: null,
+                inputTab: 0,
+                resultTabs: ["Data", "Stats", "TSQL", "Tsql Params", "GraphQL", "Params", "Error"],
+                resultTab: 0
+            }
         },
         methods: {
             run: function () {
@@ -445,7 +448,7 @@ expression used twice -- once for the ORDER BY clause, and once for the return v
         mounted: function () {
             this.selectPrebuiltQuery(this.prebuiltQueries[1]);
         }
-    });
+      }).mount('#app');
 
 </script>
 }
